@@ -1,0 +1,18 @@
+# Go
+*.exe
+*.test
+*.out
+
+# IDE
+.vscode/
+.idea/
+
+# build
+bin/
+dist/
+
+# logs
+*.log
+
+# env
+.env
