@@ -1,0 +1,26 @@
+Name: learning-api
+Host: 0.0.0.0
+Port: 8888
+
+RabbitMQ:
+  Host: 127.0.0.1
+  Port: 5672
+  User: guest
+  Pass: guest
+  # 支付队列
+  PayQueue: learning.lesson.pay.queue
+  PayExchange: order.exchange
+  PayRoutingKey: order.pay
+  # 退款队列
+  RefundQueue: learning.lesson.refund.queue
+  RefundExchange: order.exchange
+  RefundRoutingKey: order.refund
+
+DB:
+  DataSource: "user:password@tcp(master:3306)/database"
+  DriverName: mysql        # 默认值，可不写
+  # Policy: "round-robin"   # 负载均衡策略：round-robin 或 random，默认 round-robin
+  # Replicas:
+  #   - "user:password@tcp(replica1:3306)/database"
+  #   - "user:password@tcp(replica2:3306)/database"
+  #   - "user:password@tcp(replica3:3306)/database"
