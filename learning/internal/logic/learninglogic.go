@@ -26,8 +26,4 @@ func NewLearningLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Learning
 	}
 }
 
-func (l *LearningLogic) Learning(req *types.Request) (resp *types.Response, err error) {
-	// todo: add your logic here and delete this line
-
-	return
-}
+func (l *LearningLogic) Learning() (*types.Result, error) { return success(nil), nil }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 
 	"learning/internal/model"
 
@@ -12,6 +13,10 @@ import (
 type LessonService interface {
 	AddUserLessons(ctx context.Context, userID int64, courseIDs []int64) error
 	DeleteCourseFromLesson(ctx context.Context, userID int64, courseID int64) error
+	GetLesson(ctx context.Context, userID, courseID int64) (*model.LearningLesson, error)
+	ListLessons(ctx context.Context, userID, pageNo, pageSize int64) ([]model.LearningLesson, int64, error)
+	CreatePlan(ctx context.Context, userID, courseID, frequency int64) error
+	CountLessons(ctx context.Context, courseID int64) (int64, error)
 }
 
 // lessonService 课程服务实现
@@ -49,8 +54,21 @@ func (s *lessonService) DeleteCourseFromLesson(ctx context.Context, userID int64
 		return nil
 	}
 
-	// 简化版：标记状态为失效；实际项目中可扩展为更复杂的退款回收逻辑
-	logx.Infof("delete course from lesson, user_id=%d, course_id=%d", userID, courseID)
-	// TODO: 实现具体的删除逻辑
-	return nil
+	return s.lessonModel.RevokeCourses(ctx, userID, []int64{courseID})
+}
+
+func (s *lessonService) GetLesson(ctx context.Context, userID, courseID int64) (*model.LearningLesson, error) {
+	return s.lessonModel.FindByUserCourse(ctx, userID, courseID)
+}
+func (s *lessonService) ListLessons(ctx context.Context, userID, pageNo, pageSize int64) ([]model.LearningLesson, int64, error) {
+	return s.lessonModel.ListByUser(ctx, userID, pageNo, pageSize)
+}
+func (s *lessonService) CreatePlan(ctx context.Context, userID, courseID, frequency int64) error {
+	if frequency <= 0 {
+		return sql.ErrNoRows
+	}
+	return s.lessonModel.UpdatePlan(ctx, userID, courseID, frequency)
+}
+func (s *lessonService) CountLessons(ctx context.Context, courseID int64) (int64, error) {
+	return s.lessonModel.CountByCourse(ctx, courseID)
 }

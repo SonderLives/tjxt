@@ -3,10 +3,41 @@
 
 package types
 
-type Request struct {
-	Name string `path:"name,options=you|me"`
+type Lesson struct {
+	Id              int64  `json:"id"`
+	CourseId        int64  `json:"courseId"`
+	Status          int64  `json:"status"`
+	WeekFreq        int64  `json:"weekFreq"`
+	PlanStatus      int64  `json:"planStatus"`
+	LearnedSections int64  `json:"learnedSections"`
+	CreateTime      string `json:"createTime"`
+	ExpireTime      string `json:"expireTime,optional"`
 }
 
-type Response struct {
-	Message string `json:"message"`
+type LessonPage struct {
+	List  []Lesson `json:"list"`
+	Total int64    `json:"total"`
+	Pages int64    `json:"pages"`
+}
+
+type LessonRequest struct {
+	CourseId int64 `path:"courseId"`
+}
+
+type PageRequest struct {
+	PageNo   int64 `form:"pageNo,optional"`
+	PageSize int64 `form:"pageSize,optional"`
+	IsAsc    bool  `form:"isAsc,optional"`
+}
+
+type PlanRequest struct {
+	CourseId int64 `json:"courseId"`
+	Freq     int64 `json:"freq"`
+}
+
+type Result struct {
+	Code      int64  `json:"code"`
+	Msg       string `json:"msg"`
+	RequestId string `json:"requestId"`
+	Data      any    `json:"data"`
 }

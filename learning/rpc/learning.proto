@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package learning;
+
+option go_package = "./pb";
+
+service Learning {
+  rpc GetLesson(LessonRequest) returns (LessonReply);
+  rpc ListLessons(ListLessonsRequest) returns (ListLessonsReply);
+  rpc CreatePlan(CreatePlanRequest) returns (EmptyReply);
+  rpc RemoveLesson(LessonRequest) returns (EmptyReply);
+  rpc CountLessons(CourseRequest) returns (CountReply);
+  rpc ValidateLesson(LessonRequest) returns (ValidateReply);
+  rpc GrantCourses(GrantCoursesRequest) returns (EmptyReply);
+  rpc RevokeCourses(GrantCoursesRequest) returns (EmptyReply);
+}
+
+message EmptyReply {}
+
+message LessonRequest { int64 user_id = 1; int64 course_id = 2; }
+message CourseRequest { int64 course_id = 1; }
+message ListLessonsRequest { int64 user_id = 1; int64 page_no = 2; int64 page_size = 3; bool is_asc = 4; }
+message CreatePlanRequest { int64 user_id = 1; int64 course_id = 2; int32 freq = 3; }
+message GrantCoursesRequest { int64 user_id = 1; repeated int64 course_ids = 2; }
+message CountReply { int64 count = 1; }
+message ValidateReply { int64 lesson_id = 1; }
+message LessonReply {
+  int64 id = 1;
+  int64 course_id = 2;
+  int32 status = 3;
+  int32 week_freq = 4;
+  int32 plan_status = 5;
+  int32 learned_sections = 6;
+  int64 latest_section_id = 7;
+  int64 create_time = 8;
+  int64 expire_time = 9;
+}
+message ListLessonsReply { repeated LessonReply list = 1; int64 total = 2; int64 pages = 3; }

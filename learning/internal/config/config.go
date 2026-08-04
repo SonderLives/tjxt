@@ -7,12 +7,25 @@ import (
 	"fmt"
 
 	"github.com/zeromicro/go-zero/rest"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type Config struct {
 	rest.RestConf
 	RabbitMQConf
 	DBConf
+	RedisConf
+	Auth struct {
+		AccessSecret string
+		AccessExpire int64
+	}
+	LearningRpc zrpc.RpcClientConf
+}
+
+type RedisConf struct {
+	Host string
+	Type string
+	Pass string
 }
 
 type DBConf struct {

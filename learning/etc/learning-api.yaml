@@ -5,8 +5,8 @@ Port: 8888
 RabbitMQ:
   Host: 127.0.0.1
   Port: 5672
-  User: guest
-  Pass: guest
+  User: rabbitmq
+  Pass: rabbitmq
   # 支付队列
   PayQueue: learning.lesson.pay.queue
   PayExchange: order.exchange
@@ -17,10 +17,20 @@ RabbitMQ:
   RefundRoutingKey: order.refund
 
 DB:
-  DataSource: "user:password@tcp(master:3306)/database"
-  DriverName: mysql        # 默认值，可不写
-  # Policy: "round-robin"   # 负载均衡策略：round-robin 或 random，默认 round-robin
-  # Replicas:
-  #   - "user:password@tcp(replica1:3306)/database"
-  #   - "user:password@tcp(replica2:3306)/database"
-  #   - "user:password@tcp(replica3:3306)/database"
+  DataSource: "root:0000@tcp(127.0.0.1:3306)/tj_learning?charset=utf8mb4&parseTime=true&loc=Local"
+  DriverName: mysql
+
+Redis:
+  Host: 127.0.0.1:6379
+  Type: node
+  Pass: ""
+
+Auth:
+  AccessSecret: "change-me-in-production"
+  AccessExpire: 7200
+
+LearningRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: learning.rpc

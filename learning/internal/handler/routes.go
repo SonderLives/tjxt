@@ -16,9 +16,45 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
-				Path:    "/from/:name",
-				Handler: LearningHandler(serverCtx),
+				Path:    "/lessons/:courseId",
+				Handler: GetLessonHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/lessons/:courseId",
+				Handler: DeleteLessonHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/lessons/:courseId/count",
+				Handler: CountLessonsHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/lessons/:courseId/valid",
+				Handler: ValidateLessonHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/lessons/now",
+				Handler: CurrentLessonHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/lessons/page",
+				Handler: PageLessonsHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/lessons/plans",
+				Handler: PagePlansHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/lessons/plans",
+				Handler: CreatePlanHandler(serverCtx),
 			},
 		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 	)
 }

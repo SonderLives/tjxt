@@ -12,13 +12,13 @@ import (
 )
 
 type ServiceContext struct {
-	Config       config.Config
-	LessonModel  *model.LearningLessonModel
+	Config        config.Config
+	LessonModel   *model.LearningLessonModel
 	LessonService service.LessonService
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	conn := sqlx.NewMysql(c.DBConf.DSN)
+	conn := sqlx.NewMysql(c.DBConf.DataSource)
 	lessonModel := model.NewLearningLessonModel(conn)
 	return &ServiceContext{
 		Config:        c,
