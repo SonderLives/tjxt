@@ -1,0 +1,21 @@
+// Code scaffolded by goctl. Safe to edit.
+// goctl 1.10.1
+
+package config
+
+import (
+	"github.com/zeromicro/go-zero/rest"
+	"github.com/zeromicro/go-zero/zrpc"
+)
+
+type Config struct {
+	rest.RestConf
+
+	Auth struct {
+		AccessSecret string
+		AccessExpire int64
+	}
+
+	// PayRpc 支付 RPC 客户端配置（通过 etcd 服务发现）
+	PayRpc zrpc.RpcClientConf
+}

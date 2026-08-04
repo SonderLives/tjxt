@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+package pay;
+
+option go_package = "./pb";
+
+service Pay {
+  // ===== 支付渠道 =====
+  rpc ListPayChannels(ListPayChannelsRequest) returns (ListPayChannelsResponse);
+  rpc AddPayChannel(PayChannelRequest) returns (PayChannelIdResponse);
+  rpc UpdatePayChannel(PayChannelRequest) returns (EmptyResponse);
+  rpc UpdatePayChannelStatus(UpdatePayChannelStatusRequest) returns (EmptyResponse);
+  rpc QueryPayChannelByCode(QueryPayChannelByCodeRequest) returns (PayChannelResponse);
+  rpc PageQueryPayChannels(PageQueryPayChannelsRequest) returns (PageQueryPayChannelsResponse);
+
+  // ===== 支付订单 =====
+  rpc ApplyPayOrder(ApplyPayOrderRequest) returns (ApplyPayOrderResponse);
+  rpc QueryPayResult(QueryPayResultRequest) returns (PayResultResponse);
+  rpc NotifyPaySuccess(NotifyPaySuccessRequest) returns (EmptyResponse);
+  rpc NotifyPayFailed(NotifyPayFailedRequest) returns (EmptyResponse);
+  rpc ClosePayOrder(ClosePayOrderRequest) returns (EmptyResponse);
+  rpc QueryPayOrderByBizOrderNo(QueryPayOrderRequest) returns (PayOrderResponse);
+
+  // ===== 退款订单 =====
+  rpc ApplyRefund(ApplyRefundRequest) returns (RefundResultResponse);
+  rpc QueryRefundResult(QueryRefundResultRequest) returns (RefundResultResponse);
+  rpc NotifyRefundSuccess(NotifyRefundSuccessRequest) returns (EmptyResponse);
+  rpc NotifyRefundFailed(NotifyRefundFailedRequest) returns (EmptyResponse);
+  rpc QueryRefundByBizRefundNo(QueryRefundRequest) returns (RefundOrderResponse);
+}
+
+// ===== 通用 =====
+message EmptyResponse {}
+
+// ===== Pay Channel =====
+message ListPayChannelsRequest {}
+message PayChannelRequest {
+  int64 id = 1;
+  string name = 2;
+  string channel_code = 3;
+  int32 channel_priority = 4;
+  string channel_icon = 5;
+}
+message PayChannelIdResponse { int64 id = 1; }
+message UpdatePayChannelStatusRequest {
+  int64 id = 1;
+  int32 status = 2; // 1 enabled, 2 disabled
+}
+message PayChannelResponse {
+  int64 id = 1;
+  string name = 2;
+  string channel_code = 3;
+  int32 channel_priority = 4;
+  string channel_icon = 5;
+  int32 status = 6;
+}
+message ListPayChannelsResponse { repeated PayChannelResponse list = 1; }
+message PageQueryPayChannelsRequest {
+  int64 page_no = 1;
+  int64 page_size = 2;
+  string name = 3;
+  string channel_code = 4;
+  int32 status = 5;
+}
+message PageQueryPayChannelsResponse {
+  int64 total = 1;
+  int64 pages = 2;
+  repeated PayChannelResponse list = 3;
+}
+message QueryPayChannelByCodeRequest { string channel_code = 1; }
+
+// ===== Pay Order =====
+message ApplyPayOrderRequest {
+  int64 biz_user_id = 1;
+  int64 biz_order_no = 2;
+  int64 amount = 3;
+  string pay_channel_code = 4;
+  int32 pay_type = 5;      // 1 h5, 2 mini, 3 mp, 4 native (扫码)
+  string notify_url = 6;
+  string expand_json = 7;
+  int64 pay_over_seconds = 8;
+}
+message ApplyPayOrderResponse { string qr_code_url = 1; }
+
+message QueryPayResultRequest { int64 biz_order_no = 1; }
+message PayResultResponse {
+  int64 pay_order_no = 1;
+  int64 biz_order_no = 2;
+  int32 status = 3; // 0 待提交, 1 待支付, 2 已取消/超时, 3 支付成功
+}
+
+message NotifyPaySuccessRequest {
+  int64 pay_order_no = 1;
+  string result_code = 2;
+  string result_msg = 3;
+  string qr_code_url = 4;
+}
+message NotifyPayFailedRequest {
+  int64 pay_order_no = 1;
+  string result_code = 2;
+  string result_msg = 3;
+}
+message ClosePayOrderRequest { int64 pay_order_no = 1; }
+
+message QueryPayOrderRequest { int64 biz_order_no = 1; }
+message PayOrderResponse {
+  int64 id = 1;
+  int64 biz_order_no = 2;
+  int64 pay_order_no = 3;
+  int64 biz_user_id = 4;
+  string pay_channel_code = 5;
+  int64 amount = 6;
+  int32 pay_type = 7;
+  int32 status = 8;
+  string expand_json = 9;
+  string notify_url = 10;
+  int32 notify_times = 11;
+  int32 notify_status = 12;
+  string result_code = 13;
+  string result_msg = 14;
+  string pay_success_time = 15;
+  string pay_over_time = 16;
+  string qr_code_url = 17;
+  string create_time = 18;
+  string update_time = 19;
+}
+
+// ===== Refund Order =====
+message ApplyRefundRequest {
+  int64 biz_order_no = 1;
+  int64 biz_refund_order_no = 2;
+  int64 refund_amount = 3;
+}
+message QueryRefundResultRequest { int64 biz_refund_order_no = 1; }
+message RefundResultResponse {
+  int64 refund_order_no = 1;
+  int64 biz_refund_order_no = 2;
+  int64 refund_amount = 3;
+  int32 status = 4; // 0 未提交, 1 退款中, 2 退款失败, 3 退款成功
+  string result_msg = 5;
+}
+message NotifyRefundSuccessRequest {
+  int64 refund_order_no = 1;
+  string result_code = 2;
+  string result_msg = 3;
+  string refund_channel = 4;
+}
+message NotifyRefundFailedRequest {
+  int64 refund_order_no = 1;
+  string result_code = 2;
+  string result_msg = 3;
+}
+message QueryRefundRequest { int64 biz_refund_order_no = 1; }
+message RefundOrderResponse {
+  int64 id = 1;
+  int64 biz_order_no = 2;
+  int64 biz_refund_order_no = 3;
+  int64 pay_order_no = 4;
+  int64 refund_order_no = 5;
+  int64 refund_amount = 6;
+  int64 total_amount = 7;
+  bool is_split = 8;
+  string pay_channel_code = 9;
+  string result_code = 10;
+  string result_msg = 11;
+  int32 status = 12;
+  string refund_channel = 13;
+  int32 notify_failed_times = 14;
+  int32 notify_status = 15;
+  string create_time = 16;
+  string update_time = 17;
+}

@@ -1,0 +1,14 @@
+Name: learning.rpc
+ListenOn: 0.0.0.0:8082
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: learning.rpc
+
+DB:
+  DataSource: "root:0000@tcp(127.0.0.1:3306)/tj_learning?charset=utf8mb4&parseTime=true&loc=Local"
+
+Cache:
+  - Host: 127.0.0.1:6379
+    Type: node
+    Pass: ""

@@ -1,0 +1,178 @@
+syntax = "v1"
+
+// 统一响应（对应 tjxt/pkg/response R 结构）
+type Result {
+	Code      int64  `json:"code"`
+	Msg       string `json:"msg"`
+	RequestId string `json:"requestId,omitempty"`
+	Data      string `json:"data,omitempty"`
+}
+
+// 统一分页请求
+type PageRequest {
+	PageNo   int64 `form:"pageNo,omitempty"`
+	PageSize int64 `form:"pageSize,omitempty"`
+}
+
+// ============ 支付渠道 ============
+type PayChannelAddReq {
+	Name            string `json:"name"`
+	ChannelCode     string `json:"channelCode"`
+	ChannelPriority int64  `json:"channelPriority"`
+	ChannelIcon     string `json:"channelIcon,omitempty"`
+}
+
+type PayChannelUpdateReq {
+	Id              int64  `json:"id"`
+	Name            string `json:"name,omitempty"`
+	ChannelPriority int64  `json:"channelPriority,omitempty"`
+	ChannelIcon     string `json:"channelIcon,omitempty"`
+}
+
+type PayChannelStatusReq {
+	Id     int64 `json:"id"`
+	Status int64 `json:"status"` // 1 启用 2 停用
+}
+
+type PayChannelPageReq {
+	PageRequest
+	Name        string `form:"name,omitempty"`
+	ChannelCode string `form:"channelCode,omitempty"`
+	Status      int64  `form:"status,omitempty"`
+}
+
+type PayChannelCodeReq {
+	ChannelCode string `path:"code"`
+}
+
+// ============ 支付单 ============
+type ApplyPayOrderReq {
+	BizOrderNo     int64  `json:"bizOrderNo"`
+	Amount         int64  `json:"amount"` // 单位：分
+	PayChannelCode string `json:"payChannelCode"`
+	PayType        int64  `json:"payType,omitempty"` // 1 h5, 2 mini, 3 mp, 4 native
+	ExpandJson     string `json:"expandJson,omitempty"`
+	NotifyUrl      string `json:"notifyUrl,omitempty"`
+	PayOverSeconds int64  `json:"payOverSeconds,omitempty"` // 默认 30 分钟
+}
+
+type QueryPayResultReq {
+	BizOrderNo int64 `form:"bizOrderNo"`
+}
+
+type PayOrderNoReq {
+	PayOrderNo int64 `path:"payOrderNo"`
+}
+
+// ============ 退款 ============
+type ApplyRefundReq {
+	BizOrderNo       int64 `json:"bizOrderNo"`
+	BizRefundOrderNo int64 `json:"bizRefundOrderNo"` // 业务侧退款单号（子订单号）
+	RefundAmount     int64 `json:"refundAmount"`
+}
+
+type QueryRefundResultReq {
+	BizRefundOrderNo int64 `form:"bizRefundOrderNo"`
+}
+
+// ============ 回调（不开放给业务用户，供内部模拟） ============
+type NotifyPaySuccessReq {
+	PayOrderNo int64  `json:"payOrderNo"`
+	ResultCode string `json:"resultCode,omitempty"`
+	ResultMsg  string `json:"resultMsg,omitempty"`
+	QrCodeUrl  string `json:"qrCodeUrl,omitempty"`
+}
+
+type NotifyPayFailedReq {
+	PayOrderNo int64  `json:"payOrderNo"`
+	ResultCode string `json:"resultCode,omitempty"`
+	ResultMsg  string `json:"resultMsg,omitempty"`
+}
+
+type NotifyRefundSuccessReq {
+	RefundOrderNo int64  `json:"refundOrderNo"`
+	ResultCode    string `json:"resultCode,omitempty"`
+	ResultMsg     string `json:"resultMsg,omitempty"`
+	RefundChannel string `json:"refundChannel,omitempty"`
+}
+
+type NotifyRefundFailedReq {
+	RefundOrderNo int64  `json:"refundOrderNo"`
+	ResultCode    string `json:"resultCode,omitempty"`
+	ResultMsg     string `json:"resultMsg,omitempty"`
+}
+
+// ============ 业务侧（需登录） ============
+@server (
+	jwt: Auth
+)
+service pay-api {
+	// 支付渠道：列出可用渠道
+	@handler ListPayChannelsHandler
+	get /pay/channels returns (Result)
+
+	// 支付单：创建并返回二维码
+	@handler ApplyPayOrderHandler
+	post /pay/orders (ApplyPayOrderReq) returns (Result)
+
+	// 查询支付结果（前端轮询）
+	@handler QueryPayResultHandler
+	get /pay/orders/result (QueryPayResultReq) returns (Result)
+
+	// 业务端主动关单
+	@handler ClosePayOrderHandler
+	put /pay/orders/:payOrderNo/close (PayOrderNoReq) returns (Result)
+
+	// 按业务订单号查支付单详情
+	@handler QueryPayOrderHandler
+	get /pay/orders (QueryPayResultReq) returns (Result)
+
+	// 退款申请
+	@handler ApplyRefundHandler
+	post /pay/refunds (ApplyRefundReq) returns (Result)
+
+	// 退款结果查询
+	@handler QueryRefundResultHandler
+	get /pay/refunds/result (QueryRefundResultReq) returns (Result)
+}
+
+// ============ 后台管理（jwt + 后续可加权限） ============
+@server (
+	jwt:    Auth
+	prefix: /pay-admin
+)
+service pay-api {
+	@handler AddPayChannelHandler
+	post /channels (PayChannelAddReq) returns (Result)
+
+	@handler UpdatePayChannelHandler
+	put /channels (PayChannelUpdateReq) returns (Result)
+
+	@handler UpdatePayChannelStatusHandler
+	put /channels/status (PayChannelStatusReq) returns (Result)
+
+	@handler PagePayChannelsHandler
+	get /channels/page (PayChannelPageReq) returns (Result)
+
+	@handler GetPayChannelByCodeHandler
+	get /channels/code/:code (PayChannelCodeReq) returns (Result)
+}
+
+// ============ 内部/回调（暂不鉴权，生产应加白名单 + 签名） ============
+@server (
+	prefix: /pay-notify
+)
+service pay-api {
+	@handler NotifyPaySuccessHandler
+	post /pay-success (NotifyPaySuccessReq) returns (Result)
+
+	@handler NotifyPayFailedHandler
+	post /pay-failed (NotifyPayFailedReq) returns (Result)
+
+	@handler NotifyRefundSuccessHandler
+	post /refund-success (NotifyRefundSuccessReq) returns (Result)
+
+	@handler NotifyRefundFailedHandler
+	post /refund-failed (NotifyRefundFailedReq) returns (Result)
+}
+

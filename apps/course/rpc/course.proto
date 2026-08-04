@@ -1,0 +1,476 @@
+syntax = "proto3";
+
+package course;
+
+option go_package = "./pb";
+
+// ============================================================
+// Course RPC：覆盖 category / course / catalogue / teacher / subject
+// 五大领域共用的微服务边界，对外只暴露原型化的能力。
+// ============================================================
+
+service Course {
+  // ===== 分类管理 =====
+  rpc CategoryAdd(CategoryAddRequest) returns (Empty);
+  rpc CategoryUpdate(CategoryUpdateRequest) returns (Empty);
+  rpc CategoryDelete(IdRequest) returns (Empty);
+  rpc CategoryDisableOrEnable(CategoryStatusRequest) returns (Empty);
+  rpc CategoryGet(IdRequest) returns (CategoryInfo);
+  rpc CategoryListAll(CategoryListAllRequest) returns (CategoryNodeList);
+  rpc CategoryListOneLevel(Empty) returns (CategoryList);
+  rpc CategoryListQuery(CategoryListQueryRequest) returns (CategoryList);
+
+  // ===== 课程基础信息 =====
+  rpc CourseBaseInfoGet(IdRequest) returns (CourseBaseInfoView);
+  rpc CourseBaseInfoSave(CourseBaseInfoSaveRequest) returns (IdResponse);
+  rpc CourseCheckName(CourseCheckNameRequest) returns (NameExistReply);
+  rpc CourseDelete(IdRequest) returns (Empty);
+  rpc CoursePageQuery(CoursePageQueryRequest) returns (CoursePageQueryReply);
+  rpc CoursePortalQuery(CoursePortalQueryRequest) returns (CoursePageQueryReply);
+  rpc CourseSimpleInfoList(CourseSimpleInfoQueryRequest) returns (CourseSimpleInfoListReply);
+  rpc CourseFullInfoGet(CourseFullInfoGetRequest) returns (CourseFullInfo);
+  rpc CourseSearchInfoForIndex(IdRequest) returns (CourseSearchIndexInfo);
+  rpc CourseName2Ids(CourseNameRequest) returns (CourseIdList);
+  rpc CourseInfoByTeacherIds(TeacherIdsRequest) returns (TeacherCourseCountList);
+  rpc CourseSectionGet(IdRequest) returns (CourseSectionInfo);
+  rpc CourseMediaUseInfo(MediaIdsRequest) returns (MediaQuoteList);
+  rpc CourseGenerator(Empty) returns (IdResponse);
+
+  // ===== 课程目录 (catalogue) =====
+  rpc CourseCatalogsGet(IdRequest) returns (CourseAndSectionView);
+  rpc CourseCatalogueTreeGet(CourseCatalogueQueryRequest) returns (CatalogueTreeList);
+  rpc CourseCatalogueSave(CourseCatalogueSaveRequest) returns (Empty);
+  rpc CourseCatalogueIndexList(IdRequest) returns (CataSimpleList);
+  rpc CourseCatalogueSectionInfo(IdRequest) returns (CourseSectionInfo);
+  rpc CourseCatalogueBatchQuery(IdsRequest) returns (CataSimpleList);
+
+  // ===== 章节/小节的题目 =====
+  rpc CourseSubjectsGet(IdRequest) returns (CataSubjectInfoList);
+  rpc CourseSubjectsSave(CourseSubjectsSaveRequest) returns (Empty);
+
+  // ===== 课程媒体 =====
+  rpc CourseMediaSave(CourseMediaSaveRequest) returns (Empty);
+
+  // ===== 课程老师 =====
+  rpc CourseTeachersGet(CourseTeachersGetRequest) returns (TeacherInfoList);
+  rpc CourseTeachersSave(CourseTeachersSaveRequest) returns (Empty);
+
+  // ===== 上下架 =====
+  rpc CourseUpShelf(IdRequest) returns (Empty);
+  rpc CourseDownShelf(IdRequest) returns (Empty);
+  rpc CourseCheckUpShelf(IdRequest) returns (Empty);
+  rpc CourseUp(IdsRequest) returns (Empty);
+  rpc CourseDown(IdsRequest) returns (Empty);
+}
+
+// ============== 通用 ==============
+message Empty {}
+
+message IdRequest {
+  int64 id = 1;
+}
+
+message IdResponse {
+  int64 id = 1;
+}
+
+message IdsRequest {
+  repeated int64 ids = 1;
+}
+
+message NameExistReply {
+  bool existed = 1;
+}
+
+// ============== 分类 ==============
+
+message CategoryAddRequest {
+  string name = 1;
+  int64  parent_id = 2;
+  int32  index = 3;     // 同级排序
+}
+
+message CategoryUpdateRequest {
+  int64  id = 1;
+  string name = 2;
+  int32  index = 3;
+}
+
+message CategoryStatusRequest {
+  int64 id = 1;
+  int32 status = 2; // 1 启用 2 停用
+}
+
+message CategoryInfo {
+  int64  id = 1;
+  string name = 2;
+  int64  parent_id = 3;
+  int32  level = 4;
+  int32  priority = 5;
+  int32  status = 6;
+  string status_desc = 7;
+  int64  course_num = 8;
+  int64  third_category_num = 9;
+  string create_time = 10;
+  string update_time = 11;
+  string first_category_name = 12;
+  string second_category_name = 13;
+}
+
+message CategoryNode {
+  int64  id = 1;
+  string name = 2;
+  int64  parent_id = 3;
+  int32  level = 4;
+  int32  index = 5;
+  int32  status = 6;
+  repeated CategoryNode children = 7;
+}
+
+message CategoryListAllRequest {
+  bool   admin = 1;
+  string name = 2;
+}
+
+message CategoryListQueryRequest {
+  string name = 1;
+  int32  status = 2;
+}
+
+message CategoryNodeList { repeated CategoryNode items = 1; }
+message CategoryList     { repeated CategoryInfo items = 1; }
+
+// ============== 课程基础 ==============
+
+message CourseBaseInfoSaveRequest {
+  int64  id = 1;
+  string name = 2;
+  string cover_url = 3;
+  int64  price = 4;
+  int32  free = 5;
+  int64  third_cate_id = 6;
+  string introduce = 7;
+  string detail = 8;
+  string use_people = 9;
+  int64  valid_duration = 10;
+  string purchase_start_time = 11;
+  string purchase_end_time = 12;
+}
+
+message CourseBaseInfoView {
+  int64  id = 1;
+  string name = 2;
+  int64  price = 3;
+  int32  free = 4;
+  string cover_url = 5;
+  string detail = 6;
+  string introduce = 7;
+  string use_people = 8;
+  int64  valid_duration = 9;
+  string purchase_start_time = 10;
+  string purchase_end_time = 11;
+  int64  first_cate_id = 12;
+  int64  second_cate_id = 13;
+  int64  third_cate_id = 14;
+  int32  status = 15;
+  int32  step = 16;
+  int64  score = 17;
+  int64  cata_total_num = 18;
+  int64  enroll_num = 19;
+  int64  study_num = 20;
+  int64  real_pay_amount = 21;
+  int64  refund_num = 22;
+  string creater_name = 23;
+  string updater_name = 24;
+  string cate_names = 25;
+  bool   can_update = 26;
+  string create_time = 27;
+  string update_time = 28;
+  string course_score = 29;
+}
+
+message CourseCheckNameRequest {
+  string name = 1;
+  int64  id = 2; // 编辑模式下要排除自己
+}
+
+message CoursePageQueryRequest {
+  int64  page_no = 1;
+  int64  page_size = 2;
+  bool   is_asc = 3;
+  string sort_by = 4;
+  string keyword = 5;
+  int32  status = 6;
+  int32  free = 7;
+  int32  course_type = 8;
+  int64  first_cate_id = 9;
+  int64  second_cate_id = 10;
+  int64  third_cate_id = 11;
+  string begin_time = 12;
+  string end_time = 13;
+}
+
+message CoursePortalQueryRequest {
+  int64  page_no = 1;
+  int64  page_size = 2;
+  bool   is_asc = 3;
+  string sort_by = 4;
+  int64  category_id_lv1 = 5;
+  int64  category_id_lv2 = 6;
+  int64  category_id_lv3 = 7;
+  int32  free = 8;
+  int32  type = 9;
+  string keyword = 10;
+  string begin_time = 11;
+  string end_time = 12;
+  int32  status = 13;
+}
+
+message CoursePageItem {
+  int64  id = 1;
+  string name = 2;
+  string cover_url = 3;
+  int64  price = 4;
+  int32  free = 5;
+  int32  status = 6;
+  string status_desc = 7;
+  string first_cate_name = 8;
+  string second_cate_name = 9;
+  string third_cate_name = 10;
+  int64  score = 11;
+  int64  sold = 12;
+  int64  section_num = 13;
+  int64  media_duration = 14;
+  string publish_time = 15;
+  string create_time = 16;
+  string update_time = 17;
+}
+
+message CoursePageQueryReply {
+  int64 total = 1;
+  int64 pages = 2;
+  repeated CoursePageItem list = 3;
+}
+
+message CourseSimpleInfoQueryRequest {
+  repeated int64 ids = 1;
+  repeated int64 third_cate_ids = 2;
+}
+
+message CourseSimpleInfoItem {
+  int64  id = 1;
+  string name = 2;
+  string cover_url = 3;
+  int64  price = 4;
+  int32  free = 5;
+  int64  section_num = 6;
+  int32  status = 7;
+  int64  valid_duration = 8;
+  string purchase_end_time = 9;
+  int64  first_cate_id = 10;
+  int64  second_cate_id = 11;
+  int64  third_cate_id = 12;
+}
+
+message CourseSimpleInfoListReply { repeated CourseSimpleInfoItem items = 1; }
+
+// ============== 课程详情/外链查询 ==============
+
+message CourseFullInfoGetRequest {
+  int64 id = 1;
+  bool  with_catalogue = 2;
+  bool  with_teachers = 3;
+}
+
+message CourseChapterInfo {
+  int64  id = 1;
+  string name = 2;
+  int32  index = 3;
+  int32  type = 4;   // 1 章 2 节 3 测试
+  int64  media_id = 5;
+  string media_name = 6;
+  int64  media_duration = 7;
+  bool   trailer = 8;
+  int32  subject_num = 9;
+  int64  total_score = 10;
+  bool   can_update = 11;
+  repeated CourseChapterInfo sections = 12;
+}
+
+message CourseFullInfo {
+  int64  id = 1;
+  string name = 2;
+  string cover_url = 3;
+  int64  price = 4;
+  int64  first_cate_id = 5;
+  int64  second_cate_id = 6;
+  int64  third_cate_id = 7;
+  int64  valid_duration = 8;
+  string purchase_end_time = 9;
+  int64  section_num = 10;
+  repeated int64 teacher_ids = 11;
+  repeated CourseChapterInfo chapters = 12;
+}
+
+message CourseSearchIndexInfo {
+  int64  id = 1;
+  string name = 2;
+  string cover_url = 3;
+  int64  price = 4;
+  int64  score = 5;
+  int64  sold = 6;
+  int64  sections = 7;
+  int32  free = 8;
+  int32  course_type = 9;
+  int32  enable = 10;
+  int64  category_id_lv1 = 11;
+  int64  category_id_lv2 = 12;
+  int64  category_id_lv3 = 13;
+  string create_time = 14;
+  string publish_time = 15;
+  int64  duration = 16;
+}
+
+message CourseNameRequest { string name = 1; }
+message CourseIdList      { repeated int64 ids = 1; }
+message TeacherIdsRequest { repeated int64 teacher_ids = 1; }
+message TeacherCourseCount {
+  int64 teacher_id = 1;
+  int64 course_num = 2;
+  int64 subject_num = 3;
+}
+message TeacherCourseCountList { repeated TeacherCourseCount items = 1; }
+
+message CourseSectionInfo {
+  int64  id = 1;
+  int64  course_id = 2;
+  int64  media_id = 3;
+}
+
+message MediaIdsRequest { repeated int64 media_ids = 1; }
+message MediaQuote {
+  int64 media_id = 1;
+  int64 quote_num = 2;
+}
+message MediaQuoteList { repeated MediaQuote items = 1; }
+
+// ============== 课程目录 ==============
+
+message CourseCatalogueQueryRequest {
+  int64 id = 1;          // course id
+  bool  see = 2;          // 学员视角
+  bool  with_practice = 3;
+}
+
+message CatalogueTreeList { repeated CourseChapterInfo items = 1; }
+
+message CourseCatalogueSaveRequest {
+  int64 course_id = 1;
+  int64 step = 2;
+  repeated CourseChapterSave chapters = 3;
+}
+
+message CourseChapterSave {
+  int64  id = 1;
+  string name = 2;
+  int32  index = 3;
+  int32  type = 4;
+  repeated CourseChapterSave sections = 5;
+}
+
+message CataSimple {
+  int64  id = 1;
+  string name = 2;
+  int32  index = 3;
+  int32  chapter_index = 4;
+  int32  c_index = 5;
+}
+
+message CataSimpleList { repeated CataSimple items = 1; }
+
+// 查询课程目录(详情) — 用于学员端展示
+message CourseAndSectionView {
+  int64  id = 1;
+  string name = 2;
+  string cover_url = 3;
+  int64  sections = 4;
+  string teacher_icon = 5;
+  string teacher_name = 6;
+  int64  lesson_id = 7;
+  int64  latest_section_id = 8;
+  repeated CourseChapterInfo chapters = 9;
+}
+
+// ============== 章节题目 ==============
+
+message CatalogSubjectInfo {
+  int64  cata_id = 1;
+  repeated SubjectInfo subjects = 2;
+}
+
+message SubjectInfo {
+  int64  id = 1;
+  string name = 2;
+  int32  subject_type = 3;
+  int32  difficulty = 4;
+  int64  score = 5;
+  repeated string options = 6;
+  string answer = 7;
+  string analysis = 8;
+}
+
+message CataSubjectInfoList { repeated CatalogSubjectInfo items = 1; }
+
+message CourseSubjectsSaveRequest {
+  int64 course_id = 1; // path 参数 :id
+  repeated CatalogSubjectBind subjects = 2;
+}
+
+message CatalogSubjectBind {
+  int64 cata_id = 1;
+  repeated int64 subject_ids = 2;
+}
+
+// ============== 课程媒体 ==============
+
+message CourseMediaSaveRequest {
+  int64 course_id = 1;   // path :id
+  repeated CourseMediaBind medias = 2;
+}
+
+message CourseMediaBind {
+  int64 cata_id = 1;
+  int64 media_id = 2;
+  string video_name = 3;
+  int64 media_duration = 4;
+  bool  trailer = 5;
+}
+
+// ============== 课程老师 ==============
+
+message CourseTeachersGetRequest {
+  int64 id = 1;
+  bool  see = 2;
+}
+
+message TeacherInfo {
+  int64  id = 1;
+  string name = 2;
+  string photo = 3;
+  string job = 4;
+  string introduce = 5;
+  string icon = 6;
+  bool   is_show = 7;
+}
+
+message TeacherInfoList { repeated TeacherInfo items = 1; }
+
+message CourseTeachersSaveRequest {
+  int64 id = 1; // path :id 课程 id
+  repeated TeacherShowBind teachers = 2;
+}
+
+message TeacherShowBind {
+  int64 id = 1;
+  bool  is_show = 2;
+}

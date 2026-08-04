@@ -1,0 +1,516 @@
+syntax = "v1"
+
+info (
+	title:   "课程微服务"
+	desc:    "课程管理、分类、目录、媒资、题目、老师关系"
+	author:  "tjxt"
+	version: "1.0.0"
+)
+
+type PageRequest {
+	PageNo   int64  `form:"pageNo,omitempty"`
+	PageSize int64  `form:"pageSize,omitempty"`
+	IsAsc    bool   `form:"isAsc,omitempty"`
+	SortBy   string `form:"sortBy,omitempty"`
+}
+
+type CategoryAddDTO {
+	Name     string `json:"name"`
+	ParentId int64  `json:"parentId"`
+	Index    int32  `json:"index"`
+}
+
+type CategoryUpdateDTO {
+	Id    int64  `json:"id"`
+	Name  string `json:"name"`
+	Index int32  `json:"index"`
+}
+
+type CategoryDisableOrEnableDTO {
+	Id     int64 `json:"id"`
+	Status int32 `json:"status"`
+}
+
+type CategoryListQuery {
+	Name   string `form:"name,omitempty"`
+	Status int64  `form:"status,omitempty"`
+}
+
+type CategoryVO {
+	Id               int64         `json:"id"`
+	Name             string        `json:"name"`
+	ParentId         int64         `json:"parentId"`
+	Level            int32         `json:"level"`
+	Index            int32         `json:"index"`
+	Status           int32         `json:"status"`
+	StatusDesc       string        `json:"statusDesc"`
+	CourseNum        int32         `json:"courseNum"`
+	ThirdCategoryNum int32         `json:"thirdCategoryNum"`
+	CreateTime       string        `json:"createTime"`
+	UpdateTime       string        `json:"updateTime"`
+	Children         []*CategoryVO `json:"children"`
+}
+
+type CategoryInfoVO {
+	Id                 int64  `json:"id"`
+	Name               string `json:"name"`
+	Index              int32  `json:"index"`
+	CategoryLevel      int32  `json:"categoryLevel"`
+	Status             int32  `json:"status"`
+	StatusDesc         string `json:"statusDesc"`
+	FirstCategoryName  string `json:"firstCategoryName"`
+	SecondCategoryName string `json:"secondCategoryName"`
+	CreateTime         string `json:"createTime"`
+	UpdateTime         string `json:"updateTime"`
+}
+
+type SimpleCategoryVO {
+	Id       int64               `json:"id"`
+	Name     string              `json:"name"`
+	Level    int32               `json:"level"`
+	ParentId int64               `json:"parentId"`
+	Children []*SimpleCategoryVO `json:"children"`
+}
+
+type CourseBaseInfoSaveDTO {
+	Id                int64  `json:"id"`
+	Name              string `json:"name"`
+	CoverUrl          string `json:"coverUrl"`
+	Free              bool   `json:"free"`
+	Price             int32  `json:"price"`
+	ValidDuration     int32  `json:"validDuration"`
+	ThirdCateId       int64  `json:"thirdCateId"`
+	Introduce         string `json:"introduce"`
+	Detail            string `json:"detail"`
+	UsePeople         string `json:"usePeople"`
+	PurchaseStartTime string `json:"purchaseStartTime"`
+	PurchaseEndTime   string `json:"purchaseEndTime"`
+}
+
+type CourseSaveVO {
+	Id int64 `json:"id"`
+}
+
+type CourseBaseInfoVO {
+	Id                int64   `json:"id"`
+	Name              string  `json:"name"`
+	CoverUrl          string  `json:"coverUrl"`
+	Price             int32   `json:"price"`
+	ValidDuration     int32   `json:"validDuration"`
+	Free              bool    `json:"free"`
+	FirstCateId       int64   `json:"firstCateId"`
+	SecondCateId      int64   `json:"secondCateId"`
+	ThirdCateId       int64   `json:"thirdCateId"`
+	Status            int32   `json:"status"`
+	Step              int32   `json:"step"`
+	CanUpdate         bool    `json:"canUpdate"`
+	CataTotalNum      int32   `json:"cataTotalNum"`
+	CoureScore        float64 `json:"coureScore"`
+	CreateTime        string  `json:"createTime"`
+	UpdateTime        string  `json:"updateTime"`
+	Creater           int64   `json:"creater"`
+	Updater           int64   `json:"updater"`
+	CreaterName       string  `json:"createrName"`
+	UpdaterName       string  `json:"updaterName"`
+	CateNames         string  `json:"cateNames"`
+	Detail            string  `json:"detail"`
+	Introduce         string  `json:"introduce"`
+	UsePeople         string  `json:"usePeople"`
+	EnrollNum         int32   `json:"enrollNum"`
+	StudyNum          int32   `json:"studyNum"`
+	RefundNum         int32   `json:"refundNum"`
+	RealPayAmount     int32   `json:"realPayAmount"`
+	Score             int32   `json:"score"`
+	PurchaseStartTime string  `json:"purchaseStartTime"`
+	PurchaseEndTime   string  `json:"purchaseEndTime"`
+}
+
+type NameExistVO {
+	Existed bool `json:"existed"`
+}
+
+type CourseIdDTO {
+	Id int64 `json:"id"`
+}
+
+type CourseCataIdVO {
+	Id int64 `json:"id"`
+}
+
+type CataSaveDTO {
+	Id       int64          `json:"id"`
+	Index    int32          `json:"index"`
+	Name     string         `json:"name"`
+	Type     int32          `json:"type"`
+	Sections []*CataSaveDTO `json:"sections"`
+}
+
+type CataVO {
+	Id                     int64     `json:"id"`
+	Index                  int32     `json:"index"`
+	Name                   string    `json:"name"`
+	MediaDuration          int32     `json:"mediaDuration"`
+	Trailer                bool      `json:"trailer"`
+	MediaName              string    `json:"mediaName"`
+	MediaId                int64     `json:"mediaId"`
+	Type                   int32     `json:"type"`
+	SubjectNum             int32     `json:"subjectNum"`
+	TotalScore             int32     `json:"totalScore"`
+	CanUpdate              bool      `json:"canUpdate"`
+	Sections               []*CataVO `json:"sections"`
+	MaxIndexOnShelf        int32     `json:"maxIndexOnShelf"`
+	MaxSectionIndexOnShelf int32     `json:"maxSectionIndexOnShelf"`
+}
+
+type CataSimpleInfoVO {
+	Id           int64  `json:"id"`
+	Name         string `json:"name"`
+	Index        string `json:"index"`
+	CIndex       int32  `json:"cindex"`
+	ChapterIndex int32  `json:"chapterIndex"`
+}
+
+type CourseMediaSaveDTO {
+	CataId        int64  `json:"cataId"`
+	MediaId       int64  `json:"mediaId"`
+	Trailer       bool   `json:"trailer"`
+	VideoName     string `json:"videoName,omitempty"`
+	MediaDuration int32  `json:"mediaDuration,omitempty"`
+}
+
+type CataSubjectDTO {
+	CataId     int64   `json:"cataId"`
+	SubjectIds []int64 `json:"subjectIds"`
+}
+
+type SubjectInfo {
+	Id   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
+type CataSimpleSubjectVO {
+	CataId   int64          `json:"cataId"`
+	Subjects []*SubjectInfo `json:"subjects"`
+}
+
+type TeacherInfo {
+	Id     int64 `json:"id"`
+	IsShow bool  `json:"isShow"`
+}
+
+type CourseTeacherSaveDTO {
+	Id       int64          `json:"id"`
+	Teachers []*TeacherInfo `json:"teachers"`
+}
+
+type CourseTeacherVO {
+	Id        int64  `json:"id"`
+	Icon      string `json:"icon"`
+	Photo     string `json:"photo"`
+	Name      string `json:"name"`
+	Introduce string `json:"introduce"`
+	IsShow    bool   `json:"isShow"`
+	Job       string `json:"job"`
+}
+
+type CourseAndSectionVO {
+	Id              int64        `json:"id"`
+	Name            string       `json:"name"`
+	Sections        int32        `json:"sections"`
+	CoverUrl        string       `json:"coverUrl"`
+	LessonId        int64        `json:"lessonId"`
+	LatestSectionId int64        `json:"latestSectionId"`
+	TeacherName     string       `json:"teacherName"`
+	TeacherIcon     string       `json:"teacherIcon"`
+	Chapters        []*ChapterVO `json:"chapters"`
+}
+
+type ChapterVO {
+	Id            int64        `json:"id"`
+	Index         int32        `json:"index"`
+	Name          string       `json:"name"`
+	MediaDuration int32        `json:"mediaDuration"`
+	Sections      []*SectionVO `json:"sections"`
+}
+
+type SectionVO {
+	Id            int64  `json:"id"`
+	Name          string `json:"name"`
+	Index         int32  `json:"index"`
+	Type          int32  `json:"type"`
+	MediaDuration int32  `json:"mediaDuration"`
+	MediaId       int64  `json:"mediaId"`
+	Trailer       bool   `json:"trailer"`
+	SubjectNum    int32  `json:"subjectNum"`
+	HasTest       bool   `json:"hasTest"`
+	Moment        int32  `json:"moment"`
+	Finished      bool   `json:"finished"`
+}
+
+type CoursePageQuery {
+	PageRequest
+	Keyword      string `form:"keyword,omitempty"`
+	FirstCateId  int64  `form:"firstCateId,omitempty"`
+	SecondCateId int64  `form:"secondCateId,omitempty"`
+	ThirdCateId  int64  `form:"thirdCateId,omitempty"`
+	CourseType   int64  `form:"courseType,omitempty"`
+	Free         string `form:"free,omitempty"`
+	Status       int64  `form:"status"`
+	BeginTime    string `form:"beginTime,omitempty"`
+	EndTime      string `form:"endTime,omitempty"`
+}
+
+type CoursePageVO {
+	Id              int64  `json:"id"`
+	Name            string `json:"name"`
+	CoverUrl        string `json:"coverUrl"`
+	Categories      string `json:"categories"`
+	Price           int64  `json:"price"`
+	Status          int32  `json:"status"`
+	Step            int32  `json:"step"`
+	Score           int32  `json:"score"`
+	Sold            int32  `json:"sold"`
+	Sections        int32  `json:"sections"`
+	PublishTime     string `json:"publishTime"`
+	PurchaseEndTime string `json:"purchaseEndTime"`
+	UpdateTime      string `json:"updateTime"`
+	UpdaterName     string `json:"updaterName"`
+}
+
+type CourseSimpleInfoDTO {
+	Id              int64  `json:"id"`
+	Name            string `json:"name"`
+	CoverUrl        string `json:"coverUrl"`
+	Price           int32  `json:"price"`
+	Free            bool   `json:"free"`
+	Status          int32  `json:"status"`
+	ValidDuration   int32  `json:"validDuration"`
+	SectionNum      int32  `json:"sectionNum"`
+	PurchaseEndTime string `json:"purchaseEndTime"`
+	FirstCateId     int64  `json:"firstCateId"`
+	SecondCateId    int64  `json:"secondCateId"`
+	ThirdCateId     int64  `json:"thirdCateId"`
+}
+
+type CourseBaseInfoQuery {
+	See bool `form:"see,omitempty,default=1"`
+}
+
+type CourseCatasQuery {
+	See          bool `form:"see,omitempty,default=1"`
+	WithPractice bool `form:"withPractice,omitempty,default=1"`
+}
+
+type CourseTeacherQuery {
+	See bool `form:"see,omitempty,default=1"`
+}
+
+type CheckNameQuery {
+	Id   int64  `form:"id,omitempty"`
+	Name string `form:"name"`
+}
+
+type CourseInfoQuery {
+	WithCatalogue bool `form:"withCatalogue,omitempty"`
+	WithTeachers  bool `form:"withTeachers,omitempty"`
+}
+
+type IdsQuery {
+	Ids []int64 `form:"ids"`
+}
+
+type TeacherIdsQuery {
+	TeacherIds []int64 `form:"teacherIds"`
+}
+
+type MediaIdsQuery {
+	MediaIds []int64 `form:"mediaIds"`
+}
+
+type SimpleInfoListQuery {
+	Ids          []int64 `form:"ids,omitempty"`
+	ThirdCataIds []int64 `form:"thirdCataIds,omitempty"`
+}
+
+type NameQuery {
+	Name string `form:"name"`
+}
+
+type SubNumAndCourseNumDTO {
+	TeacherId  int64 `json:"teacherId"`
+	CourseNum  int32 `json:"courseNum"`
+	SubjectNum int32 `json:"subjectNum"`
+}
+
+type MediaQuoteDTO {
+	MediaId  int64 `json:"mediaId"`
+	QuoteNum int32 `json:"quoteNum"`
+}
+
+type SectionInfoDTO {
+	CourseId     int64 `json:"courseId"`
+	MediaId      int64 `json:"mediaId"`
+	Trailer      bool  `json:"trailer"`
+	FreeDuration int32 `json:"freeDuration"`
+}
+
+type CatalogueDTO {
+	Id            int64           `json:"id"`
+	Index         int32           `json:"index"`
+	Name          string          `json:"name"`
+	MediaDuration int32           `json:"mediaDuration"`
+	Trailer       bool            `json:"trailer"`
+	MediaName     string          `json:"mediaName"`
+	MediaId       int64           `json:"mediaId"`
+	Type          int32           `json:"type"`
+	SubjectNum    int32           `json:"subjectNum"`
+	TotalScore    int32           `json:"totalScore"`
+	CanUpdate     bool            `json:"canUpdate"`
+	Sections      []*CatalogueDTO `json:"sections"`
+}
+
+type CourseFullInfoDTO {
+	Id              int64           `json:"id"`
+	Name            string          `json:"name"`
+	Price           int32           `json:"price"`
+	ValidDuration   int32           `json:"validDuration"`
+	CoverUrl        string          `json:"coverUrl"`
+	PurchaseEndTime string          `json:"purchaseEndTime"`
+	FirstCateId     int64           `json:"firstCateId"`
+	SecondCateId    int64           `json:"secondCateId"`
+	ThirdCateId     int64           `json:"thirdCateId"`
+	SectionNum      int32           `json:"sectionNum"`
+	Chapters        []*CatalogueDTO `json:"chapters"`
+	TeacherIds      []int64         `json:"teacherIds"`
+}
+
+type CourseDTO {
+	Id            int64  `json:"id"`
+	Name          string `json:"name"`
+	CoverUrl      string `json:"coverUrl"`
+	Price         int32  `json:"price"`
+	Free          bool   `json:"free"`
+	Status        string `json:"status"`
+	Step          int32  `json:"step"`
+	Score         int32  `json:"score"`
+	Sold          int32  `json:"sold"`
+	Sections      int32  `json:"sections"`
+	Duration      int32  `json:"duration"`
+	PublishTime   string `json:"publishTime"`
+	CreateTime    string `json:"createTime"`
+	UpdateTime    string `json:"updateTime"`
+	Updater       int64  `json:"updater"`
+	Teacher       int64  `json:"teacher"`
+	CourseType    int32  `json:"courseType"`
+	Enable        int32  `json:"enable"`
+	ValidDuration int32  `json:"validDuration"`
+	CategoryIdLv1 int64  `json:"categoryIdLv1"`
+	CategoryIdLv2 int64  `json:"categoryIdLv2"`
+	CategoryIdLv3 int64  `json:"categoryIdLv3"`
+}
+
+type Result {
+	Code      int64  `json:"code"`
+	Msg       string `json:"msg"`
+	RequestId string `json:"requestId"`
+	Data      string `json:"data"`
+}
+
+type PageResult {
+	List  string `json:"list"`
+	Total int64  `json:"total"`
+	Pages int64  `json:"pages"`
+}
+
+@server (
+	jwt: Auth
+)
+service course-api {
+	@handler CategoryTreeHandler
+	get /categories/tree (CategoryListQuery) returns (Result)
+
+	@handler CategoryPageHandler
+	get /categories/page (PageRequest) returns (Result)
+
+	@handler CategoryAddHandler
+	post /categories (CategoryAddDTO) returns (Result)
+
+	@handler CategoryUpdateHandler
+	put /categories (CategoryUpdateDTO) returns (Result)
+
+	@handler CategoryDisableOrEnableHandler
+	put /categories/status (CategoryDisableOrEnableDTO) returns (Result)
+
+	@handler CategoryInfoHandler
+	get /categories/:id (CategoryListQuery) returns (Result)
+
+	@handler CourseBaseInfoSaveHandler
+	post /courses/baseInfo/save (CourseBaseInfoSaveDTO) returns (Result)
+
+	@handler CourseBaseInfoHandler
+	get /courses/baseInfo/:id (CourseBaseInfoQuery) returns (Result)
+
+	@handler CourseCheckNameHandler
+	get /courses/name (CheckNameQuery) returns (Result)
+
+	@handler CourseDeleteHandler
+	delete /courses/:id returns (Result)
+
+	@handler CoursePageHandler
+	get /courses/page (CoursePageQuery) returns (Result)
+
+	@handler CourseUpShelfCheckHandler
+	get /courses/:id/checkUpShelf returns (Result)
+
+	@handler CourseUpShelfHandler
+	put /courses/:id/upShelf returns (Result)
+
+	@handler CourseDownShelfHandler
+	put /courses/:id/downShelf returns (Result)
+
+	@handler CourseCatasSaveHandler
+	post /courses/catas/save/:id/:step (CataSaveDTO) returns (Result)
+
+	@handler CourseCatasIndexListHandler
+	get /courses/catas/index/list/:id returns (Result)
+
+	@handler CourseCatasHandler
+	get /courses/catas/:id (CourseCatasQuery) returns (Result)
+
+	@handler CourseMediaSaveHandler
+	post /courses/media/save/:id (CourseMediaSaveDTO) returns (Result)
+
+	@handler CourseSubjectsSaveHandler
+	post /courses/subjects/save/:id (CataSubjectDTO) returns (Result)
+
+	@handler CourseSubjectsHandler
+	get /courses/subjects/:id returns (Result)
+
+	@handler CourseTeachersSaveHandler
+	post /courses/teachers/save (CourseTeacherSaveDTO) returns (Result)
+
+	@handler CourseTeachersHandler
+	get /courses/teachers/:id (CourseTeacherQuery) returns (Result)
+
+	@handler CourseInfoByIdHandler
+	get /course/infoById/:id (CourseInfoQuery) returns (Result)
+
+	@handler CourseDTOByIdHandler
+	get /course/dtoById/:id returns (Result)
+
+	@handler CourseAndCatalogHandler
+	get /course/andCatalog/:id returns (Result)
+
+	@handler CourseInfoByTeacherIdsHandler
+	get /course/infoByTeacherIds (TeacherIdsQuery) returns (Result)
+
+	@handler CourseMediaUseInfoHandler
+	get /course/media/useInfo (MediaIdsQuery) returns (Result)
+
+	@handler CourseNameQueryHandler
+	get /course/name (NameQuery) returns (Result)
+
+	@handler CourseSimpleInfoListHandler
+	get /course/simpleInfo/list (SimpleInfoListQuery) returns (Result)
+}
+

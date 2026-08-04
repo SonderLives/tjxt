@@ -1,0 +1,20 @@
+Name: learning-api
+Host: 0.0.0.0
+Port: 8813
+
+Auth:
+  AccessSecret: "change-me-in-production"
+  AccessExpire: 7200
+
+LearningRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: learning.rpc
+
+# 课程目录展示时，需要查询课程名/章节数等基础信息
+CourseRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: course.rpc

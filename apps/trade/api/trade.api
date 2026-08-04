@@ -1,0 +1,512 @@
+syntax = "v1"
+
+// 统一分页请求
+type PageRequest {
+	PageNo   int64  `form:"pageNo,optional"`
+	PageSize int64  `form:"pageSize,optional"`
+	IsAsc    bool   `form:"isAsc,optional"`
+	SortBy   string `form:"sortBy,optional"`
+}
+
+// 通用 Result 占位（handler 已用 result.Write 包装；让 logic 返回真实 VO 即可）
+// ============== 购物车 ==============
+type CartAddReq {
+	CourseId int64 `json:"courseId"`
+}
+
+type CartUpdateReq {
+	Id       int64 `path:"id"`
+	CourseId int64 `json:"courseId"`
+}
+
+type CartIdReq {
+	Id int64 `path:"id"`
+}
+
+type CartBatchDeleteReq {
+	Ids string `form:"ids"` // 逗号分隔
+}
+
+type CartVO {
+	Id         int64  `json:"id"`
+	CourseId   int64  `json:"courseId"`
+	CourseName string `json:"courseName"`
+	CoverUrl   string `json:"coverUrl"`
+	Price      int64  `json:"price"`
+	NowPrice   int64  `json:"nowPrice"`
+	Expired    bool   `json:"expired"`
+}
+
+// ============== 订单 ==============
+type PrePlaceOrderReq {
+	CourseIds string `form:"courseIds"` // 逗号分隔
+}
+
+type OrderCourseVO {
+	Id       int64  `json:"id"`
+	Name     string `json:"name"`
+	CoverUrl string `json:"coverUrl"`
+	Price    int64  `json:"price"`
+}
+
+type CouponDiscountVO {
+	Id             int64  `json:"id"`
+	Name           string `json:"name"`
+	DiscountAmount int64  `json:"discountAmount"`
+	RuleDesc       string `json:"ruleDesc,optional"`
+}
+
+type OrderConfirmVO {
+	OrderId     int64              `json:"orderId"`
+	TotalAmount int64              `json:"totalAmount"`
+	Courses     []OrderCourseVO    `json:"courses"`
+	Discounts   []CouponDiscountVO `json:"discounts"`
+}
+
+type PlaceOrderReq {
+	OrderId   int64   `json:"orderId"`
+	CourseIds []int64 `json:"courseIds"`
+	CouponIds []int64 `json:"couponIds,optional"`
+}
+
+type PlaceOrderResultVO {
+	OrderId    int64 `json:"orderId"`
+	PayAmount  int64 `json:"payAmount"`
+	PayOutTime int64 `json:"payOutTime"`
+	Status     int64 `json:"status"` // 1待支付 2已支付 3已关闭 4已完成 5已报名 6申请退款
+}
+
+type FreeCourseReq {
+	CourseId int64 `path:"courseId"`
+}
+
+type OrderPageReq {
+	PageRequest
+	NoNo   int64 `form:"noNo,optional"`
+	Status int64 `form:"status,optional"`
+}
+
+type OrderDetailItemVO {
+	Id            int64  `json:"id"`
+	CourseId      int64  `json:"courseId"`
+	CourseName    string `json:"courseName"`
+	CoverUrl      string `json:"coverUrl"`
+	Price         int64  `json:"price"`
+	RealPayAmount int64  `json:"realPayAmount"`
+	Status        int64  `json:"status"`
+	RefundStatus  int64  `json:"refundStatus,optional"`
+	CanRefund     bool   `json:"canRefund"`
+}
+
+type OrderPageVO {
+	Id          int64               `json:"id"`
+	Status      int64               `json:"status"`
+	StatusDesc  string              `json:"statusDesc"`
+	TotalAmount int64               `json:"totalAmount"`
+	RealAmount  int64               `json:"realAmount"`
+	CreateTime  string              `json:"createTime"`
+	Details     []OrderDetailItemVO `json:"details"`
+}
+
+type OrderPageReply {
+	Total int64         `json:"total"`
+	Pages int64         `json:"pages"`
+	List  []OrderPageVO `json:"list"`
+}
+
+type OrderIdReq {
+	Id int64 `path:"id"`
+}
+
+type OrderProgressNodeVO {
+	Name   string `json:"name"`
+	Desc   string `json:"desc,optional"`
+	Status int64  `json:"status"`
+	Time   string `json:"time,optional"`
+}
+
+type OrderVO {
+	Id             int64                 `json:"id"`
+	CreateTime     string                `json:"createTime"`
+	TotalAmount    int64                 `json:"totalAmount"`
+	RealAmount     int64                 `json:"realAmount"`
+	DiscountAmount int64                 `json:"discountAmount"`
+	Status         int64                 `json:"status"`
+	StatusDesc     string                `json:"statusDesc"`
+	Message        string                `json:"message,optional"`
+	CouponDesc     string                `json:"couponDesc,optional"`
+	Details        []OrderDetailItemVO   `json:"details"`
+	ProgressNodes  []OrderProgressNodeVO `json:"progressNodes"`
+}
+
+// ============== 订单明细 ==============
+type OrderDetailPageReq {
+	PageRequest
+	NoNo           int64  `form:"noNo,optional"`
+	Id             int64  `form:"id,optional"`
+	Mobile         string `form:"mobile,optional"`
+	Status         int64  `form:"status,optional"`
+	RefundStatus   int64  `form:"refundStatus,optional"`
+	PayChannel     string `form:"payChannel,optional"`
+	OrderStartTime string `form:"orderStartTime,optional"`
+	OrderEndTime   string `form:"orderEndTime,optional"`
+}
+
+type OrderDetailPageVO {
+	Id               int64  `json:"id"`
+	OrderId          int64  `json:"orderId"`
+	CourseId         int64  `json:"courseId"`
+	CourseName       string `json:"courseName"`
+	Mobile           string `json:"mobile"`
+	Price            int64  `json:"price"`
+	RealPayAmount    int64  `json:"realPayAmount"`
+	DiscountAmount   int64  `json:"discountAmount"`
+	Status           int64  `json:"status"`
+	StatusDesc       string `json:"statusDesc"`
+	RefundStatus     int64  `json:"refundStatus"`
+	RefundStatusDesc string `json:"refundStatusDesc"`
+	PayChannel       string `json:"payChannel"`
+	CreateTime       string `json:"createTime"`
+	FinishTime       string `json:"finishTime,optional"`
+}
+
+type OrderDetailPageReply {
+	Total int64               `json:"total"`
+	Pages int64               `json:"pages"`
+	List  []OrderDetailPageVO `json:"list"`
+}
+
+type OrderDetailAdminVO {
+	Id                 int64                 `json:"id"`
+	OrderId            int64                 `json:"orderId"`
+	Mobile             string                `json:"mobile"`
+	Name               string                `json:"name"`
+	Price              int64                 `json:"price"`
+	RealPayAmount      int64                 `json:"realPayAmount"`
+	DiscountAmount     int64                 `json:"discountAmount"`
+	CouponAmount       int64                 `json:"couponAmount,optional"`
+	CouponDesc         string                `json:"couponDesc,optional"`
+	Status             int64                 `json:"status"`
+	Message            string                `json:"message,optional"`
+	PayChannel         string                `json:"payChannel,optional"`
+	PayOrderNo         int64                 `json:"payOrderNo,optional"`
+	StudyValidTime     string                `json:"studyValidTime,optional"`
+	RefundApplyId      int64                 `json:"refundApplyId,optional"`
+	RefundOrderNo      int64                 `json:"refundOrderNo,optional"`
+	RefundStatus       int64                 `json:"refundStatus,optional"`
+	RefundReason       string                `json:"refundReason,optional"`
+	RefundMessage      string                `json:"refundMessage,optional"`
+	RefundChannel      string                `json:"refundChannel,optional"`
+	RefundFailedReason string                `json:"refundFailedReason,optional"`
+	RefundProposerName string                `json:"refundProposerName,optional"`
+	Remark             string                `json:"remark,optional"`
+	CanRefund          bool                  `json:"canRefund"`
+	FailedReason       string                `json:"failedReason,optional"`
+	Nodes              []OrderProgressNodeVO `json:"nodes,optional"`
+}
+
+type EnrollCourseReq {
+	StudentIds string `form:"studentIds"` // 逗号分隔
+}
+
+type EnrollNumReq {
+	CourseIdList string `form:"courseIdList"` // 逗号分隔
+}
+
+type PurchaseInfoReq {
+	CourseId int64 `form:"courseId"`
+}
+
+type PurchaseInfoVO {
+	EnrollNum     int64 `json:"enrollNum"`
+	RealPayAmount int64 `json:"realPayAmount"`
+	RefundNum     int64 `json:"refundNum"`
+}
+
+// ============== 支付渠道（管理） ==============
+type PayChannelDTO {
+	Id              int64  `json:"id,optional"`
+	Name            string `json:"name"`
+	ChannelCode     string `json:"channelCode"`
+	ChannelIcon     string `json:"channelIcon,optional"`
+	ChannelPriority int64  `json:"channelPriority"`
+	Status          int64  `json:"status,optional"`
+}
+
+type PayChannelIdReq {
+	Id int64 `path:"id"`
+}
+
+// ============== 支付（学员侧） ==============
+type PayApplyFormDTO {
+	OrderId        int64  `json:"orderId"`
+	PayChannelCode string `json:"payChannelCode"` // wxPay / aliPay
+}
+
+type PayChannelVO {
+	Id              int64  `json:"id"`
+	Name            string `json:"name"`
+	ChannelCode     string `json:"channelCode"`
+	ChannelIcon     string `json:"channelIcon,optional"`
+	ChannelPriority int64  `json:"channelPriority"`
+}
+
+type BizOrderIdPathReq {
+	BizOrderId int64 `path:"bizOrderId"`
+}
+
+type PayResultDTO {
+	BizOrderId  int64  `json:"bizOrderId"`
+	Status      int64  `json:"status"` // 1支付中 2失败 3成功
+	PayChannel  string `json:"payChannel,optional"`
+	PayOrderNo  int64  `json:"payOrderNo,optional"`
+	SuccessTime string `json:"successTime,optional"`
+}
+
+// ============== 退款 ==============
+type RefundApplyDTO {
+	BizOrderNo       int64 `json:"bizOrderNo"`
+	BizRefundOrderNo int64 `json:"bizRefundOrderNo"`
+	RefundAmount     int64 `json:"refundAmount"`
+}
+
+type BizRefundOrderIdPathReq {
+	BizRefundOrderId int64 `path:"bizRefundOrderId"`
+}
+
+type RefundResultDTO {
+	BizPayOrderId    int64  `json:"bizPayOrderId"`
+	BizRefundOrderId int64  `json:"bizRefundOrderId"`
+	PayOrderNo       int64  `json:"payOrderNo,optional"`
+	RefundOrderNo    int64  `json:"refundOrderNo,optional"`
+	Status           int64  `json:"status"` // 1退款中 2失败 3成功
+	PayChannel       string `json:"payChannel,optional"`
+	RefundChannel    string `json:"refundChannel,optional"`
+}
+
+// ============== 退款申请 ==============
+type RefundFormReq {
+	OrderDetailId int64  `json:"orderDetailId"`
+	RefundReason  string `json:"refundReason"`
+	QuestionDesc  string `json:"questionDesc,optional"`
+}
+
+type ApproveFormReq {
+	Id             int64  `json:"id"`
+	ApproveType    int64  `json:"approveType"` // 1 同意 2 拒绝
+	ApproveOpinion string `json:"approveOpinion,optional"`
+	Remark         string `json:"remark,optional"`
+}
+
+type RefundCancelReq {
+	Id            int64 `json:"id"`
+	OrderDetailId int64 `json:"orderDetailId"`
+}
+
+type RefundIdReq {
+	Id int64 `path:"id"`
+}
+
+type RefundApplyVO {
+	Id             int64  `json:"id"`
+	OrderId        int64  `json:"orderId"`
+	OrderDetailId  int64  `json:"orderDetailId"`
+	Price          int64  `json:"price"`
+	RefundAmount   int64  `json:"refundAmount"`
+	RefundStatus   int64  `json:"refundStatus"`
+	RefundOrderNo  int64  `json:"refundOrderNo,optional"`
+	PayOrderNo     int64  `json:"payOrderNo,optional"`
+	PayChannel     string `json:"payChannel,optional"`
+	RefundChannel  string `json:"refundChannel,optional"`
+	RefundReason   string `json:"refundReason"`
+	RefundMessage  string `json:"refundMessage,optional"`
+	FailedReason   string `json:"failedReason,optional"`
+	ApproveOpinion string `json:"approveOpinion,optional"`
+	ApproveType    int64  `json:"approveType,optional"`
+	ApproveTime    string `json:"approveTime,optional"`
+	Remark         string `json:"remark,optional"`
+	CreateTime     string `json:"createTime"`
+	OrderTime      string `json:"orderTime"`
+	PaySuccessTime string `json:"paySuccessTime,optional"`
+	StudentName    string `json:"studentName,optional"`
+	Mobile         string `json:"mobile,optional"`
+	QuestionDesc   string `json:"questionDesc,optional"`
+}
+
+type RefundApplyPageReq {
+	PageRequest
+	Id             int64  `form:"id,optional"`
+	OrderDetailId  int64  `form:"orderDetailId,optional"`
+	OrderId        int64  `form:"orderId,optional"`
+	RefundStatus   int64  `form:"refundStatus,optional"`
+	Mobile         string `form:"mobile,optional"`
+	ApplyStartTime string `form:"applyStartTime,optional"`
+	ApplyEndTime   string `form:"applyEndTime,optional"`
+}
+
+type RefundApplyPageVO {
+	Id            int64  `json:"id"`
+	OrderId       int64  `json:"orderId"`
+	OrderDetailId int64  `json:"orderDetailId"`
+	Price         int64  `json:"price"`
+	RefundAmount  int64  `json:"refundAmount"`
+	Status        int64  `json:"status"`
+	StatusDesc    string `json:"statusDesc"`
+	Mobile        string `json:"mobile"`
+	StudentName   string `json:"studentName"`
+	RefundReason  string `json:"refundReason"`
+	CreateTime    string `json:"createTime"`
+	ApproveTime   string `json:"approveTime,optional"`
+}
+
+type RefundApplyPageReply {
+	Total int64               `json:"total"`
+	Pages int64               `json:"pages"`
+	List  []RefundApplyPageVO `json:"list"`
+}
+
+// ============================================================
+// Service 定义
+// ============================================================
+// 学员侧 - 我的购物车 / 订单 / 退款
+@server (
+	jwt: Auth
+)
+service trade-api {
+	@handler CartAddHandler
+	post /carts (CartAddReq) returns (NamePlaceVO)
+
+	@handler CartListHandler
+	get /carts returns ([]CartVO)
+
+	@handler CartGetHandler
+	get /carts/:id (CartIdReq) returns (CartVO)
+
+	@handler CartUpdateHandler
+	put /carts/:id (CartUpdateReq) returns (NamePlaceVO)
+
+	@handler CartDeleteHandler
+	delete /carts/:id (CartIdReq) returns (NamePlaceVO)
+
+	@handler CartBatchDeleteHandler
+	delete /carts (CartBatchDeleteReq) returns (NamePlaceVO)
+
+	@handler OrderPrePlaceHandler
+	get /orders/prePlaceOrder (PrePlaceOrderReq) returns (OrderConfirmVO)
+
+	@handler OrderPlaceHandler
+	post /orders/placeOrder (PlaceOrderReq) returns (PlaceOrderResultVO)
+
+	@handler OrderFreeCourseHandler
+	post /orders/freeCourse/:courseId (FreeCourseReq) returns (PlaceOrderResultVO)
+
+	@handler OrderPageHandler
+	get /orders/page (OrderPageReq) returns (OrderPageReply)
+
+	@handler OrderGetHandler
+	get /orders/:id (OrderIdReq) returns (OrderVO)
+
+	@handler OrderStatusHandler
+	put /orders/:id/status (OrderIdReq) returns (PlaceOrderResultVO)
+
+	@handler OrderCancelHandler
+	put /orders/:id/cancel (OrderIdReq) returns (NamePlaceVO)
+
+	@handler OrderDeleteHandler
+	delete /orders/:id (OrderIdReq) returns (NamePlaceVO)
+
+	@handler OrderDetailCourseCheckHandler
+	get /order-details/course/:id (OrderIdReq) returns (NamePlaceVO)
+
+	@handler OrderDetailGetHandler
+	get /order-details/:id (OrderIdReq) returns (OrderDetailAdminVO)
+
+	@handler OrderDetailPurchaseInfoHandler
+	get /order-details/purchaseInfo (PurchaseInfoReq) returns (PurchaseInfoVO)
+
+	@handler RefundApplyCreateHandler
+	post /refund-apply (RefundFormReq) returns (NamePlaceVO)
+
+	@handler RefundApplyCancelHandler
+	put /refund-apply/cancel (RefundCancelReq) returns (NamePlaceVO)
+
+	@handler RefundApplyDetailHandler
+	get /refund-apply/detail/:id (RefundIdReq) returns (RefundApplyVO)
+
+	@handler PayChannelsHandler
+	get /pay/channels returns ([]PayChannelVO)
+
+	@handler PayOrderApplyHandler
+	post /pay/order (PayApplyFormDTO) returns (NamePlaceVO)
+}
+
+// 占位返回类型 — 用于没有强类型 VO 的 endpoint
+type NamePlaceVO {
+	Existed bool   `json:"existed,optional"`
+	Url     string `json:"url,optional"`
+	Message string `json:"message,optional"`
+}
+
+// 学员侧 - 退款查询（user 自己的退款进度）
+@server (
+	jwt:    Auth
+	prefix: /refund-orders
+)
+service trade-api {
+	@handler RefundResultQueryHandler
+	get /:bizRefundOrderId/status (BizRefundOrderIdPathReq) returns (RefundResultDTO)
+}
+
+// 支付服务回调 / 内部
+@server (
+	jwt:    Auth
+	prefix: /pay-orders
+)
+service trade-api {
+	@handler PayResultQueryHandler
+	get /:bizOrderId/status (BizOrderIdPathReq) returns (PayResultDTO)
+}
+
+// 管理侧
+@server (
+	jwt:    Auth
+	prefix: /admin
+)
+service trade-api {
+	@handler PayChannelAddHandler
+	post /pay-channels (PayChannelDTO) returns (NamePlaceVO)
+
+	@handler PayChannelListHandler
+	get /pay-channels/list returns ([]PayChannelDTO)
+
+	@handler PayChannelGetHandler
+	get /pay-channels/:id (PayChannelIdReq) returns (PayChannelDTO)
+
+	@handler PayChannelDeleteHandler
+	delete /pay-channels/:id (PayChannelIdReq) returns (NamePlaceVO)
+
+	@handler OrderDetailPageHandler
+	get /order-details/page (OrderDetailPageReq) returns (OrderDetailPageReply)
+
+	@handler OrderDetailEnrollCourseHandler
+	get /order-details/enrollCourse (EnrollCourseReq) returns (NamePlaceVO)
+
+	@handler OrderDetailEnrollNumHandler
+	get /order-details/enrollNum (EnrollNumReq) returns (NamePlaceVO)
+
+	@handler RefundApplyApproveHandler
+	put /refund-apply/approval (ApproveFormReq) returns (NamePlaceVO)
+
+	@handler RefundApplyNextHandler
+	get /refund-apply/next returns (RefundApplyVO)
+
+	@handler RefundApplyPageHandler
+	get /refund-apply/page (RefundApplyPageReq) returns (RefundApplyPageReply)
+
+	@handler RefundApplyGetHandler
+	get /refund-apply/:id (RefundIdReq) returns (RefundApplyVO)
+
+	@handler RefundApplyDeleteHandler
+	delete /refund-apply/:id (RefundIdReq) returns (NamePlaceVO)
+}
+

@@ -1,0 +1,13 @@
+Name: pay-api
+Host: 0.0.0.0
+Port: 8811
+
+Auth:
+  AccessSecret: "change-me-in-production"
+  AccessExpire: 7200
+
+PayRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: pay.rpc

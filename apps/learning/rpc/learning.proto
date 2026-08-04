@@ -1,0 +1,142 @@
+syntax = "proto3";
+
+package learning;
+
+option go_package = "./pb";
+
+// ============================================================
+// Learning RPC：我的课表 / 学习计划 / 学习记录
+// 学习记录不再单独建表，通过更新 learning_lesson 的
+// latest_section_id / latest_learn_time / learned_sections 实现。
+// ============================================================
+
+service Learning {
+  // 当前正在学习的课程
+  rpc LearningNow(Empty) returns (LearningLessonVO);
+
+  // 我的课表分页
+  rpc LessonPage(LessonPageRequest) returns (LessonPageReply);
+
+  // 我的学习计划分页
+  rpc PlanPage(LessonPageRequest) returns (PlanPageReply);
+
+  // 指定课程的学习信息
+  rpc LessonGet(LessonRequest) returns (LearningLessonVO);
+
+  // 学员是否已报名（返回 lesson_id；未报名返回 0/NotFound 由调用方判）
+  rpc LessonValid(LessonRequest) returns (LessonValidReply);
+
+  // 课程的学习人数
+  rpc LessonCount(LessonCountRequest) returns (LessonCountReply);
+
+  // 提交学习记录（更新 lesson 的 latest_section/learn_time/learned_sections）
+  rpc LearningRecordCommit(LearningRecordCommitRequest) returns (Empty);
+
+  // 查询某课程的学习记录
+  rpc LearningRecordsByCourse(LessonRequest) returns (LearningRecordsReply);
+
+  // 创建/更新学习计划
+  rpc PlanSave(PlanSaveRequest) returns (Empty);
+
+  // ---- 内部：来自 trade 的 mq 事件 / 内部 RPC 调用 ----
+  // 通知本服务开通课程
+  rpc GrantCourses(GrantCoursesRequest) returns (Empty);
+  // 撤销课程
+  rpc RevokeCourses(GrantCoursesRequest) returns (Empty);
+}
+
+// ============== 通用 ==============
+
+message Empty {}
+
+// ============== 学习课表 ==============
+
+message LessonRequest {
+  int64 course_id = 1;
+}
+
+message LessonCountRequest {
+  int64 course_id = 1;
+}
+
+message LessonPageRequest {
+  int64 page_no = 1;
+  int64 page_size = 2;
+  bool  is_asc = 3;
+  string sort_by = 4;
+}
+
+message LearningLessonVO {
+  int64  id = 1;
+  int64  course_id = 2;
+  string course_name = 3;
+  string course_cover_url = 4;
+  int64  course_amount = 5;
+  int32  sections = 6;
+  int32  learned_sections = 7;
+  string status = 8;          // NOT_BEGIN / LEARNING / FINISHED / EXPIRED
+  string plan_status = 9;     // NO_PLAN / PLAN_RUNNING
+  int32  week_freq = 10;
+  int64  latest_section_id = 11;
+  string latest_section_name = 12;
+  int32  latest_section_index = 13;
+  string create_time = 14;
+  string expire_time = 15;
+  string latest_learn_time = 16;
+}
+
+message LessonPageReply {
+  int64 total = 1;
+  int64 pages = 2;
+  repeated LearningLessonVO list = 3;
+}
+
+message PlanPageReply {
+  int64 total = 1;
+  int64 pages = 2;
+  int32 week_finished = 3;
+  int32 week_points = 4;
+  int32 week_total_plan = 5;
+  repeated LearningLessonVO list = 6;
+}
+
+message LessonCountReply { int64 count = 1; }
+
+message LessonValidReply { int64 lesson_id = 1; }
+
+// ============== 学习记录 ==============
+
+message LearningRecordCommitRequest {
+  int64 lesson_id = 1;
+  int64 section_id = 2;
+  int32 section_type = 3;   // 0 / 1 / 2 由 api 解析：VIDEO / EXAM 字符串映射
+  int64 moment = 4;
+  int64 duration = 5;
+  string commit_time = 6;
+}
+
+message LearningRecordDTO {
+  int64 section_id = 1;
+  int64 moment = 2;
+  int64 duration = 3;
+  bool  finished = 4;
+}
+
+message LearningRecordsReply {
+  int64  id = 1;
+  int64  latest_section_id = 2;
+  repeated LearningRecordDTO records = 3;
+}
+
+// ============== 学习计划 ==============
+
+message PlanSaveRequest {
+  int64 course_id = 1;
+  int64 freq = 2;
+}
+
+// ============== 内部事件（来自 trade） ==============
+message GrantCoursesRequest {
+  int64 user_id = 1;
+  repeated int64 course_ids = 2;
+}

@@ -1,0 +1,588 @@
+syntax = "v1"
+
+// 统一分页请求
+type PageRequest {
+	PageNo   int64  `form:"pageNo,optional"`
+	PageSize int64  `form:"pageSize,optional"`
+	IsAsc    bool   `form:"isAsc,optional"`
+	SortBy   string `form:"sortBy,optional"`
+}
+
+// ============== 通用 ==============
+type NameExistVO {
+	Existed bool `json:"existed"`
+}
+
+type CourseCataIdVO {
+	Id int64 `json:"id"`
+}
+
+type CourseSaveVO {
+	Id int64 `json:"id"`
+}
+
+// ============== 分类 ==============
+type CategoryAddReq {
+	Name     string `json:"name"`
+	ParentId int64  `json:"parentId,optional"`
+	Index    int64  `json:"index"`
+}
+
+type CategoryUpdateReq {
+	Id    int64  `json:"id"`
+	Name  string `json:"name"`
+	Index int64  `json:"index"`
+}
+
+type CategoryDisableReq {
+	Id     int64 `json:"id"`
+	Status int64 `json:"status"`
+}
+
+type IdPathReq {
+	Id int64 `path:"id"`
+}
+
+type CategoryListAllReq {
+	Admin bool   `form:"admin,optional"`
+	Name  string `form:"name,optional"`
+}
+
+type CategoryListQueryReq {
+	Name   string `form:"name,optional"`
+	Status int64  `form:"status,optional"`
+}
+
+type CategoryInfoVO {
+	Id                 int64  `json:"id"`
+	Name               string `json:"name"`
+	Level              int64  `json:"level"`
+	FirstCategoryName  string `json:"firstCategoryName,optional"`
+	SecondCategoryName string `json:"secondCategoryName,optional"`
+	Status             int64  `json:"status"`
+	Index              int64  `json:"index"`
+	CreateTime         string `json:"createTime"`
+	UpdateTime         string `json:"updateTime"`
+}
+
+type SimpleCategoryVO {
+	Id       int64              `json:"id"`
+	Name     string             `json:"name"`
+	ParentId int64              `json:"parentId"`
+	Level    int64              `json:"level"`
+	Children []SimpleCategoryVO `json:"children,optional"`
+}
+
+type CategoryVO {
+	Id               int64        `json:"id"`
+	Name             string       `json:"name"`
+	ParentId         int64        `json:"parentId"`
+	Level            int64        `json:"level"`
+	Index            int64        `json:"index"`
+	Status           int64        `json:"status"`
+	StatusDesc       string       `json:"statusDesc"`
+	CourseNum        int64        `json:"courseNum"`
+	ThirdCategoryNum int64        `json:"thirdCategoryNum"`
+	Children         []CategoryVO `json:"children,optional"`
+	UpdateTime       string       `json:"updateTime"`
+	CreateTime       string       `json:"createTime"`
+}
+
+// ============== 课程基础信息 ==============
+type CourseBaseInfoSaveReq {
+	Id                int64  `json:"id,optional"`
+	Name              string `json:"name"`
+	CoverUrl          string `json:"coverUrl"`
+	Price             int64  `json:"price"`
+	Free              int64  `json:"free"`
+	ThirdCateId       int64  `json:"thirdCateId"`
+	Introduce         string `json:"introduce,optional"`
+	Detail            string `json:"detail,optional"`
+	UsePeople         string `json:"usePeople,optional"`
+	ValidDuration     int64  `json:"validDuration,optional"`
+	PurchaseStartTime string `json:"purchaseStartTime,optional"`
+	PurchaseEndTime   string `json:"purchaseEndTime,optional"`
+}
+
+type CourseBaseInfoGetReq {
+	Id  int64 `path:"id"`
+	See bool  `form:"see,optional"`
+}
+
+type CourseCheckNameReq {
+	Name string `form:"name"`
+	Id   int64  `form:"id,optional"`
+}
+
+type CourseBaseInfoVO {
+	Id                int64  `json:"id"`
+	Name              string `json:"name"`
+	Price             int64  `json:"price"`
+	Free              int64  `json:"free"`
+	CoverUrl          string `json:"coverUrl"`
+	Detail            string `json:"detail,optional"`
+	Introduce         string `json:"introduce,optional"`
+	UsePeople         string `json:"usePeople,optional"`
+	ValidDuration     int64  `json:"validDuration"`
+	PurchaseStartTime string `json:"purchaseStartTime,optional"`
+	PurchaseEndTime   string `json:"purchaseEndTime,optional"`
+	FirstCateId       int64  `json:"firstCateId"`
+	SecondCateId      int64  `json:"secondCateId"`
+	ThirdCateId       int64  `json:"thirdCateId"`
+	CateNames         string `json:"cateNames,optional"`
+	Status            int64  `json:"status"`
+	Step              int64  `json:"step"`
+	Score             int64  `json:"score,optional"`
+	CourseScore       string `json:"coureScore,optional"`
+	CataTotalNum      int64  `json:"cataTotalNum"`
+	EnrollNum         int64  `json:"enrollNum"`
+	StudyNum          int64  `json:"studyNum"`
+	RealPayAmount     int64  `json:"realPayAmount"`
+	RefundNum         int64  `json:"refundNum"`
+	CreaterName       string `json:"createrName,optional"`
+	UpdaterName       string `json:"updaterName,optional"`
+	CanUpdate         bool   `json:"canUpdate"`
+	CreateTime        string `json:"createTime"`
+	UpdateTime        string `json:"updateTime"`
+}
+
+// ============== 课程目录 ==============
+type CourseCataQueryReq {
+	Id           int64 `path:"id"`
+	See          bool  `form:"see,optional"`
+	WithPractice bool  `form:"withPractice,optional"`
+}
+
+type CataSaveItemReq {
+	Id       int64             `json:"id,optional"`
+	Name     string            `json:"name"`
+	Index    int64             `json:"index"`
+	Type     int64             `json:"type"`
+	Sections []CataSaveItemReq `json:"sections,optional"`
+}
+
+type CataSaveReq {
+	Id   int64             `path:"id"`
+	Step int64             `path:"step"`
+	List []CataSaveItemReq `json:"list"`
+}
+
+type CataSimpleInfoVO {
+	Id           int64  `json:"id"`
+	Name         string `json:"name"`
+	Index        int64  `json:"index"`
+	ChapterIndex int64  `json:"chapterIndex,optional"`
+	CIndex       int64  `json:"cindex,optional"`
+}
+
+type CatalogueVO {
+	Id            int64         `json:"id"`
+	Name          string        `json:"name"`
+	Index         int64         `json:"index"`
+	Type          int64         `json:"type"`
+	MediaId       int64         `json:"mediaId,optional"`
+	MediaName     string        `json:"mediaName,optional"`
+	MediaDuration int64         `json:"mediaDuration,optional"`
+	Trailer       bool          `json:"trailer,optional"`
+	SubjectNum    int64         `json:"subjectNum,optional"`
+	TotalScore    int64         `json:"totalScore,optional"`
+	Sections      []CatalogueVO `json:"sections,optional"`
+	CanUpdate     bool          `json:"canUpdate"`
+}
+
+type ChapterVO {
+	Id            int64       `json:"id"`
+	Name          string      `json:"name"`
+	Index         int64       `json:"index"`
+	Type          int64       `json:"type"`
+	MediaId       int64       `json:"mediaId,optional"`
+	MediaName     string      `json:"mediaName,optional"`
+	MediaDuration int64       `json:"mediaDuration,optional"`
+	Trailer       bool        `json:"trailer,optional"`
+	Sections      []ChapterVO `json:"sections,optional"`
+}
+
+type CourseAndSectionVO {
+	Id              int64       `json:"id"`
+	Name            string      `json:"name"`
+	CoverUrl        string      `json:"coverUrl"`
+	Sections        int64       `json:"sections"`
+	TeacherIcon     string      `json:"teacherIcon,optional"`
+	TeacherName     string      `json:"teacherName,optional"`
+	LessonId        int64       `json:"lessonId,optional"`
+	LatestSectionId int64       `json:"latestSectionId,optional"`
+	Chapters        []ChapterVO `json:"chapters"`
+}
+
+// ============== 课程上下架/删除 ==============
+type CourseIdListReq {
+	CourseIds string `form:"courseIds" json:"courseIds"`
+}
+
+// ============== 课程老师 ==============
+type CourseTeacherSaveReq {
+	Id       int64                   `json:"id"`
+	Teachers []CourseTeacherSaveItem `json:"teachers"`
+}
+
+type CourseTeacherSaveItem {
+	Id     int64 `json:"id"`
+	IsShow bool  `json:"isShow"`
+}
+
+type TeacherCourseInfoVO {
+	Id        int64  `json:"id"`
+	Name      string `json:"name"`
+	Photo     string `json:"photo,optional"`
+	Job       string `json:"job,optional"`
+	Introduce string `json:"introduce,optional"`
+	Icon      string `json:"icon,optional"`
+	IsShow    bool   `json:"isShow"`
+}
+
+// ============== 课程媒体 ==============
+type CourseMediaSaveItemReq {
+	CataId        int64  `json:"cataId"`
+	MediaId       int64  `json:"mediaId"`
+	VideoName     string `json:"videoName"`
+	MediaDuration int64  `json:"mediaDuration"`
+	Trailer       bool   `json:"trailer"`
+}
+
+type CourseMediaSaveReq {
+	Id   int64                    `path:"id"`
+	List []CourseMediaSaveItemReq `json:"list"`
+}
+
+// ============== 章节题目 ==============
+type CourseSubjectsSaveItemReq {
+	CataId     int64   `json:"cataId"`
+	SubjectIds []int64 `json:"subjectIds"`
+}
+
+type CourseSubjectsSaveReq {
+	Id   int64                       `path:"id"`
+	List []CourseSubjectsSaveItemReq `json:"list"`
+}
+
+type SubjectInfoVO {
+	Id          int64    `json:"id"`
+	Name        string   `json:"name"`
+	SubjectType int64    `json:"subjectType"`
+	Difficulty  int64    `json:"difficulty"`
+	Options     []string `json:"options,optional"`
+	Answer      string   `json:"answer,optional"`
+	Analysis    string   `json:"analysis,optional"`
+	Score       int64    `json:"score"`
+}
+
+type CataSubjectVO {
+	CataId   int64           `json:"cataId"`
+	Subjects []SubjectInfoVO `json:"subjects"`
+}
+
+// ============== 课程查询扩展 ==============
+type CourseInfoByTeacherIdsReq {
+	TeacherIds string `form:"teacherIds"`
+}
+
+type TeacherCourseCountVO {
+	TeacherId  int64 `json:"teacherId"`
+	CourseNum  int64 `json:"courseNum"`
+	SubjectNum int64 `json:"subjectNum"`
+}
+
+type CourseMediaUseInfoReq {
+	MediaIds string `form:"mediaIds"`
+}
+
+type MediaQuoteVO {
+	MediaId  int64 `json:"mediaId"`
+	QuoteNum int64 `json:"quoteNum"`
+}
+
+type CourseNameReq {
+	Name string `form:"name"`
+}
+
+// ============== 分页/搜索 ==============
+type CoursePageReq {
+	PageRequest
+	Keyword      string `form:"keyword,optional"`
+	Status       int64  `form:"status"`
+	Free         int64  `form:"free,optional"`
+	CourseType   int64  `form:"courseType,optional"`
+	FirstCateId  int64  `form:"firstCateId,optional"`
+	SecondCateId int64  `form:"secondCateId,optional"`
+	ThirdCateId  int64  `form:"thirdCateId,optional"`
+	BeginTime    string `form:"beginTime,optional"`
+	EndTime      string `form:"endTime,optional"`
+}
+
+type CoursePortalReq {
+	PageRequest
+	CategoryIdLv1 int64  `form:"categoryIdLv1,optional"`
+	CategoryIdLv2 int64  `form:"categoryIdLv2,optional"`
+	CategoryIdLv3 int64  `form:"categoryIdLv3,optional"`
+	Free          int64  `form:"free,optional"`
+	Type          int64  `form:"type,optional"`
+	Keyword       string `form:"keyword,optional"`
+	BeginTime     string `form:"beginTime,optional"`
+	EndTime       string `form:"endTime,optional"`
+	Status        int64  `form:"status,optional"`
+}
+
+type CoursePageVO {
+	Id             int64  `json:"id"`
+	Name           string `json:"name"`
+	CoverUrl       string `json:"coverUrl"`
+	Price          int64  `json:"price"`
+	Free           int64  `json:"free"`
+	Status         int64  `json:"status"`
+	StatusDesc     string `json:"statusDesc,optional"`
+	FirstCateName  string `json:"firstCateName,optional"`
+	SecondCateName string `json:"secondCateName,optional"`
+	ThirdCateName  string `json:"thirdCateName,optional"`
+	Score          int64  `json:"score,optional"`
+	Sold           int64  `json:"sold"`
+	SectionNum     int64  `json:"sectionNum"`
+	MediaDuration  int64  `json:"mediaDuration"`
+	PublishTime    string `json:"publishTime,optional"`
+	CreateTime     string `json:"createTime"`
+	UpdateTime     string `json:"updateTime"`
+}
+
+type CoursePageReply {
+	Total int64          `json:"total"`
+	Pages int64          `json:"pages"`
+	List  []CoursePageVO `json:"list"`
+}
+
+type CourseVO {
+	Id         int64  `json:"id"`
+	Name       string `json:"name"`
+	CoverUrl   string `json:"coverUrl"`
+	Price      int64  `json:"price"`
+	Free       int64  `json:"free"`
+	Score      int64  `json:"score,optional"`
+	Sold       int64  `json:"sold"`
+	Sections   int64  `json:"sections"`
+	Status     int64  `json:"status"`
+	CreateTime string `json:"createTime"`
+}
+
+type CourseSimpleInfoQueryReq {
+	Ids          string `form:"ids,optional"`
+	ThirdCataIds string `form:"thirdCataIds,optional"`
+}
+
+type CourseSimpleInfoDTO {
+	Id              int64  `json:"id"`
+	Name            string `json:"name"`
+	CoverUrl        string `json:"coverUrl"`
+	Price           int64  `json:"price"`
+	Free            int64  `json:"free"`
+	SectionNum      int64  `json:"sectionNum"`
+	Status          int64  `json:"status"`
+	ValidDuration   int64  `json:"validDuration"`
+	PurchaseEndTime string `json:"purchaseEndTime,optional"`
+	FirstCateId     int64  `json:"firstCateId"`
+	SecondCateId    int64  `json:"secondCateId"`
+	ThirdCateId     int64  `json:"thirdCateId"`
+}
+
+// ============== 详情/索引/小节 ==============
+type CourseFullInfoDTO {
+	Id              int64         `json:"id"`
+	Name            string        `json:"name"`
+	CoverUrl        string        `json:"coverUrl"`
+	Price           int64         `json:"price"`
+	FirstCateId     int64         `json:"firstCateId"`
+	SecondCateId    int64         `json:"secondCateId"`
+	ThirdCateId     int64         `json:"thirdCateId"`
+	ValidDuration   int64         `json:"validDuration"`
+	PurchaseEndTime string        `json:"purchaseEndTime,optional"`
+	SectionNum      int64         `json:"sectionNum"`
+	TeacherIds      []int64       `json:"teacherIds,optional"`
+	Chapters        []CatalogueVO `json:"chapters,optional"`
+}
+
+type CourseFullInfoQueryReq {
+	Id            int64 `path:"id"`
+	WithCatalogue bool  `form:"withCatalogue,optional"`
+	WithTeachers  bool  `form:"withTeachers,optional"`
+}
+
+type CourseSearchIndexVO {
+	Id            int64  `json:"id"`
+	Name          string `json:"name"`
+	CoverUrl      string `json:"coverUrl"`
+	Price         int64  `json:"price"`
+	Score         int64  `json:"score"`
+	Sold          int64  `json:"sold"`
+	Sections      int64  `json:"sections"`
+	Free          int64  `json:"free"`
+	CourseType    int64  `json:"courseType"`
+	Enable        int64  `json:"enable"`
+	CategoryIdLv1 int64  `json:"categoryIdLv1"`
+	CategoryIdLv2 int64  `json:"categoryIdLv2"`
+	CategoryIdLv3 int64  `json:"categoryIdLv3"`
+	CreateTime    string `json:"createTime"`
+	PublishTime   string `json:"publishTime,optional"`
+	Duration      int64  `json:"duration"`
+}
+
+type CourseSectionInfoVO {
+	Id       int64 `json:"id"`
+	CourseId int64 `json:"courseId"`
+	MediaId  int64 `json:"mediaId"`
+}
+
+// ============== 课程目录批量查询 ==============
+type CourseBatchQueryReq {
+	Ids string `form:"ids"`
+}
+
+// ============== Service 定义 ==============
+// 后台 - 分类
+@server (
+	jwt:    Auth
+	prefix: /categorys
+)
+service course-api {
+	@handler CategoryAddHandler
+	post /add (CategoryAddReq) returns (NameExistVO)
+
+	@handler CategoryUpdateHandler
+	put /update (CategoryUpdateReq) returns (NameExistVO)
+
+	@handler CategoryDisableOrEnableHandler
+	put /disableOrEnable (CategoryDisableReq) returns (NameExistVO)
+
+	@handler CategoryGetHandler
+	get /:id (IdPathReq) returns (CategoryInfoVO)
+
+	@handler CategoryDeleteHandler
+	delete /:id (IdPathReq) returns (NameExistVO)
+
+	@handler CategoryListAllHandler
+	get /all (CategoryListAllReq) returns ([]SimpleCategoryVO)
+
+	@handler CategoryListOneLevelHandler
+	get /getAllOfOneLevel returns ([]CategoryVO)
+
+	@handler CategoryListQueryHandler
+	get /list (CategoryListQueryReq) returns ([]CategoryVO)
+}
+
+// 后台 - 课程管理
+@server (
+	jwt:    Auth
+	prefix: /courses
+)
+service course-api {
+	@handler CourseBaseInfoSaveHandler
+	post /baseInfo/save (CourseBaseInfoSaveReq) returns (CourseSaveVO)
+
+	@handler CourseBaseInfoGetHandler
+	get /baseInfo/:id (CourseBaseInfoGetReq) returns (CourseBaseInfoVO)
+
+	@handler CourseCheckNameHandler
+	get /checkName (CourseCheckNameReq) returns (NameExistVO)
+
+	@handler CourseDeleteHandler
+	delete /delete/:id (IdPathReq) returns (NameExistVO)
+
+	@handler CourseUpShelfHandler
+	post /upShelf (IdPathReq) returns (NameExistVO)
+
+	@handler CourseDownShelfHandler
+	post /downShelf (IdPathReq) returns (NameExistVO)
+
+	@handler CourseCheckUpShelfHandler
+	get /checkBeforeUpShelf/:id (IdPathReq) returns (NameExistVO)
+
+	@handler CourseUpHandler
+	post /up (CourseIdListReq) returns (NameExistVO)
+
+	@handler CourseDownHandler
+	post /down (CourseIdListReq) returns (NameExistVO)
+
+	@handler CoursePageHandler
+	get /page (CoursePageReq) returns (CoursePageReply)
+
+	@handler CoursePortalHandler
+	get /portal (CoursePortalReq) returns (CoursePageReply)
+
+	@handler CourseSimpleInfoHandler
+	get /simpleInfo/list (CourseSimpleInfoQueryReq) returns ([]CourseSimpleInfoDTO)
+
+	@handler CourseCatalogsGetHandler
+	get /:id/catalogs (IdPathReq) returns (CourseAndSectionVO)
+
+	@handler CourseCataGetHandler
+	get /catas/:id (CourseCataQueryReq) returns ([]CatalogueVO)
+
+	@handler CourseCataSaveHandler
+	post /catas/save/:id/:step (CataSaveReq) returns (NameExistVO)
+
+	@handler CourseCataIndexListHandler
+	get /catas/index/list/:id (IdPathReq) returns ([]CataSimpleInfoVO)
+
+	@handler CourseMediaSaveHandler
+	post /media/save/:id (CourseMediaSaveReq) returns (NameExistVO)
+
+	@handler CourseTeachersGetHandler
+	get /teachers/:id (CourseCataQueryReq) returns ([]TeacherCourseInfoVO)
+
+	@handler CourseTeachersSaveHandler
+	post /teachers/save (CourseTeacherSaveReq) returns (NameExistVO)
+
+	@handler CourseSubjectsGetHandler
+	get /subjects/get/:id (IdPathReq) returns ([]CataSubjectVO)
+
+	@handler CourseSubjectsSaveHandler
+	post /subjects/save/:id (CourseSubjectsSaveReq) returns (NameExistVO)
+
+	@handler CourseGeneratorHandler
+	get /generator returns (CourseCataIdVO)
+}
+
+// 学员端 - 课程接口
+@server (
+	jwt:    Auth
+	prefix: /course
+)
+service course-api {
+	@handler CourseGetHandler
+	get /:id (CourseFullInfoQueryReq) returns (CourseFullInfoDTO)
+
+	@handler CourseSearchInfoHandler
+	get /:id/searchInfo (IdPathReq) returns (CourseSearchIndexVO)
+
+	@handler CourseSectionGetHandler
+	get /section/:id (IdPathReq) returns (CourseSectionInfoVO)
+
+	@handler CourseInfoByTeacherIdsHandler
+	get /infoByTeacherIds (CourseInfoByTeacherIdsReq) returns ([]TeacherCourseCountVO)
+
+	@handler CourseMediaUseInfoHandler
+	get /media/useInfo (CourseMediaUseInfoReq) returns ([]MediaQuoteVO)
+
+	@handler CourseNameHandler
+	get /name (CourseNameReq) returns ([]int64)
+}
+
+// 学员端 - 章节目录
+@server (
+	jwt:    Auth
+	prefix: /catalogues
+)
+service course-api {
+	@handler CatalogueBatchQueryHandler
+	get /batchQuery (CourseBatchQueryReq) returns ([]CataSimpleInfoVO)
+
+	@handler CatalogueSectionInfoHandler
+	get /querySectionInfoById/:id (IdPathReq) returns (CourseSectionInfoVO)
+}
+

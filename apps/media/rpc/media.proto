@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package media;
+
+option go_package = "./pb";
+
+// 空消息
+message Empty {}
+
+// ==================== 媒资相关消息 ====================
+
+// 媒资ID请求
+message MediaIdRequest {
+  int64 mediaId = 1;
+}
+
+// 媒资列表查询请求
+message MediaListRequest {
+  int32 pageNo = 1;
+  int32 pageSize = 2;
+  string name = 3;
+  string sortBy = 4;
+  string isAsc = 5;
+}
+
+// 媒资VO
+message MediaVO {
+  int64 id = 1;
+  string filename = 2;
+  string mediaUrl = 3;
+  string coverUrl = 4;
+  double duration = 5;
+  int64 size = 6;
+  int32 status = 7;
+  string creater = 8;
+  string createTime = 9;
+  int32 useTimes = 10;
+}
+
+// 媒资列表回复
+message MediaListReply {
+  int64 total = 1;
+  repeated MediaVO list = 2;
+}
+
+// 媒资保存请求
+message MediaSaveRequest {
+  int64 id = 1;
+  string filename = 2;
+  double duration = 3;
+  int64 size = 4;
+  string fileId = 5;
+}
+
+// 媒资ID回复
+message MediaIdReply {
+  int64 id = 1;
+}
+
+// ==================== 签名相关消息 ====================
+
+// 签名请求
+message SignatureRequest {
+  int64 mediaId = 1;
+  string fileName = 2;
+  string mediaType = 3;
+}
+
+// 签名VO
+message SignatureVO {
+  string token = 1;
+  string url = 2;
+  string uploadUrl = 3;
+  string playUrl = 4;
+}
+
+// ==================== 文件相关消息 ====================
+
+// 文件ID请求
+message FileIdRequest {
+  int64 id = 1;
+}
+
+// 文件保存请求
+message FileSaveRequest {
+  string filename = 1;
+  string key = 2;
+  int64 size = 3;
+}
+
+// 文件VO
+message FileVO {
+  int64 id = 1;
+  string key = 2;
+  string filename = 3;
+  string path = 4;
+  int32 status = 5;
+}
+
+// 文件ID回复
+message FileIdReply {
+  int64 id = 1;
+}
+
+// 成功VO（删除等操作用）
+message OkVO {}
+
+// ==================== 服务定义 ====================
+
+service Media {
+  // 媒资管理
+  rpc MediaGet(MediaIdRequest) returns (MediaVO);
+  rpc MediaList(MediaListRequest) returns (MediaListReply);
+  rpc MediaSave(MediaSaveRequest) returns (MediaIdReply);
+  rpc MediaDelete(MediaIdRequest) returns (Empty);
+
+  // 签名相关
+  rpc SignatureUpload(SignatureRequest) returns (SignatureVO);
+  rpc SignaturePreview(SignatureRequest) returns (SignatureVO);
+  rpc SignaturePlay(SignatureRequest) returns (SignatureVO);
+
+  // 文件管理
+  rpc FileGet(FileIdRequest) returns (FileVO);
+  rpc FileSave(FileSaveRequest) returns (FileIdReply);
+  rpc FileDelete(FileIdRequest) returns (Empty);
+}

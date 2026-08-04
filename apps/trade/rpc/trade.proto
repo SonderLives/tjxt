@@ -1,0 +1,416 @@
+syntax = "proto3";
+
+package trade;
+
+option go_package = "./pb";
+
+// ============================================================
+// Trade RPC：覆盖 cart / order / order_detail / refund_apply
+// 以及迁移自 pay 服务的 pay-channels / pay-orders / refund-orders
+// 业务能力，对外通过 etcd 服务发现暴露。
+// ============================================================
+
+service Trade {
+  // ===== 购物车 =====
+  rpc CartAdd(CartAddRequest) returns (Empty);
+  rpc CartList(Empty) returns (CartListReply);
+  rpc CartGet(IdRequest) returns (CartVO);
+  rpc CartUpdate(CartUpdateRequest) returns (Empty);
+  rpc CartDelete(IdRequest) returns (Empty);
+  rpc CartBatchDelete(CartBatchDeleteRequest) returns (Empty);
+
+  // ===== 订单 =====
+  rpc OrderPrePlace(PrePlaceRequest) returns (OrderConfirmVO);
+  rpc OrderPlace(PlaceOrderRequest) returns (PlaceOrderResultVO);
+  rpc OrderFreeCourse(FreeCourseRequest) returns (PlaceOrderResultVO);
+  rpc OrderPageQuery(OrderPageRequest) returns (OrderPageReply);
+  rpc OrderGet(IdRequest) returns (OrderVO);
+  rpc OrderStatus(IdRequest) returns (PlaceOrderResultVO);
+  rpc OrderCancel(IdRequest) returns (Empty);
+  rpc OrderDelete(IdRequest) returns (Empty);
+
+  // ===== 订单明细 =====
+  rpc OrderDetailGet(IdRequest) returns (OrderDetailAdminVO);
+  rpc OrderDetailCourseCheck(IdRequest) returns (BoolReply);
+  rpc OrderDetailEnrollCourse(EnrollCourseRequest) returns (EnrollCourseReply);
+  rpc OrderDetailEnrollNum(EnrollNumRequest) returns (EnrollNumReply);
+  rpc OrderDetailPageQuery(OrderDetailPageRequest) returns (OrderDetailPageReply);
+  rpc OrderDetailPurchaseInfo(PurchaseInfoRequest) returns (PurchaseInfoReply);
+
+  // ===== 支付渠道 =====
+  rpc PayChannelAdd(PayChannelDTO) returns (IdReply);
+  rpc PayChannelList(Empty) returns (PayChannelListReply);
+  rpc PayChannelGet(IdRequest) returns (PayChannelDTO);
+  rpc PayChannelDelete(IdRequest) returns (Empty);
+
+  // ===== 支付 =====
+  rpc PayApply(PayApplyRequest) returns (PayApplyReply);
+  rpc PayResultQuery(PayResultQueryRequest) returns (PayResultDTO);
+  rpc PayChannels(Empty) returns (PayChannelVOList);
+
+  // ===== 退款 =====
+  rpc RefundApply(RefundApplyRequest) returns (RefundResultDTO);
+  rpc RefundResultQuery(RefundResultQueryRequest) returns (RefundResultDTO);
+
+  // ===== 退款申请 =====
+  rpc RefundApplyCreate(RefundApplyFormRequest) returns (Empty);
+  rpc RefundApplyApprove(ApproveRequest) returns (Empty);
+  rpc RefundApplyCancel(RefundCancelRequest) returns (Empty);
+  rpc RefundApplyDetail(IdRequest) returns (RefundApplyVO);
+  rpc RefundApplyNext(Empty) returns (RefundApplyVO);
+  rpc RefundApplyPageQuery(RefundApplyPageRequest) returns (RefundApplyPageReply);
+  rpc RefundApplyGet(IdRequest) returns (RefundApplyVO);
+  rpc RefundApplyDelete(IdRequest) returns (Empty);
+}
+
+// ============== 通用 ==============
+
+message Empty {}
+message IdRequest { int64 id = 1; }
+message IdReply { int64 id = 1; }
+message BoolReply { bool value = 1; }
+
+// ============== 购物车 ==============
+
+message CartAddRequest { int64 course_id = 1; }
+message CartUpdateRequest { int64 id = 1; int64 course_id = 2; }
+message CartBatchDeleteRequest { repeated int64 ids = 1; }
+
+message CartVO {
+  int64  id = 1;
+  int64  course_id = 2;
+  string course_name = 3;
+  string cover_url = 4;
+  int64  price = 5;
+  int64  now_price = 6;
+  bool   expired = 7;
+}
+
+message CartListReply { repeated CartVO items = 1; }
+
+// ============== 订单 ==============
+
+message PrePlaceRequest { repeated int64 course_ids = 1; }
+
+message OrderCourseVO {
+  int64  id = 1;
+  string name = 2;
+  string cover_url = 3;
+  int64  price = 4;
+}
+
+message CouponDiscountDTO {
+  int64  id = 1;
+  string name = 2;
+  int64  discount_amount = 3;
+  string rule_desc = 4;
+}
+
+message OrderConfirmVO {
+  int64  order_id = 1;
+  int64  total_amount = 2;
+  repeated OrderCourseVO courses = 3;
+  repeated CouponDiscountDTO discounts = 4;
+}
+
+message PlaceOrderRequest {
+  int64  order_id = 1;
+  repeated int64 course_ids = 2;
+  repeated int64 coupon_ids = 3;
+}
+
+message FreeCourseRequest { int64 course_id = 1; }
+
+message PlaceOrderResultVO {
+  int64  order_id = 1;
+  int64  pay_amount = 2;
+  int64  pay_out_time = 3;
+  int32  status = 4;     // 1待支付 2已支付 3已关闭 4已完成 5已报名 6申请退款
+}
+
+message OrderPageRequest {
+  int64 page_no = 1;
+  int64 page_size = 2;
+  bool  is_asc = 3;
+  string sort_by = 4;
+  int64 no_no = 5;
+  int64 status = 6;
+}
+
+message OrderPageVO {
+  int64  id = 1;
+  int64  status = 2;
+  string status_desc = 3;
+  int64  total_amount = 4;
+  int64  real_amount = 5;
+  string create_time = 6;
+  repeated OrderDetailItemVO details = 7;
+}
+
+message OrderDetailItemVO {
+  int64  id = 1;
+  int64  course_id = 2;
+  string course_name = 3;
+  string cover_url = 4;
+  int64  price = 5;
+  int64  real_pay_amount = 6;
+  int32  status = 7;
+  int32  refund_status = 8;
+  bool   can_refund = 9;
+}
+
+message OrderPageReply {
+  int64 total = 1;
+  int64 pages = 2;
+  repeated OrderPageVO list = 3;
+}
+
+message OrderProgressNodeVO {
+  string name = 1;
+  string desc = 2;
+  int32  status = 3;
+  string time = 4;
+}
+
+message OrderVO {
+  int64  id = 1;
+  string create_time = 2;
+  int64  total_amount = 3;
+  int64  real_amount = 4;
+  int64  discount_amount = 5;
+  int32  status = 6;
+  string status_desc = 7;
+  string message = 8;
+  string coupon_desc = 9;
+  repeated OrderDetailItemVO details = 10;
+  repeated OrderProgressNodeVO progress_nodes = 11;
+}
+
+// ============== 订单明细 ==============
+
+message OrderDetailPageRequest {
+  int64  page_no = 1;
+  int64  page_size = 2;
+  bool   is_asc = 3;
+  string sort_by = 4;
+  int64  no_no = 5;
+  int64  id = 6;
+  string mobile = 7;
+  int64  status = 8;
+  int64  refund_status = 9;
+  string pay_channel = 10;
+  string order_start_time = 11;
+  string order_end_time = 12;
+}
+
+message OrderDetailPageVO {
+  int64  id = 1;
+  int64  order_id = 2;
+  int64  course_id = 3;
+  string course_name = 4;
+  string mobile = 5;
+  int64  price = 6;
+  int64  real_pay_amount = 7;
+  int64  discount_amount = 8;
+  int32  status = 9;
+  string status_desc = 10;
+  int32  refund_status = 11;
+  string refund_status_desc = 12;
+  string pay_channel = 13;
+  string create_time = 14;
+  string finish_time = 15;
+}
+
+message OrderDetailPageReply {
+  int64 total = 1;
+  int64 pages = 2;
+  repeated OrderDetailPageVO list = 3;
+}
+
+message OrderDetailAdminVO {
+  int64    id = 1;
+  int64    order_id = 2;
+  string   mobile = 3;
+  string   name = 4;
+  int64    price = 5;
+  int64    real_pay_amount = 6;
+  int64    discount_amount = 7;
+  int64    coupon_amount = 8;
+  string   coupon_desc = 9;
+  int32    status = 10;
+  string   message = 11;
+  string   pay_channel = 12;
+  int64    pay_order_no = 13;
+  string   study_valid_time = 14;
+  int64    refund_apply_id = 15;
+  int64    refund_order_no = 16;
+  int32    refund_status = 17;
+  string   refund_reason = 18;
+  string   refund_message = 19;
+  string   refund_channel = 20;
+  string   refund_failed_reason = 21;
+  string   refund_proposer_name = 22;
+  string   remark = 23;
+  bool     can_refund = 24;
+  string   failed_reason = 25;
+  repeated OrderProgressNodeVO nodes = 26;
+}
+
+message EnrollCourseRequest { repeated int64 student_ids = 1; }
+message EnrollNumRequest    { repeated int64 course_id_list = 1; }
+
+message EnrollCourseReply {
+  map<int64, int64> items = 1;  // student_id -> 报名课程数
+}
+
+message EnrollNumReply {
+  map<int64, int64> items = 1;  // course_id -> 报名人数
+}
+
+message PurchaseInfoRequest { int64 course_id = 1; }
+message PurchaseInfoReply {
+  int64 enroll_num = 1;
+  int64 real_pay_amount = 2;
+  int64 refund_num = 3;
+}
+
+// ============== 支付渠道（管理） ==============
+
+message PayChannelDTO {
+  int64  id = 1;
+  string name = 2;
+  string channel_code = 3;
+  string channel_icon = 4;
+  int32  channel_priority = 5;
+  int32  status = 6;
+}
+
+message PayChannelListReply { repeated PayChannelDTO items = 1; }
+
+// ============== 支付（学员侧） ==============
+
+message PayApplyRequest {
+  int64  order_id = 1;
+  string pay_channel_code = 2;  // wxPay / aliPay
+}
+
+message PayApplyReply { string qr_url = 1; }  // 支付二维码 url
+
+message PayChannelVO {
+  int64  id = 1;
+  string name = 2;
+  string channel_code = 3;
+  string channel_icon = 4;
+  int32  channel_priority = 5;
+}
+
+message PayChannelVOList { repeated PayChannelVO items = 1; }
+
+message PayResultQueryRequest { int64 biz_order_id = 1; }
+
+message PayResultDTO {
+  int64  biz_order_id = 1;
+  int32  status = 2;    // 1支付中 2失败 3成功
+  string pay_channel = 3;
+  int64  pay_order_no = 4;
+  string success_time = 5;
+}
+
+// ============== 退款（业务侧） ==============
+
+message RefundApplyRequest {
+  int64 biz_order_no = 1;
+  int64 biz_refund_order_no = 2;
+  int64 refund_amount = 3;
+}
+
+message RefundResultQueryRequest { int64 biz_refund_order_id = 1; }
+
+message RefundResultDTO {
+  int64  biz_pay_order_id = 1;
+  int64  biz_refund_order_id = 2;
+  int64  pay_order_no = 3;
+  int64  refund_order_no = 4;
+  int32  status = 5;     // 1退款中 2失败 3成功
+  string pay_channel = 6;
+  string refund_channel = 7;
+}
+
+// ============== 退款申请 ==============
+
+message RefundApplyFormRequest {
+  int64  order_detail_id = 1;
+  string refund_reason = 2;
+  string question_desc = 3;
+}
+
+message ApproveRequest {
+  int64  id = 1;
+  int64  approve_type = 2;    // 1 同意 2 拒绝
+  string approve_opinion = 3;
+  string remark = 4;
+}
+
+message RefundCancelRequest {
+  int64 id = 1;
+  int64 order_detail_id = 2;
+}
+
+message RefundApplyVO {
+  int64  id = 1;
+  int64  order_id = 2;
+  int64  order_detail_id = 3;
+  int64  price = 4;
+  int64  refund_amount = 5;
+  int32  refund_status = 6;
+  int64  refund_order_no = 7;
+  int64  pay_order_no = 8;
+  string pay_channel = 9;
+  string refund_channel = 10;
+  string refund_reason = 11;
+  string refund_message = 12;
+  string failed_reason = 13;
+  string approve_opinion = 14;
+  int32  approve_type = 15;
+  string remark = 16;
+  string create_time = 17;
+  string order_time = 18;
+  string pay_success_time = 19;
+  string student_name = 20;
+  string mobile = 21;
+}
+
+message RefundApplyPageRequest {
+  int64  page_no = 1;
+  int64  page_size = 2;
+  bool   is_asc = 3;
+  string sort_by = 4;
+  int64  id = 5;
+  int64  order_detail_id = 6;
+  int64  order_id = 7;
+  int64  refund_status = 8;
+  string mobile = 9;
+  string apply_start_time = 10;
+  string apply_end_time = 11;
+}
+
+message RefundApplyPageVO {
+  int64  id = 1;
+  int64  order_id = 2;
+  int64  order_detail_id = 3;
+  int64  price = 4;
+  int64  refund_amount = 5;
+  int32  status = 6;
+  string status_desc = 7;
+  string mobile = 8;
+  string student_name = 9;
+  string refund_reason = 10;
+  string create_time = 11;
+  string approve_time = 12;
+}
+
+message RefundApplyPageReply {
+  int64 total = 1;
+  int64 pages = 2;
+  repeated RefundApplyPageVO list = 3;
+}

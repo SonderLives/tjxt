@@ -1,0 +1,25 @@
+Name: learning.rpc
+ListenOn: 0.0.0.0:8085
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: learning.rpc
+
+DataSource: root:0000@tcp(127.0.0.1:3306)/tj_learning?charset=utf8mb4&parseTime=true&loc=Local
+
+Cache:
+  - Host: 127.0.0.1:6379
+    Type: node
+    Pass: ""
+
+RabbitMQ:
+  Host: 127.0.0.1
+  Port: 5672
+  User: rabbitmq
+  Pass: rabbitmq
+  PayQueue: learning.lesson.pay.queue
+  RefundQueue: learning.lesson.refund.queue
+  PayExchange: order.exchange
+  RefundExchange: order.exchange
+  PayRoutingKey: order.pay
+  RefundRoutingKey: order.refund

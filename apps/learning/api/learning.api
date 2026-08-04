@@ -1,0 +1,126 @@
+syntax = "v1"
+
+// 统一分页请求
+type PageRequest {
+	PageNo   int64  `form:"pageNo,optional"`
+	PageSize int64  `form:"pageSize,optional"`
+	IsAsc    bool   `form:"isAsc,optional"`
+	SortBy   string `form:"sortBy,optional"`
+}
+
+// 占位：handler 统一 result.Write 包装，logic 返回具体 VO
+type LessonRequest {
+	CourseId int64 `path:"courseId"`
+}
+
+type LearningLessonVO {
+	Id                 int64  `json:"id"`
+	CourseId           int64  `json:"courseId"`
+	CourseName         string `json:"courseName,optional"`
+	CourseCoverUrl     string `json:"courseCoverUrl,optional"`
+	CourseAmount       int64  `json:"courseAmount"`
+	Sections           int64  `json:"sections"`
+	LearnedSections    int64  `json:"learnedSections"`
+	Status             string `json:"status"`
+	PlanStatus         string `json:"planStatus"`
+	WeekFreq           int64  `json:"weekFreq,optional"`
+	LatestSectionId    int64  `json:"latestSectionId,optional"`
+	LatestSectionName  string `json:"latestSectionName,optional"`
+	LatestSectionIndex int64  `json:"latestSectionIndex,optional"`
+	CreateTime         string `json:"createTime"`
+	ExpireTime         string `json:"expireTime,optional"`
+	LatestLearnTime    string `json:"latestLearnTime,optional"`
+}
+
+type LessonPageReply {
+	Total int64              `json:"total"`
+	Pages int64              `json:"pages"`
+	List  []LearningLessonVO `json:"list"`
+}
+
+type PlanPageReply {
+	Total         int64              `json:"total"`
+	Pages         int64              `json:"pages"`
+	WeekFinished  int64              `json:"weekFinished"`
+	WeekPoints    int64              `json:"weekPoints"`
+	WeekTotalPlan int64              `json:"weekTotalPlan"`
+	List          []LearningLessonVO `json:"list"`
+}
+
+type LessonCountVO {
+	Count int64 `json:"count"`
+}
+
+type LessonValidVO {
+	LessonId int64 `json:"lessonId"`
+}
+
+// 学习记录提交
+type LearningRecordCommitReq {
+	LessonId    int64  `json:"lessonId"`
+	SectionId   int64  `json:"sectionId"`
+	SectionType string `json:"sectionType"` // VIDEO / EXAM
+	Moment      int64  `json:"moment"`
+	Duration    int64  `json:"duration"`
+	CommitTime  string `json:"commitTime,optional"`
+}
+
+type LearningRecordDTO {
+	SectionId int64 `json:"sectionId"`
+	Moment    int64 `json:"moment"`
+	Duration  int64 `json:"duration"`
+	Finished  bool  `json:"finished"`
+}
+
+type LearningLessonDTO {
+	Id              int64               `json:"id"`
+	LatestSectionId int64               `json:"latestSectionId,optional"`
+	Records         []LearningRecordDTO `json:"records"`
+}
+
+// 学习计划
+type PlanSaveReq {
+	CourseId int64 `json:"courseId"`
+	Freq     int64 `json:"freq"`
+}
+
+// 占位返回（无业务字段）
+type OkVO {
+	Success bool `json:"success"`
+}
+
+// ============================================================
+// Service 定义
+// ============================================================
+@server (
+	jwt: Auth
+)
+service learning-api {
+	@handler LearningNowHandler
+	get /lessons/now returns (LearningLessonVO)
+
+	@handler LessonPageHandler
+	get /lessons/page (PageRequest) returns (LessonPageReply)
+
+	@handler PlanPageHandler
+	get /lessons/plans (PageRequest) returns (PlanPageReply)
+
+	@handler LessonGetHandler
+	get /lessons/:courseId (LessonRequest) returns (LearningLessonVO)
+
+	@handler LessonCountHandler
+	get /lessons/:courseId/count (LessonRequest) returns (LessonCountVO)
+
+	@handler LessonValidHandler
+	get /lessons/:courseId/valid (LessonRequest) returns (LessonValidVO)
+
+	@handler LearningRecordCommitHandler
+	post /learning-records (LearningRecordCommitReq) returns (OkVO)
+
+	@handler LearningRecordsByCourseHandler
+	get /learning-records/course/:courseId (LessonRequest) returns (LearningLessonDTO)
+
+	@handler PlanSaveHandler
+	post /lessons/plans (PlanSaveReq) returns (OkVO)
+}
+
