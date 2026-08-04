@@ -207,9 +207,8 @@ tjxt/
 ├── sql/                   # 数据库脚本
 │   ├── ddl/               # DDL 建表语句
 │   └── migration/         # 迁移脚本
-├── model/                 # 公共 Model（暂空）
 ├── third_party/           # 第三方依赖（暂空）
-├── .opencode/             # Cursor 配置
+├── .opencode/             
 ├── Makefile               # 构建脚本
 ├── go.work                # Go 工作区
 ├── docker-compose.yml     # 基础设施编排
@@ -234,6 +233,7 @@ user/                          # 用户服务领域（独立 go.mod）
 │   │   ├── logic/             # 业务逻辑
 │   │   ├── svc/               # ServiceContext
 │   │   ├── middleware/        # 服务级中间件
+│   │   ├── model/             # 数据库模型
 │   │   ├── types/             # 请求/响应结构体
 │   │   └── routes/            # 路由注册
 │   ├── user.api               # go-zero API 定义文件
@@ -246,6 +246,7 @@ user/                          # 用户服务领域（独立 go.mod）
     │   ├── logic/             # 业务逻辑
     │   ├── server/            # gRPC 服务端实现
     │   ├── svc/               # ServiceContext
+    │   │   ├── model/         # 数据库模型
     │   └── middleware/        # 服务级中间件
     ├── model/                 # goctl 自动生成的 CRUD 模型
     ├── pb/                    # protoc 生成的 pb.go 代码
