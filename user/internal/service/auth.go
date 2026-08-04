@@ -83,7 +83,7 @@ func (s *authService) Login(ctx context.Context, req *types.LoginFormDTO, isAdmi
 	if err != nil {
 		return "", err
 	}
-	s.authModel.InsertLoginRecord(ctx, u.Id, u.CellPhone)
+	s.authModel.InsertLoginRecord(ctx, u.Id, u.CellPhone, "")
 	return token, nil
 }
 

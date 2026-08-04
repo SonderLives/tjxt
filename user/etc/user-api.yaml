@@ -14,3 +14,12 @@ DB:
 RoleTable: "tj_auth.role"
 # 新建用户默认密码
 DefaultPassword: "123456"
+
+# Redis 缓存配置（可选，留空则不使用缓存）
+Cache:
+  Host: "127.0.0.1"
+  Port: 6379
+
+# 内部接口 X-Internal-Token 白名单
+Internal:
+  AccessTokens: ["change-me-internal"]

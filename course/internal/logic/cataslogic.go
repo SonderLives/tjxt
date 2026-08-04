@@ -141,9 +141,6 @@ func NewCourseGeneratorLogic(ctx context.Context, svcCtx *svc.ServiceContext) *C
 }
 
 func (l *CourseGeneratorLogic) Generator() (resp *result.R, err error) {
-	id, err := idgen.Next()
-	if err != nil {
-		return nil, err
-	}
+	id := idgen.NextID()
 	return result.OkData(&types.CourseCataIdVO{Id: id}), nil
 }

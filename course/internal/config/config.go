@@ -15,6 +15,12 @@ type Config struct {
 		DataSource string
 		DriverName string
 	}
+	// Redis 缓存配置
+	Redis struct {
+		Host string
+		Type string
+		Pass string
+	}
 	// 用户详情表（tj_user 库，同实例跨库查询），用于老师信息与操作人姓名
 	UserDetailTable string `json:",optional"`
 	// 免费试看时长（分钟）
