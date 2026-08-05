@@ -63,8 +63,8 @@ make run-all         # 启动全部服务
 
 ⚠️ **端口冲突**：骨架阶段端口未统一分配，同时启动全部服务会失败。已知冲突见 [服务拓扑](../00-architecture/service-topology.md)：
 
-- API：`media-api` 与 `pay-api` 同占 `8811`
-- RPC：`exam.rpc`/`trade.rpc` 撞 `8084`，`learning.rpc`/`message.rpc` 撞 `8085`，`auth.rpc`/`course.rpc` 撞 `8083`
+- API：`media-api` 与 `pay-api` 同占 `8808`
+- RPC 端口已唯一分配（auth 8082、course 8083、exam 8085、learning 8084、message 8087、trade 8089、data 8091、promotion 8092 等），无冲突，可同时启动。
 
 同时启动前请先手工改对应 `etc/*.yaml`。
 

@@ -10,7 +10,7 @@
 |--------|--------|----------|------|
 | `Name` | `remark-api` | - | 服务名称 |
 | `Host` | `0.0.0.0` | - | 监听地址 |
-| `Port` | `8819` | - | 监听端口 |
+| `Port` | `8813` | - | 监听端口 |
 | `Auth.AccessSecret` | `change-me-in-production` | - | JWT 签名密钥 |
 | `Auth.AccessExpire` | `7200` | - | 访问令牌有效期（秒） |
 | `RemarkRpc.Etcd.Hosts[0]` | `127.0.0.1:2379` | - | etcd 地址 |
@@ -42,7 +42,7 @@ type Config struct {
 | 配置项 | 默认值 | 环境变量 | 说明 |
 |--------|--------|----------|------|
 | `Name` | `remark.rpc` | - | RPC 服务名 |
-| `ListenOn` | `0.0.0.0:8089` | - | RPC 监听地址 |
+| `ListenOn` | `0.0.0.0:8093` | - | RPC 监听地址 |
 | `Etcd.Hosts[0]` | `127.0.0.1:2379` | - | etcd 地址 |
 | `Etcd.Key` | `remark.rpc` | - | 服务注册 key |
 | `DataSource` | `root:0000@tcp(127.0.0.1:3306)/tj_remark?charset=utf8mb4&parseTime=true&loc=Local` | - | MySQL 连接串 |
@@ -90,8 +90,8 @@ root:0000@tcp(127.0.0.1:3306)/tj_remark?charset=utf8mb4&parseTime=true&loc=Local
 
 | 服务 | 端口 | 协议 |
 |------|------|------|
-| `remark-api` | `8819` | HTTP |
-| `remark.rpc` | `8089` | gRPC |
+| `remark-api` | `8813` | HTTP |
+| `remark.rpc` | `8093` | gRPC |
 
 ### 缓存使用方式
 

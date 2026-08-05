@@ -1,6 +1,6 @@
 Name: trade-api
 Host: 0.0.0.0
-Port: 8810
+Port: 8809
 
 Auth:
   AccessSecret: "change-me-in-production"

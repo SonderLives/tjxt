@@ -10,7 +10,7 @@
 |--------|--------|----------|------|
 | `Name` | `exam-api` | - | 服务名称 |
 | `Host` | `0.0.0.0` | - | 监听地址 |
-| `Port` | `8815` | - | 监听端口 |
+| `Port` | `8805` | - | 监听端口 |
 | `Auth.AccessSecret` | `change-me-in-production` | - | JWT 签名密钥 |
 | `Auth.AccessExpire` | `7200` | - | 访问令牌有效期（秒） |
 | `ExamRpc.Etcd.Hosts[0]` | `127.0.0.1:2379` | - | etcd 地址 |
@@ -42,7 +42,7 @@ type Config struct {
 | 配置项 | 默认值 | 环境变量 | 说明 |
 |--------|--------|----------|------|
 | `Name` | `exam.rpc` | - | RPC 服务名 |
-| `ListenOn` | `0.0.0.0:8084` | - | RPC 监听地址 |
+| `ListenOn` | `0.0.0.0:8085` | - | RPC 监听地址 |
 | `Etcd.Hosts[0]` | `127.0.0.1:2379` | - | etcd 地址 |
 | `Etcd.Key` | `exam.rpc` | - | 服务注册 key |
 | `DataSource` | `root:0000@tcp(127.0.0.1:3306)/tj_exam?charset=utf8mb4&parseTime=true&loc=Local` | - | MySQL 连接串 |
@@ -90,8 +90,8 @@ root:0000@tcp(127.0.0.1:3306)/tj_exam?charset=utf8mb4&parseTime=true&loc=Local
 
 | 服务 | 端口 | 协议 |
 |------|------|------|
-| `exam-api` | 8815 | HTTP |
-| `exam.rpc` | 8084 | gRPC |
+| `exam-api` | 8805 | HTTP |
+| `exam.rpc` | 8085 | gRPC |
 
 ### 缓存
 
@@ -154,8 +154,8 @@ root:0000@tcp(127.0.0.1:3306)/tj_exam?charset=utf8mb4&parseTime=true&loc=Local
 
 | 服务 | API 端口 | RPC 端口 | 备注 |
 |------|---------|---------|------|
-| `auth` | 8814 | 8083 | 有 `Jwt` 完整配置（含 Refresh） |
-| `media` | 8813 | 8087 | 缺对象存储配置 |
-| `exam` | **8815** | **8084** | 配置最精简，仅数据库 + 缓存 |
+| `auth` | 8802 | 8082 | 有 `Jwt` 完整配置（含 Refresh） |
+| `media` | 8806 | 8086 | 缺对象存储配置 |
+| `exam` | **8805** | **8085** | 配置最精简，仅数据库 + 缓存 |
 
 > exam 是三者中配置项最少的服务：**无外部第三方依赖**，所有配置项均已就位，配置层**不构成实现阻塞**（对比 media 的对象存储配置缺口）。当前的实现阻塞项集中在 model 扩展方法层面，详见 [data-model.md](./data-model.md) 的缺口表。

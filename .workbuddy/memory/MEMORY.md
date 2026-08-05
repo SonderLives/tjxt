@@ -6,15 +6,27 @@
 - 公共库 `tjxt/pkg`，各服务通过 `replace tjxt/pkg => ../../pkg` 引用。
 - 命名风格 gozero（无下划线），goctl 默认即此风格。
 
-## 服务清单与端口
-| 服务 | API | RPC | DB |
-|------|-----|-----|----|
-| user | ✅8808 | ✅user.rpc:8082 | tj_user(user/user_detail) |
-| course | ✅8812 | ✅course.rpc | tj_course |
-| trade | ✅8810 | ✅trade.rpc | tj_trade |
-| learning | ✅8888 | ✅learning.rpc:9000 | tj_learning |
-| pay | ✅8811 | ✅pay.rpc:8081 | tj_pay |
-| media | ✅8813 | ✅media.rpc:8087 | tj_media(file/media) |
+## 服务清单与端口（2026-08-06 统一重排为连续编号，无冲突）
+API 端口 8801–8813 连续唯一；RPC 端口 8081–8093 连续唯一。改端口不影响调用方（RPC 走 etcd Key 发现，如 `course.rpc`）。
+
+| 服务 | API | RPC(ListenOn) | etcd Key | DB |
+|------|-----|-----|-----|----|
+| user | 8801 | 8081 | user.rpc | tj_user(user/user_detail) |
+| auth | 8802 | 8082 | auth.rpc | tj_user |
+| course | 8803 | 8083 | course.rpc | tj_course |
+| learning | 8804 | 8084 | learning.rpc | tj_learning |
+| exam | 8805 | 8085 | exam.rpc | tj_learning |
+| media | 8806 | 8086 | media.rpc | tj_media(file/media) |
+| message | 8807 | 8087 | message.rpc | tj_message |
+| pay | 8808 | 8088 | pay.rpc | tj_pay |
+| trade | 8809 | 8089 | trade.rpc | tj_trade |
+| search | 8810 | 8090 | search.rpc | tj_search |
+| data | 8811 | 8091 | data.rpc | tj_data |
+| promotion | 8812 | 8092 | promotion.rpc | tj_promotion |
+| remark | 8813 | 8093 | remark.rpc | tj_remark |
+
+- data 为嵌套模块，配置在 `apps/data/api/data/etc/data-api.yaml`、`apps/data/rpc/data/etc/data.yaml`（不是 `apps/data/api/etc/`）。
+- 端口在 26 个 `apps/**/etc/*.yaml` + README.md + `.cursor/repowiki/**/*.md` + `docs/**/*.md` 中均已同步；批量改端口时务必用「旧→新映射的单趟 re.sub」，因新旧端口集合重叠，逐条回扫会连锁错改。
 
 ## go-zero 开发规范（用户强约束）
 - 优先 goctl 生成，只手写 logic/custom model/业务扩展。禁止手写骨架/handler/types/routes/pb。

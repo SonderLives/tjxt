@@ -10,7 +10,7 @@
 |--------|--------|----------|------|
 | `Name` | `user-api` | - | 服务名称 |
 | `Host` | `0.0.0.0` | - | 监听地址 |
-| `Port` | `8808` | - | 监听端口 |
+| `Port` | `8801` | - | 监听端口 |
 | `Auth.AccessSecret` | `change-me-in-production` | - | JWT 签名密钥 |
 | `Auth.AccessExpire` | `7200` | - | 访问令牌有效期（秒） |
 | `UserRpc.Etcd.Hosts[0]` | `127.0.0.1:2379` | - | etcd 地址 |
@@ -29,7 +29,7 @@
 | 配置项 | 默认值 | 环境变量 | 说明 |
 |--------|--------|----------|------|
 | `Name` | `user.rpc` | - | RPC 服务名 |
-| `ListenOn` | `0.0.0.0:8082` | - | RPC 监听地址 |
+| `ListenOn` | `0.0.0.0:8081` | - | RPC 监听地址 |
 | `Etcd.Hosts[0]` | `127.0.0.1:2379` | - | etcd 地址 |
 | `Etcd.Key` | `user.rpc` | - | 服务注册 key |
 | `DataSource` | `root:0000@tcp(127.0.0.1:3306)/tj_user?charset=utf8mb4&parseTime=true&loc=Local` | - | MySQL 连接串 |
@@ -78,8 +78,8 @@ root:0000@tcp(127.0.0.1:3306)/tj_user?charset=utf8mb4&parseTime=true&loc=Local
 
 | 服务 | 端口 | 协议 |
 |------|------|------|
-| `user-api` | 8808 | HTTP |
-| `user.rpc` | 8082 | gRPC |
+| `user-api` | 8801 | HTTP |
+| `user.rpc` | 8081 | gRPC |
 
 ### 与外部服务的连接
 

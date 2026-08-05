@@ -6,7 +6,7 @@
 
 ## 服务名
 
-`Message` — 站内信与通知微服务，通过 etcd 服务发现（key: `message.rpc`），监听 `0.0.0.0:8085`。
+`Message` — 站内信与通知微服务，通过 etcd 服务发现（key: `message.rpc`），监听 `0.0.0.0:8087`。
 
 ## RPC 方法总览
 

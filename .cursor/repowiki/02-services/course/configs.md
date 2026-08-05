@@ -10,7 +10,7 @@
 |--------|--------|----------|------|
 | `Name` | `course-api` | - | 服务名称 |
 | `Host` | `0.0.0.0` | - | 监听地址 |
-| `Port` | `8812` | - | 监听端口 |
+| `Port` | `8803` | - | 监听端口 |
 | `Auth.AccessSecret` | `change-me-in-production` | - | JWT 签名密钥 |
 | `Auth.AccessExpire` | `7200` | - | 访问令牌有效期（秒） |
 | `CourseRpc.Etcd.Hosts[0]` | `127.0.0.1:2379` | - | etcd 地址 |

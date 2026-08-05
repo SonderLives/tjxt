@@ -1,6 +1,6 @@
 Name: promotion-api
 Host: 0.0.0.0
-Port: 8818
+Port: 8812
 
 Auth:
   AccessSecret: "change-me-in-production"

@@ -6,27 +6,27 @@
 
 ```mermaid
 graph TD
-    Client[Client] --> AuthAPI[auth-api:8808]
-    Client --> CourseAPI[course-api:8812]
-    Client --> TradeAPI[trade-api:8810]
+    Client[Client] --> AuthAPI[auth-api:8801]
+    Client --> CourseAPI[course-api:8803]
+    Client --> TradeAPI[trade-api:8809]
     Client --> LearningAPI[learning-api:8888]
-    Client --> PayAPI[pay-api:8811]
-    Client --> MediaAPI[media-api:8813]
+    Client --> PayAPI[pay-api:8808]
+    Client --> MediaAPI[media-api:8806]
 
-    AuthAPI --> AuthRPC[auth-rpc:8082]
+    AuthAPI --> AuthRPC[auth-rpc:8081]
     CourseAPI --> CourseRPC[course-rpc]
     CourseAPI --> AuthRPC
     TradeAPI --> TradeRPC[trade-rpc]
     TradeAPI --> AuthRPC
     TradeAPI --> CourseRPC
-    TradeAPI --> PayRPC[pay-rpc:8081]
+    TradeAPI --> PayRPC[pay-rpc:8088]
     TradeAPI --> PromotionRPC[promotion-rpc]
     LearningAPI --> LearningRPC[learning-rpc:9000]
     LearningAPI --> AuthRPC
     LearningAPI --> CourseRPC
     PayAPI --> PayRPC
     PayAPI --> AuthRPC
-    MediaAPI --> MediaRPC[media-rpc:8087]
+    MediaAPI --> MediaRPC[media-rpc:8086]
     MediaAPI --> AuthRPC
 
     PromotionRPC --> AuthRPC

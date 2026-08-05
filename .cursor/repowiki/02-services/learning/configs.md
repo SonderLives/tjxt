@@ -10,7 +10,7 @@
 |--------|--------|----------|------|
 | `Name` | `learning-api` | - | 服务名称 |
 | `Host` | `0.0.0.0` | - | 监听地址 |
-| `Port` | `8813` | - | 监听端口 |
+| `Port` | `8804` | - | 监听端口 |
 | `Auth.AccessSecret` | `change-me-in-production` | - | JWT 签名密钥 |
 | `Auth.AccessExpire` | `7200` | - | 访问令牌有效期（秒） |
 | `LearningRpc.Etcd.Hosts[0]` | `127.0.0.1:2379` | - | etcd 地址 |
@@ -59,7 +59,7 @@ type Config struct {
 | 配置项 | 默认值 | 环境变量 | 说明 |
 |--------|--------|----------|------|
 | `Name` | `learning.rpc` | - | RPC 服务名 |
-| `ListenOn` | `0.0.0.0:8085` | - | RPC 监听地址 |
+| `ListenOn` | `0.0.0.0:8084` | - | RPC 监听地址 |
 | `Etcd.Hosts[0]` | `127.0.0.1:2379` | - | etcd 地址 |
 | `Etcd.Key` | `learning.rpc` | - | 服务注册 key |
 | `DataSource` | `root:0000@tcp(127.0.0.1:3306)/tj_learning?charset=utf8mb4&parseTime=true&loc=Local` | - | MySQL 连接串 |
@@ -132,8 +132,8 @@ root:0000@tcp(127.0.0.1:3306)/tj_learning?charset=utf8mb4&parseTime=true&loc=Loc
 
 | 服务 | 端口 | 协议 |
 |------|------|------|
-| `learning-api` | 8813 | HTTP |
-| `learning.rpc` | 8085 | gRPC |
+| `learning-api` | 8804 | HTTP |
+| `learning.rpc` | 8084 | gRPC |
 
 ### RabbitMQ 事件拓扑
 

@@ -1,6 +1,6 @@
 Name: remark-api
 Host: 0.0.0.0
-Port: 8819
+Port: 8813
 
 Auth:
   AccessSecret: "change-me-in-production"

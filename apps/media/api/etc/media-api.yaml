@@ -1,6 +1,6 @@
 Name: media-api
 Host: 0.0.0.0
-Port: 8813
+Port: 8806
 
 Auth:
   AccessSecret: "change-me-in-production"

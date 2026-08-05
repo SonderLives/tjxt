@@ -10,7 +10,7 @@
 |--------|--------|----------|------|
 | `Name` | `auth-api` | - | 服务名称 |
 | `Host` | `0.0.0.0` | - | 监听地址 |
-| `Port` | `8814` | - | 监听端口 |
+| `Port` | `8802` | - | 监听端口 |
 | `Auth.AccessSecret` | `change-me-in-production` | - | JWT 签名密钥 |
 | `Auth.AccessExpire` | `7200` | - | 访问令牌有效期（秒） |
 | `AuthRpc.Etcd.Hosts[0]` | `127.0.0.1:2379` | - | etcd 地址 |
@@ -29,7 +29,7 @@
 | 配置项 | 默认值 | 环境变量 | 说明 |
 |--------|--------|----------|------|
 | `Name` | `auth.rpc` | - | RPC 服务名 |
-| `ListenOn` | `0.0.0.0:8083` | - | RPC 监听地址 |
+| `ListenOn` | `0.0.0.0:8082` | - | RPC 监听地址 |
 | `Etcd.Hosts[0]` | `127.0.0.1:2379` | - | etcd 地址 |
 | `Etcd.Key` | `auth.rpc` | - | 服务注册 key |
 | `DataSource` | `root:0000@tcp(127.0.0.1:3306)/tj_auth?charset=utf8mb4&parseTime=true&loc=Local` | - | MySQL 连接串 |

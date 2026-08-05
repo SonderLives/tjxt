@@ -1,5 +1,5 @@
 Name: message.rpc
-ListenOn: 0.0.0.0:8085
+ListenOn: 0.0.0.0:8087
 Etcd:
   Hosts:
     - 127.0.0.1:2379

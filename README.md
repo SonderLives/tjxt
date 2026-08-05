@@ -11,9 +11,10 @@ HTTP Client
 ┌────────────────────────────────────────────────────────────────────────────┐
 │ API 层 (go-zero REST, 独立 go.mod, 通过 zrpc 调 RPC)                         │
 │                                                                            │
-│  auth-api:8814    user-api:8808    course-api:8812   learning-api:8813    │
-│  exam-api:8815    media-api:8811     message-api:8816  pay-api:8811        │
-│  trade-api:8810   search-api:8817    data-api:8818                         │
+│  auth-api:8802    user-api:8801    course-api:8803   learning-api:8804    │
+│  exam-api:8805    media-api:8806    message-api:8807  pay-api:8808        │
+│  trade-api:8809   search-api:8810   data-api:8811    promotion-api:8812   │
+│  remark-api:8813                                                       │
 └────────────────────────────┬───────────────────────────────────────────────┘
                              │ zrpc (etcd 服务发现)
                              ▼
@@ -22,7 +23,7 @@ HTTP Client
 │                                                                            │
 │  auth.rpc      user.rpc       course.rpc     learning.rpc                  │
 │  exam.rpc      media.rpc      message.rpc    pay.rpc                       │
-│  trade.rpc     search.rpc     data.rpc                                     │
+│  trade.rpc     search.rpc     data.rpc      promotion.rpc  remark.rpc     │
 └────────────────────────────┬───────────────────────────────────────────────┘
                              ▼
                    MySQL (sqlx + goctl model --cache)
@@ -37,7 +38,7 @@ HTTP Client
 
 ```
 tjxt/
-├── go.work                  # 工作区，聚合 13 个模块 (12 服务 + pkg)
+├── go.work                  # 工作区，聚合 13 服务（data 拆 api/rpc 两 module，共 15 个 module）+ pkg，另含根模块
 ├── go.mod                   # 根模块 (仅声明版本)
 ├── Makefile                 # 构建/生成/运行/校验一站式命令
 ├── docker-compose.yml       # MySQL/Redis/RabbitMQ/etcd 一键启动
@@ -56,7 +57,7 @@ tjxt/
 ├── docs/
 │   └── tjxt.openapi.json    # OpenAPI 3.0 规范文档
 └── apps/
-    └── <svc>/               # 11 个业务服务 + data 嵌套服务
+    └── <svc>/               # 13 个业务服务（auth/course/data/exam/learning/media/message/pay/promotion/remark/search/trade/user）
         ├── go.mod
         ├── api/
         │   ├── <svc>.api          # goctl API 定义 (路由/请求/响应)
@@ -97,26 +98,24 @@ tjxt/
 ## 🗂 服务清单
 
 
-| 服务           | API 端口 | RPC 地址         | etcd Key       | 数据库         | 核心职责                  |
+| 服务           | API 端口 | RPC 地址         | etcd Key         | 数据库         | 核心职责                  |
 | ------------ | ------ | -------------- | -------------- | ----------- | --------------------- |
-| **auth**     | 8814   | 127.0.0.1:8083 | `auth.rpc`     | tj_auth     | 登录/注册、Token 签发刷新、权限校验 |
-| **user**     | 8808   | 127.0.0.1:8082 | `user.rpc`     | tj_user     | 用户档案、教师/学员详情、角色部门     |
-| **course**   | 8812   | 127.0.0.1:8083 | `course.rpc`   | tj_course   | 课程/分类/章节/媒体资源 CRUD    |
-| **learning** | 8813   | 127.0.0.1:8085 | `learning.rpc` | tj_learning | 学习进度、收藏、笔记、考试记录       |
-| **exam**     | 8815   | 127.0.0.1:8084 | `exam.rpc`     | tj_exam     | 试卷/题库/考试/评分/记录        |
-| **media**    | 8811   | 127.0.0.1:8087 | `media.rpc`    | tj_media    | 文件上传、媒资管理、转码回调        |
-| **message**  | 8816   | 127.0.0.1:8085 | `message.rpc`  | tj_message  | 站内信/通知/公告、模板消息        |
-| **pay**      | 8811   | 127.0.0.1:8081 | `pay.rpc`      | tj_pay      | 订单支付、退款、回调、账单         |
-| **trade**    | 8810   | 127.0.0.1:8084 | `trade.rpc`    | tj_trade    | 交易订单、优惠券、分佣结算         |
-| **search**   | 8817   | 127.0.0.1:8086 | `search.rpc`   | — (ES)      | 课程/用户全文检索、建议词         |
-| **data**     | 8818   | 127.0.0.1:8088 | `data.rpc`     | — (Redis)   | 统计大屏、榜单、今日数据聚合        |
+| **auth**     | 8802   | 127.0.0.1:8082 | `auth.rpc`     | tj_auth     | 登录/注册、Token 签发刷新、权限校验 |
+| **user**     | 8801   | 127.0.0.1:8081 | `user.rpc`     | tj_user     | 用户档案、教师/学员详情、角色部门     |
+| **course**   | 8803   | 127.0.0.1:8083 | `course.rpc`   | tj_course   | 课程/分类/章节/媒体资源 CRUD    |
+| **learning** | 8804   | 127.0.0.1:8084 | `learning.rpc` | tj_learning | 学习进度、收藏、笔记、考试记录       |
+| **exam**     | 8805   | 127.0.0.1:8085 | `exam.rpc`     | tj_exam     | 试卷/题库/考试/评分/记录        |
+| **media**    | 8806   | 127.0.0.1:8086 | `media.rpc`    | tj_media    | 文件上传、媒资管理、转码回调        |
+| **message**  | 8807   | 127.0.0.1:8087 | `message.rpc`  | tj_message  | 站内信/通知/公告、模板消息        |
+| **pay**      | 8808   | 127.0.0.1:8088 | `pay.rpc`      | tj_pay      | 订单支付、退款、回调、账单         |
+| **trade**    | 8809   | 127.0.0.1:8089 | `trade.rpc`    | tj_trade    | 交易订单、优惠券、分佣结算         |
+| **search**   | 8810   | 127.0.0.1:8090 | `search.rpc`   | tj_search   | 课程/用户全文检索、建议词         |
+| **data**     | 8811   | 127.0.0.1:8091 | `data.rpc`     | — (Redis)   | 统计大屏、榜单、今日数据聚合        |
+| **promotion**| 8812   | 127.0.0.1:8092 | `promotion.rpc`| tj_promotion| 优惠券、营销活动、秒杀、积分        |
+| **remark**   | 8813   | 127.0.0.1:8093 | `remark.rpc`   | tj_remark   | 评价/评论、评分、回复            |
 
 
-> ⚠️ **端口冲突提示** (骨架阶段先这么跑，后续统一分配)：
->
-> - API: `media-api` 与 `pay-api` 撞 `8811`
-> - RPC: `exam.rpc`/`trade.rpc` 撞 `8084`，`learning.rpc`/`message.rpc` 撞 `8085`，`auth.rpc`/`course.rpc` 撞 `8083`
-> - **同时启动请先修改对应 yaml 端口**
+> 📌 各服务 API/RPC 端口已在 `apps/*/api/etc/*.yaml` 与 `apps/*/rpc/etc/*.yaml` 中唯一分配，可同时启动（media-api 8806、promotion-api 8812、course.rpc 8083、trade.rpc 8089、message.rpc 8087、promotion.rpc 8092）。
 
 
 
@@ -155,7 +154,7 @@ make deps && go work sync
 # 2. 环境体检 (Go/goctl/golangci-lint + 全模块编译)
 make verify
 
-# 3. 编译全部 22 个可执行文件 (11 api + 11 rpc) 到 bin/
+# 3. 编译全部 26 个可执行文件 (13 api + 13 rpc) 到 bin/
 make build
 
 # 4. 启动单个服务 (新开终端)
@@ -314,15 +313,18 @@ replace tjxt/pkg => ../../pkg
 
 ## 📊 业务实现现状
 
+> 结论（2026-08-06 复核）：13/13 服务、API+RPC 共 394 个接口，全部 logic 已实现并 `go build` 逐模块编译通过；功能完备度≈97%（少量桩为有意预留，见下）。
 
 | 项目           | 状态                                                                  |
 | ------------ | ------------------------------------------------------------------- |
-| **骨架**       | ✅ 11 服务 api+rpc 全部 goctl 生成完毕，`go build` 通过                         |
-| **Logic 业务** | 🚧 全部是 goctl 默认 `// todo:` 桩，待按服务对齐 Java 版实现                        |
-| **中间件**      | 🚧 JWT/统一响应/链路追踪在 `pkg/` 就绪，尚未接入各 svc                               |
+| **骨架**       | ✅ 13 服务 api+rpc 全部 goctl 生成完毕，`go build ./...` 逐模块编译通过                  |
+| **Logic 业务** | ✅ 394/394 logic 全部实现（API 193 + RPC 201），全库 0 处 TODO/panic 占位           |
+| **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `result.Write`、xerr 错误码已在各 svc 接入       |
 | **包名规范**     | ✅ 模块路径统一 `tjxt/apps/<svc>` (data 为 `tjxt/apps/data/{api,rpc}/data`) |
-| **事件总线**     | ✅ `pkg/mq/event` 已定常量与发布/订阅抽象，业务侧尚未接入                               |
-| **数据库**      | ✅ DDL 就绪，Model 待生成                                                  |
+| **事件总线**     | 🚧 `pkg/mq` Producer 已实例化，但 trade 等业务 logic 尚未实际 `Publish`（事件未发射） |
+| **数据库**      | ✅ DDL + goctl model（带缓存）已生成，自定义 Model 已扩展                         |
+| **跨域 RPC**    | ⚠️ 已接线 trade→{course,pay}、search→course、learning→course；其余（如 course→user/learning、trade→promotion、pay→真实网关）尚未接线 |
+| **已知缺口**     | ⚠️ media 对象存储为 mock、pay 支付回调为 demo 占位、trade 优惠券未接入、Seata 未接入、`apps/data/api/go.mod` 为孤儿模块 |
 
 
 

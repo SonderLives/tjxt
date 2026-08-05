@@ -1,6 +1,6 @@
 Name: data-api
 Host: 0.0.0.0
-Port: 8818
+Port: 8811
 
 Auth:
   AccessSecret: "change-me-in-production"

@@ -1,6 +1,6 @@
 Name: exam-api
 Host: 0.0.0.0
-Port: 8815
+Port: 8805
 
 Auth:
   AccessSecret: "change-me-in-production"

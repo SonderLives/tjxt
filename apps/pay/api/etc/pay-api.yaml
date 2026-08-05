@@ -1,6 +1,6 @@
 Name: pay-api
 Host: 0.0.0.0
-Port: 8811
+Port: 8808
 
 Auth:
   AccessSecret: "change-me-in-production"

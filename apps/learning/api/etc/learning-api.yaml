@@ -1,6 +1,6 @@
 Name: learning-api
 Host: 0.0.0.0
-Port: 8813
+Port: 8804
 
 Auth:
   AccessSecret: "change-me-in-production"

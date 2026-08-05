@@ -8,8 +8,8 @@
 
 | 进程 | 配置文件 | 关键配置 | 端口 / 监听 |
 | --- | --- | --- | --- |
-| API 网关 | `apps/data/api/data/etc/data-api.yaml` | `Name: data-api`、`Port: 8818` | HTTP `0.0.0.0:8818` |
-| RPC 服务 | `apps/data/rpc/data/etc/data.yaml` | `Name: data.rpc`、`ListenOn: 0.0.0.0:8088` | gRPC `0.0.0.0:8088` |
+| API 网关 | `apps/data/api/data/etc/data-api.yaml` | `Name: data-api`、`Port: 8811` | HTTP `0.0.0.0:8811` |
+| RPC 服务 | `apps/data/rpc/data/etc/data.yaml` | `Name: data.rpc`、`ListenOn: 0.0.0.0:8091` | gRPC `0.0.0.0:8091` |
 
 - API 与 RPC 通过 etcd 服务发现对接：`DataRpc.Etcd.Key: data.rpc`，etcd 地址 `127.0.0.1:2379`。
 - 与 message、search 不同，data 的 RPC 配置**没有** `DataSource`、`Cache` 段（见下方「已知结构性问题」）。
@@ -22,7 +22,7 @@
 | --- | --- | --- |
 | `Name` | `data-api` | 服务名 |
 | `Host` | `0.0.0.0` | 监听地址 |
-| `Port` | `8818` | HTTP 端口 |
+| `Port` | `8811` | HTTP 端口 |
 | `Auth.AccessSecret` | `"change-me-in-production"` | JWT 签名密钥（占位值，生产须替换） |
 | `Auth.AccessExpire` | `7200` | JWT 有效期（秒） |
 | `DataRpc.Etcd.Hosts` | `127.0.0.1:2379` | etcd 地址 |
@@ -37,7 +37,7 @@
 | 配置项 | 取值 | 说明 |
 | --- | --- | --- |
 | `Name` | `data.rpc` | 服务名 |
-| `ListenOn` | `0.0.0.0:8088` | gRPC 监听地址 |
+| `ListenOn` | `0.0.0.0:8091` | gRPC 监听地址 |
 | `Etcd.Hosts` | `127.0.0.1:2379` | etcd 地址 |
 | `Etcd.Key` | `data.rpc` | 自身注册 key |
 

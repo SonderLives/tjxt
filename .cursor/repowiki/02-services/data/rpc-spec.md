@@ -6,7 +6,7 @@
 
 ## 服务名
 
-`Data` — 统计大屏数据微服务，通过 etcd 服务发现（key: `data.rpc`），监听 `0.0.0.0:8088`。
+`Data` — 统计大屏数据微服务，通过 etcd 服务发现（key: `data.rpc`），监听 `0.0.0.0:8091`。
 
 > ⚠️ proto 文件路径为 `apps/data/rpc/data/data.proto`，比其余 12 个服务多一层 `data/` 目录。详见 [configs.md](./configs.md) 的「⚠️ 已知结构性问题」一节。
 
