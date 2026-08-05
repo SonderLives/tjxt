@@ -8,6 +8,8 @@ import (
 
 	"tjxt/apps/search/api/internal/svc"
 	"tjxt/apps/search/api/internal/types"
+	searchclient "tjxt/apps/search/rpc/client/search"
+	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +29,19 @@ func NewGetInterestsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetI
 }
 
 func (l *GetInterestsLogic) GetInterests() (resp *types.InterestsVO, err error) {
-	// todo: add your logic here and delete this line
+	userId, err := auth.UserIdFromCtx(l.ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	rpcResp, err := l.svcCtx.SearchRpc.GetInterests(l.ctx, &searchclient.IdReq{Id: userId})
+	if err != nil {
+		return nil, err
+	}
+	return &types.InterestsVO{
+		Id:         rpcResp.Id,
+		Interests:  rpcResp.Interests,
+		CreateTime: rpcResp.CreateTime,
+		UpdateTime: rpcResp.UpdateTime,
+	}, nil
 }

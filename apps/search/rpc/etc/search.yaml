@@ -11,3 +11,28 @@ Cache:
   - Host: 127.0.0.1:6379
     Type: node
     Pass: ""
+
+# 课程服务 RPC（course.up 事件回源课程索引数据）
+CourseRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: course.rpc
+
+# 本地 Docker Elasticsearch 9.4.1（9200）。
+# 探测结论：该实例未安装 analysis-smartcn 插件（GET /_analyze 报
+# "failed to find global analyzer [smartcn]"），中文分词回退 standard
+# （中文按单字切分，对按词/单字查询足够；不安装 IK，IK 不跟进 9.x）。
+Elasticsearch:
+  Addresses:
+    - http://127.0.0.1:9200
+  Username: ""
+  Password: ""
+  Analyzer: standard
+
+# RabbitMQ，消费 course.events 交换机上的 course.up / course.down 事件
+RabbitMQ:
+  Host: 127.0.0.1
+  Port: 5672
+  User: rabbitmq
+  Pass: rabbitmq

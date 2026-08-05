@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	interests "tjxt/apps/search/api/internal/handler/interests"
+	recommend "tjxt/apps/search/api/internal/handler/recommend"
+	search "tjxt/apps/search/api/internal/handler/search"
 	"tjxt/apps/search/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -24,6 +26,28 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodGet,
 				Path:    "/interests",
 				Handler: interests.GetInterestsHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/interests/:id/courses",
+				Handler: recommend.GetTopCoursesByCategoryHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/search/courses",
+				Handler: search.SearchCoursesHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

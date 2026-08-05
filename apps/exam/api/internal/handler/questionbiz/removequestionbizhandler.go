@@ -10,6 +10,7 @@ import (
 	"tjxt/apps/exam/api/internal/logic/questionbiz"
 	"tjxt/apps/exam/api/internal/svc"
 	"tjxt/apps/exam/api/internal/types"
+	result "tjxt/pkg/response"
 )
 
 func RemoveQuestionBizHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -22,10 +23,6 @@ func RemoveQuestionBizHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := questionbiz.NewRemoveQuestionBizLogic(r.Context(), svcCtx)
 		resp, err := l.RemoveQuestionBiz(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.Write(w, r, resp, err)
 	}
 }

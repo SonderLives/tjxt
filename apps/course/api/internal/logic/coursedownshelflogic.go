@@ -8,6 +8,8 @@ import (
 
 	"tjxt/apps/course/api/internal/svc"
 	"tjxt/apps/course/api/internal/types"
+	"tjxt/apps/course/rpc/pb"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,8 +28,11 @@ func NewCourseDownShelfLogic(ctx context.Context, svcCtx *svc.ServiceContext) *C
 	}
 }
 
+// CourseDownShelf 课程下架（透传 RPC）。
 func (l *CourseDownShelfLogic) CourseDownShelf(req *types.IdPathReq) (resp *types.NameExistVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	_, err = l.svcCtx.CourseRpc.CourseDownShelf(l.ctx, &pb.IdRequest{Id: req.Id})
+	if err != nil {
+		return nil, xerr.Wrap(err, xerr.CodeInternal, "课程下架失败")
+	}
+	return &types.NameExistVO{Existed: false}, nil
 }

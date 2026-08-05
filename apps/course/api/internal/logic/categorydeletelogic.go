@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package logic
 
 import (
@@ -8,6 +5,8 @@ import (
 
 	"tjxt/apps/course/api/internal/svc"
 	"tjxt/apps/course/api/internal/types"
+	"tjxt/apps/course/rpc/pb"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,8 +25,11 @@ func NewCategoryDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ca
 	}
 }
 
+// CategoryDelete 删除分类。
 func (l *CategoryDeleteLogic) CategoryDelete(req *types.IdPathReq) (resp *types.NameExistVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	_, err = l.svcCtx.CourseRpc.CategoryDelete(l.ctx, &pb.IdRequest{Id: req.Id})
+	if err != nil {
+		return nil, xerr.Wrap(err, xerr.CodeInternal, "删除分类失败")
+	}
+	return &types.NameExistVO{Existed: false}, nil
 }

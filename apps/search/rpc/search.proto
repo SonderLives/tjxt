@@ -23,9 +23,50 @@ message SaveInterestsReq {
   string interests = 2;
 }
 
+// ==================== 课程搜索 ====================
+// 与 course 服务 CourseSearchIndexInfo 字段对齐
+message CourseVO {
+  int64  id = 1;
+  string name = 2;
+  string cover_url = 3;
+  int64  price = 4;
+  int64  score = 5;
+  int64  sold = 6;
+  int64  sections = 7;
+  int32  free = 8;
+  int32  course_type = 9;
+  int32  enable = 10;
+  int64  category_id_lv1 = 11;
+  int64  category_id_lv2 = 12;
+  int64  category_id_lv3 = 13;
+  string create_time = 14;
+  string publish_time = 15;
+  int64  duration = 16;
+}
+
+message CourseListReply {
+  repeated CourseVO items = 1;
+}
+
+message CourseSearchRequest {
+  string keyword = 1;
+  int64  page_no = 2;
+  int64  page_size = 3;
+  int32  sort = 4; // 0 默认相关度 1 按销量 2 按评分
+}
+
+message CourseSearchPageReply {
+  int64 total = 1;
+  repeated CourseVO items = 2;
+}
+
 // ==================== 服务定义 ====================
 service Search {
   // 用户兴趣
   rpc SaveInterests(SaveInterestsReq) returns (Empty);
   rpc GetInterests(IdReq) returns (InterestsVO);
+
+  // 课程搜索
+  rpc GetTopCoursesByCategory(IdReq) returns (CourseListReply);
+  rpc SearchCourses(CourseSearchRequest) returns (CourseSearchPageReply);
 }

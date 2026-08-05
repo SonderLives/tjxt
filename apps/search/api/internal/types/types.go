@@ -3,6 +3,45 @@
 
 package types
 
+type CourseListVO struct {
+	List []CourseVO `json:"list"`
+}
+
+type CourseSearchPageVO struct {
+	Total int64      `json:"total"`
+	List  []CourseVO `json:"list"`
+}
+
+type CourseSearchReq struct {
+	Keyword  string `form:"keyword"`
+	PageNo   int64  `form:"pageNo,optional"`
+	PageSize int64  `form:"pageSize,optional"`
+	Sort     int32  `form:"sort,optional"` // 0 默认相关度 1 按销量 2 按评分
+}
+
+type CourseVO struct {
+	Id            int64  `json:"id"`
+	Name          string `json:"name"`
+	CoverUrl      string `json:"coverUrl"`
+	Price         int64  `json:"price"`
+	Score         int64  `json:"score"`
+	Sold          int64  `json:"sold"`
+	Sections      int64  `json:"sections"`
+	Free          int32  `json:"free"`
+	CourseType    int32  `json:"courseType"`
+	Enable        int32  `json:"enable"`
+	CategoryIdLv1 int64  `json:"categoryIdLv1"`
+	CategoryIdLv2 int64  `json:"categoryIdLv2"`
+	CategoryIdLv3 int64  `json:"categoryIdLv3"`
+	CreateTime    string `json:"createTime"`
+	PublishTime   string `json:"publishTime"`
+	Duration      int64  `json:"duration"`
+}
+
+type IdPathReq struct {
+	Id int64 `path:"id"`
+}
+
 type InterestsVO struct {
 	Id         int64  `json:"id"`
 	Interests  string `json:"interests"`

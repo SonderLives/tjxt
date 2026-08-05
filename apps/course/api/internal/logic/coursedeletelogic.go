@@ -8,6 +8,8 @@ import (
 
 	"tjxt/apps/course/api/internal/svc"
 	"tjxt/apps/course/api/internal/types"
+	"tjxt/apps/course/rpc/pb"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,8 +28,11 @@ func NewCourseDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cour
 	}
 }
 
+// CourseDelete 删除课程（透传 RPC）。
 func (l *CourseDeleteLogic) CourseDelete(req *types.IdPathReq) (resp *types.NameExistVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	_, gerr := l.svcCtx.CourseRpc.CourseDelete(l.ctx, &pb.IdRequest{Id: req.Id})
+	if gerr != nil {
+		return nil, xerr.Wrap(gerr, xerr.CodeInternal, "删除课程失败")
+	}
+	return &types.NameExistVO{Existed: false}, nil
 }

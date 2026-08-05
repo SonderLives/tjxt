@@ -8,6 +8,8 @@ import (
 
 	"tjxt/apps/course/api/internal/svc"
 	"tjxt/apps/course/api/internal/types"
+	"tjxt/apps/course/rpc/pb"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,8 +28,21 @@ func NewCourseInfoByTeacherIdsLogic(ctx context.Context, svcCtx *svc.ServiceCont
 	}
 }
 
+// CourseInfoByTeacherIds 按老师 id 统计课程/题目数量（透传 RPC）。
 func (l *CourseInfoByTeacherIdsLogic) CourseInfoByTeacherIds(req *types.CourseInfoByTeacherIdsReq) (resp []types.TeacherCourseCountVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	list, gerr := l.svcCtx.CourseRpc.CourseInfoByTeacherIds(l.ctx, &pb.TeacherIdsRequest{
+		TeacherIds: parseIds(req.TeacherIds),
+	})
+	if gerr != nil {
+		return nil, xerr.Wrap(gerr, xerr.CodeInternal, "查询老师课程信息失败")
+	}
+	resp = make([]types.TeacherCourseCountVO, 0, len(list.Items))
+	for _, item := range list.Items {
+		resp = append(resp, types.TeacherCourseCountVO{
+			TeacherId:  item.TeacherId,
+			CourseNum:  item.CourseNum,
+			SubjectNum: item.SubjectNum,
+		})
+	}
+	return resp, nil
 }

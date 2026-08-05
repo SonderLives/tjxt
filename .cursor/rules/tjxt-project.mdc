@@ -44,3 +44,7 @@ alwaysApply: true
 
 - 纯 DDL 放 `sql/ddl/<domain>.sql`（供 goctl model 使用），含初始数据的迁移脚本放 `sql/migration/`。
 - 每个服务只访问自己的库 `<domain>`；跨域数据通过对应服务的 RPC 获取。
+
+---
+
+> 📚 详细文档见 `.cursor/repowiki/`：架构总览 `00-architecture/overview.md`、开发规范 `01-conventions/`、服务级规格 `02-services/<svc>/`（api-spec/rpc-spec/data-model/business-rules/configs）、OpenAPI 契约 `docs/tjxt.openapi.json`。

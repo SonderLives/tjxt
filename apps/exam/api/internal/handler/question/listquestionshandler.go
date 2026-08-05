@@ -10,6 +10,7 @@ import (
 	"tjxt/apps/exam/api/internal/logic/question"
 	"tjxt/apps/exam/api/internal/svc"
 	"tjxt/apps/exam/api/internal/types"
+	result "tjxt/pkg/response"
 )
 
 func ListQuestionsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -22,10 +23,6 @@ func ListQuestionsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := question.NewListQuestionsLogic(r.Context(), svcCtx)
 		resp, err := l.ListQuestions(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.Write(w, r, resp, err)
 	}
 }

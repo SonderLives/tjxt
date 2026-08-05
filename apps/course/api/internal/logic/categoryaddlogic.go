@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package logic
 
 import (
@@ -8,6 +5,8 @@ import (
 
 	"tjxt/apps/course/api/internal/svc"
 	"tjxt/apps/course/api/internal/types"
+	"tjxt/apps/course/rpc/pb"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,8 +25,15 @@ func NewCategoryAddLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Categ
 	}
 }
 
+// CategoryAdd 新增分类（透传 RPC）。
 func (l *CategoryAddLogic) CategoryAdd(req *types.CategoryAddReq) (resp *types.NameExistVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	_, err = l.svcCtx.CourseRpc.CategoryAdd(l.ctx, &pb.CategoryAddRequest{
+		Name:     req.Name,
+		ParentId: req.ParentId,
+		Index:    int32(req.Index),
+	})
+	if err != nil {
+		return nil, xerr.Wrap(err, xerr.CodeInternal, "新增分类失败")
+	}
+	return &types.NameExistVO{Existed: false}, nil
 }

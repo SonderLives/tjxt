@@ -2,7 +2,7 @@ package svc
 
 import (
 	"tjxt/apps/search/api/internal/config"
-	searchclient "tjxt/apps/search/rpc/search"
+	searchclient "tjxt/apps/search/rpc/client/search"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )

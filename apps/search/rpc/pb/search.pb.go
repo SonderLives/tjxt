@@ -224,6 +224,336 @@ func (x *SaveInterestsReq) GetInterests() string {
 	return ""
 }
 
+// ==================== 课程搜索 ====================
+// 与 course 服务 CourseSearchIndexInfo 字段对齐
+type CourseVO struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	CoverUrl      string                 `protobuf:"bytes,3,opt,name=cover_url,json=coverUrl,proto3" json:"cover_url,omitempty"`
+	Price         int64                  `protobuf:"varint,4,opt,name=price,proto3" json:"price,omitempty"`
+	Score         int64                  `protobuf:"varint,5,opt,name=score,proto3" json:"score,omitempty"`
+	Sold          int64                  `protobuf:"varint,6,opt,name=sold,proto3" json:"sold,omitempty"`
+	Sections      int64                  `protobuf:"varint,7,opt,name=sections,proto3" json:"sections,omitempty"`
+	Free          int32                  `protobuf:"varint,8,opt,name=free,proto3" json:"free,omitempty"`
+	CourseType    int32                  `protobuf:"varint,9,opt,name=course_type,json=courseType,proto3" json:"course_type,omitempty"`
+	Enable        int32                  `protobuf:"varint,10,opt,name=enable,proto3" json:"enable,omitempty"`
+	CategoryIdLv1 int64                  `protobuf:"varint,11,opt,name=category_id_lv1,json=categoryIdLv1,proto3" json:"category_id_lv1,omitempty"`
+	CategoryIdLv2 int64                  `protobuf:"varint,12,opt,name=category_id_lv2,json=categoryIdLv2,proto3" json:"category_id_lv2,omitempty"`
+	CategoryIdLv3 int64                  `protobuf:"varint,13,opt,name=category_id_lv3,json=categoryIdLv3,proto3" json:"category_id_lv3,omitempty"`
+	CreateTime    string                 `protobuf:"bytes,14,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	PublishTime   string                 `protobuf:"bytes,15,opt,name=publish_time,json=publishTime,proto3" json:"publish_time,omitempty"`
+	Duration      int64                  `protobuf:"varint,16,opt,name=duration,proto3" json:"duration,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CourseVO) Reset() {
+	*x = CourseVO{}
+	mi := &file_search_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CourseVO) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CourseVO) ProtoMessage() {}
+
+func (x *CourseVO) ProtoReflect() protoreflect.Message {
+	mi := &file_search_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CourseVO.ProtoReflect.Descriptor instead.
+func (*CourseVO) Descriptor() ([]byte, []int) {
+	return file_search_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CourseVO) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *CourseVO) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CourseVO) GetCoverUrl() string {
+	if x != nil {
+		return x.CoverUrl
+	}
+	return ""
+}
+
+func (x *CourseVO) GetPrice() int64 {
+	if x != nil {
+		return x.Price
+	}
+	return 0
+}
+
+func (x *CourseVO) GetScore() int64 {
+	if x != nil {
+		return x.Score
+	}
+	return 0
+}
+
+func (x *CourseVO) GetSold() int64 {
+	if x != nil {
+		return x.Sold
+	}
+	return 0
+}
+
+func (x *CourseVO) GetSections() int64 {
+	if x != nil {
+		return x.Sections
+	}
+	return 0
+}
+
+func (x *CourseVO) GetFree() int32 {
+	if x != nil {
+		return x.Free
+	}
+	return 0
+}
+
+func (x *CourseVO) GetCourseType() int32 {
+	if x != nil {
+		return x.CourseType
+	}
+	return 0
+}
+
+func (x *CourseVO) GetEnable() int32 {
+	if x != nil {
+		return x.Enable
+	}
+	return 0
+}
+
+func (x *CourseVO) GetCategoryIdLv1() int64 {
+	if x != nil {
+		return x.CategoryIdLv1
+	}
+	return 0
+}
+
+func (x *CourseVO) GetCategoryIdLv2() int64 {
+	if x != nil {
+		return x.CategoryIdLv2
+	}
+	return 0
+}
+
+func (x *CourseVO) GetCategoryIdLv3() int64 {
+	if x != nil {
+		return x.CategoryIdLv3
+	}
+	return 0
+}
+
+func (x *CourseVO) GetCreateTime() string {
+	if x != nil {
+		return x.CreateTime
+	}
+	return ""
+}
+
+func (x *CourseVO) GetPublishTime() string {
+	if x != nil {
+		return x.PublishTime
+	}
+	return ""
+}
+
+func (x *CourseVO) GetDuration() int64 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
+type CourseListReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*CourseVO            `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CourseListReply) Reset() {
+	*x = CourseListReply{}
+	mi := &file_search_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CourseListReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CourseListReply) ProtoMessage() {}
+
+func (x *CourseListReply) ProtoReflect() protoreflect.Message {
+	mi := &file_search_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CourseListReply.ProtoReflect.Descriptor instead.
+func (*CourseListReply) Descriptor() ([]byte, []int) {
+	return file_search_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CourseListReply) GetItems() []*CourseVO {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+type CourseSearchRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"`
+	PageNo        int64                  `protobuf:"varint,2,opt,name=page_no,json=pageNo,proto3" json:"page_no,omitempty"`
+	PageSize      int64                  `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	Sort          int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"` // 0 默认相关度 1 按销量 2 按评分
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CourseSearchRequest) Reset() {
+	*x = CourseSearchRequest{}
+	mi := &file_search_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CourseSearchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CourseSearchRequest) ProtoMessage() {}
+
+func (x *CourseSearchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_search_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CourseSearchRequest.ProtoReflect.Descriptor instead.
+func (*CourseSearchRequest) Descriptor() ([]byte, []int) {
+	return file_search_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CourseSearchRequest) GetKeyword() string {
+	if x != nil {
+		return x.Keyword
+	}
+	return ""
+}
+
+func (x *CourseSearchRequest) GetPageNo() int64 {
+	if x != nil {
+		return x.PageNo
+	}
+	return 0
+}
+
+func (x *CourseSearchRequest) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *CourseSearchRequest) GetSort() int32 {
+	if x != nil {
+		return x.Sort
+	}
+	return 0
+}
+
+type CourseSearchPageReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	Items         []*CourseVO            `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CourseSearchPageReply) Reset() {
+	*x = CourseSearchPageReply{}
+	mi := &file_search_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CourseSearchPageReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CourseSearchPageReply) ProtoMessage() {}
+
+func (x *CourseSearchPageReply) ProtoReflect() protoreflect.Message {
+	mi := &file_search_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CourseSearchPageReply.ProtoReflect.Descriptor instead.
+func (*CourseSearchPageReply) Descriptor() ([]byte, []int) {
+	return file_search_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CourseSearchPageReply) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *CourseSearchPageReply) GetItems() []*CourseVO {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
 var File_search_proto protoreflect.FileDescriptor
 
 const file_search_proto_rawDesc = "" +
@@ -243,10 +573,42 @@ const file_search_proto_rawDesc = "" +
 	"updateTime\"@\n" +
 	"\x10SaveInterestsReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1c\n" +
-	"\tinterests\x18\x02 \x01(\tR\tinterests2v\n" +
+	"\tinterests\x18\x02 \x01(\tR\tinterests\"\xcc\x03\n" +
+	"\bCourseVO\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1b\n" +
+	"\tcover_url\x18\x03 \x01(\tR\bcoverUrl\x12\x14\n" +
+	"\x05price\x18\x04 \x01(\x03R\x05price\x12\x14\n" +
+	"\x05score\x18\x05 \x01(\x03R\x05score\x12\x12\n" +
+	"\x04sold\x18\x06 \x01(\x03R\x04sold\x12\x1a\n" +
+	"\bsections\x18\a \x01(\x03R\bsections\x12\x12\n" +
+	"\x04free\x18\b \x01(\x05R\x04free\x12\x1f\n" +
+	"\vcourse_type\x18\t \x01(\x05R\n" +
+	"courseType\x12\x16\n" +
+	"\x06enable\x18\n" +
+	" \x01(\x05R\x06enable\x12&\n" +
+	"\x0fcategory_id_lv1\x18\v \x01(\x03R\rcategoryIdLv1\x12&\n" +
+	"\x0fcategory_id_lv2\x18\f \x01(\x03R\rcategoryIdLv2\x12&\n" +
+	"\x0fcategory_id_lv3\x18\r \x01(\x03R\rcategoryIdLv3\x12\x1f\n" +
+	"\vcreate_time\x18\x0e \x01(\tR\n" +
+	"createTime\x12!\n" +
+	"\fpublish_time\x18\x0f \x01(\tR\vpublishTime\x12\x1a\n" +
+	"\bduration\x18\x10 \x01(\x03R\bduration\"9\n" +
+	"\x0fCourseListReply\x12&\n" +
+	"\x05items\x18\x01 \x03(\v2\x10.search.CourseVOR\x05items\"y\n" +
+	"\x13CourseSearchRequest\x12\x18\n" +
+	"\akeyword\x18\x01 \x01(\tR\akeyword\x12\x17\n" +
+	"\apage_no\x18\x02 \x01(\x03R\x06pageNo\x12\x1b\n" +
+	"\tpage_size\x18\x03 \x01(\x03R\bpageSize\x12\x12\n" +
+	"\x04sort\x18\x04 \x01(\x05R\x04sort\"U\n" +
+	"\x15CourseSearchPageReply\x12\x14\n" +
+	"\x05total\x18\x01 \x01(\x03R\x05total\x12&\n" +
+	"\x05items\x18\x02 \x03(\v2\x10.search.CourseVOR\x05items2\x86\x02\n" +
 	"\x06Search\x128\n" +
 	"\rSaveInterests\x12\x18.search.SaveInterestsReq\x1a\r.search.Empty\x122\n" +
-	"\fGetInterests\x12\r.search.IdReq\x1a\x13.search.InterestsVOB\x06Z\x04./pbb\x06proto3"
+	"\fGetInterests\x12\r.search.IdReq\x1a\x13.search.InterestsVO\x12A\n" +
+	"\x17GetTopCoursesByCategory\x12\r.search.IdReq\x1a\x17.search.CourseListReply\x12K\n" +
+	"\rSearchCourses\x12\x1b.search.CourseSearchRequest\x1a\x1d.search.CourseSearchPageReplyB\x06Z\x04./pbb\x06proto3"
 
 var (
 	file_search_proto_rawDescOnce sync.Once
@@ -260,23 +622,33 @@ func file_search_proto_rawDescGZIP() []byte {
 	return file_search_proto_rawDescData
 }
 
-var file_search_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_search_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_search_proto_goTypes = []any{
-	(*Empty)(nil),            // 0: search.Empty
-	(*IdReq)(nil),            // 1: search.IdReq
-	(*InterestsVO)(nil),      // 2: search.InterestsVO
-	(*SaveInterestsReq)(nil), // 3: search.SaveInterestsReq
+	(*Empty)(nil),                 // 0: search.Empty
+	(*IdReq)(nil),                 // 1: search.IdReq
+	(*InterestsVO)(nil),           // 2: search.InterestsVO
+	(*SaveInterestsReq)(nil),      // 3: search.SaveInterestsReq
+	(*CourseVO)(nil),              // 4: search.CourseVO
+	(*CourseListReply)(nil),       // 5: search.CourseListReply
+	(*CourseSearchRequest)(nil),   // 6: search.CourseSearchRequest
+	(*CourseSearchPageReply)(nil), // 7: search.CourseSearchPageReply
 }
 var file_search_proto_depIdxs = []int32{
-	3, // 0: search.Search.SaveInterests:input_type -> search.SaveInterestsReq
-	1, // 1: search.Search.GetInterests:input_type -> search.IdReq
-	0, // 2: search.Search.SaveInterests:output_type -> search.Empty
-	2, // 3: search.Search.GetInterests:output_type -> search.InterestsVO
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	4, // 0: search.CourseListReply.items:type_name -> search.CourseVO
+	4, // 1: search.CourseSearchPageReply.items:type_name -> search.CourseVO
+	3, // 2: search.Search.SaveInterests:input_type -> search.SaveInterestsReq
+	1, // 3: search.Search.GetInterests:input_type -> search.IdReq
+	1, // 4: search.Search.GetTopCoursesByCategory:input_type -> search.IdReq
+	6, // 5: search.Search.SearchCourses:input_type -> search.CourseSearchRequest
+	0, // 6: search.Search.SaveInterests:output_type -> search.Empty
+	2, // 7: search.Search.GetInterests:output_type -> search.InterestsVO
+	5, // 8: search.Search.GetTopCoursesByCategory:output_type -> search.CourseListReply
+	7, // 9: search.Search.SearchCourses:output_type -> search.CourseSearchPageReply
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_search_proto_init() }
@@ -290,7 +662,7 @@ func file_search_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_search_proto_rawDesc), len(file_search_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

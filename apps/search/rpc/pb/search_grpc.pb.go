@@ -19,8 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Search_SaveInterests_FullMethodName = "/search.Search/SaveInterests"
-	Search_GetInterests_FullMethodName  = "/search.Search/GetInterests"
+	Search_SaveInterests_FullMethodName           = "/search.Search/SaveInterests"
+	Search_GetInterests_FullMethodName            = "/search.Search/GetInterests"
+	Search_GetTopCoursesByCategory_FullMethodName = "/search.Search/GetTopCoursesByCategory"
+	Search_SearchCourses_FullMethodName           = "/search.Search/SearchCourses"
 )
 
 // SearchClient is the client API for Search service.
@@ -32,6 +34,9 @@ type SearchClient interface {
 	// 用户兴趣
 	SaveInterests(ctx context.Context, in *SaveInterestsReq, opts ...grpc.CallOption) (*Empty, error)
 	GetInterests(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*InterestsVO, error)
+	// 课程搜索
+	GetTopCoursesByCategory(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*CourseListReply, error)
+	SearchCourses(ctx context.Context, in *CourseSearchRequest, opts ...grpc.CallOption) (*CourseSearchPageReply, error)
 }
 
 type searchClient struct {
@@ -62,6 +67,26 @@ func (c *searchClient) GetInterests(ctx context.Context, in *IdReq, opts ...grpc
 	return out, nil
 }
 
+func (c *searchClient) GetTopCoursesByCategory(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*CourseListReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CourseListReply)
+	err := c.cc.Invoke(ctx, Search_GetTopCoursesByCategory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *searchClient) SearchCourses(ctx context.Context, in *CourseSearchRequest, opts ...grpc.CallOption) (*CourseSearchPageReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CourseSearchPageReply)
+	err := c.cc.Invoke(ctx, Search_SearchCourses_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SearchServer is the server API for Search service.
 // All implementations must embed UnimplementedSearchServer
 // for forward compatibility.
@@ -71,6 +96,9 @@ type SearchServer interface {
 	// 用户兴趣
 	SaveInterests(context.Context, *SaveInterestsReq) (*Empty, error)
 	GetInterests(context.Context, *IdReq) (*InterestsVO, error)
+	// 课程搜索
+	GetTopCoursesByCategory(context.Context, *IdReq) (*CourseListReply, error)
+	SearchCourses(context.Context, *CourseSearchRequest) (*CourseSearchPageReply, error)
 	mustEmbedUnimplementedSearchServer()
 }
 
@@ -86,6 +114,12 @@ func (UnimplementedSearchServer) SaveInterests(context.Context, *SaveInterestsRe
 }
 func (UnimplementedSearchServer) GetInterests(context.Context, *IdReq) (*InterestsVO, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetInterests not implemented")
+}
+func (UnimplementedSearchServer) GetTopCoursesByCategory(context.Context, *IdReq) (*CourseListReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetTopCoursesByCategory not implemented")
+}
+func (UnimplementedSearchServer) SearchCourses(context.Context, *CourseSearchRequest) (*CourseSearchPageReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method SearchCourses not implemented")
 }
 func (UnimplementedSearchServer) mustEmbedUnimplementedSearchServer() {}
 func (UnimplementedSearchServer) testEmbeddedByValue()                {}
@@ -144,6 +178,42 @@ func _Search_GetInterests_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Search_GetTopCoursesByCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SearchServer).GetTopCoursesByCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Search_GetTopCoursesByCategory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SearchServer).GetTopCoursesByCategory(ctx, req.(*IdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Search_SearchCourses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CourseSearchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SearchServer).SearchCourses(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Search_SearchCourses_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SearchServer).SearchCourses(ctx, req.(*CourseSearchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Search_ServiceDesc is the grpc.ServiceDesc for Search service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -158,6 +228,14 @@ var Search_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetInterests",
 			Handler:    _Search_GetInterests_Handler,
+		},
+		{
+			MethodName: "GetTopCoursesByCategory",
+			Handler:    _Search_GetTopCoursesByCategory_Handler,
+		},
+		{
+			MethodName: "SearchCourses",
+			Handler:    _Search_SearchCourses_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

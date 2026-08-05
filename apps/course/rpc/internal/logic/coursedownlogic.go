@@ -23,8 +23,12 @@ func NewCourseDownLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Course
 	}
 }
 
+// CourseDown 批量下架：逐个把正式课程状态置为已下架。
 func (l *CourseDownLogic) CourseDown(in *pb.IdsRequest) (*pb.Empty, error) {
-	// todo: add your logic here and delete this line
-
+	for _, id := range in.Ids {
+		if err := downCourse(l.ctx, l.svcCtx, id); err != nil {
+			return nil, err
+		}
+	}
 	return &pb.Empty{}, nil
 }

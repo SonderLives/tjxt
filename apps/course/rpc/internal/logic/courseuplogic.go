@@ -23,8 +23,12 @@ func NewCourseUpLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CourseUp
 	}
 }
 
+// CourseUp 批量上架：对每个课程 id 执行与 CourseUpShelf 相同的草稿复制发布流程。
 func (l *CourseUpLogic) CourseUp(in *pb.IdsRequest) (*pb.Empty, error) {
-	// todo: add your logic here and delete this line
-
+	for _, id := range in.Ids {
+		if err := publishCourse(l.ctx, l.svcCtx, id); err != nil {
+			return nil, err
+		}
+	}
 	return &pb.Empty{}, nil
 }

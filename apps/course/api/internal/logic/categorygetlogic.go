@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package logic
 
 import (
@@ -8,6 +5,8 @@ import (
 
 	"tjxt/apps/course/api/internal/svc"
 	"tjxt/apps/course/api/internal/types"
+	"tjxt/apps/course/rpc/pb"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,8 +25,21 @@ func NewCategoryGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Categ
 	}
 }
 
+// CategoryGet 查询分类详情。
 func (l *CategoryGetLogic) CategoryGet(req *types.IdPathReq) (resp *types.CategoryInfoVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	info, gerr := l.svcCtx.CourseRpc.CategoryGet(l.ctx, &pb.IdRequest{Id: req.Id})
+	if gerr != nil {
+		return nil, xerr.Wrap(gerr, xerr.CodeInternal, "查询分类失败")
+	}
+	return &types.CategoryInfoVO{
+		Id:               info.Id,
+		Name:             info.Name,
+		Level:            int64(info.Level),
+		FirstCategoryName: info.FirstCategoryName,
+		SecondCategoryName: info.SecondCategoryName,
+		Status:           int64(info.Status),
+		Index:            int64(info.Priority),
+		CreateTime:       info.CreateTime,
+		UpdateTime:       info.UpdateTime,
+	}, nil
 }
