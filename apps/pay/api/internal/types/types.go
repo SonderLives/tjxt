@@ -93,8 +93,8 @@ type QueryRefundResultReq struct {
 }
 
 type Result struct {
-	Code      int64  `json:"code"`
-	Msg       string `json:"msg"`
-	RequestId string `json:"requestId,omitempty"`
-	Data      any    `json:"data,omitempty"`
+	Code      int64       `json:"code"`
+	Msg       string      `json:"msg"`
+	RequestId string      `json:"requestId,omitempty"`
+	Data      interface{} `json:"data,omitempty"`
 }

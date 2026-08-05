@@ -1,0 +1,115 @@
+syntax = "v1"
+
+// ============ 看板数据 ============
+type AxisVO {
+	Type     string   `json:"type,omitempty"`
+	Max      float64  `json:"max,omitempty"`
+	Min      float64  `json:"min,omitempty"`
+	Average  float64  `json:"average,omitempty"`
+	Data     []string `json:"data,omitempty"`
+	Interval float64  `json:"interval,omitempty"`
+}
+
+type SerierVO {
+	Name string   `json:"name,omitempty"`
+	Type string   `json:"type,omitempty"`
+	Data []string `json:"data,omitempty"`
+	Max  string   `json:"max,omitempty"`
+	Min  string   `json:"min,omitempty"`
+}
+
+type EchartsVO {
+	XAxis  []AxisVO   `json:"xAxis"`
+	YAxis  []AxisVO   `json:"yAxis"`
+	Series []SerierVO `json:"series"`
+}
+
+type BoardDataSetReq {
+	Version int       `json:"version"`
+	Type    int       `json:"type"`
+	Data    []float64 `json:"data"`
+}
+
+// ============ 今日数据 ============
+type TodayDataVO {
+	Visits      float64 `json:"visits"`
+	OrderAmount float64 `json:"orderAmount"`
+	OrderNum    int     `json:"orderNum"`
+	StuNewNum   int     `json:"stuNewNum"`
+}
+
+type TodayDataSetReq {
+	Version     int     `json:"version"`
+	Visits      float64 `json:"visits"`
+	OrderAmount float64 `json:"orderAmount"`
+	OrderNum    int     `json:"orderNum"`
+	StuNewNum   int     `json:"stuNewNum"`
+}
+
+// ============ Top10 数据 ============
+type CourseInfo {
+	Category    string  `json:"category"`
+	Name        string  `json:"name"`
+	NewStuNum   int     `json:"newStuNum"`
+	OrderAmount float64 `json:"orderAmount"`
+}
+
+type Top10DataVO {
+	Hot      []CourseInfo `json:"hot"`
+	HotSales []CourseInfo `json:"hotSales"`
+}
+
+type Top10DataSetUnit {
+	Category    string  `json:"category"`
+	Name        string  `json:"name"`
+	NewStuNum   int     `json:"newStuNum"`
+	OrderAmount float64 `json:"orderAmount"`
+}
+
+type Top10DataSetReq {
+	Version int                `json:"version"`
+	Data    []Top10DataSetUnit `json:"data"`
+}
+
+type BoardDataReq {
+	Types []int `form:"types"`
+}
+
+type OkVO {
+	Success bool `json:"success"`
+}
+
+// ============ 服务定义 ============
+@server (
+	group: board
+)
+service data-api {
+	@handler GetBoardDataHandler
+	get /data/board (BoardDataReq) returns (EchartsVO)
+
+	@handler SetBoardDataHandler
+	put /data/board/set (BoardDataSetReq) returns (OkVO)
+}
+
+@server (
+	group: today
+)
+service data-api {
+	@handler GetTodayDataHandler
+	get /data/today returns (TodayDataVO)
+
+	@handler SetTodayDataHandler
+	put /data/today/set (TodayDataSetReq) returns (OkVO)
+}
+
+@server (
+	group: top10
+)
+service data-api {
+	@handler GetTop10DataHandler
+	get /data/top10 returns (Top10DataVO)
+
+	@handler SetTop10DataHandler
+	put /data/top10/set (Top10DataSetReq) returns (OkVO)
+}
+

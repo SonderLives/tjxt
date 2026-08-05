@@ -1,0 +1,174 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "./pb";
+
+// 空消息
+message Empty {}
+
+// 通用ID请求/回复
+message IdReq { int64 id = 1; }
+message IdReply { int64 id = 1; }
+message IdListReply { repeated int64 ids = 1; }
+message PageReq { int32 pageNo = 1; int32 pageSize = 2; }
+
+// ==================== 角色 ====================
+message RoleVO {
+  int64 id = 1;
+  string code = 2;
+  string name = 3;
+  int32 type = 4;
+  string createTime = 5;
+}
+
+message RoleSaveReq {
+  int64 id = 1;
+  string code = 2;
+  string name = 3;
+  int32 type = 4;
+}
+
+message RoleListReply {
+  int64 total = 1;
+  repeated RoleVO list = 2;
+}
+
+// ==================== 菜单 ====================
+message MenuVO {
+  int64 id = 1;
+  int64 parentId = 2;
+  bool hasChildren = 3;
+  string label = 4;
+  string path = 5;
+  string icon = 6;
+  int32 priority = 7;
+  repeated MenuVO children = 8;
+}
+
+message MenuTreeReply { repeated MenuVO list = 1; }
+
+message MenuSaveReq {
+  int64 id = 1;
+  int64 parentId = 2;
+  string label = 3;
+  string path = 4;
+  string icon = 5;
+  int32 priority = 6;
+}
+
+// ==================== 权限 ====================
+message PrivilegeVO {
+  int64 id = 1;
+  int64 menuId = 2;
+  string intro = 3;
+  string method = 4;
+  string uri = 5;
+  bool internal = 6;
+}
+
+message PrivilegeListReply { repeated PrivilegeVO list = 1; }
+
+message PrivilegeSaveReq {
+  int64 id = 1;
+  int64 menuId = 2;
+  string intro = 3;
+  string method = 4;
+  string uri = 5;
+  bool internal = 6;
+}
+
+// ==================== 角色分配 ====================
+message RoleMenuReq {
+  int64 roleId = 1;
+  repeated int64 menuIds = 2;
+}
+
+message RolePrivilegeReq {
+  int64 roleId = 1;
+  repeated int64 privilegeIds = 2;
+}
+
+// ==================== 账户角色 ====================
+message AccountRoleReq {
+  int64 accountId = 1;
+  repeated int64 roleIds = 2;
+}
+
+// ==================== 登录记录 ====================
+message LoginRecordReq {
+  int64 userId = 1;
+  string cellPhone = 2;
+  string ipv4 = 3;
+}
+
+message LoginRecordVO {
+  int64 id = 1;
+  int64 userId = 2;
+  string cellPhone = 3;
+  string loginTime = 4;
+  string logoutTime = 5;
+  int64 duration = 6;
+  string ipv4 = 7;
+}
+
+message LoginRecordPageReq {
+  int32 pageNo = 1;
+  int32 pageSize = 2;
+  int64 userId = 3;
+}
+
+message LoginRecordListReply {
+  int64 total = 1;
+  repeated LoginRecordVO list = 2;
+}
+
+// ==================== 令牌 ====================
+message SignTokenReq {
+  int64 userId = 1;
+  int64 accountId = 2;   // 员工账号 id,学员登录时为 0
+  string roleCode = 3;   // 角色 code(USER/STUDENT/TEACHER/ADMIN)
+  int64 expireSec = 4;   // 访问令牌秒数;0 表示用配置默认
+}
+
+message SignTokenReply {
+  string accessToken = 1;
+  string refreshToken = 2;
+  int64 expiresAt = 3;   // unix seconds
+}
+
+// ==================== 服务定义 ====================
+service Auth {
+  // 角色
+  rpc SaveRole(RoleSaveReq) returns (IdReply);
+  rpc DeleteRole(IdReq) returns (Empty);
+  rpc GetRole(IdReq) returns (RoleVO);
+  rpc ListRoles(PageReq) returns (RoleListReply);
+
+  // 菜单
+  rpc GetMenuTree(Empty) returns (MenuTreeReply);
+  rpc SaveMenu(MenuSaveReq) returns (IdReply);
+  rpc DeleteMenu(IdReq) returns (Empty);
+
+  // 权限
+  rpc GetPrivilegesByMenu(IdReq) returns (PrivilegeListReply);
+  rpc SavePrivilege(PrivilegeSaveReq) returns (IdReply);
+  rpc DeletePrivilege(IdReq) returns (Empty);
+
+  // 角色菜单/权限分配
+  rpc SaveRoleMenus(RoleMenuReq) returns (Empty);
+  rpc SaveRolePrivileges(RolePrivilegeReq) returns (Empty);
+  rpc GetRoleMenus(IdReq) returns (IdListReply);
+  rpc GetRolePrivileges(IdReq) returns (IdListReply);
+
+  // 账户角色
+  rpc SaveAccountRoles(AccountRoleReq) returns (Empty);
+  rpc GetAccountRoles(IdReq) returns (IdListReply);
+
+  // 登录记录
+  rpc SaveLoginRecord(LoginRecordReq) returns (Empty);
+  rpc ListLoginRecords(LoginRecordPageReq) returns (LoginRecordListReply);
+
+  // 令牌签发
+  rpc SignToken(SignTokenReq) returns (SignTokenReply);
+}

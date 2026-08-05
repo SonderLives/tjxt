@@ -1,0 +1,109 @@
+syntax = "v1"
+
+// ============ 通用 ============
+type IdPathReq {
+	Id int64 `path:"id"`
+}
+
+type IdVO {
+	Id int64 `json:"id"`
+}
+
+type OkVO {
+	Success bool `json:"success"`
+}
+
+// ============ 题目 ============
+type QuestionVO {
+	Id           int64  `json:"id"`
+	Name         string `json:"name"`
+	Type         int32  `json:"type"`
+	CateId1      int64  `json:"cateId1"`
+	CateId2      int64  `json:"cateId2"`
+	CateId3      int64  `json:"cateId3"`
+	Difficulty   int32  `json:"difficulty"`
+	AnswerTimes  int32  `json:"answerTimes"`
+	CorrectTimes int32  `json:"correctTimes"`
+	Score        int32  `json:"score"`
+	CreateTime   string `json:"createTime"`
+	Options      string `json:"options"`
+	Answer       string `json:"answer"`
+	Analysis     string `json:"analysis"`
+}
+
+type QuestionSaveReq {
+	Id         int64  `json:"id,optional"`
+	Name       string `json:"name"`
+	Type       int32  `json:"type"`
+	CateId1    int64  `json:"cateId1"`
+	CateId2    int64  `json:"cateId2"`
+	CateId3    int64  `json:"cateId3"`
+	Difficulty int32  `json:"difficulty"`
+	Score      int32  `json:"score"`
+	Options    string `json:"options,optional"`
+	Answer     string `json:"answer"`
+	Analysis   string `json:"analysis"`
+}
+
+type QuestionListReq {
+	PageNo     int64  `form:"pageNo,optional"`
+	PageSize   int64  `form:"pageSize,optional"`
+	Name       string `form:"name,optional"`
+	Type       int32  `form:"type,optional"`
+	CateId1    int64  `form:"cateId1,optional"`
+	CateId2    int64  `form:"cateId2,optional"`
+	Difficulty int32  `form:"difficulty,optional"`
+}
+
+type QuestionListVO {
+	Total int64        `json:"total"`
+	List  []QuestionVO `json:"list"`
+}
+
+// ============ 题目业务关联 ============
+type QuestionBizReq {
+	BizId      int64 `json:"bizId"`
+	QuestionId int64 `json:"questionId"`
+}
+
+type QuestionBizListReq {
+	BizId    int64 `form:"bizId"`
+	PageNo   int64 `form:"pageNo,optional"`
+	PageSize int64 `form:"pageSize,optional"`
+}
+
+// ============ 题目管理（需登录） ============
+@server (
+	jwt:   Auth
+	group: question
+)
+service exam-api {
+	@handler SaveQuestionHandler
+	post /questions (QuestionSaveReq) returns (IdVO)
+
+	@handler DeleteQuestionHandler
+	delete /questions/:id (IdPathReq) returns (OkVO)
+
+	@handler GetQuestionHandler
+	get /questions/:id (IdPathReq) returns (QuestionVO)
+
+	@handler ListQuestionsHandler
+	get /questions (QuestionListReq) returns (QuestionListVO)
+}
+
+// ============ 题目业务关联（需登录） ============
+@server (
+	jwt:   Auth
+	group: questionbiz
+)
+service exam-api {
+	@handler AddQuestionBizHandler
+	post /questions/biz (QuestionBizReq) returns (IdVO)
+
+	@handler RemoveQuestionBizHandler
+	delete /questions/biz (QuestionBizReq) returns (OkVO)
+
+	@handler GetQuestionsByBizHandler
+	get /questions/biz/:bizId (QuestionBizListReq) returns (QuestionListVO)
+}
+

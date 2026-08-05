@@ -1,0 +1,138 @@
+syntax = "v1"
+
+// ============ 媒资 ============
+type MediaVO {
+	Id         int64   `json:"id"`
+	Filename   string  `json:"filename"`
+	MediaUrl   string  `json:"mediaUrl"`
+	CoverUrl   string  `json:"coverUrl"`
+	Duration   float64 `json:"duration"`
+	Size       int64   `json:"size"`
+	Status     int32   `json:"status"`
+	Creater    string  `json:"creater"`
+	CreateTime string  `json:"createTime"`
+	UseTimes   int32   `json:"useTimes"`
+}
+
+type MediaListReq {
+	PageNo   int64  `form:"pageNo,optional"`
+	PageSize int64  `form:"pageSize,optional"`
+	Name     string `form:"name,optional"`
+	SortBy   string `form:"sortBy,optional"`
+	IsAsc    string `form:"isAsc,optional"`
+}
+
+type MediaListVO {
+	Total int64     `json:"total"`
+	List  []MediaVO `json:"list"`
+}
+
+type MediaSaveReq {
+	Id       int64   `json:"id,optional"`
+	Filename string  `json:"filename"`
+	Duration float64 `json:"duration"`
+	Size     int64   `json:"size"`
+	FileId   string  `json:"fileId"`
+}
+
+type MediaIdVO {
+	Id int64 `json:"id"`
+}
+
+type MediaIdPathReq {
+	Id int64 `path:"id"`
+}
+
+// ============ 签名 ============
+type SignatureReq {
+	MediaId   int64  `json:"mediaId,optional"`
+	FileName  string `json:"fileName"`
+	MediaType string `json:"mediaType"`
+}
+
+type SignatureVO {
+	Token     string `json:"token"`
+	Url       string `json:"url"`
+	UploadUrl string `json:"uploadUrl"`
+	PlayUrl   string `json:"playUrl"`
+}
+
+// ============ 文件 ============
+type FileVO {
+	Id       int64  `json:"id"`
+	Key      string `json:"key"`
+	Filename string `json:"filename"`
+	Path     string `json:"path"`
+	Status   int32  `json:"status"`
+}
+
+type FileSaveReq {
+	Filename string `json:"filename"`
+	Key      string `json:"key"`
+	Size     int64  `json:"size"`
+}
+
+type FileIdVO {
+	Id int64 `json:"id"`
+}
+
+type FileIdPathReq {
+	Id int64 `path:"id"`
+}
+
+// 占位返回
+type OkVO {
+	Success bool `json:"success"`
+}
+
+// ============ 媒资管理（需登录） ============
+@server (
+	jwt:   Auth
+	group: media
+)
+service media-api {
+	@handler MediaGetHandler
+	get /medias/:id (MediaIdPathReq) returns (MediaVO)
+
+	@handler MediaListHandler
+	get /medias (MediaListReq) returns (MediaListVO)
+
+	@handler MediaSaveHandler
+	post /medias (MediaSaveReq) returns (MediaIdVO)
+
+	@handler MediaDeleteHandler
+	delete /medias/:id (MediaIdPathReq) returns (OkVO)
+}
+
+// ============ 签名（需登录） ============
+@server (
+	jwt:   Auth
+	group: signature
+)
+service media-api {
+	@handler SignatureUploadHandler
+	post /medias/upload-signature (SignatureReq) returns (SignatureVO)
+
+	@handler SignaturePreviewHandler
+	post /medias/preview-signature (SignatureReq) returns (SignatureVO)
+
+	@handler SignaturePlayHandler
+	post /medias/play-signature (SignatureReq) returns (SignatureVO)
+}
+
+// ============ 文件管理（需登录） ============
+@server (
+	jwt:   Auth
+	group: file
+)
+service media-api {
+	@handler FileGetHandler
+	get /files/:id (FileIdPathReq) returns (FileVO)
+
+	@handler FileSaveHandler
+	post /files (FileSaveReq) returns (FileIdVO)
+
+	@handler FileDeleteHandler
+	delete /files/:id (FileIdPathReq) returns (OkVO)
+}
+

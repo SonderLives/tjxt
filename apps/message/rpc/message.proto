@@ -1,0 +1,203 @@
+syntax = "proto3";
+
+package message;
+
+option go_package = "./pb";
+
+// 空消息
+message Empty {}
+
+// 通用ID请求/回复
+message IdReq { int64 id = 1; }
+message IdReply { int64 id = 1; }
+message PageReq { int32 pageNo = 1; int32 pageSize = 2; }
+
+// ==================== 通知模板 ====================
+message NoticeTemplateVO {
+  int64 id = 1;
+  string name = 2;
+  string code = 3;
+  int32 type = 4;
+  int32 status = 5;
+  string title = 6;
+  string content = 7;
+  bool isSmsTemplate = 8;
+  string createTime = 9;
+}
+
+message NoticeTemplateSaveReq {
+  int64 id = 1;
+  string name = 2;
+  string code = 3;
+  int32 type = 4;
+  string title = 5;
+  string content = 6;
+  bool isSmsTemplate = 7;
+}
+
+message NoticeTemplateListReply {
+  int64 total = 1;
+  repeated NoticeTemplateVO list = 2;
+}
+
+// ==================== 通知任务 ====================
+message NoticeTaskVO {
+  int64 id = 1;
+  int64 templateId = 2;
+  string name = 3;
+  bool partial = 4;
+  string pushTime = 5;
+  int32 interval = 6;
+  string expireTime = 7;
+  int32 maxTimes = 8;
+  bool finished = 9;
+  string createTime = 10;
+}
+
+message NoticeTaskSaveReq {
+  int64 id = 1;
+  int64 templateId = 2;
+  string name = 3;
+  bool partial = 4;
+  string pushTime = 5;
+  int32 interval = 6;
+  string expireTime = 7;
+  int32 maxTimes = 8;
+}
+
+message NoticeTaskListReply {
+  int64 total = 1;
+  repeated NoticeTaskVO list = 2;
+}
+
+// ==================== 短信模板 ====================
+message MessageTemplateVO {
+  int64 id = 1;
+  string name = 2;
+  string platformCode = 3;
+  string signName = 4;
+  string thirdTemplateCode = 5;
+  string content = 6;
+  int64 templateId = 7;
+  int32 status = 8;
+  string createTime = 9;
+}
+
+message MessageTemplateSaveReq {
+  int64 id = 1;
+  string name = 2;
+  string platformCode = 3;
+  string signName = 4;
+  string thirdTemplateCode = 5;
+  string content = 6;
+  int64 templateId = 7;
+  int32 status = 8;
+}
+
+message MessageTemplateListReply {
+  int64 total = 1;
+  repeated MessageTemplateVO list = 2;
+}
+
+// ==================== 短信平台 ====================
+message SmsPlatformVO {
+  int64 id = 1;
+  string name = 2;
+  string code = 3;
+  int32 priority = 4;
+  int32 status = 5;
+}
+
+message SmsPlatformListReply { repeated SmsPlatformVO list = 1; }
+
+// ==================== 用户收件箱 ====================
+message UserInboxVO {
+  int64 id = 1;
+  int64 userId = 2;
+  int32 type = 3;
+  string title = 4;
+  string content = 5;
+  bool isRead = 6;
+  int64 publisher = 7;
+  string pushTime = 8;
+  string expireTime = 9;
+}
+
+message SendNoticeReq {
+  int64 userId = 1;
+  int32 type = 2;
+  string title = 3;
+  string content = 4;
+  int64 publisher = 5;
+  string expireTime = 6;
+}
+
+message InboxPageReq {
+  int32 pageNo = 1;
+  int32 pageSize = 2;
+  int64 userId = 3;
+  int32 type = 4;
+}
+
+message InboxListReply {
+  int64 total = 1;
+  repeated UserInboxVO list = 2;
+}
+
+// ==================== 公告 ====================
+message PublicNoticeVO {
+  int64 id = 1;
+  string title = 2;
+  string content = 3;
+  int32 type = 4;
+  string pushTime = 5;
+  string expireTime = 6;
+}
+
+message PublicNoticeSaveReq {
+  int64 id = 1;
+  string title = 2;
+  string content = 3;
+  int32 type = 4;
+  string pushTime = 5;
+  string expireTime = 6;
+}
+
+message PublicNoticeListReply {
+  int64 total = 1;
+  repeated PublicNoticeVO list = 2;
+}
+
+// ==================== 服务定义 ====================
+service Message {
+  // 通知模板
+  rpc SaveNoticeTemplate(NoticeTemplateSaveReq) returns (IdReply);
+  rpc DeleteNoticeTemplate(IdReq) returns (Empty);
+  rpc GetNoticeTemplate(IdReq) returns (NoticeTemplateVO);
+  rpc ListNoticeTemplates(PageReq) returns (NoticeTemplateListReply);
+
+  // 通知任务
+  rpc SaveNoticeTask(NoticeTaskSaveReq) returns (IdReply);
+  rpc DeleteNoticeTask(IdReq) returns (Empty);
+  rpc GetNoticeTask(IdReq) returns (NoticeTaskVO);
+  rpc ListNoticeTasks(PageReq) returns (NoticeTaskListReply);
+
+  // 短信模板
+  rpc SaveMessageTemplate(MessageTemplateSaveReq) returns (IdReply);
+  rpc DeleteMessageTemplate(IdReq) returns (Empty);
+  rpc ListMessageTemplates(PageReq) returns (MessageTemplateListReply);
+
+  // 短信平台
+  rpc ListSmsPlatforms(Empty) returns (SmsPlatformListReply);
+
+  // 用户收件箱
+  rpc SendNotice(SendNoticeReq) returns (IdReply);
+  rpc ListInbox(InboxPageReq) returns (InboxListReply);
+  rpc MarkInboxRead(IdReq) returns (Empty);
+  rpc DeleteInbox(IdReq) returns (Empty);
+
+  // 公告
+  rpc SavePublicNotice(PublicNoticeSaveReq) returns (IdReply);
+  rpc DeletePublicNotice(IdReq) returns (Empty);
+  rpc ListPublicNotices(PageReq) returns (PublicNoticeListReply);
+}

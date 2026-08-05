@@ -1,0 +1,13 @@
+Name: remark.rpc
+ListenOn: 0.0.0.0:8089
+Etcd:
+  Hosts:
+    - 127.0.0.1:2379
+  Key: remark.rpc
+
+DataSource: root:0000@tcp(127.0.0.1:3306)/tj_remark?charset=utf8mb4&parseTime=true&loc=Local
+
+Cache:
+  - Host: 127.0.0.1:6379
+    Type: node
+    Pass: ""

@@ -1,0 +1,33 @@
+syntax = "v1"
+
+type LikeRecordFormReq {
+	BizId   int64  `json:"bizId"`
+	BizType string `json:"bizType"`
+	Liked   bool   `json:"liked"`
+}
+
+type OkVO {
+	Success bool `json:"success"`
+}
+
+type LikeListReq {
+	BizType string   `form:"bizType"`
+	BizIds  []string `form:"bizIds"`
+}
+
+type LikeListResp {
+	LikedBizIds []int64 `json:"likedBizIds"`
+}
+
+@server (
+	jwt:   Auth
+	group: like
+)
+service remark-api {
+	@handler LikeHandler
+	post /likes (LikeRecordFormReq) returns (OkVO)
+
+	@handler ListLikedHandler
+	get /likes/list (LikeListReq) returns (LikeListResp)
+}
+

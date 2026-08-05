@@ -1,0 +1,123 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "./pb";
+
+service User {
+  // ===== 账户 =====
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (LoginResponse);
+
+  // ===== 身份核验（供 auth 服务调用,不签发令牌) =====
+  rpc LoginVerify(LoginVerifyRequest) returns (LoginVerifyResponse);
+
+  // ===== 用户信息 =====
+  rpc GetUserById(UserIdRequest) returns (UserResponse);
+  rpc GetUsersByIds(UserIdsRequest) returns (UserListResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (EmptyResponse);
+
+  // ===== 管理后台分页查询 =====
+  rpc PageQueryStudents(PageQueryUsersRequest) returns (PageQueryUsersResponse);
+  rpc PageQueryTeachers(PageQueryUsersRequest) returns (PageQueryUsersResponse);
+  rpc PageQueryStaffs(PageQueryUsersRequest) returns (PageQueryUsersResponse);
+}
+
+// ===== 通用 =====
+message EmptyResponse {}
+
+// ===== 账户 =====
+message LoginRequest {
+  string username = 1;   // 用户名（员工登录用）
+  string cell_phone = 2;  // 手机号（学员/老师登录用）
+  string password = 3;
+  int32 type = 4;         // 1-员工, 2-学员, 3-老师
+}
+message LoginResponse {
+  int64 user_id = 1;
+  string username = 2;
+  string cell_phone = 3;
+  int32 type = 4;
+  string token = 5;
+  string refresh_token = 6;
+  int64 expire_time = 7;
+}
+message RegisterRequest {
+  string cell_phone = 1;  // 学员手机号注册
+  string password = 2;
+}
+message RegisterResponse {
+  int64 user_id = 1;
+  string cell_phone = 2;
+}
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+// ===== 用户信息 =====
+message UserIdRequest { int64 user_id = 1; }
+message UserIdsRequest { repeated int64 user_ids = 1; }
+
+message UserResponse {
+  int64 id = 1;
+  string username = 2;
+  string cell_phone = 3;
+  int32 type = 4;
+  int32 status = 5;
+  string name = 6;
+  int32 gender = 7;
+  string icon = 8;
+  string email = 9;
+  string photo = 10;
+  int64 role_id = 11;
+  int64 dep_id = 12;
+  string job = 13;
+  string intro = 14;
+  string create_time = 15;
+}
+message UserListResponse {
+  repeated UserResponse list = 1;
+}
+
+message UpdateUserRequest {
+  int64 id = 1;
+  string name = 2;
+  int32 gender = 3;
+  string icon = 4;
+  string email = 5;
+  string photo = 6;
+  string intro = 7;
+  string job = 8;
+}
+
+// ===== 分页查询 =====
+message PageQueryUsersRequest {
+  int64 page_no = 1;
+  int64 page_size = 2;
+  string name = 3;       // 姓名模糊
+  int32 status = 4;      // 状态过滤
+  string sort_by = 5;
+  bool is_asc = 6;
+}
+message PageQueryUsersResponse {
+  int64 total = 1;
+  int64 pages = 2;
+  repeated UserResponse list = 3;
+}
+
+// ===== 身份核验 =====
+message LoginVerifyRequest {
+  string cell_phone = 1;  // 学员/老师用手机号
+  string username = 2;    // 员工用用户名
+  string password = 3;
+  int32 type = 4;         // 1-员工 2-学员 3-老师
+}
+message LoginVerifyResponse {
+  int64 user_id = 1;
+  string username = 2;
+  string cell_phone = 3;
+  int32 type = 4;
+  int32 status = 5;
+  string name = 6;
+}

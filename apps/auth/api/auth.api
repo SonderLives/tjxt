@@ -1,0 +1,249 @@
+syntax = "v1"
+
+// ============ 通用 ============
+type IdPathReq {
+	Id int64 `path:"id"`
+}
+
+type IdVO {
+	Id int64 `json:"id"`
+}
+
+type IdListVO {
+	Ids []int64 `json:"ids"`
+}
+
+type OkVO {
+	Success bool `json:"success"`
+}
+
+// ============ 角色 ============
+type RoleVO {
+	Id         int64  `json:"id"`
+	Code       string `json:"code"`
+	Name       string `json:"name"`
+	Type       int32  `json:"type"`
+	CreateTime string `json:"createTime"`
+}
+
+type RoleSaveReq {
+	Id   int64  `json:"id,optional"`
+	Code string `json:"code"`
+	Name string `json:"name"`
+	Type int32  `json:"type"`
+}
+
+type RoleListReq {
+	PageNo   int64 `form:"pageNo,optional"`
+	PageSize int64 `form:"pageSize,optional"`
+}
+
+type RoleListVO {
+	Total int64    `json:"total"`
+	List  []RoleVO `json:"list"`
+}
+
+// ============ 菜单 ============
+type MenuVO {
+	Id          int64    `json:"id"`
+	ParentId    int64    `json:"parentId"`
+	HasChildren bool     `json:"hasChildren"`
+	Label       string   `json:"label"`
+	Path        string   `json:"path"`
+	Icon        string   `json:"icon"`
+	Priority    int32    `json:"priority"`
+	Children    []MenuVO `json:"children,optional"`
+}
+
+type MenuTreeVO {
+	List []MenuVO `json:"list"`
+}
+
+type MenuSaveReq {
+	Id       int64  `json:"id,optional"`
+	ParentId int64  `json:"parentId,optional"`
+	Label    string `json:"label"`
+	Path     string `json:"path,optional"`
+	Icon     string `json:"icon,optional"`
+	Priority int32  `json:"priority,optional"`
+}
+
+// ============ 权限 ============
+type PrivilegeVO {
+	Id       int64  `json:"id"`
+	MenuId   int64  `json:"menuId"`
+	Intro    string `json:"intro"`
+	Method   string `json:"method"`
+	Uri      string `json:"uri"`
+	Internal bool   `json:"internal"`
+}
+
+type PrivilegeListVO {
+	List []PrivilegeVO `json:"list"`
+}
+
+type PrivilegeSaveReq {
+	Id       int64  `json:"id,optional"`
+	MenuId   int64  `json:"menuId"`
+	Intro    string `json:"intro"`
+	Method   string `json:"method"`
+	Uri      string `json:"uri"`
+	Internal bool   `json:"internal,optional"`
+}
+
+// ============ 角色分配 ============
+type RoleMenuReq {
+	RoleId  int64   `json:"roleId"`
+	MenuIds []int64 `json:"menuIds"`
+}
+
+type RolePrivilegeReq {
+	RoleId       int64   `json:"roleId"`
+	PrivilegeIds []int64 `json:"privilegeIds"`
+}
+
+// ============ 账户角色 ============
+type AccountRoleReq {
+	AccountId int64   `json:"accountId"`
+	RoleIds   []int64 `json:"roleIds"`
+}
+
+// ============ 登录记录 ============
+type LoginRecordVO {
+	Id         int64  `json:"id"`
+	UserId     int64  `json:"userId"`
+	CellPhone  string `json:"cellPhone"`
+	LoginTime  string `json:"loginTime"`
+	LogoutTime string `json:"logoutTime"`
+	Duration   int64  `json:"duration"`
+	Ipv4       string `json:"ipv4"`
+}
+
+type LoginRecordListReq {
+	PageNo   int64 `form:"pageNo,optional"`
+	PageSize int64 `form:"pageSize,optional"`
+	UserId   int64 `form:"userId,optional"`
+}
+
+type LoginRecordListVO {
+	Total int64           `json:"total"`
+	List  []LoginRecordVO `json:"list"`
+}
+
+// ============ 账户登录 ============
+type LoginReq {
+	CellPhone  string `json:"cellPhone,optional"`  // 学员/老师手机号
+	Username   string `json:"username,optional"`   // 员工用户名
+	Password   string `json:"password"`
+	RememberMe bool   `json:"rememberMe,optional"`
+	Type       int32  `json:"type"`                 // 1-员工 2-学员 3-老师
+}
+
+type LoginVO {
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+	ExpiresAt    int64  `json:"expiresAt"`
+}
+
+// ============ 角色（需登录） ============
+@server (
+	jwt:   Auth
+	group: role
+)
+service auth-api {
+	@handler SaveRoleHandler
+	post /roles (RoleSaveReq) returns (IdVO)
+
+	@handler DeleteRoleHandler
+	delete /roles/:id (IdPathReq) returns (OkVO)
+
+	@handler GetRoleHandler
+	get /roles/:id (IdPathReq) returns (RoleVO)
+
+	@handler ListRolesHandler
+	get /roles (RoleListReq) returns (RoleListVO)
+}
+
+// ============ 菜单（需登录） ============
+@server (
+	jwt:   Auth
+	group: menu
+)
+service auth-api {
+	@handler GetMenuTreeHandler
+	get /menus/tree returns (MenuTreeVO)
+
+	@handler SaveMenuHandler
+	post /menus (MenuSaveReq) returns (IdVO)
+
+	@handler DeleteMenuHandler
+	delete /menus/:id (IdPathReq) returns (OkVO)
+}
+
+// ============ 权限（需登录） ============
+@server (
+	jwt:   Auth
+	group: privilege
+)
+service auth-api {
+	@handler GetPrivilegesByMenuHandler
+	get /menus/:id/privileges (IdPathReq) returns (PrivilegeListVO)
+
+	@handler SavePrivilegeHandler
+	post /privileges (PrivilegeSaveReq) returns (IdVO)
+
+	@handler DeletePrivilegeHandler
+	delete /privileges/:id (IdPathReq) returns (OkVO)
+}
+
+// ============ 角色分配（需登录） ============
+@server (
+	jwt:   Auth
+	group: assign
+)
+service auth-api {
+	@handler SaveRoleMenusHandler
+	put /roles/:id/menus (RoleMenuReq) returns (OkVO)
+
+	@handler SaveRolePrivilegesHandler
+	put /roles/:id/privileges (RolePrivilegeReq) returns (OkVO)
+
+	@handler GetRoleMenusHandler
+	get /roles/:id/menus (IdPathReq) returns (IdListVO)
+
+	@handler GetRolePrivilegesHandler
+	get /roles/:id/privileges (IdPathReq) returns (IdListVO)
+}
+
+// ============ 账户角色（需登录） ============
+@server (
+	jwt:   Auth
+	group: account
+)
+service auth-api {
+	@handler SaveAccountRolesHandler
+	put /accounts/:id/roles (AccountRoleReq) returns (OkVO)
+
+	@handler GetAccountRolesHandler
+	get /accounts/:id/roles (IdPathReq) returns (IdListVO)
+}
+
+// ============ 登录记录（需登录） ============
+@server (
+	jwt:   Auth
+	group: loginrecord
+)
+service auth-api {
+	@handler ListLoginRecordsHandler
+	get /login-records (LoginRecordListReq) returns (LoginRecordListVO)
+}
+
+// ============ 账户登录(无 JWT) ============
+@server (
+	group: account
+)
+service auth-api {
+	@handler LoginHandler
+	post /accounts/login (LoginReq) returns (LoginVO)
+}
+

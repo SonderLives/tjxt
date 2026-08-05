@@ -1,154 +1,158 @@
-.PHONY: help init api rpc model proto build test fmt lint clean docker-up docker-down docker-logs migrate-up migrate-down generate verify run-course run-trade run-learning run-pay run-course-rpc run-trade-rpc run-learning-rpc run-pay-rpc run-media-rpc run-all-rpc sync tidy
-
-# Default target
 .DEFAULT_GOAL := help
 
-# Go related variables
 GOCTL := goctl
-GO := go
+GO    := go
 
-# Project services (relative to apps/)
-# Only services with .api files
-API_SERVICES := course/api learning/api pay/api trade/api
-# Only services with .proto files
-RPC_SERVICES := course/rpc learning/rpc media/rpc pay/rpc trade/rpc
+# 所有 API 服务的启动目录（go run 在这个目录里执行）
+# data 是嵌套结构：api/data 才是服务根
+API_DIRS := apps/auth/api apps/course/api apps/data/api/data apps/exam/api apps/learning/api apps/media/api apps/message/api apps/pay/api apps/search/api apps/trade/api apps/user/api
 
-# Help
-help: ## 显示帮助信息
-	@echo "Usage: make [target]"
-	@echo ""
-	@echo "Targets:"
-	@powershell -Command "Get-Content $(MAKEFILE_LIST) | Where-Object { $$_ -match '^[a-zA-Z_-]+:.*##' } | ForEach-Object { $$parts = $$_ -split ':.*##'; Write-Host \"  $$($$parts[0]).PadRight(20) $$parts[1]\" -ForegroundColor Cyan }"
+# 所有 RPC 服务的启动目录
+RPC_DIRS := apps/auth/rpc apps/course/rpc apps/data/rpc/data apps/exam/rpc apps/learning/rpc apps/media/rpc apps/message/rpc apps/pay/rpc apps/search/rpc apps/trade/rpc apps/user/rpc
 
-# Initialize project - download dependencies and generate code
-init: ## 初始化项目 - 整理模块并生成代码
-	@echo "初始化项目..."
+# 服务名（用于二进制文件命名、run 目标解析）
+SERVICES := auth course data exam learning media message pay search trade user
+
+.PHONY: help init generate api rpc model build test fmt lint clean \
+        docker-up docker-down docker-logs verify sync tidy \
+        run-all $(SERVICES:%=run-%) $(SERVICES:%=run-%-rpc)
+
+help: ## 显示帮助
+	@echo Usage: make [target]
+	@echo.
+	@powershell -NoProfile -Command "Get-Content $(MAKEFILE_LIST) | Where-Object { $$_ -match '^[a-zA-Z][a-zA-Z0-9_-]*:.*## ' } | ForEach-Object { $$p = $$_ -split ':.*## ',2; Write-Host ('  {0,-22} {1}' -f $$p[0], $$p[1]) -ForegroundColor Cyan }"
+
+init: ## go work sync 并 tidy 所有模块
 	$(GO) work sync
-	@$(MAKE) generate
-	@echo "项目初始化完成！"
+	@$(MAKE) tidy
 
-# Generate API code from .api files
-api: ## 从 .api 文件生成 API handler、logic、types 等
-	@echo "生成 API 代码..."
-	@powershell -Command "$(API_SERVICES) | ForEach-Object { $$api = Get-ChildItem -Path \"apps/$$_/*.api\" -ErrorAction SilentlyContinue | Select-Object -First 1; if ($$api) { Write-Host \"  生成 $$_...\"; & $(GOCTL) api go -api $$api.FullName -dir \"apps/$$_\" -style gozero } else { Write-Host \"  跳过 $$_ (未找到 .api 文件)\" } }"
-	@echo "API 生成完成！"
+# ---------- 代码生成 ----------
 
-# Generate RPC code from .proto files
-rpc: ## 从 .proto 文件生成 RPC server、client、pb
-	@echo "生成 RPC 代码..."
-	@powershell -Command "$(RPC_SERVICES) | ForEach-Object { $$proto = Get-ChildItem -Path \"apps/$$_/*.proto\" -ErrorAction SilentlyContinue | Select-Object -First 1; if ($$proto) { Write-Host \"  生成 $$_...\"; & $(GOCTL) rpc protoc -proto $$proto.FullName -go_out \"apps/$$_\" -go-grpc_out \"apps/$$_\" -zrpc_out \"apps/$$_\" } else { Write-Host \"  跳过 $$_ (未找到 .proto 文件)\" } }"
-	@echo "RPC 生成完成！"
+# goctl api go：在 .api 所在目录下生成，输出目录与 .api 同级
+#   一般服务：apps/<svc>/api/<svc>.api -> apps/<svc>/api
+#   data   ：apps/data/api/data.api   -> apps/data/api/data
+api: ## 根据 .api 重新生成 handler/logic/types（覆盖生成产物，logic 手改注意备份）
+	@powershell -NoProfile -Command "$$jobs = @( \
+	  @{ api='apps/auth/api/auth.api';       dir='apps/auth/api' }, \
+	  @{ api='apps/course/api/course.api';   dir='apps/course/api' }, \
+	  @{ api='apps/data/api/data.api';       dir='apps/data/api/data' }, \
+	  @{ api='apps/exam/api/exam.api';       dir='apps/exam/api' }, \
+	  @{ api='apps/learning/api/learning.api'; dir='apps/learning/api' }, \
+	  @{ api='apps/media/api/media.api';     dir='apps/media/api' }, \
+	  @{ api='apps/message/api/message.api'; dir='apps/message/api' }, \
+	  @{ api='apps/pay/api/pay.api';         dir='apps/pay/api' }, \
+	  @{ api='apps/search/api/search.api';   dir='apps/search/api' }, \
+	  @{ api='apps/trade/api/trade.api';     dir='apps/trade/api' }, \
+	  @{ api='apps/user/api/user.api';       dir='apps/user/api' } ); \
+	  $$jobs | ForEach-Object { Write-Host (\"  api  -> {0}\" -f $$_.dir); & $(GOCTL) api go -api $$_.api -dir $$_.dir -style gozero; if ($$LASTEXITCODE -ne 0) { exit 1 } }"
 
-# Generate Model code from MySQL DDL
-model: ## 从 MySQL DDL 生成 model 代码 (需要 MySQL 运行)
-	@echo "从 DDL 生成 Model 代码..."
-	@echo "注意: 确保 MySQL 在 127.0.0.1:3306 运行，用户:root 密码:0000"
-	@powershell -Command "Get-ChildItem -Path sql/ddl/*.sql | ForEach-Object { $$db_name = $_.BaseName -replace 'tj_', ''; Write-Host \"  处理 $$db_name...\"; & $(GOCTL) model mysql ddl -src $_.FullName -dir \"./model/$$db_name\" -c }"
-	@echo "Model 生成完成！"
+# goctl rpc protoc：在 .proto 所在目录下执行
+rpc: ## 根据 .proto 重新生成 pb/server/client/logic
+	@powershell -NoProfile -Command "$$jobs = @( \
+	  'apps/auth/rpc/auth.proto', 'apps/course/rpc/course.proto', 'apps/data/rpc/data/data.proto', \
+	  'apps/exam/rpc/exam.proto', 'apps/learning/rpc/learning.proto', 'apps/media/rpc/media.proto', \
+	  'apps/message/rpc/message.proto', 'apps/pay/rpc/pay.proto', 'apps/search/rpc/search.proto', \
+	  'apps/trade/rpc/trade.proto', 'apps/user/rpc/user.proto' ); \
+	  $$jobs | ForEach-Object { $$d = Split-Path $$_ -Parent; $$f = Split-Path $$_ -Leaf; Write-Host (\"  rpc  -> {0}\" -f $$d); Push-Location $$d; & $(GOCTL) rpc protoc $$f --go_out=. --go-grpc_out=. --zrpc_out=. --client=true -m; $$code=$$LASTEXITCODE; Pop-Location; if ($$code -ne 0) { exit 1 } }"
 
-# Alternative: Generate model from datasource (requires DB)
-model-datasource: ## 从活跃的 MySQL 数据源生成 model (需要 MySQL 运行)
-	@echo "从数据源生成 Model..."
-	@powershell -Command "'user','course','trade','learning','pay','auth','media','exam','message','search','promotion','remark' | ForEach-Object { Write-Host \"  生成 model for $$_...\"; & $(GOCTL) model mysql datasource -url \"root:0000@tcp(127.0.0.1:3306)/tj_$$_\" -dir \"./model/$$_\" -cache -style gozero }"
-	@echo "数据源 Model 生成完成！"
+# 从 DDL 生成 model（--cache 走 Redis）
+model: ## 根据 sql/ddl/*.sql 生成 model（输出到 ./model/<db>/）
+	@powershell -NoProfile -Command "Get-ChildItem sql/ddl/*.sql | ForEach-Object { $$db = $$_.BaseName -replace '^tj_',''; Write-Host (\"  model -> model/{0}  from {1}\" -f $$db, $$_.Name); & $(GOCTL) model mysql ddl -src $$_.FullName -dir (\"./model/{0}\" -f $$db) -c -style gozero; if ($$LASTEXITCODE -ne 0) { exit 1 } }"
 
-# Generate proto from existing go files (if needed)
-proto: ## 生成 proto 文件 (预留)
-	@echo "Proto 生成暂未实现"
+generate: api rpc ## 一键重新生成 api + rpc
 
-# Build all services
-build: ## 构建所有服务
-	@echo "构建所有服务..."
-	@powershell -Command "if (-not (Test-Path bin)) { New-Item -ItemType Directory -Path bin | Out-Null }; $$services = @(@{path='apps/course/api'; name='course-api'}, @{path='apps/learning/api'; name='learning-api'}, @{path='apps/pay/api'; name='pay-api'}, @{path='apps/trade/api'; name='trade-api'}, @{path='apps/course/rpc'; name='course-rpc'}, @{path='apps/learning/rpc'; name='learning-rpc'}, @{path='apps/media/rpc'; name='media-rpc'}, @{path='apps/pay/rpc'; name='pay-rpc'}, @{path='apps/trade/rpc'; name='trade-rpc'}); $$services | ForEach-Object { Write-Host \"  构建 $$($_.path) -> bin/$$($_.name)...\"; go build -o \"bin/$$($_.name)\" \"./$$($_.path)\" }"
-	@echo "构建完成！二进制文件在 bin/ 目录"
+# ---------- 构建 / 测试 ----------
 
-# Run tests
-test: ## 运行所有测试
-	@echo "运行测试..."
-	$(GO) test ./... -v
+build: ## 构建全部 22 个可执行文件到 bin/
+	@powershell -NoProfile -Command "New-Item -ItemType Directory -Force -Path bin | Out-Null; \
+	  $$jobs = @( \
+	    @{d='apps/auth/api';       n='auth-api'},       @{d='apps/auth/rpc';       n='auth-rpc'}, \
+	    @{d='apps/course/api';     n='course-api'},     @{d='apps/course/rpc';     n='course-rpc'}, \
+	    @{d='apps/data/api/data';  n='data-api'},       @{d='apps/data/rpc/data';  n='data-rpc'}, \
+	    @{d='apps/exam/api';       n='exam-api'},       @{d='apps/exam/rpc';       n='exam-rpc'}, \
+	    @{d='apps/learning/api';   n='learning-api'},   @{d='apps/learning/rpc';   n='learning-rpc'}, \
+	    @{d='apps/media/api';      n='media-api'},      @{d='apps/media/rpc';      n='media-rpc'}, \
+	    @{d='apps/message/api';    n='message-api'},    @{d='apps/message/rpc';    n='message-rpc'}, \
+	    @{d='apps/pay/api';        n='pay-api'},        @{d='apps/pay/rpc';        n='pay-rpc'}, \
+	    @{d='apps/search/api';     n='search-api'},     @{d='apps/search/rpc';     n='search-rpc'}, \
+	    @{d='apps/trade/api';      n='trade-api'},      @{d='apps/trade/rpc';      n='trade-rpc'}, \
+	    @{d='apps/user/api';       n='user-api'},       @{d='apps/user/rpc';       n='user-rpc'} ); \
+	  $$fail = 0; \
+	  $$jobs | ForEach-Object { Write-Host (\"  build {0,-22} -> bin/{1}.exe\" -f $$_.d, $$_.n); & $(GO) build -o (\"bin/{0}.exe\" -f $$_.n) (\"./{0}\" -f $$_.d); if ($$LASTEXITCODE -ne 0) { $$fail = 1 } }; \
+	  if ($$fail) { exit 1 }; Write-Host 'done -> bin/' -ForegroundColor Green"
 
-# Format code
-fmt: ## 格式化所有 Go 代码
-	@echo "格式化代码..."
-	$(GO) fmt ./...
-	@echo "格式化完成！"
+test: ## go test 所有模块
+	@powershell -NoProfile -Command "$(API_DIRS) $(RPC_DIRS) | ForEach-Object { Push-Location $$_; Write-Host (\"  test {0}\" -f $$_); & $(GO) test ./...; Pop-Location }"
 
-# Lint code
-lint: ## 检查所有 Go 代码
-	@echo "代码检查..."
-	@which golangci-lint > /dev/null && golangci-lint run ./... || echo "golangci-lint 未安装，跳过..."
+fmt: ## go fmt 所有模块
+	@powershell -NoProfile -Command "$(API_DIRS) $(RPC_DIRS) | ForEach-Object { Push-Location $$_; & $(GO) fmt ./...; Pop-Location }"
 
-# Clean generated files
-clean: ## 清理生成的文件和构建产物
-	@echo "清理中..."
-	@powershell -Command "if (Test-Path bin) { Remove-Item -Recurse -Force bin }"
-	@powershell -Command "$(API_SERVICES) $(RPC_SERVICES) | ForEach-Object { $$exe = Get-ChildItem -Path \"apps/$$_/*.exe\" -ErrorAction SilentlyContinue; if ($$exe) { $$exe | Remove-Item -Force } }"
-	@echo "清理完成！"
+lint: ## golangci-lint（如果已安装）
+	@powershell -NoProfile -Command "if (Get-Command golangci-lint -ErrorAction SilentlyContinue) { golangci-lint run ./... } else { Write-Host 'golangci-lint 未安装，跳过' -ForegroundColor Yellow }"
 
-# Docker compose
-docker-up: ## 启动 docker compose 服务
-	docker-compose up -d
+clean: ## 删除 bin/ 与各服务下遗留的 exe
+	@powershell -NoProfile -Command "if (Test-Path bin) { Remove-Item -Recurse -Force bin }; $(API_DIRS) $(RPC_DIRS) | ForEach-Object { Get-ChildItem -Path $$_ -Filter *.exe -ErrorAction SilentlyContinue | Remove-Item -Force }"
 
-docker-down: ## 停止 docker compose 服务
-	docker-compose down
+# ---------- 本地依赖 ----------
 
-docker-logs: ## 查看 docker compose 日志
-	docker-compose logs -f
+docker-up: ## 启动 MySQL/Redis/RabbitMQ/etcd
+	docker compose up -d
 
-# Database migration
-migrate-up: ## 执行数据库迁移 (预留)
-	@echo "迁移功能暂未实现"
+docker-down: ## 停止并移除容器
+	docker compose down
 
-migrate-down: ## 回滚数据库迁移 (预留)
-	@echo "迁移功能暂未实现"
+docker-logs: ## 跟踪依赖容器日志
+	docker compose logs -f
 
-# Generate all code
-generate: api rpc model ## 生成所有代码
-	@echo "所有代码生成完成！"
+# ---------- 校验 ----------
 
-# Verify project structure
-verify: ## 验证 go-zero 项目结构
-	@echo "验证项目结构..."
-	@powershell -Command "$$apiServices = @('course/api','learning/api','pay/api','trade/api'); $$rpcServices = @('course/rpc','learning/rpc','media/rpc','pay/rpc','trade/rpc'); $$errors = 0; $$apiServices | ForEach-Object { $$api = Get-ChildItem -Path \"apps/$$_/*.api\" -ErrorAction SilentlyContinue; if (-not $$api) { Write-Error \"错误: $$_ 缺少 .api 文件\"; $$errors++ } if (-not (Test-Path \"apps/$$_/internal\")) { Write-Error \"错误: $$_ 缺少 internal 目录\"; $$errors++ } }; $$rpcServices | ForEach-Object { $$proto = Get-ChildItem -Path \"apps/$$_/*.proto\" -ErrorAction SilentlyContinue; if (-not $$proto) { Write-Error \"错误: $$_ 缺少 .proto 文件\"; $$errors++ } if (-not (Test-Path \"apps/$$_/internal\")) { Write-Error \"错误: $$_ 缺少 internal 目录\"; $$errors++ } }; if ($$errors -gt 0) { exit 1 } else { Write-Host '项目结构验证通过!' -ForegroundColor Green }"
+verify: ## 校验所有服务的 .api/.proto 与 internal/ 目录是否齐全
+	@powershell -NoProfile -Command "$$miss = 0; \
+	  @('apps/auth/api/auth.api','apps/course/api/course.api','apps/data/api/data.api','apps/exam/api/exam.api','apps/learning/api/learning.api','apps/media/api/media.api','apps/message/api/message.api','apps/pay/api/pay.api','apps/search/api/search.api','apps/trade/api/trade.api','apps/user/api/user.api') | ForEach-Object { if (-not (Test-Path $$_)) { Write-Host (\"missing api: {0}\" -f $$_) -ForegroundColor Red; $$miss++ } }; \
+	  @('apps/auth/rpc/auth.proto','apps/course/rpc/course.proto','apps/data/rpc/data/data.proto','apps/exam/rpc/exam.proto','apps/learning/rpc/learning.proto','apps/media/rpc/media.proto','apps/message/rpc/message.proto','apps/pay/rpc/pay.proto','apps/search/rpc/search.proto','apps/trade/rpc/trade.proto','apps/user/rpc/user.proto') | ForEach-Object { if (-not (Test-Path $$_)) { Write-Host (\"missing proto: {0}\" -f $$_) -ForegroundColor Red; $$miss++ } }; \
+	  @('$(API_DIRS)' -split ' ' + '$(RPC_DIRS)' -split ' ') | ForEach-Object { if (-not (Test-Path (\"{0}/internal\" -f $$_))) { Write-Host (\"missing internal: {0}\" -f $$_) -ForegroundColor Red; $$miss++ } }; \
+	  if ($$miss -gt 0) { exit 1 } else { Write-Host 'structure ok' -ForegroundColor Green }"
 
-# Run individual services
-run-course: ## 运行课程服务
-	cd apps/course/api && $(GO) run . -f etc/course-api.yaml
-
-run-trade: ## 运行交易服务
-	cd apps/trade/api && $(GO) run . -f etc/trade-api.yaml
-
-run-learning: ## 运行学习服务
-	cd apps/learning/api && $(GO) run . -f etc/learning-api.yaml
-
-run-pay: ## 运行支付服务
-	cd apps/pay/api && $(GO) run . -f etc/pay-api.yaml
-
-# Run RPC services
-run-course-rpc: ## 运行课程 RPC
-	cd apps/course/rpc && $(GO) run . -f etc/course-rpc.yaml
-
-run-trade-rpc: ## 运行交易 RPC
-	cd apps/trade/rpc && $(GO) run . -f etc/trade-rpc.yaml
-
-run-learning-rpc: ## 运行学习 RPC
-	cd apps/learning/rpc && $(GO) run . -f etc/learning-rpc.yaml
-
-run-pay-rpc: ## 运行支付 RPC
-	cd apps/pay/rpc && $(GO) run . -f etc/pay-rpc.yaml
-
-run-media-rpc: ## 运行媒资 RPC
-	cd apps/media/rpc && $(GO) run . -f etc/media-rpc.yaml
-
-# Run all RPC services in background
-run-all-rpc: run-course-rpc run-trade-rpc run-learning-rpc run-pay-rpc run-media-rpc ## 运行所有 RPC 服务
-
-# Sync go.work dependencies
-sync: ## 同步 go.work 依赖
+sync: ## go work sync
 	$(GO) work sync
 
-# Tidy all modules
-tidy: ## 整理所有模块依赖
-	@powershell -Command "$$services = @('course/api','learning/api','pay/api','trade/api','course/rpc','learning/rpc','media/rpc','pay/rpc','trade/rpc'); $$services | ForEach-Object { $$mod = \"apps/$$_/go.mod\"; if (Test-Path $$mod) { Write-Host \"  整理 $$_...\"; Set-Location \"apps/$_\"; & $(GO) mod tidy; Set-Location ../.. } }"
-	@powershell -Command "if (Test-Path go.mod) { & $(GO) mod tidy }"
-	@echo "依赖整理完成！"
+tidy: ## 对所有 go.mod 执行 go mod tidy
+	@powershell -NoProfile -Command "Push-Location pkg; & $(GO) mod tidy; Pop-Location; $(API_DIRS) $(RPC_DIRS) | ForEach-Object { Push-Location $$_; Write-Host (\"  tidy {0}\" -f $$_); & $(GO) mod tidy; Pop-Location }"
+
+# ---------- 运行 ----------
+
+# 模板：make run-<svc>        -> 启动 <svc>-api
+#        make run-<svc>-rpc   -> 启动 <svc>-rpc
+# data 目录是 apps/data/api/data 和 apps/data/rpc/data，yaml 名固定
+
+run-auth:       ; powershell -NoProfile -Command "Set-Location apps/auth/api;       & $(GO) run . -f etc/auth-api.yaml"
+run-course:     ; powershell -NoProfile -Command "Set-Location apps/course/api;     & $(GO) run . -f etc/course-api.yaml"
+run-data:       ; powershell -NoProfile -Command "Set-Location apps/data/api/data;  & $(GO) run . -f etc/data-api.yaml"
+run-exam:       ; powershell -NoProfile -Command "Set-Location apps/exam/api;       & $(GO) run . -f etc/exam-api.yaml"
+run-learning:   ; powershell -NoProfile -Command "Set-Location apps/learning/api;   & $(GO) run . -f etc/learning-api.yaml"
+run-media:      ; powershell -NoProfile -Command "Set-Location apps/media/api;      & $(GO) run . -f etc/media-api.yaml"
+run-message:    ; powershell -NoProfile -Command "Set-Location apps/message/api;    & $(GO) run . -f etc/message-api.yaml"
+run-pay:        ; powershell -NoProfile -Command "Set-Location apps/pay/api;        & $(GO) run . -f etc/pay-api.yaml"
+run-search:     ; powershell -NoProfile -Command "Set-Location apps/search/api;     & $(GO) run . -f etc/search-api.yaml"
+run-trade:      ; powershell -NoProfile -Command "Set-Location apps/trade/api;      & $(GO) run . -f etc/trade-api.yaml"
+run-user:       ; powershell -NoProfile -Command "Set-Location apps/user/api;       & $(GO) run . -f etc/user-api.yaml"
+
+run-auth-rpc:     ; powershell -NoProfile -Command "Set-Location apps/auth/rpc;       & $(GO) run . -f etc/auth.yaml"
+run-course-rpc:   ; powershell -NoProfile -Command "Set-Location apps/course/rpc;     & $(GO) run . -f etc/course.yaml"
+run-data-rpc:     ; powershell -NoProfile -Command "Set-Location apps/data/rpc/data;  & $(GO) run . -f etc/data.yaml"
+run-exam-rpc:     ; powershell -NoProfile -Command "Set-Location apps/exam/rpc;       & $(GO) run . -f etc/exam.yaml"
+run-learning-rpc: ; powershell -NoProfile -Command "Set-Location apps/learning/rpc;   & $(GO) run . -f etc/learning.yaml"
+run-media-rpc:    ; powershell -NoProfile -Command "Set-Location apps/media/rpc;      & $(GO) run . -f etc/media.yaml"
+run-message-rpc:  ; powershell -NoProfile -Command "Set-Location apps/message/rpc;    & $(GO) run . -f etc/message.yaml"
+run-pay-rpc:      ; powershell -NoProfile -Command "Set-Location apps/pay/rpc;        & $(GO) run . -f etc/pay.yaml"
+run-search-rpc:   ; powershell -NoProfile -Command "Set-Location apps/search/rpc;     & $(GO) run . -f etc/search.yaml"
+run-trade-rpc:    ; powershell -NoProfile -Command "Set-Location apps/trade/rpc;      & $(GO) run . -f etc/trade.yaml"
+run-user-rpc:     ; powershell -NoProfile -Command "Set-Location apps/user/rpc;       & $(GO) run . -f etc/user.yaml"
+
+# 后台并行拉起所有 RPC（每个进程留在自己的 PowerShell 窗口里）
+run-all-rpc: ## 后台启动所有 RPC 服务（各自独立窗口）
+	@powershell -NoProfile -Command "@('auth','course','data','exam','learning','media','message','pay','search','trade','user') | ForEach-Object { Start-Process powershell -ArgumentList '-NoExit','-Command',(\"make run-{0}-rpc\" -f $$_) }"
+
+# 后台并行拉起所有 API
+run-all: ## 后台启动所有 API 服务（各自独立窗口）
+	@powershell -NoProfile -Command "@('auth','course','data','exam','learning','media','message','pay','search','trade','user') | ForEach-Object { Start-Process powershell -ArgumentList '-NoExit','-Command',(\"make run-{0}\" -f $$_) }"

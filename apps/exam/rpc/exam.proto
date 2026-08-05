@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package exam;
+
+option go_package = "./pb";
+
+// 空消息
+message Empty {}
+
+// 通用ID请求/回复
+message IdReq { int64 id = 1; }
+message IdReply { int64 id = 1; }
+message PageReq { int32 pageNo = 1; int32 pageSize = 2; }
+
+// ==================== 题目 ====================
+message QuestionVO {
+  int64 id = 1;
+  string name = 2;
+  int32 type = 3;
+  int64 cateId1 = 4;
+  int64 cateId2 = 5;
+  int64 cateId3 = 6;
+  int32 difficulty = 7;
+  int32 answerTimes = 8;
+  int32 correctTimes = 9;
+  int32 score = 10;
+  string createTime = 11;
+  // 详情
+  string options = 12;
+  string answer = 13;
+  string analysis = 14;
+}
+
+message QuestionSaveReq {
+  int64 id = 1;
+  string name = 2;
+  int32 type = 3;
+  int64 cateId1 = 4;
+  int64 cateId2 = 5;
+  int64 cateId3 = 6;
+  int32 difficulty = 7;
+  int32 score = 8;
+  string options = 9;
+  string answer = 10;
+  string analysis = 11;
+}
+
+message QuestionListReq {
+  int32 pageNo = 1;
+  int32 pageSize = 2;
+  string name = 3;
+  int32 type = 4;
+  int64 cateId1 = 5;
+  int64 cateId2 = 6;
+  int32 difficulty = 7;
+}
+
+message QuestionListReply {
+  int64 total = 1;
+  repeated QuestionVO list = 2;
+}
+
+// ==================== 题目业务关联 ====================
+message QuestionBizReq {
+  int64 bizId = 1;
+  int64 questionId = 2;
+}
+
+message QuestionBizListReq {
+  int64 bizId = 1;
+  int32 pageNo = 2;
+  int32 pageSize = 3;
+}
+
+// ==================== 服务定义 ====================
+service Exam {
+  // 题目管理
+  rpc SaveQuestion(QuestionSaveReq) returns (IdReply);
+  rpc DeleteQuestion(IdReq) returns (Empty);
+  rpc GetQuestion(IdReq) returns (QuestionVO);
+  rpc ListQuestions(QuestionListReq) returns (QuestionListReply);
+
+  // 题目业务关联
+  rpc AddQuestionBiz(QuestionBizReq) returns (IdReply);
+  rpc RemoveQuestionBiz(QuestionBizReq) returns (Empty);
+  rpc GetQuestionsByBiz(QuestionBizListReq) returns (QuestionListReply);
+}

@@ -1,0 +1,19 @@
+Name: auth-api
+Host: 0.0.0.0
+Port: 8814
+
+Auth:
+  AccessSecret: "change-me-in-production"
+  AccessExpire: 7200
+
+AuthRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: auth.rpc
+
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package remark;
+
+option go_package = "./pb";
+
+// 点赞请求（写）
+message LikeReq {
+  int64  userId  = 1;
+  int64  bizId   = 2;
+  string bizType = 3;
+  bool   liked   = 4;
+}
+
+// 批量查询是否已点赞
+message LikedReq {
+  int64          userId  = 1;
+  string         bizType = 2;
+  repeated int64 bizIds  = 3;
+}
+
+message LikedResp {
+  repeated int64 likedBizIds = 1;
+}
+
+message Empty {}
+
+service Remark {
+  rpc Like(LikeReq) returns (Empty);
+  rpc QueryLikedBizIds(LikedReq) returns (LikedResp);
+}

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package search;
+
+option go_package = "./pb";
+
+// 空消息
+message Empty {}
+
+// 通用ID请求/回复
+message IdReq { int64 id = 1; }
+
+// ==================== 用户兴趣 ====================
+message InterestsVO {
+  int64 id = 1;
+  string interests = 2;
+  string createTime = 3;
+  string updateTime = 4;
+}
+
+message SaveInterestsReq {
+  int64 id = 1;
+  string interests = 2;
+}
+
+// ==================== 服务定义 ====================
+service Search {
+  // 用户兴趣
+  rpc SaveInterests(SaveInterestsReq) returns (Empty);
+  rpc GetInterests(IdReq) returns (InterestsVO);
+}

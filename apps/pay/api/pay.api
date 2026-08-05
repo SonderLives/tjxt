@@ -2,10 +2,10 @@ syntax = "v1"
 
 // 统一响应（对应 tjxt/pkg/response R 结构）
 type Result {
-	Code      int64  `json:"code"`
-	Msg       string `json:"msg"`
-	RequestId string `json:"requestId,omitempty"`
-	Data      string `json:"data,omitempty"`
+	Code      int64       `json:"code"`
+	Msg       string      `json:"msg"`
+	RequestId string      `json:"requestId,omitempty"`
+	Data      interface{} `json:"data,omitempty"`
 }
 
 // 统一分页请求

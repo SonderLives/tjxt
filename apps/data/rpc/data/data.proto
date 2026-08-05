@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package data;
+
+option go_package = "./pb";
+
+// 空消息
+message Empty {}
+message OkReply { bool success = 1; }
+
+// ==================== 看板数据 ============
+message AxisVO {
+  string type = 1;
+  double max = 2;
+  double min = 3;
+  double average = 4;
+  repeated string data = 5;
+  double interval = 6;
+}
+
+message SerierVO {
+  string name = 1;
+  string type = 2;
+  repeated string data = 3;
+  string max = 4;
+  string min = 5;
+}
+
+message EchartsVO {
+  repeated AxisVO xAxis = 1;
+  repeated AxisVO yAxis = 2;
+  repeated SerierVO series = 3;
+}
+
+message BoardDataReq { repeated int32 types = 1; }
+
+message BoardDataSetReq {
+  int32 version = 1;
+  int32 type = 2;
+  repeated double data = 3;
+}
+
+// ==================== 今日数据 ============
+message TodayDataVO {
+  double visits = 1;
+  double orderAmount = 2;
+  int32 orderNum = 3;
+  int32 stuNewNum = 4;
+}
+
+message TodayDataSetReq {
+  int32 version = 1;
+  double visits = 2;
+  double orderAmount = 3;
+  int32 orderNum = 4;
+  int32 stuNewNum = 5;
+}
+
+// ==================== Top10 数据 ============
+message CourseInfo {
+  string category = 1;
+  string name = 2;
+  int32 newStuNum = 3;
+  double orderAmount = 4;
+}
+
+message Top10DataVO {
+  repeated CourseInfo hot = 1;
+  repeated CourseInfo hotSales = 2;
+}
+
+message Top10DataSetUnit {
+  string category = 1;
+  string name = 2;
+  int32 newStuNum = 3;
+  double orderAmount = 4;
+}
+
+message Top10DataSetReq {
+  int32 version = 1;
+  repeated Top10DataSetUnit data = 2;
+}
+
+// ==================== 服务定义 ============
+service Data {
+  rpc GetBoardData(BoardDataReq) returns (EchartsVO);
+  rpc SetBoardData(BoardDataSetReq) returns (OkReply);
+  rpc GetTodayData(Empty) returns (TodayDataVO);
+  rpc SetTodayData(TodayDataSetReq) returns (OkReply);
+  rpc GetTop10Data(Empty) returns (Top10DataVO);
+  rpc SetTop10Data(Top10DataSetReq) returns (OkReply);
+}

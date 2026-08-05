@@ -1,0 +1,13 @@
+Name: remark-api
+Host: 0.0.0.0
+Port: 8819
+
+Auth:
+  AccessSecret: "change-me-in-production"
+  AccessExpire: 7200
+
+RemarkRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: remark.rpc

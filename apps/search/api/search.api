@@ -1,0 +1,31 @@
+syntax = "v1"
+
+// ============ 用户兴趣 ============
+type InterestsVO {
+	Id         int64  `json:"id"`
+	Interests  string `json:"interests"`
+	CreateTime string `json:"createTime"`
+	UpdateTime string `json:"updateTime"`
+}
+
+type SaveInterestsReq {
+	Interests string `json:"interests"`
+}
+
+type OkVO {
+	Success bool `json:"success"`
+}
+
+// ============ 用户兴趣（需登录） ============
+@server (
+	jwt:   Auth
+	group: interests
+)
+service search-api {
+	@handler SaveInterestsHandler
+	put /interests (SaveInterestsReq) returns (OkVO)
+
+	@handler GetInterestsHandler
+	get /interests returns (InterestsVO)
+}
+

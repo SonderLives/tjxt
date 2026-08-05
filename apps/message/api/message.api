@@ -1,0 +1,264 @@
+syntax = "v1"
+
+// ============ 通用 ============
+type IdPathReq {
+	Id int64 `path:"id"`
+}
+
+type IdVO {
+	Id int64 `json:"id"`
+}
+
+type OkVO {
+	Success bool `json:"success"`
+}
+
+// ============ 通知模板 ============
+type NoticeTemplateVO {
+	Id            int64  `json:"id"`
+	Name          string `json:"name"`
+	Code          string `json:"code"`
+	Type          int32  `json:"type"`
+	Status        int32  `json:"status"`
+	Title         string `json:"title"`
+	Content       string `json:"content"`
+	IsSmsTemplate bool   `json:"isSmsTemplate"`
+	CreateTime    string `json:"createTime"`
+}
+
+type NoticeTemplateSaveReq {
+	Id            int64  `json:"id,optional"`
+	Name          string `json:"name"`
+	Code          string `json:"code"`
+	Type          int32  `json:"type"`
+	Title         string `json:"title,optional"`
+	Content       string `json:"content"`
+	IsSmsTemplate bool   `json:"isSmsTemplate,optional"`
+}
+
+type PageReq {
+	PageNo   int64 `form:"pageNo,optional"`
+	PageSize int64 `form:"pageSize,optional"`
+}
+
+type NoticeTemplateListVO {
+	Total int64              `json:"total"`
+	List  []NoticeTemplateVO `json:"list"`
+}
+
+// ============ 通知任务 ============
+type NoticeTaskVO {
+	Id         int64  `json:"id"`
+	TemplateId int64  `json:"templateId"`
+	Name       string `json:"name"`
+	Partial    bool   `json:"partial"`
+	PushTime   string `json:"pushTime"`
+	Interval   int32  `json:"interval"`
+	ExpireTime string `json:"expireTime"`
+	MaxTimes   int32  `json:"maxTimes"`
+	Finished   bool   `json:"finished"`
+	CreateTime string `json:"createTime"`
+}
+
+type NoticeTaskSaveReq {
+	Id         int64  `json:"id,optional"`
+	TemplateId int64  `json:"templateId"`
+	Name       string `json:"name"`
+	Partial    bool   `json:"partial,optional"`
+	PushTime   string `json:"pushTime,optional"`
+	Interval   int32  `json:"interval,optional"`
+	ExpireTime string `json:"expireTime,optional"`
+	MaxTimes   int32  `json:"maxTimes,optional"`
+}
+
+type NoticeTaskListVO {
+	Total int64          `json:"total"`
+	List  []NoticeTaskVO `json:"list"`
+}
+
+// ============ 短信模板 ============
+type MessageTemplateVO {
+	Id                int64  `json:"id"`
+	Name              string `json:"name"`
+	PlatformCode      string `json:"platformCode"`
+	SignName          string `json:"signName"`
+	ThirdTemplateCode string `json:"thirdTemplateCode"`
+	Content           string `json:"content"`
+	TemplateId        int64  `json:"templateId"`
+	Status            int32  `json:"status"`
+	CreateTime        string `json:"createTime"`
+}
+
+type MessageTemplateSaveReq {
+	Id                int64  `json:"id,optional"`
+	Name              string `json:"name"`
+	PlatformCode      string `json:"platformCode"`
+	SignName          string `json:"signName"`
+	ThirdTemplateCode string `json:"thirdTemplateCode"`
+	Content           string `json:"content"`
+	TemplateId        int64  `json:"templateId"`
+	Status            int32  `json:"status,optional"`
+}
+
+type MessageTemplateListVO {
+	Total int64               `json:"total"`
+	List  []MessageTemplateVO `json:"list"`
+}
+
+// ============ 短信平台 ============
+type SmsPlatformVO {
+	Id       int64  `json:"id"`
+	Name     string `json:"name"`
+	Code     string `json:"code"`
+	Priority int32  `json:"priority"`
+	Status   int32  `json:"status"`
+}
+
+type SmsPlatformListVO {
+	List []SmsPlatformVO `json:"list"`
+}
+
+// ============ 用户收件箱 ============
+type UserInboxVO {
+	Id         int64  `json:"id"`
+	UserId     int64  `json:"userId"`
+	Type       int32  `json:"type"`
+	Title      string `json:"title"`
+	Content    string `json:"content"`
+	IsRead     bool   `json:"isRead"`
+	Publisher  int64  `json:"publisher"`
+	PushTime   string `json:"pushTime"`
+	ExpireTime string `json:"expireTime"`
+}
+
+type InboxListReq {
+	PageNo   int64 `form:"pageNo,optional"`
+	PageSize int64 `form:"pageSize,optional"`
+	Type     int32 `form:"type,optional"`
+}
+
+type InboxListVO {
+	Total int64         `json:"total"`
+	List  []UserInboxVO `json:"list"`
+}
+
+// ============ 公告 ============
+type PublicNoticeVO {
+	Id         int64  `json:"id"`
+	Title      string `json:"title"`
+	Content    string `json:"content"`
+	Type       int32  `json:"type"`
+	PushTime   string `json:"pushTime"`
+	ExpireTime string `json:"expireTime"`
+}
+
+type PublicNoticeSaveReq {
+	Id         int64  `json:"id,optional"`
+	Title      string `json:"title"`
+	Content    string `json:"content"`
+	Type       int32  `json:"type"`
+	PushTime   string `json:"pushTime"`
+	ExpireTime string `json:"expireTime"`
+}
+
+type PublicNoticeListVO {
+	Total int64            `json:"total"`
+	List  []PublicNoticeVO `json:"list"`
+}
+
+// ============ 通知模板（需登录） ============
+@server (
+	jwt:   Auth
+	group: noticetemplate
+)
+service message-api {
+	@handler SaveNoticeTemplateHandler
+	post /notice-templates (NoticeTemplateSaveReq) returns (IdVO)
+
+	@handler DeleteNoticeTemplateHandler
+	delete /notice-templates/:id (IdPathReq) returns (OkVO)
+
+	@handler GetNoticeTemplateHandler
+	get /notice-templates/:id (IdPathReq) returns (NoticeTemplateVO)
+
+	@handler ListNoticeTemplatesHandler
+	get /notice-templates (PageReq) returns (NoticeTemplateListVO)
+}
+
+// ============ 通知任务（需登录） ============
+@server (
+	jwt:   Auth
+	group: noticetask
+)
+service message-api {
+	@handler SaveNoticeTaskHandler
+	post /notice-tasks (NoticeTaskSaveReq) returns (IdVO)
+
+	@handler DeleteNoticeTaskHandler
+	delete /notice-tasks/:id (IdPathReq) returns (OkVO)
+
+	@handler GetNoticeTaskHandler
+	get /notice-tasks/:id (IdPathReq) returns (NoticeTaskVO)
+
+	@handler ListNoticeTasksHandler
+	get /notice-tasks (PageReq) returns (NoticeTaskListVO)
+}
+
+// ============ 短信模板（需登录） ============
+@server (
+	jwt:   Auth
+	group: messagetemplate
+)
+service message-api {
+	@handler SaveMessageTemplateHandler
+	post /message-templates (MessageTemplateSaveReq) returns (IdVO)
+
+	@handler DeleteMessageTemplateHandler
+	delete /message-templates/:id (IdPathReq) returns (OkVO)
+
+	@handler ListMessageTemplatesHandler
+	get /message-templates (PageReq) returns (MessageTemplateListVO)
+}
+
+// ============ 短信平台（需登录） ============
+@server (
+	jwt:   Auth
+	group: smsplatform
+)
+service message-api {
+	@handler ListSmsPlatformsHandler
+	get /sms-platforms returns (SmsPlatformListVO)
+}
+
+// ============ 用户收件箱（需登录） ============
+@server (
+	jwt:   Auth
+	group: inbox
+)
+service message-api {
+	@handler ListInboxHandler
+	get /inbox (InboxListReq) returns (InboxListVO)
+
+	@handler MarkInboxReadHandler
+	put /inbox/:id/read (IdPathReq) returns (OkVO)
+
+	@handler DeleteInboxHandler
+	delete /inbox/:id (IdPathReq) returns (OkVO)
+}
+
+// ============ 公告（需登录） ============
+@server (
+	jwt:   Auth
+	group: notice
+)
+service message-api {
+	@handler SavePublicNoticeHandler
+	post /notices (PublicNoticeSaveReq) returns (IdVO)
+
+	@handler DeletePublicNoticeHandler
+	delete /notices/:id (IdPathReq) returns (OkVO)
+
+	@handler ListPublicNoticesHandler
+	get /notices (PageReq) returns (PublicNoticeListVO)
+}
+
