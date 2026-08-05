@@ -26,3 +26,9 @@ PayRpc:
     Hosts:
       - 127.0.0.1:2379
     Key: pay.rpc
+
+CourseRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: course.rpc

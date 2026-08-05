@@ -3,8 +3,10 @@ package logic
 import (
 	"context"
 
+	payclient "tjxt/apps/pay/rpc/pay"
 	"tjxt/apps/trade/rpc/internal/svc"
 	"tjxt/apps/trade/rpc/pb"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +26,24 @@ func NewRefundResultQueryLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *RefundResultQueryLogic) RefundResultQuery(in *pb.RefundResultQueryRequest) (*pb.RefundResultDTO, error) {
-	// todo: add your logic here and delete this line
+	if in.BizRefundOrderId <= 0 {
+		return nil, xerr.BadRequestf("业务退款单号不能为空")
+	}
 
-	return &pb.RefundResultDTO{}, nil
+	resp, err := l.svcCtx.PayRpc.QueryRefundResult(l.ctx, &payclient.QueryRefundResultRequest{
+		BizRefundOrderNo: in.BizRefundOrderId,
+	})
+	if err != nil {
+		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询退款结果失败")
+	}
+
+	return &pb.RefundResultDTO{
+		BizPayOrderId:    0,
+		BizRefundOrderId: resp.BizRefundOrderNo,
+		PayOrderNo:       0,
+		RefundOrderNo:    resp.RefundOrderNo,
+		Status:           resp.Status,
+		PayChannel:       "",
+		RefundChannel:    "",
+	}, nil
 }

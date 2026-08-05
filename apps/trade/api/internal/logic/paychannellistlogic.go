@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
+	"tjxt/apps/trade/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,21 @@ func NewPayChannelListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pa
 }
 
 func (l *PayChannelListLogic) PayChannelList() (resp []types.PayChannelDTO, err error) {
-	// todo: add your logic here and delete this line
+	reply, err := l.svcCtx.TradeRpc.PayChannelList(l.ctx, &pb.Empty{})
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	resp = make([]types.PayChannelDTO, 0)
+	for _, item := range reply.Items {
+		resp = append(resp, types.PayChannelDTO{
+			Id:              item.Id,
+			Name:            item.Name,
+			ChannelCode:     item.ChannelCode,
+			ChannelIcon:     item.ChannelIcon,
+			ChannelPriority: int64(item.ChannelPriority),
+			Status:          int64(item.Status),
+		})
+	}
+	return resp, nil
 }

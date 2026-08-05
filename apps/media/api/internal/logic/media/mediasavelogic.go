@@ -8,6 +8,8 @@ import (
 
 	"tjxt/apps/media/api/internal/svc"
 	"tjxt/apps/media/api/internal/types"
+	mediaclient "tjxt/apps/media/rpc/media"
+	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +29,19 @@ func NewMediaSaveLogic(ctx context.Context, svcCtx *svc.ServiceContext) *MediaSa
 }
 
 func (l *MediaSaveLogic) MediaSave(req *types.MediaSaveReq) (resp *types.MediaIdVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
+		return nil, err
+	}
+	// RPC 协议暂无用户字段，此处仅校验登录态
+	rpcResp, err := l.svcCtx.MediaRpc.MediaSave(l.ctx, &mediaclient.MediaSaveRequest{
+		Id:       req.Id,
+		Filename: req.Filename,
+		Duration: req.Duration,
+		Size:     req.Size,
+		FileId:   req.FileId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &types.MediaIdVO{Id: rpcResp.Id}, nil
 }

@@ -3,6 +3,8 @@ package logic
 import (
 	"context"
 
+	"tjxt/pkg/auth"
+
 	"tjxt/apps/learning/rpc/internal/svc"
 	"tjxt/apps/learning/rpc/pb"
 
@@ -25,7 +27,21 @@ func NewLessonPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Lesson
 
 // 我的课表分页
 func (l *LessonPageLogic) LessonPage(in *pb.LessonPageRequest) (*pb.LessonPageReply, error) {
-	// todo: add your logic here and delete this line
-
-	return &pb.LessonPageReply{}, nil
+	userID, err := auth.UserIdFromCtx(l.ctx)
+	if err != nil {
+		return nil, err
+	}
+	list, total, err := l.svcCtx.LearningService.ListLessons(l.ctx, userID, in.PageNo, in.PageSize, in.IsAsc)
+	if err != nil {
+		return nil, err
+	}
+	vos := make([]*pb.LearningLessonVO, 0, len(list))
+	for _, lsn := range list {
+		vos = append(vos, toLessonVO(lsn))
+	}
+	return &pb.LessonPageReply{
+		Total: total,
+		Pages: calcPages(total, in.PageSize),
+		List:  vos,
+	}, nil
 }

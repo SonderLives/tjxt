@@ -5,6 +5,7 @@ import (
 
 	"tjxt/apps/message/rpc/internal/svc"
 	"tjxt/apps/message/rpc/pb"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,8 +24,10 @@ func NewDeleteMessageTemplateLogic(ctx context.Context, svcCtx *svc.ServiceConte
 	}
 }
 
+// 短信模板 物理删除
 func (l *DeleteMessageTemplateLogic) DeleteMessageTemplate(in *pb.IdReq) (*pb.Empty, error) {
-	// todo: add your logic here and delete this line
-
+	if err := l.svcCtx.MessageTemplateModel.Delete(l.ctx, in.Id); err != nil {
+		return nil, xerr.Wrapf(err, xerr.CodeInternal, "删除短信模板失败")
+	}
 	return &pb.Empty{}, nil
 }

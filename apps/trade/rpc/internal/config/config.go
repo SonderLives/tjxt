@@ -23,4 +23,7 @@ type Config struct {
 
 	// PayRpc 调用 pay 服务（支付/退款下单、关单、支付/退款结果查询）
 	PayRpc zrpc.RpcClientConf
+
+	// CourseRpc 调用 course 服务（购物车/订单需要课程名、价格、封面）
+	CourseRpc zrpc.RpcClientConf
 }

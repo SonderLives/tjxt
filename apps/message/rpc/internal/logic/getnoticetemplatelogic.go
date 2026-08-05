@@ -5,6 +5,7 @@ import (
 
 	"tjxt/apps/message/rpc/internal/svc"
 	"tjxt/apps/message/rpc/pb"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,8 +24,14 @@ func NewGetNoticeTemplateLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 	}
 }
 
+// 通知模板 详情
 func (l *GetNoticeTemplateLogic) GetNoticeTemplate(in *pb.IdReq) (*pb.NoticeTemplateVO, error) {
-	// todo: add your logic here and delete this line
-
-	return &pb.NoticeTemplateVO{}, nil
+	data, err := l.svcCtx.NoticeTemplateModel.FindOne(l.ctx, in.Id)
+	if err != nil {
+		if isNotFound(err) {
+			return nil, xerr.NotFound("通知模板不存在")
+		}
+		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询通知模板失败")
+	}
+	return toNoticeTemplateVO(data), nil
 }

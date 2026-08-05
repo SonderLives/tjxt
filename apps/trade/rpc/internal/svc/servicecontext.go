@@ -7,6 +7,7 @@ import (
 	"tjxt/apps/trade/rpc/internal/model"
 	"tjxt/pkg/mq"
 
+	courseclient "tjxt/apps/course/rpc/course"
 	payclient "tjxt/apps/pay/rpc/pay"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -23,6 +24,7 @@ type ServiceContext struct {
 	RefundApplyModel model.RefundApplyModel
 
 	PayRpc      payclient.Pay
+	CourseRpc   courseclient.Course
 	MQProducer  *mq.Producer // 可为 nil：MQ 未就绪时不阻塞启动
 }
 
@@ -36,6 +38,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		OrderDetailModel: model.NewOrderDetailModel(conn, c.Cache),
 		RefundApplyModel: model.NewRefundApplyModel(conn, c.Cache),
 		PayRpc:           payclient.NewPay(zrpc.MustNewClient(c.PayRpc)),
+		CourseRpc:        courseclient.NewCourse(zrpc.MustNewClient(c.CourseRpc)),
 	}
 
 	dsn := fmt.Sprintf("amqp://%s:%s@%s:%d/", c.RabbitMQ.User, c.RabbitMQ.Pass, c.RabbitMQ.Host, c.RabbitMQ.Port)

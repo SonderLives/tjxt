@@ -3,6 +3,8 @@ package logic
 import (
 	"context"
 
+	"tjxt/pkg/auth"
+
 	"tjxt/apps/learning/rpc/internal/svc"
 	"tjxt/apps/learning/rpc/pb"
 
@@ -25,7 +27,13 @@ func NewLessonGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LessonG
 
 // 指定课程的学习信息
 func (l *LessonGetLogic) LessonGet(in *pb.LessonRequest) (*pb.LearningLessonVO, error) {
-	// todo: add your logic here and delete this line
-
-	return &pb.LearningLessonVO{}, nil
+	userID, err := auth.UserIdFromCtx(l.ctx)
+	if err != nil {
+		return nil, err
+	}
+	lesson, err := l.svcCtx.LearningService.GetLesson(l.ctx, userID, in.CourseId)
+	if err != nil {
+		return nil, err
+	}
+	return toLessonVO(lesson), nil
 }

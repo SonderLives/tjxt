@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
+	messageclient "tjxt/apps/message/rpc/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,8 @@ func NewDeleteNoticeTaskLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *DeleteNoticeTaskLogic) DeleteNoticeTask(req *types.IdPathReq) (resp *types.OkVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	if _, err := l.svcCtx.MessageRpc.DeleteNoticeTask(l.ctx, &messageclient.IdReq{Id: req.Id}); err != nil {
+		return nil, err
+	}
+	return &types.OkVO{Success: true}, nil
 }

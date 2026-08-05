@@ -3,8 +3,10 @@ package logic
 import (
 	"context"
 
+	payclient "tjxt/apps/pay/rpc/pay"
 	"tjxt/apps/trade/rpc/internal/svc"
 	"tjxt/apps/trade/rpc/pb"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +26,21 @@ func NewPayChannelListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pa
 }
 
 func (l *PayChannelListLogic) PayChannelList(in *pb.Empty) (*pb.PayChannelListReply, error) {
-	// todo: add your logic here and delete this line
+	resp, err := l.svcCtx.PayRpc.ListPayChannels(l.ctx, &payclient.ListPayChannelsRequest{})
+	if err != nil {
+		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询支付渠道列表失败")
+	}
 
-	return &pb.PayChannelListReply{}, nil
+	items := make([]*pb.PayChannelDTO, 0, len(resp.List))
+	for _, ch := range resp.List {
+		items = append(items, &pb.PayChannelDTO{
+			Id:              ch.Id,
+			Name:            ch.Name,
+			ChannelCode:     ch.ChannelCode,
+			ChannelIcon:     ch.ChannelIcon,
+			ChannelPriority: ch.ChannelPriority,
+			Status:          ch.Status,
+		})
+	}
+	return &pb.PayChannelListReply{Items: items}, nil
 }

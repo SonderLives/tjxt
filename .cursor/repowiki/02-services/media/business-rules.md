@@ -1,4 +1,4 @@
-> 版本：v1.0 | 更新：2026-08-05 | 来源：`apps/media/rpc/internal/logic/*.go`, `apps/media/api/internal/logic/**/*.go`
+> 版本：v1.2 | 更新：2026-08-06 | 来源：2026-08-06 复核（go build 全模块通过 + 逻辑文件清点）
 
 ---
 
@@ -6,49 +6,55 @@
 
 ## ⚠️ 实现状态
 
-本服务的业务 logic **尚未实现**，全部为 goctl 脚手架占位（函数体仅含 `// todo: add your logic here and delete this line` 并返回零值）。
+本服务的业务 logic **已全部实现**：20 个 logic 文件（RPC 10 + API 10）均已落地并编译通过；对象存储后端为 mock（见已知缺口）。下列各方法状态已校正为「已实现」。
 
 ### RPC 层实现状态（`apps/media/rpc/internal/logic/`）
 
 | Logic 文件 | RPC 方法 | 实现状态 |
 |-----------|---------|---------|
-| `mediagetlogic.go` | `MediaGet` | ❌ 未实现（占位） |
-| `medialistlogic.go` | `MediaList` | ❌ 未实现（占位） |
-| `mediasavelogic.go` | `MediaSave` | ❌ 未实现（占位） |
-| `mediadeletelogic.go` | `MediaDelete` | ❌ 未实现（占位） |
-| `signatureuploadlogic.go` | `SignatureUpload` | ❌ 未实现（占位） |
-| `signaturepreviewlogic.go` | `SignaturePreview` | ❌ 未实现（占位） |
-| `signatureplaylogic.go` | `SignaturePlay` | ❌ 未实现（占位） |
-| `filegetlogic.go` | `FileGet` | ❌ 未实现（占位） |
-| `filesavelogic.go` | `FileSave` | ❌ 未实现（占位） |
-| `filedeletelogic.go` | `FileDelete` | ❌ 未实现（占位） |
+| `mediagetlogic.go` | `MediaGet` | ✅ 已实现 |
+| `medialistlogic.go` | `MediaList` | ✅ 已实现 |
+| `mediasavelogic.go` | `MediaSave` | ✅ 已实现 |
+| `mediadeletelogic.go` | `MediaDelete` | ✅ 已实现 |
+| `signatureuploadlogic.go` | `SignatureUpload` | ✅ 已实现 |
+| `signaturepreviewlogic.go` | `SignaturePreview` | ✅ 已实现 |
+| `signatureplaylogic.go` | `SignaturePlay` | ✅ 已实现 |
+| `filegetlogic.go` | `FileGet` | ✅ 已实现 |
+| `filesavelogic.go` | `FileSave` | ✅ 已实现 |
+| `filedeletelogic.go` | `FileDelete` | ✅ 已实现 |
 
-**RPC 层统计：已实现 0 / 总计 10**
+**RPC 层统计：已实现 10 / 总计 10**
 
 ### API 层实现状态（`apps/media/api/internal/logic/`）
 
 | Logic 文件 | Handler 方法 | 实现状态 |
 |-----------|-------------|---------|
-| `media/mediagetlogic.go` | `MediaGet` | ❌ 未实现（占位） |
-| `media/medialistlogic.go` | `MediaList` | ❌ 未实现（占位） |
-| `media/mediasavelogic.go` | `MediaSave` | ❌ 未实现（占位） |
-| `media/mediadeletelogic.go` | `MediaDelete` | ❌ 未实现（占位） |
-| `signature/signatureuploadlogic.go` | `SignatureUpload` | ❌ 未实现（占位） |
-| `signature/signaturepreviewlogic.go` | `SignaturePreview` | ❌ 未实现（占位） |
-| `signature/signatureplaylogic.go` | `SignaturePlay` | ❌ 未实现（占位） |
-| `file/filegetlogic.go` | `FileGet` | ❌ 未实现（占位） |
-| `file/filesavelogic.go` | `FileSave` | ❌ 未实现（占位） |
-| `file/filedeletelogic.go` | `FileDelete` | ❌ 未实现（占位） |
+| `media/mediagetlogic.go` | `MediaGet` | ✅ 已实现 |
+| `media/medialistlogic.go` | `MediaList` | ✅ 已实现 |
+| `media/mediasavelogic.go` | `MediaSave` | ✅ 已实现 |
+| `media/mediadeletelogic.go` | `MediaDelete` | ✅ 已实现 |
+| `signature/signatureuploadlogic.go` | `SignatureUpload` | ✅ 已实现 |
+| `signature/signaturepreviewlogic.go` | `SignaturePreview` | ✅ 已实现 |
+| `signature/signatureplaylogic.go` | `SignaturePlay` | ✅ 已实现 |
+| `file/filegetlogic.go` | `FileGet` | ✅ 已实现 |
+| `file/filesavelogic.go` | `FileSave` | ✅ 已实现 |
+| `file/filedeletelogic.go` | `FileDelete` | ✅ 已实现 |
 
-**API 层统计：已实现 0 / 总计 10**
+**API 层统计：已实现 10 / 总计 10**
 
-> **合计：已实现 0 / 总计 20**
+> **合计：已实现 20 / 总计 20**
 >
-> 以下各节内容**均为设计意图推导**，依据 `apps/media/rpc/media.proto` 的消息定义、`sql/ddl/tj_media.sql` 的字段注释与状态枚举、`apps/media/api/media.api` 的路由契约、以及 `docs/tjxt.openapi.json` 的原始 Java 版接口摘要。**不代表当前代码行为。**
+> 以下各节内容**均为设计意图推导**，依据 `apps/media/rpc/media.proto` 的消息定义、`sql/ddl/tj_media.sql` 的字段注释与状态枚举、`apps/media/api/media.api` 的路由契约、以及 `docs/tjxt.openapi.json` 的原始 Java 版接口摘要。**2026-08-06 复核：logic 已全部实现并编译通过；以下规则为依据 proto/DDL/.api 契约推导，建议对照源码最终确认。**
+
+
+## 已知缺口
+
+- 对象存储为 mock：`config.go` / `etc/*.yaml` 无 `SecretId/SecretKey/Bucket` 配置，签名/上传/播放均指向本地 `http://127.0.0.1:9000`（`mockBaseURL`）。接入真实 COS/OSS 前媒资全链路仅为本地可跑的桩。
+- course ↔ media RPC 未接线：引用计数（`CourseMediaUseInfo`）与媒资绑定（`CourseMediaSave`）跨域未打通。
 
 ---
 
-## 1. 文件状态流转 📋 设计意图（待实现）
+## 1. 文件状态流转 📋 设计意图（契约推导）
 
 **核心规则**：`file.status` 三态流转，由 DDL 注释 `状态：1-待上传 2-已上传,未使用 3-已使用` 定义。
 
@@ -70,7 +76,7 @@
 
 > ⚠️ 生成的 `FileModel.Delete` 为**物理删除**，与 `deleted` 列的逻辑删除语义冲突，实现时需改用自定义 `SoftDelete`。
 
-## 2. 媒资状态流转 📋 设计意图（待实现）
+## 2. 媒资状态流转 📋 设计意图（契约推导）
 
 **核心规则**：`media.status` 两态流转，由 DDL 注释 `状态：1-上传中，2-已上传` 定义。
 
@@ -82,7 +88,7 @@
 | 时长与大小由客户端上报 | `duration`(秒) / `size`(字节) 随 `MediaSave` 传入 | `MediaSaveRequest` |
 | 逻辑删除 | `MediaDelete` 应置 `deleted=1` | `media.deleted` 注释 |
 
-## 3. 媒资保存（新增/更新） 📋 设计意图（待实现）
+## 3. 媒资保存（新增/更新） 📋 设计意图（契约推导）
 
 **核心规则**：`MediaSaveRequest.id` 为 optional，沿用项目内 `id <= 0` 为新增的约定（参考 auth 域 `SaveRole`）。
 
@@ -97,7 +103,7 @@
 
 > ⚠️ 幂等缺口：同一 `fileId` 重复调用 `MediaSave` 会产生重复媒资记录，需补 `FindOneByFileId` 校验（见 [data-model.md](./data-model.md) 缺口表）。
 
-## 4. 媒资列表查询 📋 设计意图（待实现）
+## 4. 媒资列表查询 📋 设计意图（契约推导）
 
 **核心规则**：`MediaListRequest` 支持模糊搜索 + 动态排序 + 分页。
 
@@ -112,7 +118,7 @@
 >
 > ⚠️ 能力缺口：`MediaModel` 无 `FindPage`，分页查询无法实现。
 
-## 5. 签名授权 📋 设计意图（待实现）
+## 5. 签名授权 📋 设计意图（契约推导）
 
 **核心规则**：三个签名方法共用 `SignatureRequest` / `SignatureVO`，按用途返回不同字段组合。
 
@@ -130,7 +136,7 @@
 
 > ⚠️ **配置缺口（阻塞项）**：`apps/media/rpc/internal/config/config.go` 仅有 `RpcServerConf` / `DataSource` / `Cache` 三项，**没有任何对象存储的 AppId / SecretId / SecretKey / Bucket / Region / 上传路径配置**，`apps/media/rpc/etc/media.yaml` 中亦无对应条目。签名功能在补齐配置结构前**无法实现**。详见 [configs.md](./configs.md)。
 
-## 6. 文件保存与删除 📋 设计意图（待实现）
+## 6. 文件保存与删除 📋 设计意图（契约推导）
 
 ```
 流程（FileSave，设计意图）:
@@ -145,7 +151,7 @@
   3. 置 deleted=1，并清理对象存储中的 key
 ```
 
-## 7. 跨域引用计数 📋 设计意图（待实现）
+## 7. 跨域引用计数 📋 设计意图（契约推导）
 
 **核心规则**：`MediaVO.useTimes` 表示媒资被课程引用的次数，**不落 media 表**。
 

@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
+	"tjxt/apps/trade/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,19 @@ func NewOrderPlaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OrderP
 }
 
 func (l *OrderPlaceLogic) OrderPlace(req *types.PlaceOrderReq) (resp *types.PlaceOrderResultVO, err error) {
-	// todo: add your logic here and delete this line
+	reply, err := l.svcCtx.TradeRpc.OrderPlace(l.ctx, &pb.PlaceOrderRequest{
+		OrderId:   req.OrderId,
+		CourseIds: req.CourseIds,
+		CouponIds: req.CouponIds,
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	return &types.PlaceOrderResultVO{
+		OrderId:    reply.OrderId,
+		PayAmount:  reply.PayAmount,
+		PayOutTime: reply.PayOutTime,
+		Status:     int64(reply.Status),
+	}, nil
 }

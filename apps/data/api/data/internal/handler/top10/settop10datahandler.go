@@ -9,6 +9,8 @@ import (
 	"tjxt/apps/data/api/data/internal/logic/top10"
 	"tjxt/apps/data/api/data/internal/svc"
 	"tjxt/apps/data/api/data/internal/types"
+	result "tjxt/pkg/response"
+
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
@@ -22,10 +24,6 @@ func SetTop10DataHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := top10.NewSetTop10DataLogic(r.Context(), svcCtx)
 		resp, err := l.SetTop10Data(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.Write(w, r, resp, err)
 	}
 }

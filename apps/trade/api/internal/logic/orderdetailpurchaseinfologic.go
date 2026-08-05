@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
+	"tjxt/apps/trade/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,14 @@ func NewOrderDetailPurchaseInfoLogic(ctx context.Context, svcCtx *svc.ServiceCon
 }
 
 func (l *OrderDetailPurchaseInfoLogic) OrderDetailPurchaseInfo(req *types.PurchaseInfoReq) (resp *types.PurchaseInfoVO, err error) {
-	// todo: add your logic here and delete this line
+	reply, err := l.svcCtx.TradeRpc.OrderDetailPurchaseInfo(l.ctx, &pb.PurchaseInfoRequest{CourseId: req.CourseId})
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	return &types.PurchaseInfoVO{
+		EnrollNum:     reply.EnrollNum,
+		RealPayAmount: reply.RealPayAmount,
+		RefundNum:     reply.RefundNum,
+	}, nil
 }

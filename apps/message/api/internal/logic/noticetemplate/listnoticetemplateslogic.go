@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
+	messageclient "tjxt/apps/message/rpc/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,26 @@ func NewListNoticeTemplatesLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *ListNoticeTemplatesLogic) ListNoticeTemplates(req *types.PageReq) (resp *types.NoticeTemplateListVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	r, err := l.svcCtx.MessageRpc.ListNoticeTemplates(l.ctx, &messageclient.PageReq{
+		PageNo:   int32(req.PageNo),
+		PageSize: int32(req.PageSize),
+	})
+	if err != nil {
+		return nil, err
+	}
+	list := make([]types.NoticeTemplateVO, 0, len(r.List))
+	for _, item := range r.List {
+		list = append(list, types.NoticeTemplateVO{
+			Id:            item.Id,
+			Name:          item.Name,
+			Code:          item.Code,
+			Type:          item.Type,
+			Status:        item.Status,
+			Title:         item.Title,
+			Content:       item.Content,
+			IsSmsTemplate: item.IsSmsTemplate,
+			CreateTime:    item.CreateTime,
+		})
+	}
+	return &types.NoticeTemplateListVO{Total: r.Total, List: list}, nil
 }

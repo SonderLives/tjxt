@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
+	messageclient "tjxt/apps/message/rpc/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,20 @@ func NewGetNoticeTaskLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 }
 
 func (l *GetNoticeTaskLogic) GetNoticeTask(req *types.IdPathReq) (resp *types.NoticeTaskVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	r, err := l.svcCtx.MessageRpc.GetNoticeTask(l.ctx, &messageclient.IdReq{Id: req.Id})
+	if err != nil {
+		return nil, err
+	}
+	return &types.NoticeTaskVO{
+		Id:         r.Id,
+		TemplateId: r.TemplateId,
+		Name:       r.Name,
+		Partial:    r.Partial,
+		PushTime:   r.PushTime,
+		Interval:   r.Interval,
+		ExpireTime: r.ExpireTime,
+		MaxTimes:   r.MaxTimes,
+		Finished:   r.Finished,
+		CreateTime: r.CreateTime,
+	}, nil
 }

@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
+	"tjxt/apps/trade/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,8 @@ func NewCartUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CartUp
 }
 
 func (l *CartUpdateLogic) CartUpdate(req *types.CartUpdateReq) (resp *types.NamePlaceVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	if _, err = l.svcCtx.TradeRpc.CartUpdate(l.ctx, &pb.CartUpdateRequest{Id: req.Id, CourseId: req.CourseId}); err != nil {
+		return nil, err
+	}
+	return &types.NamePlaceVO{Existed: true, Message: "ok"}, nil
 }

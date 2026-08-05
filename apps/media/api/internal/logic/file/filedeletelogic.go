@@ -8,6 +8,8 @@ import (
 
 	"tjxt/apps/media/api/internal/svc"
 	"tjxt/apps/media/api/internal/types"
+	mediaclient "tjxt/apps/media/rpc/media"
+	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +29,11 @@ func NewFileDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FileDe
 }
 
 func (l *FileDeleteLogic) FileDelete(req *types.FileIdPathReq) (resp *types.OkVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
+		return nil, err
+	}
+	if _, err := l.svcCtx.MediaRpc.FileDelete(l.ctx, &mediaclient.FileIdRequest{Id: req.Id}); err != nil {
+		return nil, err
+	}
+	return &types.OkVO{Success: true}, nil
 }

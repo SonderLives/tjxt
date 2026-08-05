@@ -3,6 +3,8 @@ package logic
 import (
 	"context"
 
+	"tjxt/pkg/auth"
+
 	"tjxt/apps/learning/rpc/internal/svc"
 	"tjxt/apps/learning/rpc/pb"
 
@@ -23,9 +25,14 @@ func NewPlanSaveLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PlanSave
 	}
 }
 
-// 创建/更新学习计划
+// 创建/更新学习计划（每周章节数）
 func (l *PlanSaveLogic) PlanSave(in *pb.PlanSaveRequest) (*pb.Empty, error) {
-	// todo: add your logic here and delete this line
-
+	userID, err := auth.UserIdFromCtx(l.ctx)
+	if err != nil {
+		return nil, err
+	}
+	if err := l.svcCtx.LearningService.CreatePlan(l.ctx, userID, in.CourseId, in.Freq); err != nil {
+		return nil, err
+	}
 	return &pb.Empty{}, nil
 }

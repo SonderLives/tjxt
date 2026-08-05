@@ -5,6 +5,8 @@ import (
 
 	"tjxt/apps/media/rpc/internal/svc"
 	"tjxt/apps/media/rpc/pb"
+	"tjxt/pkg/utils/page"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +26,21 @@ func NewMediaListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *MediaLi
 }
 
 func (l *MediaListLogic) MediaList(in *pb.MediaListRequest) (*pb.MediaListReply, error) {
-	// todo: add your logic here and delete this line
-
-	return &pb.MediaListReply{}, nil
+	offset, limit := page.Normalize(int64(in.PageNo), int64(in.PageSize))
+	list, err := l.svcCtx.MediaModel.FindPage(l.ctx, in.Name, in.SortBy, in.IsAsc, offset, limit)
+	if err != nil {
+		return nil, xerr.Wrapf(err, xerr.CodeInternal, "分页查询媒资失败")
+	}
+	total, err := l.svcCtx.MediaModel.Count(l.ctx, in.Name)
+	if err != nil {
+		return nil, xerr.Wrapf(err, xerr.CodeInternal, "统计媒资数量失败")
+	}
+	resp := &pb.MediaListReply{
+		Total: total,
+		List:  make([]*pb.MediaVO, 0, len(list)),
+	}
+	for _, item := range list {
+		resp.List = append(resp.List, toMediaVO(item))
+	}
+	return resp, nil
 }

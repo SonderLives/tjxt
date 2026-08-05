@@ -3,6 +3,8 @@ package logic
 import (
 	"context"
 
+	"tjxt/pkg/auth"
+
 	"tjxt/apps/learning/rpc/internal/svc"
 	"tjxt/apps/learning/rpc/pb"
 
@@ -23,9 +25,15 @@ func NewLearningNowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Learn
 	}
 }
 
-// 当前正在学习的课程
+// 当前正在学习的课程（最近学习过的一条）
 func (l *LearningNowLogic) LearningNow(in *pb.Empty) (*pb.LearningLessonVO, error) {
-	// todo: add your logic here and delete this line
-
-	return &pb.LearningLessonVO{}, nil
+	userID, err := auth.UserIdFromCtx(l.ctx)
+	if err != nil {
+		return nil, err
+	}
+	lesson, err := l.svcCtx.LearningService.CurrentLesson(l.ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return toLessonVO(lesson), nil
 }

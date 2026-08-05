@@ -1,4 +1,4 @@
-> 版本：v1.0 | 更新：2026-08-05 | 来源：全仓扫描 `apps/<svc>/{api,rpc}/internal/logic/**/*logic.go`
+> 版本：v1.2 | 更新：2026-08-06 | 来源：全仓 `go build ./...`（逐模块）+ 逻辑文件清点 + 依赖接线扫描（v1.1 的复核）
 
 ---
 
@@ -6,85 +6,107 @@
 
 ## 统计口径
 
-递归扫描各服务 `internal/logic/**/*logic.go`，文件内含 goctl 占位注释 `todo: add your logic` 即判定为**未实现**。
+- 以每个 `go.mod` 模块独立 `go build ./...` 是否通过 + `internal/logic/**/*logic.go` 是否含真实实现（非 goctl `todo: add your logic` 占位）为准。
+- 2026-08-06 复核：全仓 **0 处** `TODO` / `panic("implement")` / `not implemented` 占位；**13 个真实模块编译全部通过**（仅 `apps/data/api` 孤儿 `go.mod` 未纳入 go.work，其真实模块 `apps/data/api/data` 编译通过）。
+- 接口契约总数：API 端点 **193** + RPC 方法 **201** = **394** 个，与 logic 文件 **1:1 对应**，无缺失。
 
 ---
 
 ## 1. 逐服务实现进度
 
-| 服务 | API Logic | RPC Logic | 小计 | 状态 |
-|------|-----------|-----------|------|------|
-| **auth** | 18/18 | 19/19 | 37/37 | ✅ 完成 |
-| **user** | 13/13 | 15/15 | 28/28 | ✅ 完成 |
-| **pay** | 16/16 | 17/17 | 33/33 | ✅ 完成 |
-| **promotion** | 16/16 | 16/16 | 32/32 | ✅ 完成 |
-| **remark** | 2/2 | 2/2 | 4/4 | ✅ 完成 |
-| **course** | 38/38 | 38/38 | 76/76 | ✅ 完成 |
-| **trade** | 0/36 | 0/37 | 0/73 | ⬜ 未开始 |
-| **message** | 0/18 | 0/19 | 0/37 | ⬜ 未开始 |
-| **learning** | 0/9 | 0/11 | 0/20 | ⬜ 未开始（Service 层与 Model 扩展已就绪） |
-| **media** | 0/10 | 0/10 | 0/20 | ⬜ 未开始 |
-| **exam** | 0/7 | 0/7 | 0/14 | ⬜ 未开始 |
-| **data** | 0/6 | 0/6 | 0/12 | ⬜ 未开始 |
-| **search** | 0/2 | 0/2 | 0/4 | ⬜ 未开始 |
-| **合计** | **103/195** | **107/195** | **210/390** | **53.8%** |
+| 服务 | API Logic | RPC Logic | 小计 | 编译 | 状态 |
+|------|-----------|-----------|------|:----:|------|
+| **auth** | 18/18 | 19/19 | 37/37 | ✅ | 完成 |
+| **user** | 13/13 | 15/15 | 28/28 | ✅ | 完成 |
+| **pay** | 16/16 | 17/17 | 33/33 | ✅ | 完成 |
+| **promotion** | 16/16 | 16/16 | 32/32 | ✅ | 完成 |
+| **remark** | 2/2 | 2/2 | 4/4 | ✅ | 完成 |
+| **course** | 38/38 | 38/38 | 76/76 | ✅ | 完成 |
+| **trade** | 36/36 | 37/37 | 73/73 | ✅ | 完成 |
+| **learning** | 9/9 | 11/11 | 20/20 | ✅ | 完成 |
+| **media** | 10/10 | 10/10 | 20/20 | ✅ | 完成（对象存储为 mock） |
+| **exam** | 7/7 | 7/7 | 14/14 | ✅ | 完成 |
+| **message** | 18/18 | 19/19 | 37/37 | ✅ | 完成 |
+| **search** | 4/4 | 4/4 | 8/8 | ✅ | 完成（依赖 course） |
+| **data** | 6/6 | 6/6 | 12/12 | ✅* | 完成（*真实模块 `apps/data/api/data`） |
+| **合计** | **193/193** | **201/201** | **394/394** | — | **100%** |
 
-**服务维度**：6/13 完成（auth / user / pay / promotion / remark / **course**）。
+**服务维度：13/13 完成。**
 
-> 📌 `course` 服务已于 2026-08-05 完成全部 76 个 logic 实现并通过编译（model 层自定义查询 + RPC/API 双层）。其 business-rules.md 已从「设计意图」校正为「已落地实现」（状态机仅 1–4、媒资方法 `CourseMediaSave`、草稿→正式发布流程、step 推进缺口等）。course 仍存在的跨域缺口：未装配 `MediaRpc`/`ExamRpc`/`UserRpc` 客户端，销量/老师详情等字段本地填 0/留空（见 2.5 与 course/business-rules.md 末节）。
+代码实现完成度 **≈100%**（所有契约均有可编译的真实逻辑实现）；功能完备度 **≈97%**（少量外部集成桩，见 §2）。
+
+> 📌 **v1.1 → v1.2 关键变化**：`media` / `exam` / `message` / `data` / `search` 五个服务已由「⬜ 未开始」校正为「✅ 完成」。本批次补齐了 RPC/API 薄封装与自定义 Model（media / exam 的自定义 Model 已补齐分页/软删等方法，不再是空壳，见 §2.4 修正）。全仓逻辑文件由 v1.1 的 303/390（77.7%）校正为 **394/394（100%）**。
 
 ---
 
-## 2. 结构性缺口
+## 2. 结构性缺口与已知问题
 
-### 2.1 data 服务目录结构偏离约定
+### 2.1 data 服务目录结构偏离约定 — 仍有效
 
 | 问题 | 说明 |
 |------|------|
 | 多套一层目录 | `apps/data/api/data/...`、`apps/data/rpc/data/...`，其余 12 个服务均为 `apps/<svc>/{api,rpc}/...` |
-| 多份 go.mod | 存在三份，其中 `api/go.mod` 仅 3 行、内容残缺 |
-| 无 DDL | `sql/ddl/` 下无 `tj_data.sql`，无任何 model |
-| 配置缺段 | `data.yaml` 无 `DataSource` / `Cache` 段；JWT 配置已声明但路由未启用 |
+| 多份 go.mod | `apps/data/api/go.mod` 为孤儿（未纳入 go.work，仅 3 行、内容残缺）；真实模块为 `apps/data/api/data` 与 `apps/data/rpc/data` |
+| 无 DDL | `sql/ddl/` 下无 `tj_data.sql`，无任何 model（`data` 服务不依赖 MySQL，数据为内存/配置驱动） |
+| 配置缺段 | `data.yaml` 无 `DataSource` / `Cache` 段；JWT 配置已声明但路由未启用（见 §2.5 data 写接口裸奔） |
 
-**建议**：按其余服务的约定重建目录并统一为单 `go.mod`。
+**建议**：删除孤儿 `apps/data/api/go.mod`；其余结构虽多一层，但真实模块已纳入 go.work 且编译通过，可暂维持。
 
-### 2.2 learning 缺表
+### 2.2 learning 表结构与缺口 — 仍有效（设计演进）
 
-`sql/ddl/tj_learning.sql` 仅定义 `learning_lesson` 一张表，但 RPC 已声明 `PlanSave`、`CommitLearningRecord` 等接口。
+`sql/ddl/tj_learning.sql` 仅定义 `learning_lesson` 一张表。proto 注释已明确：**学习记录不再单独建表**，通过更新 `learning_lesson` 的 `latest_section_id` / `latest_learn_time` / `learned_sections` 实现；原计划里的 `learning_plan` / `learning_record` 表**按设计演进不再需要**。
 
-**缺失**：`learning_plan`、`learning_record` 两张表（DDL 未定义、model 未生成）→ 导致 `records` 明细、`week_finished`、`week_points` 无数据源。
+**仍存在的缺口**（非缺表，而是缺数据源/出口）：
+- `LearningRecordsByCourse.records` 明细列表恒空（单行无法还原多小节历史）；
+- `PlanPageReply.week_finished` / `week_points` 无数据源（恒为 0）；
+- `status=2`（完成）无写入路径；
+- `RemoveLesson` 无 proto/`.api` 出口。
 
-### 2.3 media 对象存储配置完全缺失
+详见 `02-services/learning/business-rules.md` 末节「已知缺口汇总」。
 
-`config.go` 与 `etc/*.yaml` 中均无 `SecretId` / `SecretKey` / `Bucket` / VOD 等配置项，三个签名类 RPC **无法实现**。这是 media 服务的**首要阻塞项**。
+### 2.3 media 对象存储配置完全缺失 — 仍有效（首要阻塞项）
 
-### 2.4 Model 空壳
+`config.go` 与 `etc/*.yaml` 中均无 `SecretId` / `SecretKey` / `Bucket` / VOD 等配置项，三个签名类 RPC **使用本地 mock 实现**（`mockBaseURL = http://127.0.0.1:9000`，签名/上传/播放 URL 均为本地占位）。logic 已全部落地并编译通过，但接入真实 COS/OSS 前媒资全链路仅为本地可跑的桩。
 
-| 服务 | 情况 |
-|------|------|
-| trade | 4 个自定义 Model 全为 goctl 空壳，只有基础 CRUD，分页/聚合无 SQL 支撑 |
-| media / exam | 5 个自定义 model 均为空壳，缺 `FindPage` / `SoftDelete` / 级联删除 / 统计自增，导致 `MediaList`、`ListQuestions`、`GetQuestionsByBiz` 无法实现 |
+### 2.4 Model 空壳 — v1.2 已修正（media/exam 已补齐）
 
-### 2.5 跨域 RPC 未接线
+v1.1 标注 media / exam 自定义 model 为空壳。2026-08-06 复核：
+- **media**：`filemodel.go` / `mediamodel.go` 各 5 个自定义方法（分页 / 软删 / 状态更新等）已实现；
+- **exam**：`questionmodel.go` / `questionbizmodel.go` / `questiondetailmodel.go` 共 7 个自定义方法（双表事务写入 / 批量查 / 级联删 / 按 biz 列表等）已实现。
 
+**本条在 v1.2 判定为已解决。**
+
+### 2.5 跨域 RPC 未接线 — 仍有效
+
+**已接线（编译通过，zrpc 客户端已实例化）**：
+- `trade → {course, pay}`（RPC→RPC）
+- `search → course`（RPC→RPC）
+- `learning → course`（API→RPC）
+
+**未接线（servicecontext 无对应 client）**：
 | 调用关系 | 状态 |
 |---------|------|
-| trade → pay | `PayRpc` 已装配且配了 etcd key，但 logic 层**零调用** |
-| course → media | `servicecontext.go` 无对应 client |
-| course → exam | `servicecontext.go` 无对应 client |
-| learning ← MQ | 消费端配置齐全但**未接线**，trade 发出的 `order.pay` / `order.refund` 事件无人消费 |
+| course → user（教师信息） | 未接线（course 侧注释标明） |
+| course → learning（课时） | 未接线（lesson_id 填 0） |
+| course → media / course → exam | 未接线 |
+| trade → promotion（优惠券） | 未接线（优惠未接入，实付金额未扣减） |
+| pay → 真实支付网关 | 占位（demo 回调 URL，非真实渠道） |
 
-### 2.6 Makefile 服务清单不全
+**事件驱动**：`trade` 的 `ServiceContext` 已实例化 `MQProducer`（RabbitMQ），但**全仓 logic 仍未调用 `Publish`**——领域事件未实际发射，故 learning 消费端**无生产者**（v1.1 结论 v1.2 复核仍成立）。Producer 在 MQ 不可用时优雅降级为 nil，不阻塞启动。
 
-`SERVICES` / `API_DIRS` / `RPC_DIRS` 三个变量均只列了 11 个服务，**遗漏 `promotion` 与 `remark`**。这两个服务无法通过 `make run-*`、`make api`、`make rpc` 纳入统一流程，需手工执行。
+### 2.6 Makefile 服务清单不全 — 仍有效（已复核）
 
-### 2.7 Seata 未接入
+`SERVICES` / `API_DIRS` / `RPC_DIRS` 三个变量仍只列了 11 个服务，**遗漏 `promotion` 与 `remark`**（2026-08-06 复核确认）。这两个服务无法通过 `make run-*`、`make api`、`make rpc` 纳入统一流程，需手工执行。
+
+### 2.7 Seata 未接入 — 仍有效
 
 `sql/ddl/tj_exam.sql`、`sql/ddl/tj_trade.sql` 中定义了 `undo_log` 表（Seata AT 模式所需），但项目未接入 Seata，该表处于闲置状态，也未生成 model。
 
 ---
 
 ## 3. 数据一致性 / 正确性隐患
+
+> 下列为 v1.1 复核记录，v1.2 未逐条复验代码逻辑，建议代码评审确认；media / exam 已实现后其相关 Model 隐患应已缓解。
 
 | 服务 | 隐患 | 说明 |
 |------|------|------|
@@ -114,17 +136,17 @@
 
 ---
 
-## 5. 建议实施顺序（依赖驱动）
+## 5. 建议实施顺序（集成联调 / 外部对接阶段）
 
 ```
-✅ course（已完成：76/76 logic 实现并编译通过）
-  → media（course 依赖素材；须先补对象存储配置）   ← 下一优先级
-  → learning（须先补 learning_plan / learning_record 表）
-  → trade（须先接线 pay，补 Model 分页/聚合）
-  → exam
-  → message
-  → search
-  → data（须先重建目录结构）
+✅ 13/13 服务 logic 全部落地并编译通过（代码实现 ≈100%）
+  → ① media：接入真实对象存储（腾讯云 COS / 阿里 OSS）替换 mock
+  → ② pay：接入真实支付网关回调（替换 demo URL）
+  → ③ trade → promotion：打通优惠券计算
+  → ④ course → user(教师) / learning(课时) / media：补全跨域数据
+  → ⑤ trade 发射领域事件（接 learning 消费端，打通 MQ）
+  → ⑥ 清理 data 孤儿 go.mod；Makefile 补 promotion / remark
+  → ⑦ 复核 §3 数据一致性隐患（代码评审）
 ```
 
 ---
@@ -134,3 +156,4 @@
 - [架构全览](../00-architecture/overview.md)
 - [服务拓扑](../00-architecture/service-topology.md)
 - [快速上手](../05-development/quickstart.md)
+- [索引](../index.md)

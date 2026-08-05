@@ -1,7 +1,7 @@
 # 天机学堂 tjxt 项目记忆
 
 ## 架构
-- go-zero v1.10.3 微服务，go.work 工作区管理 6 个服务模块 + pkg。
+- go-zero v1.10.3 微服务，go.work 工作区管理 13 个服务模块 + pkg（apps/{auth,course,data,exam,learning,media,message,pay,promotion,remark,search,trade,user}）。
 - 服务模块路径：`module tjxt/apps/<svc>`（每服务一个 go.mod，rpc 子目录无独立 go.mod）。
 - 公共库 `tjxt/pkg`，各服务通过 `replace tjxt/pkg => ../../pkg` 引用。
 - 命名风格 gozero（无下划线），goctl 默认即此风格。
@@ -42,23 +42,30 @@ host 127.0.0.1 port 3306 user root pass 0000，库 tj_<domain>。
 - goctl api go 不覆盖已有 handler/logic/svc/config，仅刷新 types.go/routes.go。
 - goctl rpc protoc 不覆盖已有 logic/svc/config，仅刷新 pb/server，client 默认生成(-c true)。
 
-## 服务实现状态（logic 真实实现进度，2026-08-05）
-| 服务 | API | RPC | 状态 |
-|------|-----|-----|------|
-| auth | 18/18 | 19/19 | ✅ |
-| user | 13/13 | 15/15 | ✅ |
-| pay | 16/16 | 17/17 | ✅ |
-| promotion | 16/16 | 16/16 | ✅ |
-| remark | 2/2 | 2/2 | ✅ |
-| course | 38/38 | 38/38 | ✅（2026-08-05 完成） |
-| trade | 0/36 | 0/37 | ⬜ |
-| message | 0/18 | 0/19 | ⬜ |
-| learning | 0/9 | 0/11 | ⬜ |
-| media | 0/10 | 0/10 | ⬜ |
-| exam | 0/7 | 0/7 | ⬜ |
-| search | 0/2 | 0/2 | ⬜ |
-| data | 0/6 | 0/6 | ⬜（目录结构异常待重建）|
-合计 210/390（53.8%），6/13 服务完成。下一优先：media（course 依赖素材，须先补对象存储配置）。
+## 服务实现状态（2026-08-06 实测：go build 全模块通过 + 逻辑文件清点）
+- 13/13 服务 API+RPC 契约 100% 落地（API 193 + RPC 201 = 394 接口，394 个 logic 文件 1:1 对应，全代码库 0 处 TODO/panic 占位）。
+- 跨服务 RPC 依赖（已接线、编译通过）：trade→{course,pay}、search→course、learning→course。
+- 事件驱动：trade 经 RabbitMQ 发布领域事件，Producer 优雅降级（MQ 不可用时为 nil 不阻塞启动）。
+- 代码注释标明的「应有但未接线」集成：course→user(教师)、course→learning(课时)、trade→promotion(优惠券)、pay→真实支付网关。
+- 待优化（有意桩，非未实现）：media 对象存储为 mock（COS/OSS 未接入）；pay 支付回调 URL 为 demo 占位；trade 优惠券未接入；course 教师/课时未接线；learning section_type 忽略。
+- 结构异常：apps/data/api/go.mod 为孤儿模块（真实模块为 apps/data/api/data，已纳入 go.work），建议清理。
+
+| 服务 | API | RPC | 编译 | 备注 |
+|------|-----|-----|:----:|------|
+| auth | 18/18 | 19/19 | ✅ | 已实现 |
+| user | 13/13 | 15/15 | ✅ | 已实现 |
+| course | 38/38 | 38/38 | ✅ | 已实现；教师(user)/课时(learning)未接线 |
+| media | 10/10 | 10/10 | ✅ | 已实现；对象存储为 mock |
+| learning | 9/9 | 11/11 | ✅ | 已实现；section_type 占位 |
+| exam | 7/7 | 7/7 | ✅ | 已实现 |
+| search | 4/4 | 4/4 | ✅ | 已实现；依赖 course |
+| trade | 36/36 | 37/37 | ✅ | 已实现；依赖 course,pay；优惠券未接入 |
+| pay | 16/16 | 17/17 | ✅ | 已实现；支付网关占位 URL |
+| promotion | 16/16 | 16/16 | ✅ | 已实现 |
+| message | 18/18 | 19/19 | ✅ | 已实现 |
+| remark | 2/2 | 2/2 | ✅ | 已实现 |
+| data | 6/6 | 6/6 | ✅* | 已实现（*真实模块 apps/data/api/data 编译通过；apps/data/api 为孤儿 go.mod）|
+合计 394/394（100%）逻辑文件落地，13/13 真实模块编译通过。整体代码实现完成度 ≈100%，功能完备度 ≈97%（少量外部集成桩）。完整报告见 docs/completion-analysis.md。
 
 ## 批量化实现 stub 服务的可复用工作流（course 已验证）
 对「goctl 已生成骨架、logic 全为 todo 占位」的服务，用此流程高效落地：

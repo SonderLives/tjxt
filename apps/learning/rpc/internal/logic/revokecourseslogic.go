@@ -23,9 +23,10 @@ func NewRevokeCoursesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Rev
 	}
 }
 
-// 撤销课程
+// 撤销课程（来自 trade 的内部 RPC，user_id 取自请求而非 JWT）
 func (l *RevokeCoursesLogic) RevokeCourses(in *pb.GrantCoursesRequest) (*pb.Empty, error) {
-	// todo: add your logic here and delete this line
-
+	if err := l.svcCtx.LearningService.RevokeCourses(l.ctx, in.UserId, in.CourseIds); err != nil {
+		return nil, err
+	}
 	return &pb.Empty{}, nil
 }

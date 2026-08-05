@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/data/api/data/internal/svc"
 	"tjxt/apps/data/api/data/internal/types"
+	dataclient "tjxt/apps/data/rpc/data/client/data"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,13 @@ func NewSetBoardDataLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SetB
 }
 
 func (l *SetBoardDataLogic) SetBoardData(req *types.BoardDataSetReq) (resp *types.OkVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	rpcResp, err := l.svcCtx.DataRpc.SetBoardData(l.ctx, &dataclient.BoardDataSetReq{
+		Version: int32(req.Version),
+		Type:    int32(req.Type),
+		Data:    req.Data,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &types.OkVO{Success: rpcResp.Success}, nil
 }

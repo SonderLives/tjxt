@@ -3,6 +3,8 @@ package logic
 import (
 	"context"
 
+	"tjxt/pkg/auth"
+
 	"tjxt/apps/learning/rpc/internal/svc"
 	"tjxt/apps/learning/rpc/pb"
 
@@ -25,7 +27,12 @@ func NewLearningRecordCommitLogic(ctx context.Context, svcCtx *svc.ServiceContex
 
 // 提交学习记录（更新 lesson 的 latest_section/learn_time/learned_sections）
 func (l *LearningRecordCommitLogic) LearningRecordCommit(in *pb.LearningRecordCommitRequest) (*pb.Empty, error) {
-	// todo: add your logic here and delete this line
-
+	userID, err := auth.UserIdFromCtx(l.ctx)
+	if err != nil {
+		return nil, err
+	}
+	if err := l.svcCtx.LearningService.CommitRecord(l.ctx, userID, in.LessonId, in.SectionId, in.Moment, in.Duration, in.CommitTime); err != nil {
+		return nil, err
+	}
 	return &pb.Empty{}, nil
 }

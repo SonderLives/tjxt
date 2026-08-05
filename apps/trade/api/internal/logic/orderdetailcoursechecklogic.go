@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
+	"tjxt/apps/trade/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,9 @@ func NewOrderDetailCourseCheckLogic(ctx context.Context, svcCtx *svc.ServiceCont
 }
 
 func (l *OrderDetailCourseCheckLogic) OrderDetailCourseCheck(req *types.OrderIdReq) (resp *types.NamePlaceVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	reply, err := l.svcCtx.TradeRpc.OrderDetailCourseCheck(l.ctx, &pb.IdRequest{Id: req.Id})
+	if err != nil {
+		return nil, err
+	}
+	return &types.NamePlaceVO{Existed: reply.Value, Message: "ok"}, nil
 }

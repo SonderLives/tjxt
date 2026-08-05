@@ -3,6 +3,8 @@ package logic
 import (
 	"context"
 
+	"tjxt/pkg/auth"
+
 	"tjxt/apps/learning/rpc/internal/svc"
 	"tjxt/apps/learning/rpc/pb"
 
@@ -23,9 +25,15 @@ func NewLessonValidLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Lesso
 	}
 }
 
-// 学员是否已报名（返回 lesson_id；未报名返回 0/NotFound 由调用方判）
+// 学员是否已报名（返回 lesson_id；未报名时服务层返回 NotFound）
 func (l *LessonValidLogic) LessonValid(in *pb.LessonRequest) (*pb.LessonValidReply, error) {
-	// todo: add your logic here and delete this line
-
-	return &pb.LessonValidReply{}, nil
+	userID, err := auth.UserIdFromCtx(l.ctx)
+	if err != nil {
+		return nil, err
+	}
+	lessonID, err := l.svcCtx.LearningService.ValidateLesson(l.ctx, userID, in.CourseId)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.LessonValidReply{LessonId: lessonID}, nil
 }

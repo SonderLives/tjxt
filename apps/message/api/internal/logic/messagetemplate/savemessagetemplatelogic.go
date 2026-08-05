@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
+	messageclient "tjxt/apps/message/rpc/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,18 @@ func NewSaveMessageTemplateLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *SaveMessageTemplateLogic) SaveMessageTemplate(req *types.MessageTemplateSaveReq) (resp *types.IdVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	r, err := l.svcCtx.MessageRpc.SaveMessageTemplate(l.ctx, &messageclient.MessageTemplateSaveReq{
+		Id:                req.Id,
+		Name:              req.Name,
+		PlatformCode:      req.PlatformCode,
+		SignName:          req.SignName,
+		ThirdTemplateCode: req.ThirdTemplateCode,
+		Content:           req.Content,
+		TemplateId:        req.TemplateId,
+		Status:            req.Status,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &types.IdVO{Id: r.Id}, nil
 }

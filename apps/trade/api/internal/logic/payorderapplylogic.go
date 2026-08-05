@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
+	"tjxt/apps/trade/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,13 @@ func NewPayOrderApplyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pay
 }
 
 func (l *PayOrderApplyLogic) PayOrderApply(req *types.PayApplyFormDTO) (resp *types.NamePlaceVO, err error) {
-	// todo: add your logic here and delete this line
+	reply, err := l.svcCtx.TradeRpc.PayApply(l.ctx, &pb.PayApplyRequest{
+		OrderId:        req.OrderId,
+		PayChannelCode: req.PayChannelCode,
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	return &types.NamePlaceVO{Existed: true, Url: reply.QrUrl, Message: "ok"}, nil
 }

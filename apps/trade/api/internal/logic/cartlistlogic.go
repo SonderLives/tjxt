@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
+	"tjxt/apps/trade/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,22 @@ func NewCartListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CartList
 }
 
 func (l *CartListLogic) CartList() (resp []types.CartVO, err error) {
-	// todo: add your logic here and delete this line
+	reply, err := l.svcCtx.TradeRpc.CartList(l.ctx, &pb.Empty{})
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	resp = make([]types.CartVO, 0)
+	for _, item := range reply.Items {
+		resp = append(resp, types.CartVO{
+			Id:         item.Id,
+			CourseId:   item.CourseId,
+			CourseName: item.CourseName,
+			CoverUrl:   item.CoverUrl,
+			Price:      item.Price,
+			NowPrice:   item.NowPrice,
+			Expired:    item.Expired,
+		})
+	}
+	return resp, nil
 }

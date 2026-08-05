@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
+	"tjxt/apps/trade/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,13 @@ func NewRefundApplyApproveLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 func (l *RefundApplyApproveLogic) RefundApplyApprove(req *types.ApproveFormReq) (resp *types.NamePlaceVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	if _, err = l.svcCtx.TradeRpc.RefundApplyApprove(l.ctx, &pb.ApproveRequest{
+		Id:             req.Id,
+		ApproveType:    req.ApproveType,
+		ApproveOpinion: req.ApproveOpinion,
+		Remark:         req.Remark,
+	}); err != nil {
+		return nil, err
+	}
+	return &types.NamePlaceVO{Existed: true, Message: "ok"}, nil
 }

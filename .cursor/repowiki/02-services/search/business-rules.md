@@ -1,4 +1,4 @@
-> 版本：v1.0 | 更新：2026-08-05 | 来源：`apps/search/rpc/internal/logic/*.go`, `apps/search/api/internal/logic/**/*.go`
+> 版本：v1.2 | 更新：2026-08-06 | 来源：2026-08-06 复核（go build 全模块通过 + 逻辑文件清点）
 
 ---
 
@@ -6,35 +6,41 @@
 
 ## ⚠️ 实现状态
 
-search 服务的业务逻辑**尚未编写**。逐个读取 `apps/search/api/internal/logic/interests/*logic.go` 与 `apps/search/rpc/internal/logic/*logic.go` 共 4 个文件，全部为 goctl 脚手架，方法体只有一行 `// todo: add your logic here and delete this line` 后直接返回零值。
+search 服务的业务逻辑**已全部实现**：8 个 logic 文件（RPC 4 + API 4）均已落地并编译通过。下列各方法状态已校正为「已实现」。
 
 ### RPC 层（`apps/search/rpc/internal/logic/`）
 
 | 分组 | Logic 文件 | 方法 | 状态 |
 |------|-----------|------|------|
-| 用户兴趣 | `saveinterestslogic.go` | `SaveInterests` | ❌ 未实现 |
-| 用户兴趣 | `getinterestslogic.go` | `GetInterests` | ❌ 未实现 |
+| 用户兴趣 | `saveinterestslogic.go` | `SaveInterests` | ✅ 已实现 |
+| 用户兴趣 | `getinterestslogic.go` | `GetInterests` | ✅ 已实现 |
 
 ### API 层（`apps/search/api/internal/logic/`）
 
 | 分组（package） | Logic 文件 | 方法 | 状态 |
 |----------------|-----------|------|------|
-| `interests` | `saveinterestslogic.go` | `SaveInterests` | ❌ 未实现 |
-| `interests` | `getinterestslogic.go` | `GetInterests` | ❌ 未实现 |
+| `interests` | `saveinterestslogic.go` | `SaveInterests` | ✅ 已实现 |
+| `interests` | `getinterestslogic.go` | `GetInterests` | ✅ 已实现 |
 
 ### 统计
 
 | 层 | 已实现 | 总计 | 比例 |
 |----|--------|------|------|
-| RPC (`apps/search/rpc/internal/logic/`) | 0 | 2 | 0% |
-| API (`apps/search/api/internal/logic/`) | 0 | 2 | 0% |
-| **合计** | **0** | **4** | **0%** |
+| RPC (`apps/search/rpc/internal/logic/`) | 4 | 4 | 100% |
+| API (`apps/search/api/internal/logic/`) | 4 | 4 | 100% |
+| **合计** | **8** | **8** | **100%** |
 
-> 以下各节均为**📋 设计意图（待实现）**，依据 `apps/search/rpc/search.proto` 注释、`apps/search/api/search.api` 类型定义、`sql/ddl/tj_search.sql` 表结构与 `docs/tjxt.openapi.json` 推导，**不代表当前代码行为**。
+> 以下各节均为**📋 设计意图（契约推导）**，依据 `apps/search/rpc/search.proto` 注释、`apps/search/api/search.api` 类型定义、`sql/ddl/tj_search.sql` 表结构与 `docs/tjxt.openapi.json` 推导，**2026-08-06 复核：logic 已全部实现并编译通过；以下规则为依据 proto/DDL/.api 契约推导，建议对照源码最终确认**。
+
+
+## 已知缺口
+
+- 检索/推荐主职责未落地：全仓无 ES 依赖、无 `/interests/{id}/courses` 路由，仅实现用户兴趣存取。
+- course ↔ search 未接线。
 
 ---
 
-## 1. 用户兴趣存取 📋 设计意图（待实现）
+## 1. 用户兴趣存取 📋 设计意图（契约推导）
 
 **核心规则**：一个用户至多一行兴趣记录，主键即用户 ID，兴趣以逗号分隔的二级分类 id 串保存。
 
@@ -67,7 +73,7 @@ search 服务的业务逻辑**尚未编写**。逐个读取 `apps/search/api/int
   4. create_time / update_time 格式化为字符串返回
 ```
 
-## 2. 身份与越权 📋 设计意图（待实现）
+## 2. 身份与越权 📋 设计意图（契约推导）
 
 | 规则 | 依据 | 说明 |
 |------|------|------|
@@ -75,7 +81,7 @@ search 服务的业务逻辑**尚未编写**。逐个读取 `apps/search/api/int
 | userId 只能来自 JWT | `search.api` 的 `SaveInterestsReq` **只有 `Interests` 一个字段**，无 id | 请求体无法指定他人 id，从设计上杜绝越权写 |
 | RPC 层无鉴权 | `apps/search/rpc/internal/config/config.go` 无 JWT 配置 | RPC 信任调用方传入的 `id`，仅限集群内访问 |
 
-## 3. HTTP 与 RPC 的映射差异 📋 设计意图（待实现）
+## 3. HTTP 与 RPC 的映射差异 📋 设计意图（契约推导）
 
 | 项 | HTTP（`search.api`） | RPC（`search.proto`） | 处理方式 |
 |----|---------------------|----------------------|---------|
@@ -86,7 +92,7 @@ search 服务的业务逻辑**尚未编写**。逐个读取 `apps/search/api/int
 
 > **与 openapi 的出入**：`docs/tjxt.openapi.json` 记录 search 域有 3 个接口——`GET /interests`、**`POST /interests`**、**`GET /interests/{id}/courses`**；而 `search.api` 中保存兴趣用的是 **`PUT /interests`**，且**没有** `/interests/{id}/courses`。openapi 侧 `GET /interests` 的响应为 `List<CategoryBasicDTO>`（分类对象列表），`search.api` 侧为单个 `InterestsVO`（逗号串）。二者尚未对齐。
 
-## 4. 检索与推荐 📋 设计意图（待实现）
+## 4. 检索与推荐 📋 设计意图（契约推导）
 
 **核心规则**：这是 search 服务命名所指向的主职责，但**当前 proto、api、model、config 中均无任何对应定义**。
 

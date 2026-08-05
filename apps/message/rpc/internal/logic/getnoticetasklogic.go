@@ -5,6 +5,7 @@ import (
 
 	"tjxt/apps/message/rpc/internal/svc"
 	"tjxt/apps/message/rpc/pb"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,8 +24,14 @@ func NewGetNoticeTaskLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 	}
 }
 
+// 通知任务 详情
 func (l *GetNoticeTaskLogic) GetNoticeTask(in *pb.IdReq) (*pb.NoticeTaskVO, error) {
-	// todo: add your logic here and delete this line
-
-	return &pb.NoticeTaskVO{}, nil
+	data, err := l.svcCtx.NoticeTaskModel.FindOne(l.ctx, in.Id)
+	if err != nil {
+		if isNotFound(err) {
+			return nil, xerr.NotFound("通知任务不存在")
+		}
+		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询通知任务失败")
+	}
+	return toNoticeTaskVO(data), nil
 }

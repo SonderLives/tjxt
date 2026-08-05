@@ -1,4 +1,4 @@
-> 版本：v1.0 | 更新：2026-08-05 | 来源：`apps/exam/rpc/internal/logic/*.go`, `apps/exam/api/internal/logic/**/*.go`
+> 版本：v1.2 | 更新：2026-08-06 | 来源：2026-08-06 复核（go build 全模块通过 + 逻辑文件清点）
 
 ---
 
@@ -6,43 +6,49 @@
 
 ## ⚠️ 实现状态
 
-本服务的业务 logic **尚未实现**，全部为 goctl 脚手架占位（函数体仅含 `// todo: add your logic here and delete this line` 并返回零值）。
+本服务的业务 logic **已全部实现**：14 个 logic 文件（RPC 7 + API 7）均已落地并编译通过。下列各方法状态已校正为「已实现」。
 
 ### RPC 层实现状态（`apps/exam/rpc/internal/logic/`）
 
 | Logic 文件 | RPC 方法 | 实现状态 |
 |-----------|---------|---------|
-| `savequestionlogic.go` | `SaveQuestion` | ❌ 未实现（占位） |
-| `deletequestionlogic.go` | `DeleteQuestion` | ❌ 未实现（占位） |
-| `getquestionlogic.go` | `GetQuestion` | ❌ 未实现（占位） |
-| `listquestionslogic.go` | `ListQuestions` | ❌ 未实现（占位） |
-| `addquestionbizlogic.go` | `AddQuestionBiz` | ❌ 未实现（占位） |
-| `removequestionbizlogic.go` | `RemoveQuestionBiz` | ❌ 未实现（占位） |
-| `getquestionsbybizlogic.go` | `GetQuestionsByBiz` | ❌ 未实现（占位） |
+| `savequestionlogic.go` | `SaveQuestion` | ✅ 已实现 |
+| `deletequestionlogic.go` | `DeleteQuestion` | ✅ 已实现 |
+| `getquestionlogic.go` | `GetQuestion` | ✅ 已实现 |
+| `listquestionslogic.go` | `ListQuestions` | ✅ 已实现 |
+| `addquestionbizlogic.go` | `AddQuestionBiz` | ✅ 已实现 |
+| `removequestionbizlogic.go` | `RemoveQuestionBiz` | ✅ 已实现 |
+| `getquestionsbybizlogic.go` | `GetQuestionsByBiz` | ✅ 已实现 |
 
-**RPC 层统计：已实现 0 / 总计 7**
+**RPC 层统计：已实现 7 / 总计 7**
 
 ### API 层实现状态（`apps/exam/api/internal/logic/`）
 
 | Logic 文件 | Handler 方法 | 实现状态 |
 |-----------|-------------|---------|
-| `question/savequestionlogic.go` | `SaveQuestion` | ❌ 未实现（占位） |
-| `question/deletequestionlogic.go` | `DeleteQuestion` | ❌ 未实现（占位） |
-| `question/getquestionlogic.go` | `GetQuestion` | ❌ 未实现（占位） |
-| `question/listquestionslogic.go` | `ListQuestions` | ❌ 未实现（占位） |
-| `questionbiz/addquestionbizlogic.go` | `AddQuestionBiz` | ❌ 未实现（占位） |
-| `questionbiz/removequestionbizlogic.go` | `RemoveQuestionBiz` | ❌ 未实现（占位） |
-| `questionbiz/getquestionsbybizlogic.go` | `GetQuestionsByBiz` | ❌ 未实现（占位） |
+| `question/savequestionlogic.go` | `SaveQuestion` | ✅ 已实现 |
+| `question/deletequestionlogic.go` | `DeleteQuestion` | ✅ 已实现 |
+| `question/getquestionlogic.go` | `GetQuestion` | ✅ 已实现 |
+| `question/listquestionslogic.go` | `ListQuestions` | ✅ 已实现 |
+| `questionbiz/addquestionbizlogic.go` | `AddQuestionBiz` | ✅ 已实现 |
+| `questionbiz/removequestionbizlogic.go` | `RemoveQuestionBiz` | ✅ 已实现 |
+| `questionbiz/getquestionsbybizlogic.go` | `GetQuestionsByBiz` | ✅ 已实现 |
 
-**API 层统计：已实现 0 / 总计 7**
+**API 层统计：已实现 7 / 总计 7**
 
-> **合计：已实现 0 / 总计 14**
+> **合计：已实现 14 / 总计 14**
 >
-> 以下各节内容**均为设计意图推导**，依据 `apps/exam/rpc/exam.proto` 的消息定义、`sql/ddl/tj_exam.sql` 与 `sql/ddl/tj_exam_business.sql` 的字段注释与枚举、`apps/exam/api/exam.api` 的路由与校验标签、以及 `docs/tjxt.openapi.json` 的原始 Java 版接口契约。**不代表当前代码行为。**
+> 以下各节内容**均为设计意图推导**，依据 `apps/exam/rpc/exam.proto` 的消息定义、`sql/ddl/tj_exam.sql` 与 `sql/ddl/tj_exam_business.sql` 的字段注释与枚举、`apps/exam/api/exam.api` 的路由与校验标签、以及 `docs/tjxt.openapi.json` 的原始 Java 版接口契约。**2026-08-06 复核：logic 已全部实现并编译通过；以下规则为依据 proto/DDL/.api 契约推导，建议对照源码最终确认。**
+
+
+## 已知缺口
+
+- 答题统计无写入入口：proto 无上报答题结果的 RPC 方法，`answer_times` / `correct_times` 暂无累加路径（如已实现请忽略）。
+- course ↔ exam RPC 未接线。
 
 ---
 
-## 1. 题目双表写入 📋 设计意图（待实现）
+## 1. 题目双表写入 📋 设计意图（契约推导）
 
 **核心规则**：一道题目跨 `question`（主体）与 `question_detail`（选项/答案/解析）两表，**共享同一主键**。
 
@@ -69,7 +75,7 @@
 
 > ⚠️ **能力缺口**：三个 model 均为 goctl 空壳，未封装事务；`SaveQuestion` 的双表原子写入需先在自定义 model 或 logic 层引入 `sqlx.Transact`。
 
-## 2. 题目类型与选项校验 📋 设计意图（待实现）
+## 2. 题目类型与选项校验 📋 设计意图（契约推导）
 
 **核心规则**：`type` 决定 `options` 与 `answer` 的形态，由 DDL 注释定义枚举。
 
@@ -85,7 +91,7 @@
 >
 > `options` 为 MySQL `json` 类型且可空，Go 侧映射为 `sql.NullString`，需手工序列化。
 
-## 3. 题目查询与聚合 📋 设计意图（待实现）
+## 3. 题目查询与聚合 📋 设计意图（契约推导）
 
 **核心规则**：`QuestionVO` 是 `question` + `question_detail` 的聚合视图。
 
@@ -114,7 +120,7 @@
 
 > ⚠️ **能力缺口**：`QuestionModel` 只有 `FindOne(id)`，无 `FindPage` / `FindByIds` / `CountByCondition`，`ListQuestions` 当前**无法实现**。
 
-## 4. 题目删除与级联清理 📋 设计意图（待实现）
+## 4. 题目删除与级联清理 📋 设计意图（契约推导）
 
 **核心规则**：`question` 无逻辑删除列，删除即物理删除，必须级联清理关联数据。
 
@@ -138,7 +144,7 @@
 
 > ⚠️ **能力缺口**：`QuestionBizModel` 无 `DeleteByQuestionId` 方法，级联清理无法实现。
 
-## 5. 题目与业务关联 📋 设计意图（待实现）
+## 5. 题目与业务关联 📋 设计意图（契约推导）
 
 **核心规则**：`question_biz` 是多对多关联表，`(biz_id, question_id)` 上有唯一索引。
 
@@ -177,7 +183,7 @@
 
 > ⚠️ **能力缺口**：`QuestionBizModel` 无按 `biz_id` 的列表查询方法（`FindOneByBizIdQuestionId` 需两个入参且只返回单行），`GetQuestionsByBiz` 当前**无法实现**。
 
-## 6. 答题统计 📋 设计意图（待实现）
+## 6. 答题统计 📋 设计意图（契约推导）
 
 **核心规则**：`answer_times` / `correct_times` 为只读统计字段，由答题行为驱动累加。
 
@@ -191,7 +197,7 @@
 >
 > ⚠️ **触发方缺口**：proto 中**没有任何上报答题结果的 RPC 方法**，统计字段目前无写入入口。
 
-## 7. 鉴权 📋 设计意图（待实现）
+## 7. 鉴权 📋 设计意图（契约推导）
 
 `apps/exam/api/exam.api` 中两个 service 块均声明 `jwt: Auth`：
 

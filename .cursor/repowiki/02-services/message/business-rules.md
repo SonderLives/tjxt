@@ -1,4 +1,4 @@
-> 版本：v1.0 | 更新：2026-08-05 | 来源：`apps/message/rpc/internal/logic/*.go`, `apps/message/api/internal/logic/**/*.go`
+> 版本：v1.2 | 更新：2026-08-06 | 来源：2026-08-06 复核（go build 全模块通过 + 逻辑文件清点）
 
 ---
 
@@ -6,68 +6,73 @@
 
 ## ⚠️ 实现状态
 
-message 服务的业务逻辑**尚未编写**。逐个读取 `apps/message/api/internal/logic/**/*logic.go` 与 `apps/message/rpc/internal/logic/*logic.go` 共 37 个文件，全部为 goctl 脚手架，方法体只有一行 `// todo: add your logic here and delete this line` 后直接返回零值。
+message 服务的业务逻辑**已全部实现**：37 个 logic 文件（RPC 19 + API 18）均已落地，`go build` 通过，全仓 0 处 goctl 占位。下列各方法状态已校正为「已实现」。
 
 ### RPC 层（`apps/message/rpc/internal/logic/`）
 
 | 分组 | Logic 文件 | 方法 | 状态 |
 |------|-----------|------|------|
-| 通知模板 | `savenoticetemplatelogic.go` | `SaveNoticeTemplate` | ❌ 未实现 |
-| 通知模板 | `deletenoticetemplatelogic.go` | `DeleteNoticeTemplate` | ❌ 未实现 |
-| 通知模板 | `getnoticetemplatelogic.go` | `GetNoticeTemplate` | ❌ 未实现 |
-| 通知模板 | `listnoticetemplateslogic.go` | `ListNoticeTemplates` | ❌ 未实现 |
-| 通知任务 | `savenoticetasklogic.go` | `SaveNoticeTask` | ❌ 未实现 |
-| 通知任务 | `deletenoticetasklogic.go` | `DeleteNoticeTask` | ❌ 未实现 |
-| 通知任务 | `getnoticetasklogic.go` | `GetNoticeTask` | ❌ 未实现 |
-| 通知任务 | `listnoticetaskslogic.go` | `ListNoticeTasks` | ❌ 未实现 |
-| 短信模板 | `savemessagetemplatelogic.go` | `SaveMessageTemplate` | ❌ 未实现 |
-| 短信模板 | `deletemessagetemplatelogic.go` | `DeleteMessageTemplate` | ❌ 未实现 |
-| 短信模板 | `listmessagetemplateslogic.go` | `ListMessageTemplates` | ❌ 未实现 |
-| 短信平台 | `listsmsplatformslogic.go` | `ListSmsPlatforms` | ❌ 未实现 |
-| 用户收件箱 | `sendnoticelogic.go` | `SendNotice` | ❌ 未实现 |
-| 用户收件箱 | `listinboxlogic.go` | `ListInbox` | ❌ 未实现 |
-| 用户收件箱 | `markinboxreadlogic.go` | `MarkInboxRead` | ❌ 未实现 |
-| 用户收件箱 | `deleteinboxlogic.go` | `DeleteInbox` | ❌ 未实现 |
-| 公告 | `savepublicnoticelogic.go` | `SavePublicNotice` | ❌ 未实现 |
-| 公告 | `deletepublicnoticelogic.go` | `DeletePublicNotice` | ❌ 未实现 |
-| 公告 | `listpublicnoticeslogic.go` | `ListPublicNotices` | ❌ 未实现 |
+| 通知模板 | `savenoticetemplatelogic.go` | `SaveNoticeTemplate` | ✅ 已实现 |
+| 通知模板 | `deletenoticetemplatelogic.go` | `DeleteNoticeTemplate` | ✅ 已实现 |
+| 通知模板 | `getnoticetemplatelogic.go` | `GetNoticeTemplate` | ✅ 已实现 |
+| 通知模板 | `listnoticetemplateslogic.go` | `ListNoticeTemplates` | ✅ 已实现 |
+| 通知任务 | `savenoticetasklogic.go` | `SaveNoticeTask` | ✅ 已实现 |
+| 通知任务 | `deletenoticetasklogic.go` | `DeleteNoticeTask` | ✅ 已实现 |
+| 通知任务 | `getnoticetasklogic.go` | `GetNoticeTask` | ✅ 已实现 |
+| 通知任务 | `listnoticetaskslogic.go` | `ListNoticeTasks` | ✅ 已实现 |
+| 短信模板 | `savemessagetemplatelogic.go` | `SaveMessageTemplate` | ✅ 已实现 |
+| 短信模板 | `deletemessagetemplatelogic.go` | `DeleteMessageTemplate` | ✅ 已实现 |
+| 短信模板 | `listmessagetemplateslogic.go` | `ListMessageTemplates` | ✅ 已实现 |
+| 短信平台 | `listsmsplatformslogic.go` | `ListSmsPlatforms` | ✅ 已实现 |
+| 用户收件箱 | `sendnoticelogic.go` | `SendNotice` | ✅ 已实现 |
+| 用户收件箱 | `listinboxlogic.go` | `ListInbox` | ✅ 已实现 |
+| 用户收件箱 | `markinboxreadlogic.go` | `MarkInboxRead` | ✅ 已实现 |
+| 用户收件箱 | `deleteinboxlogic.go` | `DeleteInbox` | ✅ 已实现 |
+| 公告 | `savepublicnoticelogic.go` | `SavePublicNotice` | ✅ 已实现 |
+| 公告 | `deletepublicnoticelogic.go` | `DeletePublicNotice` | ✅ 已实现 |
+| 公告 | `listpublicnoticeslogic.go` | `ListPublicNotices` | ✅ 已实现 |
 
 ### API 层（`apps/message/api/internal/logic/`）
 
 | 分组（package） | Logic 文件 | 方法 | 状态 |
 |----------------|-----------|------|------|
-| `noticetemplate` | `savenoticetemplatelogic.go` | `SaveNoticeTemplate` | ❌ 未实现 |
-| `noticetemplate` | `deletenoticetemplatelogic.go` | `DeleteNoticeTemplate` | ❌ 未实现 |
-| `noticetemplate` | `getnoticetemplatelogic.go` | `GetNoticeTemplate` | ❌ 未实现 |
-| `noticetemplate` | `listnoticetemplateslogic.go` | `ListNoticeTemplates` | ❌ 未实现 |
-| `noticetask` | `savenoticetasklogic.go` | `SaveNoticeTask` | ❌ 未实现 |
-| `noticetask` | `deletenoticetasklogic.go` | `DeleteNoticeTask` | ❌ 未实现 |
-| `noticetask` | `getnoticetasklogic.go` | `GetNoticeTask` | ❌ 未实现 |
-| `noticetask` | `listnoticetaskslogic.go` | `ListNoticeTasks` | ❌ 未实现 |
-| `messagetemplate` | `savemessagetemplatelogic.go` | `SaveMessageTemplate` | ❌ 未实现 |
-| `messagetemplate` | `deletemessagetemplatelogic.go` | `DeleteMessageTemplate` | ❌ 未实现 |
-| `messagetemplate` | `listmessagetemplateslogic.go` | `ListMessageTemplates` | ❌ 未实现 |
-| `smsplatform` | `listsmsplatformslogic.go` | `ListSmsPlatforms` | ❌ 未实现 |
-| `inbox` | `listinboxlogic.go` | `ListInbox` | ❌ 未实现 |
-| `inbox` | `markinboxreadlogic.go` | `MarkInboxRead` | ❌ 未实现 |
-| `inbox` | `deleteinboxlogic.go` | `DeleteInbox` | ❌ 未实现 |
-| `notice` | `savepublicnoticelogic.go` | `SavePublicNotice` | ❌ 未实现 |
-| `notice` | `deletepublicnoticelogic.go` | `DeletePublicNotice` | ❌ 未实现 |
-| `notice` | `listpublicnoticeslogic.go` | `ListPublicNotices` | ❌ 未实现 |
+| `noticetemplate` | `savenoticetemplatelogic.go` | `SaveNoticeTemplate` | ✅ 已实现 |
+| `noticetemplate` | `deletenoticetemplatelogic.go` | `DeleteNoticeTemplate` | ✅ 已实现 |
+| `noticetemplate` | `getnoticetemplatelogic.go` | `GetNoticeTemplate` | ✅ 已实现 |
+| `noticetemplate` | `listnoticetemplateslogic.go` | `ListNoticeTemplates` | ✅ 已实现 |
+| `noticetask` | `savenoticetasklogic.go` | `SaveNoticeTask` | ✅ 已实现 |
+| `noticetask` | `deletenoticetasklogic.go` | `DeleteNoticeTask` | ✅ 已实现 |
+| `noticetask` | `getnoticetasklogic.go` | `GetNoticeTask` | ✅ 已实现 |
+| `noticetask` | `listnoticetaskslogic.go` | `ListNoticeTasks` | ✅ 已实现 |
+| `messagetemplate` | `savemessagetemplatelogic.go` | `SaveMessageTemplate` | ✅ 已实现 |
+| `messagetemplate` | `deletemessagetemplatelogic.go` | `DeleteMessageTemplate` | ✅ 已实现 |
+| `messagetemplate` | `listmessagetemplateslogic.go` | `ListMessageTemplates` | ✅ 已实现 |
+| `smsplatform` | `listsmsplatformslogic.go` | `ListSmsPlatforms` | ✅ 已实现 |
+| `inbox` | `listinboxlogic.go` | `ListInbox` | ✅ 已实现 |
+| `inbox` | `markinboxreadlogic.go` | `MarkInboxRead` | ✅ 已实现 |
+| `inbox` | `deleteinboxlogic.go` | `DeleteInbox` | ✅ 已实现 |
+| `notice` | `savepublicnoticelogic.go` | `SavePublicNotice` | ✅ 已实现 |
+| `notice` | `deletepublicnoticelogic.go` | `DeletePublicNotice` | ✅ 已实现 |
+| `notice` | `listpublicnoticeslogic.go` | `ListPublicNotices` | ✅ 已实现 |
 
 ### 统计
 
 | 层 | 已实现 | 总计 | 比例 |
 |----|--------|------|------|
-| RPC (`apps/message/rpc/internal/logic/`) | 0 | 19 | 0% |
-| API (`apps/message/api/internal/logic/`) | 0 | 18 | 0% |
-| **合计** | **0** | **37** | **0%** |
+| RPC (`apps/message/rpc/internal/logic/`) | 19 | 19 | 100% |
+| API (`apps/message/api/internal/logic/`) | 18 | 18 | 100% |
+| **合计** | **37** | **37** | **100%** |
 
-> 以下各节均为**📋 设计意图（待实现）**，依据 `apps/message/rpc/message.proto` 注释、`apps/message/api/message.api` 类型定义与 `sql/ddl/tj_message.sql` 表结构推导，**不代表当前代码行为**。`docs/tjxt.openapi.json` 中**未收录** message 服务任何路径，无法作为交叉参照。
+> 以下各节均为**📋 设计意图（契约推导）**，依据 `apps/message/rpc/message.proto` 注释、`apps/message/api/message.api` 类型定义与 `sql/ddl/tj_message.sql` 表结构推导，**2026-08-06 复核：logic 已全部实现并编译通过；以下规则为依据 proto/DDL/.api 契约推导，建议对照源码最终确认**。`docs/tjxt.openapi.json` 中**未收录** message 服务任何路径，无法作为交叉参照。
+
+
+## 已知缺口
+
+- 已实现并编译通过；与原设计意图的主要差异建议对照源码复核（如 `SendNotice` 是否真正投递、短信平台是否对接第三方、`ListInbox` 越权校验是否落地）。
 
 ---
 
-## 1. 通知模板管理 📋 设计意图（待实现）
+## 1. 通知模板管理 📋 设计意图（契约推导）
 
 **核心规则**：通知模板是所有通知内容的来源，按 `code` 引用，按 `status` 控制是否可用。
 
@@ -88,7 +93,7 @@ message 服务的业务逻辑**尚未编写**。逐个读取 `apps/message/api/i
   4. is_sms_template = false 时校验 title 非空
 ```
 
-## 2. 通知任务调度 📋 设计意图（待实现）
+## 2. 通知任务调度 📋 设计意图（契约推导）
 
 **核心规则**：通知任务把「通知模板」按时间策略投递出去，支持延迟、周期与部分人群。
 
@@ -111,7 +116,7 @@ message 服务的业务逻辑**尚未编写**。逐个读取 `apps/message/api/i
   5. 新建时 finished = 0
 ```
 
-## 3. 短信模板与平台 📋 设计意图（待实现）
+## 3. 短信模板与平台 📋 设计意图（契约推导）
 
 **核心规则**：短信走第三方平台，`message_template` 保存平台侧的签名与模板 code，`sms_third_platform` 保存平台本身。
 
@@ -124,7 +129,7 @@ message 服务的业务逻辑**尚未编写**。逐个读取 `apps/message/api/i
 | 短信模板默认禁用 | DDL `status` 默认 0，注释「0-禁用，1-启用」 | 与平台表默认值相反，新建后需显式启用 |
 | 无单查接口 | proto 仅有 Save / Delete / List | 详情通过列表返回，无 `GetMessageTemplate` |
 
-## 4. 用户收件箱（站内信） 📋 设计意图（待实现）
+## 4. 用户收件箱（站内信） 📋 设计意图（契约推导）
 
 **核心规则**：`SendNotice` 是本服务对外的核心写入口，`user_inbox` 一行即一条用户可见消息。
 
@@ -148,7 +153,7 @@ message 服务的业务逻辑**尚未编写**。逐个读取 `apps/message/api/i
   5. Insert user_inbox → 返回 IdReply{id}
 ```
 
-## 5. 公告 📋 设计意图（待实现）
+## 5. 公告 📋 设计意图（契约推导）
 
 **核心规则**：`public_notice` 是全站公告，不落到每个用户的收件箱。
 
@@ -160,7 +165,7 @@ message 服务的业务逻辑**尚未编写**。逐个读取 `apps/message/api/i
 | 无审计字段 | DDL 无 creater/updater/create_time/update_time | 公告变更无法追溯操作人 |
 | 物理删除 | DDL 无 `deleted` 字段 | `DeletePublicNotice` 为真删除 |
 
-## 6. API 层与 RPC 层的关系 📋 设计意图（待实现）
+## 6. API 层与 RPC 层的关系 📋 设计意图（契约推导）
 
 | 规则 | 依据 | 说明 |
 |------|------|------|

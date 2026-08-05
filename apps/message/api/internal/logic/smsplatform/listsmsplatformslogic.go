@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
+	messageclient "tjxt/apps/message/rpc/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,19 @@ func NewListSmsPlatformsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *ListSmsPlatformsLogic) ListSmsPlatforms() (resp *types.SmsPlatformListVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	r, err := l.svcCtx.MessageRpc.ListSmsPlatforms(l.ctx, &messageclient.Empty{})
+	if err != nil {
+		return nil, err
+	}
+	list := make([]types.SmsPlatformVO, 0, len(r.List))
+	for _, item := range r.List {
+		list = append(list, types.SmsPlatformVO{
+			Id:       item.Id,
+			Name:     item.Name,
+			Code:     item.Code,
+			Priority: item.Priority,
+			Status:   item.Status,
+		})
+	}
+	return &types.SmsPlatformListVO{List: list}, nil
 }

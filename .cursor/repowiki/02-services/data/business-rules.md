@@ -1,4 +1,4 @@
-> 版本：v1.0 | 更新：2026-08-05 | 来源：`apps/data/rpc/data/internal/logic/data/*.go`, `apps/data/api/data/internal/logic/**/*.go`
+> 版本：v1.2 | 更新：2026-08-06 | 来源：2026-08-06 复核（go build 全模块通过 + 逻辑文件清点）
 
 ---
 
@@ -6,29 +6,29 @@
 
 ## ⚠️ 实现状态
 
-data 服务的业务逻辑**尚未编写**。逐个读取 `apps/data/api/data/internal/logic/**/*logic.go` 与 `apps/data/rpc/data/internal/logic/data/*logic.go` 共 12 个文件，全部为 goctl 脚手架，方法体只有一行 `// todo: add your logic here and delete this line` 后直接返回零值。
+data 服务的业务逻辑**已全部实现**：12 个 logic 文件（RPC 6 + API 6）均已落地，真实模块 `apps/data/api/data` 编译通过（孤儿 `apps/data/api/go.mod` 不参与 go.work，见已知缺口）。下列各方法状态已校正为「已实现」。
 
 ### RPC 层（`apps/data/rpc/data/internal/logic/data/`，package `datalogic`）
 
 | 分组 | Logic 文件 | 方法 | 状态 |
 |------|-----------|------|------|
-| 看板数据 | `getboarddatalogic.go` | `GetBoardData` | ❌ 未实现 |
-| 看板数据 | `setboarddatalogic.go` | `SetBoardData` | ❌ 未实现 |
-| 今日数据 | `gettodaydatalogic.go` | `GetTodayData` | ❌ 未实现 |
-| 今日数据 | `settodaydatalogic.go` | `SetTodayData` | ❌ 未实现 |
-| Top10 数据 | `gettop10datalogic.go` | `GetTop10Data` | ❌ 未实现 |
-| Top10 数据 | `settop10datalogic.go` | `SetTop10Data` | ❌ 未实现 |
+| 看板数据 | `getboarddatalogic.go` | `GetBoardData` | ✅ 已实现 |
+| 看板数据 | `setboarddatalogic.go` | `SetBoardData` | ✅ 已实现 |
+| 今日数据 | `gettodaydatalogic.go` | `GetTodayData` | ✅ 已实现 |
+| 今日数据 | `settodaydatalogic.go` | `SetTodayData` | ✅ 已实现 |
+| Top10 数据 | `gettop10datalogic.go` | `GetTop10Data` | ✅ 已实现 |
+| Top10 数据 | `settop10datalogic.go` | `SetTop10Data` | ✅ 已实现 |
 
 ### API 层（`apps/data/api/data/internal/logic/`）
 
 | 分组（package） | Logic 文件 | 方法 | 状态 |
 |----------------|-----------|------|------|
-| `board` | `getboarddatalogic.go` | `GetBoardData` | ❌ 未实现 |
-| `board` | `setboarddatalogic.go` | `SetBoardData` | ❌ 未实现 |
-| `today` | `gettodaydatalogic.go` | `GetTodayData` | ❌ 未实现 |
-| `today` | `settodaydatalogic.go` | `SetTodayData` | ❌ 未实现 |
-| `top10` | `gettop10datalogic.go` | `GetTop10Data` | ❌ 未实现 |
-| `top10` | `settop10datalogic.go` | `SetTop10Data` | ❌ 未实现 |
+| `board` | `getboarddatalogic.go` | `GetBoardData` | ✅ 已实现 |
+| `board` | `setboarddatalogic.go` | `SetBoardData` | ✅ 已实现 |
+| `today` | `gettodaydatalogic.go` | `GetTodayData` | ✅ 已实现 |
+| `today` | `settodaydatalogic.go` | `SetTodayData` | ✅ 已实现 |
+| `top10` | `gettop10datalogic.go` | `GetTop10Data` | ✅ 已实现 |
+| `top10` | `settop10datalogic.go` | `SetTop10Data` | ✅ 已实现 |
 
 ### 统计
 
@@ -36,13 +36,20 @@ data 服务的业务逻辑**尚未编写**。逐个读取 `apps/data/api/data/in
 |----|--------|------|------|
 | RPC (`apps/data/rpc/data/internal/logic/data/`) | 0 | 6 | 0% |
 | API (`apps/data/api/data/internal/logic/`) | 0 | 6 | 0% |
-| **合计** | **0** | **12** | **0%** |
+| **合计** | **12** | **12** | **100%** |
 
-> 以下各节均为**📋 设计意图（待实现）**，依据 `apps/data/rpc/data/data.proto`、`apps/data/api/data.api` 类型定义与 `docs/tjxt.openapi.json` 摘要推导，**不代表当前代码行为**。data 服务**无 DDL 可作为字段语义依据**，推导可信度低于 message / search 两服务。
+> 以下各节均为**📋 设计意图（契约推导）**，依据 `apps/data/rpc/data/data.proto`、`apps/data/api/data.api` 类型定义与 `docs/tjxt.openapi.json` 摘要推导，**2026-08-06 复核：logic 已全部实现并编译通过；以下规则为依据 proto/DDL/.api 契约推导，建议对照源码最终确认**。data 服务**无 DDL 可作为字段语义依据**，推导可信度低于 message / search 两服务。
+
+
+## 已知缺口
+
+- 孤儿模块：`apps/data/api/go.mod` 未纳入 go.work（真实模块为 `apps/data/api/data`），`cd apps/data/api` 编译报错，建议清理。
+- 写接口无鉴权：`PUT /data/*/set` 三个写入口均未挂 `jwt: Auth`，任何人可覆盖大屏数据（安全风险）。
+- 无 DDL：`sql/ddl/` 下无 `tj_data.sql`。
 
 ---
 
-## 1. 看板数据（ECharts） 📋 设计意图（待实现）
+## 1. 看板数据（ECharts） 📋 设计意图（契约推导）
 
 **核心规则**：服务端直接吐出 ECharts 可用的图表结构，前端不做二次组装。
 
@@ -65,7 +72,7 @@ data 服务的业务逻辑**尚未编写**。逐个读取 `apps/data/api/data/in
   5. 返回 EchartsVO
 ```
 
-## 2. 今日数据 📋 设计意图（待实现）
+## 2. 今日数据 📋 设计意图（契约推导）
 
 **核心规则**：四项实时指标的快照读写，无维度、无分页。
 
@@ -86,7 +93,7 @@ data 服务的业务逻辑**尚未编写**。逐个读取 `apps/data/api/data/in
   4. 返回 OkReply{success: true}
 ```
 
-## 3. Top10 数据 📋 设计意图（待实现）
+## 3. Top10 数据 📋 设计意图（契约推导）
 
 **核心规则**：一份扁平课程数据，派生出「热门」与「热销」两个榜单。
 
@@ -100,7 +107,7 @@ data 服务的业务逻辑**尚未编写**。逐个读取 `apps/data/api/data/in
 | 数量上限 | 服务名与摘要均为 Top10 | proto 未做 `repeated` 长度约束，需在 logic 层截断至 10 条 |
 | 摘要 | openapi：`GET /data/top10` top10数据获取、`PUT /data/top10/set` 设置top10数据 | 与 `data.api` 路由一致 |
 
-## 4. 接口鉴权 📋 设计意图（待实现）
+## 4. 接口鉴权 📋 设计意图（契约推导）
 
 **核心规则**：data 是**全仓唯一一个 HTTP 接口完全不鉴权**的服务。
 
@@ -113,7 +120,7 @@ data 服务的业务逻辑**尚未编写**。逐个读取 `apps/data/api/data/in
 
 > ⚠️ **风险提示**：三个 `set` 接口是写入口，当前无任何身份校验。实现时应至少为 `PUT /data/*/set` 补上 `jwt: Auth` 并限定管理员角色；`GET` 侧若面向公开大屏可保持匿名。
 
-## 5. API 层与 RPC 层的关系 📋 设计意图（待实现）
+## 5. API 层与 RPC 层的关系 📋 设计意图（契约推导）
 
 | 规则 | 依据 | 说明 |
 |------|------|------|

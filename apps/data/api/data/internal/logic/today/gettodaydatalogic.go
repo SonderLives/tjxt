@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/data/api/data/internal/svc"
 	"tjxt/apps/data/api/data/internal/types"
+	dataclient "tjxt/apps/data/rpc/data/client/data"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,14 @@ func NewGetTodayDataLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetT
 }
 
 func (l *GetTodayDataLogic) GetTodayData() (resp *types.TodayDataVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	rpcResp, err := l.svcCtx.DataRpc.GetTodayData(l.ctx, &dataclient.Empty{})
+	if err != nil {
+		return nil, err
+	}
+	return &types.TodayDataVO{
+		Visits:      rpcResp.Visits,
+		OrderAmount: rpcResp.OrderAmount,
+		OrderNum:    int(rpcResp.OrderNum),
+		StuNewNum:   int(rpcResp.StuNewNum),
+	}, nil
 }

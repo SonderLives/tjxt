@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
+
+	result "tjxt/pkg/response"
 	"tjxt/apps/media/api/internal/logic/file"
 	"tjxt/apps/media/api/internal/svc"
 	"tjxt/apps/media/api/internal/types"
@@ -22,10 +24,6 @@ func FileSaveHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := file.NewFileSaveLogic(r.Context(), svcCtx)
 		resp, err := l.FileSave(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.Write(w, r, resp, err)
 	}
 }

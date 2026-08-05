@@ -5,9 +5,12 @@ package logic
 
 import (
 	"context"
+	"strconv"
+	"strings"
 
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
+	"tjxt/apps/trade/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +30,45 @@ func NewOrderPrePlaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ord
 }
 
 func (l *OrderPrePlaceLogic) OrderPrePlace(req *types.PrePlaceOrderReq) (resp *types.OrderConfirmVO, err error) {
-	// todo: add your logic here and delete this line
+	var ids []int64
+	for _, s := range strings.Split(req.CourseIds, ",") {
+		s = strings.TrimSpace(s)
+		if s == "" {
+			continue
+		}
+		id, parseErr := strconv.ParseInt(s, 10, 64)
+		if parseErr != nil {
+			continue
+		}
+		ids = append(ids, id)
+	}
 
-	return
+	reply, err := l.svcCtx.TradeRpc.OrderPrePlace(l.ctx, &pb.PrePlaceRequest{CourseIds: ids})
+	if err != nil {
+		return nil, err
+	}
+
+	resp = &types.OrderConfirmVO{
+		OrderId:     reply.OrderId,
+		TotalAmount: reply.TotalAmount,
+		Courses:     make([]types.OrderCourseVO, 0, len(reply.Courses)),
+		Discounts:   make([]types.CouponDiscountVO, 0, len(reply.Discounts)),
+	}
+	for _, c := range reply.Courses {
+		resp.Courses = append(resp.Courses, types.OrderCourseVO{
+			Id:       c.Id,
+			Name:     c.Name,
+			CoverUrl: c.CoverUrl,
+			Price:    c.Price,
+		})
+	}
+	for _, d := range reply.Discounts {
+		resp.Discounts = append(resp.Discounts, types.CouponDiscountVO{
+			Id:             d.Id,
+			Name:           d.Name,
+			DiscountAmount: d.DiscountAmount,
+			RuleDesc:       d.RuleDesc,
+		})
+	}
+	return resp, nil
 }

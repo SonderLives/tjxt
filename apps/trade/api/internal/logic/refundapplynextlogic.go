@@ -8,6 +8,7 @@ import (
 
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
+	"tjxt/apps/trade/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,31 @@ func NewRefundApplyNextLogic(ctx context.Context, svcCtx *svc.ServiceContext) *R
 }
 
 func (l *RefundApplyNextLogic) RefundApplyNext() (resp *types.RefundApplyVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	reply, err := l.svcCtx.TradeRpc.RefundApplyNext(l.ctx, &pb.Empty{})
+	if err != nil {
+		return nil, err
+	}
+	return &types.RefundApplyVO{
+		Id:             reply.Id,
+		OrderId:        reply.OrderId,
+		OrderDetailId:  reply.OrderDetailId,
+		Price:          reply.Price,
+		RefundAmount:   reply.RefundAmount,
+		RefundStatus:   int64(reply.RefundStatus),
+		RefundOrderNo:  reply.RefundOrderNo,
+		PayOrderNo:     reply.PayOrderNo,
+		PayChannel:     reply.PayChannel,
+		RefundChannel:  reply.RefundChannel,
+		RefundReason:   reply.RefundReason,
+		RefundMessage:  reply.RefundMessage,
+		FailedReason:   reply.FailedReason,
+		ApproveOpinion: reply.ApproveOpinion,
+		ApproveType:    int64(reply.ApproveType),
+		Remark:         reply.Remark,
+		CreateTime:     reply.CreateTime,
+		OrderTime:      reply.OrderTime,
+		PaySuccessTime: reply.PaySuccessTime,
+		StudentName:    reply.StudentName,
+		Mobile:         reply.Mobile,
+	}, nil
 }
