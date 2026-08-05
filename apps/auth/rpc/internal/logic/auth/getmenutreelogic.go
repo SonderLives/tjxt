@@ -23,9 +23,12 @@ func NewGetMenuTreeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetMe
 	}
 }
 
-// 菜单
+// GetMenuTree 查询完整菜单树。
+// 菜单总量有限，一次性取出后在内存中建树，避免递归查库产生 N+1。
 func (l *GetMenuTreeLogic) GetMenuTree(in *pb.Empty) (*pb.MenuTreeReply, error) {
-	// todo: add your logic here and delete this line
-
-	return &pb.MenuTreeReply{}, nil
+	menus, err := l.svcCtx.MenuModel.FindAll(l.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.MenuTreeReply{List: buildMenuTree(menus)}, nil
 }

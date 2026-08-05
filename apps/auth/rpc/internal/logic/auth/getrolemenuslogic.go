@@ -5,6 +5,7 @@ import (
 
 	"tjxt/apps/auth/rpc/internal/svc"
 	"tjxt/apps/auth/rpc/pb"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,8 +24,18 @@ func NewGetRoleMenusLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetR
 	}
 }
 
+// GetRoleMenus 查询角色已分配的菜单 id 列表。
 func (l *GetRoleMenusLogic) GetRoleMenus(in *pb.IdReq) (*pb.IdListReply, error) {
-	// todo: add your logic here and delete this line
+	if in.Id <= 0 {
+		return nil, xerr.BadRequestf("角色 id 无效")
+	}
 
-	return &pb.IdListReply{}, nil
+	ids, err := l.svcCtx.RoleMenuModel.FindMenuIdsByRoleId(l.ctx, in.Id)
+	if err != nil {
+		return nil, err
+	}
+	if ids == nil {
+		ids = []int64{}
+	}
+	return &pb.IdListReply{Ids: ids}, nil
 }

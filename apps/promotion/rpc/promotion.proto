@@ -1,0 +1,228 @@
+syntax = "proto3";
+
+package promotion;
+
+option go_package = "./pb";
+
+// ============================================================
+// Promotion RPC：优惠券 / 用户优惠券 / 兑换码
+// 覆盖 coupons / user-coupons / codes 三组业务，供 promotion-api
+// 与 trade 等内部服务通过 etcd 服务发现调用。
+// ============================================================
+
+// ===================== 公共消息 =====================
+message Empty {}
+
+message IdRequest {
+  int64 id = 1;
+  int64 userId = 2; // 当前用户（来自 JWT），用户券业务使用
+}
+
+message IdsRequest {
+  repeated int64 ids = 1;
+  int64 userId = 2;  // 当前用户（来自 JWT）
+  int64 orderId = 3; // 关联订单（核销时记录）
+}
+
+message PageRequest {
+  int64 pageNo = 1;
+  int64 pageSize = 2;
+  bool isAsc = 3;
+  string sortBy = 4;
+}
+
+// ===================== 优惠券 =====================
+message CouponFormDTO {
+  int64 id = 1;
+  string name = 2;
+  string discountType = 3;     // reduce-满减 discount-折扣 no_threshold-无门槛
+  int64 discountValue = 4;     // 满减金额 / 折扣百分比，单位分
+  int64 maxDiscountAmount = 5; // 最高优惠金额，单位分
+  int64 thresholdAmount = 6;   // 使用门槛金额，单位分，0=无门槛
+  string obtainWay = 7;        // receive-领取 exchange-兑换码 assign-发放
+  bool specific = 8;           // 是否限定适用范围
+  repeated int64 scopes = 9;   // 适用范围 id 列表（课程三级分类 id）
+  int64 totalNum = 10;         // 发行总量，0=无上限
+  int64 userLimit = 11;        // 每人限领数量，0=不限
+}
+
+message CouponScopeVO {
+  int64 id = 1;
+  string name = 2;
+}
+
+message CouponDetailVO {
+  int64 id = 1;
+  string name = 2;
+  string discountType = 3;
+  int64 discountValue = 4;
+  int64 maxDiscountAmount = 5;
+  int64 thresholdAmount = 6;
+  string obtainWay = 7;
+  bool specific = 8;
+  repeated CouponScopeVO scopes = 9;
+  string issueBeginTime = 10;
+  string issueEndTime = 11;
+  string termBeginTime = 12;
+  int64 termDays = 13;
+  string termEndTime = 14;
+  string status = 15;
+  int64 totalNum = 16;  // 发行总量，0=无上限
+  int64 userLimit = 17; // 每人限领数量，0=不限
+}
+
+message CouponVO {
+  int64 id = 1;
+  string name = 2;
+  string discountType = 3;
+  int64 discountValue = 4;
+  int64 maxDiscountAmount = 5;
+  int64 thresholdAmount = 6;
+  bool specific = 7;
+  int64 termDays = 8;
+  string termEndTime = 9;
+  bool available = 10;
+  bool received = 11;
+}
+
+message CouponPageVO {
+  int64 id = 1;
+  string name = 2;
+  string discountType = 3;
+  int64 discountValue = 4;
+  int64 maxDiscountAmount = 5;
+  int64 thresholdAmount = 6;
+  bool specific = 7;
+  string obtainWay = 8;
+  int64 totalNum = 9;
+  int64 issueNum = 10;
+  int64 usedNum = 11;
+  string status = 12;
+  int64 termDays = 13;
+  string termBeginTime = 14;
+  string termEndTime = 15;
+  string issueBeginTime = 16;
+  string issueEndTime = 17;
+  string createTime = 18;
+}
+
+message CouponIssueFormDTO {
+  int64 id = 1;
+  string issueBeginTime = 2;
+  string issueEndTime = 3;
+  string termBeginTime = 4;
+  int64 termDays = 5;
+  string termEndTime = 6;
+}
+
+message CouponListRequest {
+  int64 userId = 1; // 当前用户（来自 JWT），用于标记 received
+}
+
+message CouponListReply {
+  repeated CouponVO list = 1;
+}
+
+message CouponPageRequest {
+  PageRequest page = 1;
+  string name = 2;
+  string status = 3;
+  string type = 4; // discountType 过滤
+}
+
+message CouponPageReply {
+  int64 total = 1;
+  repeated CouponPageVO list = 2;
+}
+
+// ===================== 折扣计算 =====================
+message CouponDiscountDTO {
+  int64 discountAmount = 1;               // 本方案最大优惠金额，单位分
+  map<int64, int64> discountDetail = 2;   // key=课程id value=该课优惠金额
+  repeated int64 ids = 3;                 // 本方案使用的用户券 id
+  repeated string rules = 4;              // 券规则文案
+}
+
+message OrderCourseDTO {
+  int64 cateId = 1; // 课程三级分类 id
+  int64 id = 2;     // 课程 id
+  int64 price = 3;  // 课程价格，单位分
+}
+
+message OrderCourseListRequest {
+  repeated OrderCourseDTO courseList = 1;
+  int64 userId = 2; // 当前用户（来自 JWT）
+}
+
+message OrderCouponDTO {
+  repeated OrderCourseDTO courseList = 1;
+  repeated int64 userCouponIds = 2;
+  int64 userId = 3; // 当前用户（来自 JWT）
+}
+
+message CouponDiscountListReply {
+  repeated CouponDiscountDTO list = 1;
+}
+
+// ===================== 用户优惠券 =====================
+message UserCouponPageRequest {
+  PageRequest page = 1;
+  string status = 2;
+  int64 userId = 3; // 当前用户（来自 JWT）
+}
+
+message UserCouponPageReply {
+  int64 total = 1;
+  repeated CouponVO list = 2;
+}
+
+message RulesReply {
+  repeated string rules = 1;
+}
+
+message ExchangeRequest {
+  string code = 1;
+  int64 userId = 2; // 当前用户（来自 JWT）
+}
+
+// ===================== 兑换码 =====================
+message ExchangeCodeVO {
+  int64 id = 1;
+  string code = 2;
+}
+
+message CouponCodePageRequest {
+  PageRequest page = 1;
+  int64 couponId = 2;
+  string status = 3;
+}
+
+message CouponCodePageReply {
+  int64 total = 1;
+  repeated ExchangeCodeVO list = 2;
+}
+
+// ===================== 服务 =====================
+service Promotion {
+  // 优惠券管理
+  rpc CouponCreate(CouponFormDTO) returns (CouponDetailVO);
+  rpc CouponList(CouponListRequest) returns (CouponListReply);
+  rpc CouponPage(CouponPageRequest) returns (CouponPageReply);
+  rpc CouponGet(IdRequest) returns (CouponDetailVO);
+  rpc CouponDelete(IdRequest) returns (Empty);
+  rpc CouponIssue(CouponIssueFormDTO) returns (Empty);
+  rpc CouponPause(IdRequest) returns (Empty);
+
+  // 用户优惠券
+  rpc UserCouponAvailable(OrderCourseListRequest) returns (CouponDiscountListReply);
+  rpc UserCouponDiscount(OrderCouponDTO) returns (CouponDiscountDTO);
+  rpc UserCouponPage(UserCouponPageRequest) returns (UserCouponPageReply);
+  rpc UserCouponRefund(IdsRequest) returns (Empty);
+  rpc UserCouponRules(IdsRequest) returns (RulesReply);
+  rpc UserCouponUse(IdsRequest) returns (Empty);
+  rpc UserCouponExchange(ExchangeRequest) returns (Empty);
+  rpc UserCouponReceive(IdRequest) returns (Empty);
+
+  // 兑换码
+  rpc CouponCodePage(CouponCodePageRequest) returns (CouponCodePageReply);
+}

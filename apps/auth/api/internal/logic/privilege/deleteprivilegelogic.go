@@ -6,6 +6,7 @@ package privilege
 import (
 	"context"
 
+	authclient "tjxt/apps/auth/rpc/client/auth"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
 
@@ -26,8 +27,11 @@ func NewDeletePrivilegeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *D
 	}
 }
 
+// DeletePrivilege 删除权限（软删），并清理角色-权限分配。
 func (l *DeletePrivilegeLogic) DeletePrivilege(req *types.IdPathReq) (resp *types.OkVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	_, err = l.svcCtx.AuthRpc.DeletePrivilege(l.ctx, &authclient.IdReq{Id: req.Id})
+	if err != nil {
+		return nil, err
+	}
+	return &types.OkVO{Success: true}, nil
 }

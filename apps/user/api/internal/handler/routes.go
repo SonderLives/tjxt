@@ -6,8 +6,8 @@ package handler
 import (
 	"net/http"
 
-	account "tjxt/apps/user/api/internal/handler/account"
 	admin "tjxt/apps/user/api/internal/handler/admin"
+	student "tjxt/apps/user/api/internal/handler/student"
 	user "tjxt/apps/user/api/internal/handler/user"
 	"tjxt/apps/user/api/internal/svc"
 
@@ -18,42 +18,62 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodPost,
-				Path:    "/accounts/login",
-				Handler: account.LoginHandler(serverCtx),
+				Method:  http.MethodGet,
+				Path:    "/staffs/page",
+				Handler: admin.PageQueryStaffsHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/students/page",
+				Handler: admin.PageQueryStudentsHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/teachers/page",
+				Handler: admin.PageQueryTeachersHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/accounts/refresh",
-				Handler: account.RefreshTokenHandler(serverCtx),
+				Path:    "/users",
+				Handler: admin.AddUserHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodPost,
-				Path:    "/students/register",
-				Handler: account.RegisterStudentHandler(serverCtx),
+				Method:  http.MethodPut,
+				Path:    "/users/:id",
+				Handler: admin.UpdateUserByIdHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPut,
+				Path:    "/users/:id/password/default",
+				Handler: admin.ResetPasswordHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPut,
+				Path:    "/users/:id/status/:status",
+				Handler: admin.UpdateUserStatusHandler(serverCtx),
 			},
 		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 	)
 
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodGet,
-				Path:    "/staffs",
-				Handler: admin.PageStaffsHandler(serverCtx),
+				Method:  http.MethodPut,
+				Path:    "/students/password",
+				Handler: student.UpdateStudentPasswordHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/students/register",
+				Handler: student.RegisterStudentHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/students",
-				Handler: admin.PageStudentsHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/teachers",
-				Handler: admin.PageTeachersHandler(serverCtx),
+				Path:    "/users/checkCellphone",
+				Handler: student.CheckCellPhoneHandler(serverCtx),
 			},
 		},
-		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 	)
 
 	server.AddRoutes(
@@ -65,8 +85,13 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
+				Path:    "/users/:id",
+				Handler: user.GetUserByIdHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/users/me",
-				Handler: user.GetCurrentHandler(serverCtx),
+				Handler: user.GetCurrentUserHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

@@ -6,6 +6,7 @@ package loginrecord
 import (
 	"context"
 
+	authclient "tjxt/apps/auth/rpc/client/auth"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
 
@@ -26,8 +27,27 @@ func NewListLoginRecordsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 	}
 }
 
+// ListLoginRecords 分页查询登录记录，可按 userId 过滤（0 表示查全部）。
 func (l *ListLoginRecordsLogic) ListLoginRecords(req *types.LoginRecordListReq) (resp *types.LoginRecordListVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	reply, err := l.svcCtx.AuthRpc.ListLoginRecords(l.ctx, &authclient.LoginRecordPageReq{
+		PageNo:   int32(req.PageNo),
+		PageSize: int32(req.PageSize),
+		UserId:   req.UserId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	list := make([]types.LoginRecordVO, 0, len(reply.List))
+	for _, v := range reply.List {
+		list = append(list, types.LoginRecordVO{
+			Id:         v.Id,
+			UserId:     v.UserId,
+			CellPhone:  v.CellPhone,
+			LoginTime:  v.LoginTime,
+			LogoutTime: v.LogoutTime,
+			Duration:   v.Duration,
+			Ipv4:       v.Ipv4,
+		})
+	}
+	return &types.LoginRecordListVO{Total: reply.Total, List: list}, nil
 }

@@ -1,125 +1,250 @@
 syntax = "v1"
 
-// 统一分页请求
-type PageRequest {
-	PageNo   int64  `form:"pageNo,optional"`
-	PageSize int64  `form:"pageSize,optional"`
-	IsAsc    bool   `form:"isAsc,optional"`
-	SortBy   string `form:"sortBy,optional"`
+info (
+	title:  "用户中心微服务"
+	desc:   "用户信息管理与学员账户。登录入口与令牌签发由 auth 服务负责。"
+	author: "tjxt"
+)
+
+// ==================== 通用 ====================
+// 主键返回（对应文档 R«long»）
+type IdVO {
+	Id int64 `json:"id"`
 }
 
-// ============ 账户 ============
-type LoginReq {
-	Username  string `json:"username,optional"` // 员工登录用用户名
-	CellPhone string `json:"cellPhone,optional"` // 学员/老师登录用手机号
-	Password  string `json:"password"`
-	Type      int32  `json:"type"` // 1-员工, 2-学员, 3-老师
+// 布尔返回（对应文档 R«boolean»）
+type BoolVO {
+	Result bool `json:"result"`
 }
 
-type LoginVO {
-	UserId       int64  `json:"userId"`
-	Username     string `json:"username"`
-	CellPhone    string `json:"cellPhone"`
-	Type         int32  `json:"type"`
-	Token        string `json:"token"`
-	RefreshToken string `json:"refreshToken"`
-	ExpireTime   int64  `json:"expireTime"`
+// 路径 id
+type IdPathReq {
+	Id int64 `path:"id"`
 }
 
-type RegisterReq {
-	CellPhone string `json:"cellPhone"` // 学员手机号注册，密码由服务自动生成
+// ==================== 学员账户 ====================
+// 对应文档 StudentFormDTO：注册与改密复用
+type StudentFormReq {
+	CellPhone string `json:"cellPhone"` // 手机号
+	Code      string `json:"code,optional"` // 短信验证码
+	Password  string `json:"password"` // 密码
 }
 
-type RegisterVO {
-	UserId    int64  `json:"userId"`
-	CellPhone string `json:"cellPhone"`
+// ==================== 用户信息 ====================
+// 对应文档 UserDTO
+type UserDTO {
+	Id        int64  `json:"id,optional"`
+	Username  string `json:"username,optional"`
+	CellPhone string `json:"cellPhone,optional"`
+	Type      int32  `json:"type,optional"` // 1-其他员工, 2-普通学员, 3-老师
+	Name      string `json:"name,optional"`
+	Gender    int32  `json:"gender,optional"` // 0-男性, 1-女性
+	Icon      string `json:"icon,optional"`
+	Email     string `json:"email,optional"`
+	Qq        string `json:"qq,optional"`
+	Job       string `json:"job,optional"`
+	Province  string `json:"province,optional"`
+	City      string `json:"city,optional"`
+	District  string `json:"district,optional"`
+	Intro     string `json:"intro,optional"`
+	Photo     string `json:"photo,optional"`
+	RoleId    int64  `json:"roleId,optional"` // 老师和学生不用填
 }
 
-type RefreshReq {
-	RefreshToken string `json:"refreshToken"`
+// PUT /users/:id 更新指定用户
+type UserUpdateReq {
+	Id        int64  `path:"id"`
+	Username  string `json:"username,optional"`
+	CellPhone string `json:"cellPhone,optional"`
+	Type      int32  `json:"type,optional"`
+	Name      string `json:"name,optional"`
+	Gender    int32  `json:"gender,optional"`
+	Icon      string `json:"icon,optional"`
+	Email     string `json:"email,optional"`
+	Qq        string `json:"qq,optional"`
+	Job       string `json:"job,optional"`
+	Province  string `json:"province,optional"`
+	City      string `json:"city,optional"`
+	District  string `json:"district,optional"`
+	Intro     string `json:"intro,optional"`
+	Photo     string `json:"photo,optional"`
+	RoleId    int64  `json:"roleId,optional"`
 }
 
-// ============ 用户信息 ============
-type UserVO {
+// 对应文档 UserFormDTO：更新当前登录用户，可同时改密码
+type UserFormReq {
+	Username    string `json:"username,optional"`
+	CellPhone   string `json:"cellPhone,optional"`
+	Type        int32  `json:"type,optional"`
+	Name        string `json:"name,optional"`
+	Gender      int32  `json:"gender,optional"`
+	Icon        string `json:"icon,optional"`
+	Email       string `json:"email,optional"`
+	Qq          string `json:"qq,optional"`
+	Job         string `json:"job,optional"`
+	Province    string `json:"province,optional"`
+	City        string `json:"city,optional"`
+	District    string `json:"district,optional"`
+	Intro       string `json:"intro,optional"`
+	Photo       string `json:"photo,optional"`
+	RoleId      int64  `json:"roleId,optional"`
+	OldPassword string `json:"oldPassword,optional"` // 原始密码
+	Password    string `json:"password,optional"` // 新密码
+}
+
+// 对应文档 UserDetailVO：当前登录用户详情
+type UserDetailVO {
 	Id         int64  `json:"id"`
 	Username   string `json:"username"`
 	CellPhone  string `json:"cellPhone"`
-	Type       int32  `json:"type"`
-	Status     int32  `json:"status"`
 	Name       string `json:"name"`
 	Gender     int32  `json:"gender"`
 	Icon       string `json:"icon"`
 	Email      string `json:"email"`
-	Photo      string `json:"photo"`
-	RoleId     int64  `json:"roleId"`
-	DepId      int64  `json:"depId"`
-	Job        string `json:"job"`
+	Qq         string `json:"qq"`
+	Province   string `json:"province"`
+	City       string `json:"city"`
+	District   string `json:"district"`
 	Intro      string `json:"intro"`
+	RoleName   string `json:"roleName"`
 	CreateTime string `json:"createTime"`
 }
 
-type UpdateUserReq {
-	Name   string `json:"name,optional"`
-	Gender int32  `json:"gender,optional"`
-	Icon   string `json:"icon,optional"`
-	Email  string `json:"email,optional"`
-	Photo  string `json:"photo,optional"`
-	Intro  string `json:"intro,optional"`
-	Job    string `json:"job,optional"`
+type CheckCellPhoneReq {
+	CellPhone string `form:"cellphone"`
 }
 
-type UserPageVO {
-	Total int64    `json:"total"`
-	Pages int64    `json:"pages"`
-	List  []UserVO `json:"list"`
+// PUT /users/:id/status/:status
+type UpdateStatusReq {
+	Id     int64 `path:"id"`
+	Status int32 `path:"status"` // 0-禁用 1-正常
 }
 
-// 占位返回（无业务字段）
-type OkVO {
-	Success bool `json:"success"`
+// ==================== 分页 ====================
+// 三个分页接口共用同一组查询条件
+type UserPageReq {
+	PageNo   int64  `form:"pageNo,optional"`
+	PageSize int64  `form:"pageSize,optional"`
+	SortBy   string `form:"sortBy,optional"`
+	IsAsc    bool   `form:"isAsc,optional"`
+	Name     string `form:"name,optional"` // 姓名模糊
+	Phone    string `form:"phone,optional"` // 手机号模糊
+	Status   int32  `form:"status,optional"` // 账户状态
 }
 
-// ============ 公开接口（账户/注册） ============
+// 对应文档 StudentPageVo
+type StudentPageVO {
+	Id           int64  `json:"id"`
+	Name         string `json:"name"`
+	CellPhone    string `json:"cellPhone"`
+	Icon         string `json:"icon"`
+	Gender       int32  `json:"gender"`
+	Status       int32  `json:"status"`
+	CourseAmount int64  `json:"courseAmount"`
+	CreateTime   string `json:"createTime"`
+}
+
+type StudentPageVOList {
+	Total int64           `json:"total"`
+	Pages int64           `json:"pages"`
+	List  []StudentPageVO `json:"list"`
+}
+
+// 对应文档 TeacherPageVO
+type TeacherPageVO {
+	Id                 int64  `json:"id"`
+	Name               string `json:"name"`
+	CellPhone          string `json:"cellPhone"`
+	Icon               string `json:"icon"`
+	Photo              string `json:"photo"`
+	Job                string `json:"job"`
+	Intro              string `json:"intro"`
+	Status             int32  `json:"status"`
+	CourseAmount       int64  `json:"courseAmount"`
+	ExamQuestionAmount int64  `json:"examQuestionAmount"`
+	CreateTime         string `json:"createTime"`
+}
+
+type TeacherPageVOList {
+	Total int64           `json:"total"`
+	Pages int64           `json:"pages"`
+	List  []TeacherPageVO `json:"list"`
+}
+
+// 对应文档 StaffVO
+type StaffVO {
+	Id         int64  `json:"id"`
+	Name       string `json:"name"`
+	CellPhone  string `json:"cellPhone"`
+	Icon       string `json:"icon"`
+	Status     int32  `json:"status"`
+	RoleId     int64  `json:"roleId"`
+	RoleName   string `json:"roleName"`
+	CreateTime string `json:"createTime"`
+}
+
+type StaffVOList {
+	Total int64     `json:"total"`
+	Pages int64     `json:"pages"`
+	List  []StaffVO `json:"list"`
+}
+
+// ==================== 公开接口 ====================
 @server (
-	group: account
+	group: student
 )
 service user-api {
-	@handler LoginHandler
-	post /accounts/login (LoginReq) returns (LoginVO)
-
-	@handler RefreshTokenHandler
-	post /accounts/refresh (RefreshReq) returns (LoginVO)
-
 	@handler RegisterStudentHandler
-	post /students/register (RegisterReq) returns (RegisterVO)
+	post /students/register (StudentFormReq)
+
+	@handler UpdateStudentPasswordHandler
+	put /students/password (StudentFormReq)
+
+	@handler CheckCellPhoneHandler
+	get /users/checkCellphone (CheckCellPhoneReq) returns (BoolVO)
 }
 
-// ============ 需登录接口（当前用户） ============
+// ==================== 当前登录用户 ====================
 @server (
 	jwt:   Auth
 	group: user
 )
 service user-api {
-	@handler GetCurrentHandler
-	get /users/me returns (UserVO)
+	@handler GetCurrentUserHandler
+	get /users/me returns (UserDetailVO)
 
 	@handler UpdateCurrentUserHandler
-	put /users (UpdateUserReq) returns (OkVO)
+	put /users (UserFormReq)
+
+	@handler GetUserByIdHandler
+	get /users/:id (IdPathReq) returns (UserDTO)
 }
 
-// ============ 管理后台分页查询（需登录） ============
+// ==================== 管理后台 ====================
 @server (
 	jwt:   Auth
 	group: admin
 )
 service user-api {
-	@handler PageStudentsHandler
-	get /students (PageRequest) returns (UserPageVO)
+	@handler AddUserHandler
+	post /users (UserDTO) returns (IdVO)
 
-	@handler PageTeachersHandler
-	get /teachers (PageRequest) returns (UserPageVO)
+	@handler UpdateUserByIdHandler
+	put /users/:id (UserUpdateReq)
 
-	@handler PageStaffsHandler
-	get /staffs (PageRequest) returns (UserPageVO)
+	@handler ResetPasswordHandler
+	put /users/:id/password/default (IdPathReq)
+
+	@handler UpdateUserStatusHandler
+	put /users/:id/status/:status (UpdateStatusReq)
+
+	@handler PageQueryStudentsHandler
+	get /students/page (UserPageReq) returns (StudentPageVOList)
+
+	@handler PageQueryTeachersHandler
+	get /teachers/page (UserPageReq) returns (TeacherPageVOList)
+
+	@handler PageQueryStaffsHandler
+	get /staffs/page (UserPageReq) returns (StaffVOList)
 }
 

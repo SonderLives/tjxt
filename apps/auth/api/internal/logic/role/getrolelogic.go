@@ -6,6 +6,7 @@ package role
 import (
 	"context"
 
+	authclient "tjxt/apps/auth/rpc/client/auth"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
 
@@ -26,8 +27,17 @@ func NewGetRoleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetRoleLo
 	}
 }
 
+// GetRole 查询单个角色详情。
 func (l *GetRoleLogic) GetRole(req *types.IdPathReq) (resp *types.RoleVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	reply, err := l.svcCtx.AuthRpc.GetRole(l.ctx, &authclient.IdReq{Id: req.Id})
+	if err != nil {
+		return nil, err
+	}
+	return &types.RoleVO{
+		Id:         reply.Id,
+		Code:       reply.Code,
+		Name:       reply.Name,
+		Type:       reply.Type,
+		CreateTime: reply.CreateTime,
+	}, nil
 }

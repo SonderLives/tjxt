@@ -6,6 +6,7 @@ package account
 import (
 	"context"
 
+	authclient "tjxt/apps/auth/rpc/client/auth"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
 
@@ -26,8 +27,15 @@ func NewGetAccountRolesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 	}
 }
 
+// GetAccountRoles 查询账户已分配的角色 id 列表。
 func (l *GetAccountRolesLogic) GetAccountRoles(req *types.IdPathReq) (resp *types.IdListVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	reply, err := l.svcCtx.AuthRpc.GetAccountRoles(l.ctx, &authclient.IdReq{Id: req.Id})
+	if err != nil {
+		return nil, err
+	}
+	ids := reply.Ids
+	if ids == nil {
+		ids = []int64{}
+	}
+	return &types.IdListVO{Ids: ids}, nil
 }

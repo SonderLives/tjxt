@@ -6,6 +6,7 @@ package menu
 import (
 	"context"
 
+	authclient "tjxt/apps/auth/rpc/client/auth"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
 
@@ -26,8 +27,18 @@ func NewSaveMenuLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SaveMenu
 	}
 }
 
+// SaveMenu 新增或修改菜单，返回菜单 id。
 func (l *SaveMenuLogic) SaveMenu(req *types.MenuSaveReq) (resp *types.IdVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	reply, err := l.svcCtx.AuthRpc.SaveMenu(l.ctx, &authclient.MenuSaveReq{
+		Id:       req.Id,
+		ParentId: req.ParentId,
+		Label:    req.Label,
+		Path:     req.Path,
+		Icon:     req.Icon,
+		Priority: req.Priority,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &types.IdVO{Id: reply.Id}, nil
 }

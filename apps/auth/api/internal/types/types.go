@@ -4,7 +4,8 @@
 package types
 
 type AccountRoleReq struct {
-	AccountId int64   `json:"accountId"`
+	Id        int64   `path:"id"`
+	AccountId int64   `json:"accountId,optional"`
 	RoleIds   []int64 `json:"roleIds"`
 }
 
@@ -116,12 +117,14 @@ type RoleListVO struct {
 }
 
 type RoleMenuReq struct {
-	RoleId  int64   `json:"roleId"`
+	Id      int64   `path:"id"`
+	RoleId  int64   `json:"roleId,optional"`
 	MenuIds []int64 `json:"menuIds"`
 }
 
 type RolePrivilegeReq struct {
-	RoleId       int64   `json:"roleId"`
+	Id           int64   `path:"id"`
+	RoleId       int64   `json:"roleId,optional"`
 	PrivilegeIds []int64 `json:"privilegeIds"`
 }
 

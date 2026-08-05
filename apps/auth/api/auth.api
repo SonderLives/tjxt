@@ -92,19 +92,24 @@ type PrivilegeSaveReq {
 }
 
 // ============ 角色分配 ============
+// 路径上的 :id 为权威角色标识，请求体中的 roleId 仅作兼容保留。
 type RoleMenuReq {
-	RoleId  int64   `json:"roleId"`
+	Id      int64   `path:"id"`
+	RoleId  int64   `json:"roleId,optional"`
 	MenuIds []int64 `json:"menuIds"`
 }
 
 type RolePrivilegeReq {
-	RoleId       int64   `json:"roleId"`
+	Id           int64   `path:"id"`
+	RoleId       int64   `json:"roleId,optional"`
 	PrivilegeIds []int64 `json:"privilegeIds"`
 }
 
 // ============ 账户角色 ============
+// 路径上的 :id 为权威账户标识，请求体中的 accountId 仅作兼容保留。
 type AccountRoleReq {
-	AccountId int64   `json:"accountId"`
+	Id        int64   `path:"id"`
+	AccountId int64   `json:"accountId,optional"`
 	RoleIds   []int64 `json:"roleIds"`
 }
 
@@ -132,11 +137,11 @@ type LoginRecordListVO {
 
 // ============ 账户登录 ============
 type LoginReq {
-	CellPhone  string `json:"cellPhone,optional"`  // 学员/老师手机号
-	Username   string `json:"username,optional"`   // 员工用户名
+	CellPhone  string `json:"cellPhone,optional"` // 学员/老师手机号
+	Username   string `json:"username,optional"` // 员工用户名
 	Password   string `json:"password"`
 	RememberMe bool   `json:"rememberMe,optional"`
-	Type       int32  `json:"type"`                 // 1-员工 2-学员 3-老师
+	Type       int32  `json:"type"` // 1-员工 2-学员 3-老师
 }
 
 type LoginVO {

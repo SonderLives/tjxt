@@ -6,6 +6,7 @@ package privilege
 import (
 	"context"
 
+	authclient "tjxt/apps/auth/rpc/client/auth"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
 
@@ -26,8 +27,18 @@ func NewSavePrivilegeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Sav
 	}
 }
 
+// SavePrivilege 新增或修改权限，返回权限 id。
 func (l *SavePrivilegeLogic) SavePrivilege(req *types.PrivilegeSaveReq) (resp *types.IdVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	reply, err := l.svcCtx.AuthRpc.SavePrivilege(l.ctx, &authclient.PrivilegeSaveReq{
+		Id:       req.Id,
+		MenuId:   req.MenuId,
+		Intro:    req.Intro,
+		Method:   req.Method,
+		Uri:      req.Uri,
+		Internal: req.Internal,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &types.IdVO{Id: reply.Id}, nil
 }

@@ -4,115 +4,61 @@ package user;
 
 option go_package = "./pb";
 
+// 用户中心服务。
+// 职责边界：只负责「身份核验 + 用户信息管理」，
+// 登录入口与 JWT 签发统一由 auth 服务负责（见 pkg/auth 包注释）。
 service User {
-  // ===== 账户 =====
-  rpc Login(LoginRequest) returns (LoginResponse);
-  rpc Register(RegisterRequest) returns (RegisterResponse);
-  rpc RefreshToken(RefreshTokenRequest) returns (LoginResponse);
-
-  // ===== 身份核验（供 auth 服务调用,不签发令牌) =====
+  // ===== 身份核验（供 auth 服务调用，不签发令牌）=====
   rpc LoginVerify(LoginVerifyRequest) returns (LoginVerifyResponse);
 
+  // ===== 学员账户 =====
+  rpc RegisterStudent(StudentFormRequest) returns (IdResponse);
+  rpc UpdateStudentPassword(StudentFormRequest) returns (EmptyResponse);
+
   // ===== 用户信息 =====
-  rpc GetUserById(UserIdRequest) returns (UserResponse);
+  rpc AddUser(UserDTO) returns (IdResponse);
+  rpc GetUserById(UserIdRequest) returns (UserDTO);
   rpc GetUsersByIds(UserIdsRequest) returns (UserListResponse);
-  rpc UpdateUser(UpdateUserRequest) returns (EmptyResponse);
+  rpc GetUserDetail(UserIdRequest) returns (UserDetailVO);
+  rpc UpdateUserById(UserDTO) returns (EmptyResponse);
+  rpc UpdateCurrentUser(UserFormRequest) returns (EmptyResponse);
+  rpc CheckCellPhone(CheckCellPhoneRequest) returns (BoolResponse);
+  rpc ResetPassword(UserIdRequest) returns (EmptyResponse);
+  rpc UpdateUserStatus(UpdateStatusRequest) returns (EmptyResponse);
 
   // ===== 管理后台分页查询 =====
-  rpc PageQueryStudents(PageQueryUsersRequest) returns (PageQueryUsersResponse);
-  rpc PageQueryTeachers(PageQueryUsersRequest) returns (PageQueryUsersResponse);
-  rpc PageQueryStaffs(PageQueryUsersRequest) returns (PageQueryUsersResponse);
+  rpc PageQueryStudents(UserPageRequest) returns (StudentPageResponse);
+  rpc PageQueryTeachers(UserPageRequest) returns (TeacherPageResponse);
+  rpc PageQueryStaffs(UserPageRequest) returns (StaffPageResponse);
 }
 
-// ===== 通用 =====
+// ===================== 通用 =====================
 message EmptyResponse {}
 
-// ===== 账户 =====
-message LoginRequest {
-  string username = 1;   // 用户名（员工登录用）
-  string cell_phone = 2;  // 手机号（学员/老师登录用）
-  string password = 3;
-  int32 type = 4;         // 1-员工, 2-学员, 3-老师
-}
-message LoginResponse {
-  int64 user_id = 1;
-  string username = 2;
-  string cell_phone = 3;
-  int32 type = 4;
-  string token = 5;
-  string refresh_token = 6;
-  int64 expire_time = 7;
-}
-message RegisterRequest {
-  string cell_phone = 1;  // 学员手机号注册
-  string password = 2;
-}
-message RegisterResponse {
-  int64 user_id = 1;
-  string cell_phone = 2;
-}
-message RefreshTokenRequest {
-  string refresh_token = 1;
-}
-
-// ===== 用户信息 =====
-message UserIdRequest { int64 user_id = 1; }
-message UserIdsRequest { repeated int64 user_ids = 1; }
-
-message UserResponse {
+message IdResponse {
   int64 id = 1;
-  string username = 2;
-  string cell_phone = 3;
-  int32 type = 4;
-  int32 status = 5;
-  string name = 6;
-  int32 gender = 7;
-  string icon = 8;
-  string email = 9;
-  string photo = 10;
-  int64 role_id = 11;
-  int64 dep_id = 12;
-  string job = 13;
-  string intro = 14;
-  string create_time = 15;
-}
-message UserListResponse {
-  repeated UserResponse list = 1;
 }
 
-message UpdateUserRequest {
-  int64 id = 1;
-  string name = 2;
-  int32 gender = 3;
-  string icon = 4;
-  string email = 5;
-  string photo = 6;
-  string intro = 7;
-  string job = 8;
+message BoolResponse {
+  bool result = 1;
 }
 
-// ===== 分页查询 =====
-message PageQueryUsersRequest {
-  int64 page_no = 1;
-  int64 page_size = 2;
-  string name = 3;       // 姓名模糊
-  int32 status = 4;      // 状态过滤
-  string sort_by = 5;
-  bool is_asc = 6;
-}
-message PageQueryUsersResponse {
-  int64 total = 1;
-  int64 pages = 2;
-  repeated UserResponse list = 3;
+message UserIdRequest {
+  int64 user_id = 1;
 }
 
-// ===== 身份核验 =====
+message UserIdsRequest {
+  repeated int64 user_ids = 1;
+}
+
+// ===================== 身份核验 =====================
 message LoginVerifyRequest {
-  string cell_phone = 1;  // 学员/老师用手机号
-  string username = 2;    // 员工用用户名
+  string cell_phone = 1; // 学员/老师用手机号
+  string username = 2;   // 员工用用户名
   string password = 3;
-  int32 type = 4;         // 1-员工 2-学员 3-老师
+  int32 type = 4;        // 1-员工 2-学员 3-老师
 }
+
 message LoginVerifyResponse {
   int64 user_id = 1;
   string username = 2;
@@ -120,4 +66,155 @@ message LoginVerifyResponse {
   int32 type = 4;
   int32 status = 5;
   string name = 6;
+}
+
+// ===================== 学员表单 =====================
+// 对应文档 StudentFormDTO：注册与改密复用同一结构。
+message StudentFormRequest {
+  string cell_phone = 1; // 手机号
+  string code = 2;       // 短信验证码
+  string password = 3;   // 密码
+}
+
+// ===================== 用户信息 =====================
+// 对应文档 UserDTO。
+message UserDTO {
+  int64 id = 1;
+  string username = 2;
+  string cell_phone = 3;
+  int32 type = 4;     // 1-其他员工, 2-普通学员, 3-老师
+  string name = 5;
+  int32 gender = 6;   // 0-男性, 1-女性
+  string icon = 7;
+  string email = 8;
+  string qq = 9;
+  string job = 10;
+  string province = 11;
+  string city = 12;
+  string district = 13;
+  string intro = 14;
+  string photo = 15;
+  int64 role_id = 16; // 老师和学生不用填
+}
+
+message UserListResponse {
+  repeated UserDTO list = 1;
+}
+
+// 对应文档 UserDetailVO：当前登录用户详情。
+message UserDetailVO {
+  int64 id = 1;
+  string username = 2;
+  string cell_phone = 3;
+  string name = 4;
+  int32 gender = 5;
+  string icon = 6;
+  string email = 7;
+  string qq = 8;
+  string province = 9;
+  string city = 10;
+  string district = 11;
+  string intro = 12;
+  string role_name = 13;   // 角色名称，归属 auth 服务的 role 表
+  string create_time = 14; // 注册时间
+}
+
+// 对应文档 UserFormDTO：更新当前登录用户，可同时改密码。
+message UserFormRequest {
+  int64 id = 1;
+  string username = 2;
+  string cell_phone = 3;
+  int32 type = 4;
+  string name = 5;
+  int32 gender = 6;
+  string icon = 7;
+  string email = 8;
+  string qq = 9;
+  string job = 10;
+  string province = 11;
+  string city = 12;
+  string district = 13;
+  string intro = 14;
+  string photo = 15;
+  int64 role_id = 16;
+  string old_password = 17; // 原始密码
+  string password = 18;     // 新密码
+}
+
+message CheckCellPhoneRequest {
+  string cell_phone = 1;
+}
+
+message UpdateStatusRequest {
+  int64 user_id = 1;
+  int32 status = 2; // 0-禁用 1-正常
+  int64 operator = 3;
+}
+
+// ===================== 分页查询 =====================
+message UserPageRequest {
+  int64 page_no = 1;
+  int64 page_size = 2;
+  string sort_by = 3;
+  bool is_asc = 4;
+  string name = 5;   // 姓名模糊
+  string phone = 6;  // 手机号模糊
+  int32 status = 7;  // 账户状态，-1 表示不过滤
+}
+
+// 对应文档 StudentPageVo。
+message StudentPageVO {
+  int64 id = 1;
+  string name = 2;
+  string cell_phone = 3;
+  string icon = 4;
+  int32 gender = 5;
+  int32 status = 6;
+  int64 course_amount = 7; // 购买/报名课程数量
+  string create_time = 8;
+}
+
+message StudentPageResponse {
+  int64 total = 1;
+  int64 pages = 2;
+  repeated StudentPageVO list = 3;
+}
+
+// 对应文档 TeacherPageVO。
+message TeacherPageVO {
+  int64 id = 1;
+  string name = 2;
+  string cell_phone = 3;
+  string icon = 4;
+  string photo = 5;
+  string job = 6;
+  string intro = 7;
+  int32 status = 8;
+  int64 course_amount = 9;        // 负责的课程数量，归属 course 服务
+  int64 exam_question_amount = 10; // 出题数量，归属 exam 服务
+  string create_time = 11;
+}
+
+message TeacherPageResponse {
+  int64 total = 1;
+  int64 pages = 2;
+  repeated TeacherPageVO list = 3;
+}
+
+// 对应文档 StaffVO。
+message StaffVO {
+  int64 id = 1;
+  string name = 2;
+  string cell_phone = 3;
+  string icon = 4;
+  int32 status = 5;
+  int64 role_id = 6;
+  string role_name = 7; // 角色名称，归属 auth 服务的 role 表
+  string create_time = 8;
+}
+
+message StaffPageResponse {
+  int64 total = 1;
+  int64 pages = 2;
+  repeated StaffVO list = 3;
 }

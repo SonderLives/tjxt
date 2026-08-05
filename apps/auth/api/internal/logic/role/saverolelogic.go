@@ -6,6 +6,7 @@ package role
 import (
 	"context"
 
+	authclient "tjxt/apps/auth/rpc/client/auth"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
 
@@ -26,8 +27,16 @@ func NewSaveRoleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SaveRole
 	}
 }
 
+// SaveRole 新增或修改角色，返回新建或更新目标的 id。
 func (l *SaveRoleLogic) SaveRole(req *types.RoleSaveReq) (resp *types.IdVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	reply, err := l.svcCtx.AuthRpc.SaveRole(l.ctx, &authclient.RoleSaveReq{
+		Id:   req.Id,
+		Code: req.Code,
+		Name: req.Name,
+		Type: req.Type,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &types.IdVO{Id: reply.Id}, nil
 }

@@ -3,77 +3,168 @@
 
 package types
 
-type LoginReq struct {
-	Username  string `json:"username,optional"`  // 员工登录用用户名
-	CellPhone string `json:"cellPhone,optional"` // 学员/老师登录用手机号
-	Password  string `json:"password"`
-	Type      int32  `json:"type"` // 1-员工, 2-学员, 3-老师
+type BoolVO struct {
+	Result bool `json:"result"`
 }
 
-type LoginVO struct {
-	UserId       int64  `json:"userId"`
-	Username     string `json:"username"`
+type CheckCellPhoneReq struct {
+	CellPhone string `form:"cellphone"`
+}
+
+type IdPathReq struct {
+	Id int64 `path:"id"`
+}
+
+type IdVO struct {
+	Id int64 `json:"id"`
+}
+
+type StaffVO struct {
+	Id         int64  `json:"id"`
+	Name       string `json:"name"`
+	CellPhone  string `json:"cellPhone"`
+	Icon       string `json:"icon"`
+	Status     int32  `json:"status"`
+	RoleId     int64  `json:"roleId"`
+	RoleName   string `json:"roleName"`
+	CreateTime string `json:"createTime"`
+}
+
+type StaffVOList struct {
+	Total int64     `json:"total"`
+	Pages int64     `json:"pages"`
+	List  []StaffVO `json:"list"`
+}
+
+type StudentFormReq struct {
+	CellPhone string `json:"cellPhone"`     // 手机号
+	Code      string `json:"code,optional"` // 短信验证码
+	Password  string `json:"password"`      // 密码
+}
+
+type StudentPageVO struct {
+	Id           int64  `json:"id"`
+	Name         string `json:"name"`
 	CellPhone    string `json:"cellPhone"`
-	Type         int32  `json:"type"`
-	Token        string `json:"token"`
-	RefreshToken string `json:"refreshToken"`
-	ExpireTime   int64  `json:"expireTime"`
+	Icon         string `json:"icon"`
+	Gender       int32  `json:"gender"`
+	Status       int32  `json:"status"`
+	CourseAmount int64  `json:"courseAmount"`
+	CreateTime   string `json:"createTime"`
 }
 
-type OkVO struct {
-	Success bool `json:"success"`
+type StudentPageVOList struct {
+	Total int64           `json:"total"`
+	Pages int64           `json:"pages"`
+	List  []StudentPageVO `json:"list"`
 }
 
-type PageRequest struct {
-	PageNo   int64  `form:"pageNo,optional"`
-	PageSize int64  `form:"pageSize,optional"`
-	IsAsc    bool   `form:"isAsc,optional"`
-	SortBy   string `form:"sortBy,optional"`
+type TeacherPageVO struct {
+	Id                 int64  `json:"id"`
+	Name               string `json:"name"`
+	CellPhone          string `json:"cellPhone"`
+	Icon               string `json:"icon"`
+	Photo              string `json:"photo"`
+	Job                string `json:"job"`
+	Intro              string `json:"intro"`
+	Status             int32  `json:"status"`
+	CourseAmount       int64  `json:"courseAmount"`
+	ExamQuestionAmount int64  `json:"examQuestionAmount"`
+	CreateTime         string `json:"createTime"`
 }
 
-type RefreshReq struct {
-	RefreshToken string `json:"refreshToken"`
+type TeacherPageVOList struct {
+	Total int64           `json:"total"`
+	Pages int64           `json:"pages"`
+	List  []TeacherPageVO `json:"list"`
 }
 
-type RegisterReq struct {
-	CellPhone string `json:"cellPhone"` // 学员手机号注册，密码由服务自动生成
+type UpdateStatusReq struct {
+	Id     int64 `path:"id"`
+	Status int32 `path:"status"` // 0-禁用 1-正常
 }
 
-type RegisterVO struct {
-	UserId    int64  `json:"userId"`
-	CellPhone string `json:"cellPhone"`
+type UserDTO struct {
+	Id        int64  `json:"id,optional"`
+	Username  string `json:"username,optional"`
+	CellPhone string `json:"cellPhone,optional"`
+	Type      int32  `json:"type,optional"` // 1-其他员工, 2-普通学员, 3-老师
+	Name      string `json:"name,optional"`
+	Gender    int32  `json:"gender,optional"` // 0-男性, 1-女性
+	Icon      string `json:"icon,optional"`
+	Email     string `json:"email,optional"`
+	Qq        string `json:"qq,optional"`
+	Job       string `json:"job,optional"`
+	Province  string `json:"province,optional"`
+	City      string `json:"city,optional"`
+	District  string `json:"district,optional"`
+	Intro     string `json:"intro,optional"`
+	Photo     string `json:"photo,optional"`
+	RoleId    int64  `json:"roleId,optional"` // 老师和学生不用填
 }
 
-type UpdateUserReq struct {
-	Name   string `json:"name,optional"`
-	Gender int32  `json:"gender,optional"`
-	Icon   string `json:"icon,optional"`
-	Email  string `json:"email,optional"`
-	Photo  string `json:"photo,optional"`
-	Intro  string `json:"intro,optional"`
-	Job    string `json:"job,optional"`
-}
-
-type UserPageVO struct {
-	Total int64    `json:"total"`
-	Pages int64    `json:"pages"`
-	List  []UserVO `json:"list"`
-}
-
-type UserVO struct {
+type UserDetailVO struct {
 	Id         int64  `json:"id"`
 	Username   string `json:"username"`
 	CellPhone  string `json:"cellPhone"`
-	Type       int32  `json:"type"`
-	Status     int32  `json:"status"`
 	Name       string `json:"name"`
 	Gender     int32  `json:"gender"`
 	Icon       string `json:"icon"`
 	Email      string `json:"email"`
-	Photo      string `json:"photo"`
-	RoleId     int64  `json:"roleId"`
-	DepId      int64  `json:"depId"`
-	Job        string `json:"job"`
+	Qq         string `json:"qq"`
+	Province   string `json:"province"`
+	City       string `json:"city"`
+	District   string `json:"district"`
 	Intro      string `json:"intro"`
+	RoleName   string `json:"roleName"`
 	CreateTime string `json:"createTime"`
+}
+
+type UserFormReq struct {
+	Username    string `json:"username,optional"`
+	CellPhone   string `json:"cellPhone,optional"`
+	Type        int32  `json:"type,optional"`
+	Name        string `json:"name,optional"`
+	Gender      int32  `json:"gender,optional"`
+	Icon        string `json:"icon,optional"`
+	Email       string `json:"email,optional"`
+	Qq          string `json:"qq,optional"`
+	Job         string `json:"job,optional"`
+	Province    string `json:"province,optional"`
+	City        string `json:"city,optional"`
+	District    string `json:"district,optional"`
+	Intro       string `json:"intro,optional"`
+	Photo       string `json:"photo,optional"`
+	RoleId      int64  `json:"roleId,optional"`
+	OldPassword string `json:"oldPassword,optional"` // 原始密码
+	Password    string `json:"password,optional"`    // 新密码
+}
+
+type UserPageReq struct {
+	PageNo   int64  `form:"pageNo,optional"`
+	PageSize int64  `form:"pageSize,optional"`
+	SortBy   string `form:"sortBy,optional"`
+	IsAsc    bool   `form:"isAsc,optional"`
+	Name     string `form:"name,optional"`   // 姓名模糊
+	Phone    string `form:"phone,optional"`  // 手机号模糊
+	Status   int32  `form:"status,optional"` // 账户状态
+}
+
+type UserUpdateReq struct {
+	Id        int64  `path:"id"`
+	Username  string `json:"username,optional"`
+	CellPhone string `json:"cellPhone,optional"`
+	Type      int32  `json:"type,optional"`
+	Name      string `json:"name,optional"`
+	Gender    int32  `json:"gender,optional"`
+	Icon      string `json:"icon,optional"`
+	Email     string `json:"email,optional"`
+	Qq        string `json:"qq,optional"`
+	Job       string `json:"job,optional"`
+	Province  string `json:"province,optional"`
+	City      string `json:"city,optional"`
+	District  string `json:"district,optional"`
+	Intro     string `json:"intro,optional"`
+	Photo     string `json:"photo,optional"`
+	RoleId    int64  `json:"roleId,optional"`
 }

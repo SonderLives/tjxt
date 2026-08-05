@@ -6,6 +6,7 @@ package assign
 import (
 	"context"
 
+	authclient "tjxt/apps/auth/rpc/client/auth"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
 
@@ -26,8 +27,14 @@ func NewSaveRoleMenusLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Sav
 	}
 }
 
+// SaveRoleMenus 全量替换角色下的菜单分配；路径 :id 为权威角色标识。
 func (l *SaveRoleMenusLogic) SaveRoleMenus(req *types.RoleMenuReq) (resp *types.OkVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	_, err = l.svcCtx.AuthRpc.SaveRoleMenus(l.ctx, &authclient.RoleMenuReq{
+		RoleId:  req.Id,
+		MenuIds: req.MenuIds,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &types.OkVO{Success: true}, nil
 }

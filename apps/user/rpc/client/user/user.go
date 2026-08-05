@@ -14,37 +14,45 @@ import (
 )
 
 type (
-	EmptyResponse          = pb.EmptyResponse
-	LoginRequest           = pb.LoginRequest
-	LoginResponse          = pb.LoginResponse
-	LoginVerifyRequest     = pb.LoginVerifyRequest
-	LoginVerifyResponse    = pb.LoginVerifyResponse
-	PageQueryUsersRequest  = pb.PageQueryUsersRequest
-	PageQueryUsersResponse = pb.PageQueryUsersResponse
-	RefreshTokenRequest    = pb.RefreshTokenRequest
-	RegisterRequest        = pb.RegisterRequest
-	RegisterResponse       = pb.RegisterResponse
-	UpdateUserRequest      = pb.UpdateUserRequest
-	UserIdRequest          = pb.UserIdRequest
-	UserIdsRequest         = pb.UserIdsRequest
-	UserListResponse       = pb.UserListResponse
-	UserResponse           = pb.UserResponse
+	BoolResponse          = pb.BoolResponse
+	CheckCellPhoneRequest = pb.CheckCellPhoneRequest
+	EmptyResponse         = pb.EmptyResponse
+	IdResponse            = pb.IdResponse
+	LoginVerifyRequest    = pb.LoginVerifyRequest
+	LoginVerifyResponse   = pb.LoginVerifyResponse
+	StaffPageResponse     = pb.StaffPageResponse
+	StudentFormRequest    = pb.StudentFormRequest
+	StudentPageResponse   = pb.StudentPageResponse
+	TeacherPageResponse   = pb.TeacherPageResponse
+	UpdateStatusRequest   = pb.UpdateStatusRequest
+	UserDTO               = pb.UserDTO
+	UserDetailVO          = pb.UserDetailVO
+	UserFormRequest       = pb.UserFormRequest
+	UserIdRequest         = pb.UserIdRequest
+	UserIdsRequest        = pb.UserIdsRequest
+	UserListResponse      = pb.UserListResponse
+	UserPageRequest       = pb.UserPageRequest
 
 	User interface {
-		// ===== 账户 =====
-		Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-		Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
-		RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-		// ===== 身份核验（供 auth 服务调用,不签发令牌) =====
+		// ===== 身份核验（供 auth 服务调用，不签发令牌）=====
 		LoginVerify(ctx context.Context, in *LoginVerifyRequest, opts ...grpc.CallOption) (*LoginVerifyResponse, error)
+		// ===== 学员账户 =====
+		RegisterStudent(ctx context.Context, in *StudentFormRequest, opts ...grpc.CallOption) (*IdResponse, error)
+		UpdateStudentPassword(ctx context.Context, in *StudentFormRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 		// ===== 用户信息 =====
-		GetUserById(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*UserResponse, error)
+		AddUser(ctx context.Context, in *UserDTO, opts ...grpc.CallOption) (*IdResponse, error)
+		GetUserById(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*UserDTO, error)
 		GetUsersByIds(ctx context.Context, in *UserIdsRequest, opts ...grpc.CallOption) (*UserListResponse, error)
-		UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+		GetUserDetail(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*UserDetailVO, error)
+		UpdateUserById(ctx context.Context, in *UserDTO, opts ...grpc.CallOption) (*EmptyResponse, error)
+		UpdateCurrentUser(ctx context.Context, in *UserFormRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+		CheckCellPhone(ctx context.Context, in *CheckCellPhoneRequest, opts ...grpc.CallOption) (*BoolResponse, error)
+		ResetPassword(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+		UpdateUserStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 		// ===== 管理后台分页查询 =====
-		PageQueryStudents(ctx context.Context, in *PageQueryUsersRequest, opts ...grpc.CallOption) (*PageQueryUsersResponse, error)
-		PageQueryTeachers(ctx context.Context, in *PageQueryUsersRequest, opts ...grpc.CallOption) (*PageQueryUsersResponse, error)
-		PageQueryStaffs(ctx context.Context, in *PageQueryUsersRequest, opts ...grpc.CallOption) (*PageQueryUsersResponse, error)
+		PageQueryStudents(ctx context.Context, in *UserPageRequest, opts ...grpc.CallOption) (*StudentPageResponse, error)
+		PageQueryTeachers(ctx context.Context, in *UserPageRequest, opts ...grpc.CallOption) (*TeacherPageResponse, error)
+		PageQueryStaffs(ctx context.Context, in *UserPageRequest, opts ...grpc.CallOption) (*StaffPageResponse, error)
 	}
 
 	defaultUser struct {
@@ -58,30 +66,30 @@ func NewUser(cli zrpc.Client) User {
 	}
 }
 
-// ===== 账户 =====
-func (m *defaultUser) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
-	client := pb.NewUserClient(m.cli.Conn())
-	return client.Login(ctx, in, opts...)
-}
-
-func (m *defaultUser) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
-	client := pb.NewUserClient(m.cli.Conn())
-	return client.Register(ctx, in, opts...)
-}
-
-func (m *defaultUser) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
-	client := pb.NewUserClient(m.cli.Conn())
-	return client.RefreshToken(ctx, in, opts...)
-}
-
-// ===== 身份核验（供 auth 服务调用,不签发令牌) =====
+// ===== 身份核验（供 auth 服务调用，不签发令牌）=====
 func (m *defaultUser) LoginVerify(ctx context.Context, in *LoginVerifyRequest, opts ...grpc.CallOption) (*LoginVerifyResponse, error) {
 	client := pb.NewUserClient(m.cli.Conn())
 	return client.LoginVerify(ctx, in, opts...)
 }
 
+// ===== 学员账户 =====
+func (m *defaultUser) RegisterStudent(ctx context.Context, in *StudentFormRequest, opts ...grpc.CallOption) (*IdResponse, error) {
+	client := pb.NewUserClient(m.cli.Conn())
+	return client.RegisterStudent(ctx, in, opts...)
+}
+
+func (m *defaultUser) UpdateStudentPassword(ctx context.Context, in *StudentFormRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	client := pb.NewUserClient(m.cli.Conn())
+	return client.UpdateStudentPassword(ctx, in, opts...)
+}
+
 // ===== 用户信息 =====
-func (m *defaultUser) GetUserById(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*UserResponse, error) {
+func (m *defaultUser) AddUser(ctx context.Context, in *UserDTO, opts ...grpc.CallOption) (*IdResponse, error) {
+	client := pb.NewUserClient(m.cli.Conn())
+	return client.AddUser(ctx, in, opts...)
+}
+
+func (m *defaultUser) GetUserById(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*UserDTO, error) {
 	client := pb.NewUserClient(m.cli.Conn())
 	return client.GetUserById(ctx, in, opts...)
 }
@@ -91,23 +99,48 @@ func (m *defaultUser) GetUsersByIds(ctx context.Context, in *UserIdsRequest, opt
 	return client.GetUsersByIds(ctx, in, opts...)
 }
 
-func (m *defaultUser) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+func (m *defaultUser) GetUserDetail(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*UserDetailVO, error) {
 	client := pb.NewUserClient(m.cli.Conn())
-	return client.UpdateUser(ctx, in, opts...)
+	return client.GetUserDetail(ctx, in, opts...)
+}
+
+func (m *defaultUser) UpdateUserById(ctx context.Context, in *UserDTO, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	client := pb.NewUserClient(m.cli.Conn())
+	return client.UpdateUserById(ctx, in, opts...)
+}
+
+func (m *defaultUser) UpdateCurrentUser(ctx context.Context, in *UserFormRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	client := pb.NewUserClient(m.cli.Conn())
+	return client.UpdateCurrentUser(ctx, in, opts...)
+}
+
+func (m *defaultUser) CheckCellPhone(ctx context.Context, in *CheckCellPhoneRequest, opts ...grpc.CallOption) (*BoolResponse, error) {
+	client := pb.NewUserClient(m.cli.Conn())
+	return client.CheckCellPhone(ctx, in, opts...)
+}
+
+func (m *defaultUser) ResetPassword(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	client := pb.NewUserClient(m.cli.Conn())
+	return client.ResetPassword(ctx, in, opts...)
+}
+
+func (m *defaultUser) UpdateUserStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	client := pb.NewUserClient(m.cli.Conn())
+	return client.UpdateUserStatus(ctx, in, opts...)
 }
 
 // ===== 管理后台分页查询 =====
-func (m *defaultUser) PageQueryStudents(ctx context.Context, in *PageQueryUsersRequest, opts ...grpc.CallOption) (*PageQueryUsersResponse, error) {
+func (m *defaultUser) PageQueryStudents(ctx context.Context, in *UserPageRequest, opts ...grpc.CallOption) (*StudentPageResponse, error) {
 	client := pb.NewUserClient(m.cli.Conn())
 	return client.PageQueryStudents(ctx, in, opts...)
 }
 
-func (m *defaultUser) PageQueryTeachers(ctx context.Context, in *PageQueryUsersRequest, opts ...grpc.CallOption) (*PageQueryUsersResponse, error) {
+func (m *defaultUser) PageQueryTeachers(ctx context.Context, in *UserPageRequest, opts ...grpc.CallOption) (*TeacherPageResponse, error) {
 	client := pb.NewUserClient(m.cli.Conn())
 	return client.PageQueryTeachers(ctx, in, opts...)
 }
 
-func (m *defaultUser) PageQueryStaffs(ctx context.Context, in *PageQueryUsersRequest, opts ...grpc.CallOption) (*PageQueryUsersResponse, error) {
+func (m *defaultUser) PageQueryStaffs(ctx context.Context, in *UserPageRequest, opts ...grpc.CallOption) (*StaffPageResponse, error) {
 	client := pb.NewUserClient(m.cli.Conn())
 	return client.PageQueryStaffs(ctx, in, opts...)
 }

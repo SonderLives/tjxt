@@ -23,30 +23,30 @@ func NewUserServer(svcCtx *svc.ServiceContext) *UserServer {
 	}
 }
 
-// ===== 账户 =====
-func (s *UserServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
-	l := userlogic.NewLoginLogic(ctx, s.svcCtx)
-	return l.Login(in)
-}
-
-func (s *UserServer) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	l := userlogic.NewRegisterLogic(ctx, s.svcCtx)
-	return l.Register(in)
-}
-
-func (s *UserServer) RefreshToken(ctx context.Context, in *pb.RefreshTokenRequest) (*pb.LoginResponse, error) {
-	l := userlogic.NewRefreshTokenLogic(ctx, s.svcCtx)
-	return l.RefreshToken(in)
-}
-
-// ===== 身份核验（供 auth 服务调用,不签发令牌) =====
+// ===== 身份核验（供 auth 服务调用，不签发令牌）=====
 func (s *UserServer) LoginVerify(ctx context.Context, in *pb.LoginVerifyRequest) (*pb.LoginVerifyResponse, error) {
 	l := userlogic.NewLoginVerifyLogic(ctx, s.svcCtx)
 	return l.LoginVerify(in)
 }
 
+// ===== 学员账户 =====
+func (s *UserServer) RegisterStudent(ctx context.Context, in *pb.StudentFormRequest) (*pb.IdResponse, error) {
+	l := userlogic.NewRegisterStudentLogic(ctx, s.svcCtx)
+	return l.RegisterStudent(in)
+}
+
+func (s *UserServer) UpdateStudentPassword(ctx context.Context, in *pb.StudentFormRequest) (*pb.EmptyResponse, error) {
+	l := userlogic.NewUpdateStudentPasswordLogic(ctx, s.svcCtx)
+	return l.UpdateStudentPassword(in)
+}
+
 // ===== 用户信息 =====
-func (s *UserServer) GetUserById(ctx context.Context, in *pb.UserIdRequest) (*pb.UserResponse, error) {
+func (s *UserServer) AddUser(ctx context.Context, in *pb.UserDTO) (*pb.IdResponse, error) {
+	l := userlogic.NewAddUserLogic(ctx, s.svcCtx)
+	return l.AddUser(in)
+}
+
+func (s *UserServer) GetUserById(ctx context.Context, in *pb.UserIdRequest) (*pb.UserDTO, error) {
 	l := userlogic.NewGetUserByIdLogic(ctx, s.svcCtx)
 	return l.GetUserById(in)
 }
@@ -56,23 +56,48 @@ func (s *UserServer) GetUsersByIds(ctx context.Context, in *pb.UserIdsRequest) (
 	return l.GetUsersByIds(in)
 }
 
-func (s *UserServer) UpdateUser(ctx context.Context, in *pb.UpdateUserRequest) (*pb.EmptyResponse, error) {
-	l := userlogic.NewUpdateUserLogic(ctx, s.svcCtx)
-	return l.UpdateUser(in)
+func (s *UserServer) GetUserDetail(ctx context.Context, in *pb.UserIdRequest) (*pb.UserDetailVO, error) {
+	l := userlogic.NewGetUserDetailLogic(ctx, s.svcCtx)
+	return l.GetUserDetail(in)
+}
+
+func (s *UserServer) UpdateUserById(ctx context.Context, in *pb.UserDTO) (*pb.EmptyResponse, error) {
+	l := userlogic.NewUpdateUserByIdLogic(ctx, s.svcCtx)
+	return l.UpdateUserById(in)
+}
+
+func (s *UserServer) UpdateCurrentUser(ctx context.Context, in *pb.UserFormRequest) (*pb.EmptyResponse, error) {
+	l := userlogic.NewUpdateCurrentUserLogic(ctx, s.svcCtx)
+	return l.UpdateCurrentUser(in)
+}
+
+func (s *UserServer) CheckCellPhone(ctx context.Context, in *pb.CheckCellPhoneRequest) (*pb.BoolResponse, error) {
+	l := userlogic.NewCheckCellPhoneLogic(ctx, s.svcCtx)
+	return l.CheckCellPhone(in)
+}
+
+func (s *UserServer) ResetPassword(ctx context.Context, in *pb.UserIdRequest) (*pb.EmptyResponse, error) {
+	l := userlogic.NewResetPasswordLogic(ctx, s.svcCtx)
+	return l.ResetPassword(in)
+}
+
+func (s *UserServer) UpdateUserStatus(ctx context.Context, in *pb.UpdateStatusRequest) (*pb.EmptyResponse, error) {
+	l := userlogic.NewUpdateUserStatusLogic(ctx, s.svcCtx)
+	return l.UpdateUserStatus(in)
 }
 
 // ===== 管理后台分页查询 =====
-func (s *UserServer) PageQueryStudents(ctx context.Context, in *pb.PageQueryUsersRequest) (*pb.PageQueryUsersResponse, error) {
+func (s *UserServer) PageQueryStudents(ctx context.Context, in *pb.UserPageRequest) (*pb.StudentPageResponse, error) {
 	l := userlogic.NewPageQueryStudentsLogic(ctx, s.svcCtx)
 	return l.PageQueryStudents(in)
 }
 
-func (s *UserServer) PageQueryTeachers(ctx context.Context, in *pb.PageQueryUsersRequest) (*pb.PageQueryUsersResponse, error) {
+func (s *UserServer) PageQueryTeachers(ctx context.Context, in *pb.UserPageRequest) (*pb.TeacherPageResponse, error) {
 	l := userlogic.NewPageQueryTeachersLogic(ctx, s.svcCtx)
 	return l.PageQueryTeachers(in)
 }
 
-func (s *UserServer) PageQueryStaffs(ctx context.Context, in *pb.PageQueryUsersRequest) (*pb.PageQueryUsersResponse, error) {
+func (s *UserServer) PageQueryStaffs(ctx context.Context, in *pb.UserPageRequest) (*pb.StaffPageResponse, error) {
 	l := userlogic.NewPageQueryStaffsLogic(ctx, s.svcCtx)
 	return l.PageQueryStaffs(in)
 }

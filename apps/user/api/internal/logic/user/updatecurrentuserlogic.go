@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package user
 
 import (
 	"context"
 
+	"tjxt/apps/user/api/internal/logic/convert"
 	"tjxt/apps/user/api/internal/svc"
 	"tjxt/apps/user/api/internal/types"
+	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,8 +25,14 @@ func NewUpdateCurrentUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 	}
 }
 
-func (l *UpdateCurrentUserLogic) UpdateCurrentUser(req *types.UpdateUserReq) (resp *types.OkVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+// UpdateCurrentUser 更新当前登录用户，id 取自 JWT 载荷。
+func (l *UpdateCurrentUserLogic) UpdateCurrentUser(req *types.UserFormReq) error {
+	uid, err := auth.UserIdFromCtx(l.ctx)
+	if err != nil {
+		return err
+	}
+	in := convert.FromUserFormReq(req)
+	in.Id = uid
+	_, err = l.svcCtx.UserRpc.UpdateCurrentUser(l.ctx, in)
+	return err
 }

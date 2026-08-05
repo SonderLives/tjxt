@@ -1,6 +1,7 @@
 go 1.26.2
 
 use (
+	.
 	./apps/auth
 	./apps/course
 	./apps/data/api/data
@@ -10,6 +11,7 @@ use (
 	./apps/media
 	./apps/message
 	./apps/pay
+	./apps/promotion
 	./apps/remark
 	./apps/search
 	./apps/trade

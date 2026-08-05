@@ -6,6 +6,7 @@ package menu
 import (
 	"context"
 
+	authclient "tjxt/apps/auth/rpc/client/auth"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
 
@@ -26,8 +27,11 @@ func NewDeleteMenuLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delete
 	}
 }
 
+// DeleteMenu 删除菜单（软删），并清理其下权限与角色-菜单分配。
 func (l *DeleteMenuLogic) DeleteMenu(req *types.IdPathReq) (resp *types.OkVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	_, err = l.svcCtx.AuthRpc.DeleteMenu(l.ctx, &authclient.IdReq{Id: req.Id})
+	if err != nil {
+		return nil, err
+	}
+	return &types.OkVO{Success: true}, nil
 }

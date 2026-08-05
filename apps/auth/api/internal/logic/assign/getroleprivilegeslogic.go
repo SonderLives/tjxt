@@ -6,6 +6,7 @@ package assign
 import (
 	"context"
 
+	authclient "tjxt/apps/auth/rpc/client/auth"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
 
@@ -26,8 +27,15 @@ func NewGetRolePrivilegesLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 	}
 }
 
+// GetRolePrivileges 查询角色已分配的权限 id 列表。
 func (l *GetRolePrivilegesLogic) GetRolePrivileges(req *types.IdPathReq) (resp *types.IdListVO, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	reply, err := l.svcCtx.AuthRpc.GetRolePrivileges(l.ctx, &authclient.IdReq{Id: req.Id})
+	if err != nil {
+		return nil, err
+	}
+	ids := reply.Ids
+	if ids == nil {
+		ids = []int64{}
+	}
+	return &types.IdListVO{Ids: ids}, nil
 }
