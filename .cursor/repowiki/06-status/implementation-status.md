@@ -1,4 +1,4 @@
-> 版本：v1.2 | 更新：2026-08-06 | 来源：全仓 `go build ./...`（逐模块）+ 逻辑文件清点 + 依赖接线扫描（v1.1 的复核）
+> 版本：v1.3 | 更新：2026-08-06 | 来源：全仓 `go build ./...`（逐模块）+ 逻辑文件清点 + 依赖接线扫描（v1.1 的复核）+ 模块拆分重构（go-zero 官方标准结构）
 
 ---
 
@@ -7,7 +7,7 @@
 ## 统计口径
 
 - 以每个 `go.mod` 模块独立 `go build ./...` 是否通过 + `internal/logic/**/*logic.go` 是否含真实实现（非 goctl `todo: add your logic` 占位）为准。
-- 2026-08-06 复核：全仓 **0 处** `TODO` / `panic("implement")` / `not implemented` 占位；**13 个真实模块编译全部通过**（仅 `apps/data/api` 孤儿 `go.mod` 未纳入 go.work，其真实模块 `apps/data/api/data` 编译通过）。
+- 2026-08-06 模块拆分重构：全仓 **0 处** `TODO` / `panic("implement")` / `not implemented` 占位；同日完成「每服务单 module → 每 api/rpc 独立 module」go-zero 官方标准拆分，删除聚合 `apps/<svc>/go.mod` 与孤儿 `apps/data/api/go.mod`，**28 个 use 模块（根 + pkg + 13 服务 × {api,rpc} 共 26 个）独立 `go build ./...` 全部通过**。
 - 接口契约总数：API 端点 **193** + RPC 方法 **201** = **394** 个，与 logic 文件 **1:1 对应**，无缺失。
 
 ---
@@ -41,16 +41,16 @@
 
 ## 2. 结构性缺口与已知问题
 
-### 2.1 data 服务目录结构偏离约定 — 仍有效
+### 2.1 data 服务目录结构偏离约定 — 部分解决（模块拆分已修复，嵌套目录仍保留）
 
-| 问题 | 说明 |
-|------|------|
-| 多套一层目录 | `apps/data/api/data/...`、`apps/data/rpc/data/...`，其余 12 个服务均为 `apps/<svc>/{api,rpc}/...` |
-| 多份 go.mod | `apps/data/api/go.mod` 为孤儿（未纳入 go.work，仅 3 行、内容残缺）；真实模块为 `apps/data/api/data` 与 `apps/data/rpc/data` |
-| 无 DDL | `sql/ddl/` 下无 `tj_data.sql`，无任何 model（`data` 服务不依赖 MySQL，数据为内存/配置驱动） |
-| 配置缺段 | `data.yaml` 无 `DataSource` / `Cache` 段；JWT 配置已声明但路由未启用（见 §2.5 data 写接口裸奔） |
+| 问题 | 说明 | 状态 |
+|------|------|------|
+| 多套一层目录 | `apps/data/api/data/...`、`apps/data/rpc/data/...`，其余 12 个服务均为 `apps/<svc>/{api,rpc}/...` | 仍保留（可接受） |
+| 多份 go.mod | 原 `apps/data/api/go.mod` 为孤儿（未纳入 go.work，仅 3 行、内容残缺） | ✅ 已删除；现仅 `apps/data/api/data` 与 `apps/data/rpc/data` 两个真实模块，与各服务一致（仅深一级） |
+| 无 DDL | `sql/ddl/` 下无 `tj_data.sql`，无任何 model（`data` 服务不依赖 MySQL，数据为内存/配置驱动） | 仍有效 |
+| 配置缺段 | `data.yaml` 无 `DataSource` / `Cache` 段；JWT 配置已声明但路由未启用（见 §2.5 data 写接口裸奔） | 仍有效 |
 
-**建议**：删除孤儿 `apps/data/api/go.mod`；其余结构虽多一层，但真实模块已纳入 go.work 且编译通过，可暂维持。
+**说明**：2026-08-06 模块拆分重构已统一为 go-zero 官方标准结构——每个 api/rpc 各有独立 `go.mod`，`go.work` 聚合全部 28 个 use 模块。data 的「多一层目录 + 两个真实模块」是历史遗留，现已与其余服务同构（仅路径深一级），不再是孤儿模块问题。
 
 ### 2.2 learning 表结构与缺口 — 仍有效（设计演进）
 
@@ -145,7 +145,7 @@ v1.1 标注 media / exam 自定义 model 为空壳。2026-08-06 复核：
   → ③ trade → promotion：打通优惠券计算
   → ④ course → user(教师) / learning(课时) / media：补全跨域数据
   → ⑤ trade 发射领域事件（接 learning 消费端，打通 MQ）
-  → ⑥ 清理 data 孤儿 go.mod；Makefile 补 promotion / remark
+  → ⑥ ✅ 已清理 data 孤儿 go.mod（模块拆分重构已完成）；Makefile 补 promotion / remark
   → ⑦ 复核 §3 数据一致性隐患（代码评审）
 ```
 

@@ -1,4 +1,4 @@
-module tjxt/apps/media
+module tjxt/apps/trade/api
 
 go 1.26.2
 
@@ -6,9 +6,6 @@ require (
 	github.com/zeromicro/go-zero v1.10.3
 	google.golang.org/grpc v1.80.0
 	google.golang.org/protobuf v1.36.11
-)
-
-require (
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
@@ -51,6 +48,7 @@ require (
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.66.1 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
+	github.com/rabbitmq/amqp091-go v1.13.0 // indirect
 	github.com/redis/go-redis/v9 v9.21.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/titanous/json5 v1.0.0 // indirect
@@ -98,6 +96,11 @@ require (
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
+	tjxt/apps/trade/rpc v0.0.0-00010101000000-000000000000
+	tjxt/pkg v0.0.0-00010101000000-000000000000
 )
 
-replace tjxt/pkg => ../../pkg
+replace (
+	tjxt/apps/trade/rpc => ../rpc
+	tjxt/pkg => ../../../pkg
+)

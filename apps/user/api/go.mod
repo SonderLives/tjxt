@@ -1,17 +1,12 @@
-module tjxt/apps/search
+module tjxt/apps/user/api
 
 go 1.26.2
 
 require (
-	github.com/elastic/go-elasticsearch/v9 v9.4.1
 	github.com/zeromicro/go-zero v1.10.3
+	golang.org/x/crypto v0.48.0
 	google.golang.org/grpc v1.80.0
 	google.golang.org/protobuf v1.36.11
-	tjxt/apps/course v0.0.0
-	tjxt/pkg v0.0.0
-)
-
-require (
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
@@ -19,7 +14,6 @@ require (
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/elastic/elastic-transport-go/v8 v8.9.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.12.2 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
@@ -55,7 +49,6 @@ require (
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.66.1 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
-	github.com/rabbitmq/amqp091-go v1.13.0 // indirect
 	github.com/redis/go-redis/v9 v9.21.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/titanous/json5 v1.0.0 // indirect
@@ -103,9 +96,11 @@ require (
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
+	tjxt/apps/user/rpc v0.0.0-00010101000000-000000000000
+	tjxt/pkg v0.0.0-00010101000000-000000000000
 )
 
 replace (
-	tjxt/apps/course => ../course
-	tjxt/pkg => ../../pkg
+	tjxt/apps/user/rpc => ../rpc
+	tjxt/pkg => ../../../pkg
 )

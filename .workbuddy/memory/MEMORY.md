@@ -1,9 +1,12 @@
 # 天机学堂 tjxt 项目记忆
 
 ## 架构
-- go-zero v1.10.3 微服务，go.work 工作区管理 13 个服务模块 + pkg（apps/{auth,course,data,exam,learning,media,message,pay,promotion,remark,search,trade,user}）。
-- 服务模块路径：`module tjxt/apps/<svc>`（每服务一个 go.mod，rpc 子目录无独立 go.mod）。
-- 公共库 `tjxt/pkg`，各服务通过 `replace tjxt/pkg => ../../pkg` 引用。
+- go-zero v1.10.3 微服务，**go-zero 官方标准结构**：go.work 工作区聚合 **28 个 use 模块**（根模块 `.` + `pkg` + 13 服务各含 `api`+`rpc` 共 26 个服务模块）。
+- 每个可独立部署单元（api 进程 / rpc 进程）各有独立 `go.mod`：**2026-08-06 由「每服务单 module」重构为官方标准**，删除原聚合 `apps/<svc>/go.mod` 与孤儿 `apps/data/api/go.mod`。
+- module path 规则：`module tjxt/apps/<svc>/api`、`module tjxt/apps/<svc>/rpc`；data 嵌套为 `module tjxt/apps/data/api/data`、`module tjxt/apps/data/rpc/data`。
+- 公共库 `tjxt/pkg`：每个服务模块 `go.mod` 用相对 `replace` 引用——普通服务三级 `replace tjxt/pkg => ../../../pkg`，data 嵌套四级 `replace tjxt/pkg => ../../../../pkg`。
+- 跨服务依赖：在调用方 `go.mod` 中 `require`（伪版本 `v0.0.0-00010101000000-000000000000`）+ `replace` 到本地相对路径（如 `trade`：`tjxt/apps/course/rpc => ../../course/rpc`、`tjxt/apps/pay/rpc => ../../pay/rpc`）。
+- **IDE 报错根因（已随重构消除）**：原聚合模式下子目录无 go.mod，gopls 需向上找父 module，且 `go.work` 的隐式注入不写回各 go.mod，导致 Cursor 报「tjxt/pkg is not in your go.mod」。现每 api/rpc 独立 go.mod 显式 declare 依赖，重启 gopls 即无红波浪线。
 - 命名风格 gozero（无下划线），goctl 默认即此风格。
 
 ## 服务清单与端口（2026-08-06 统一重排为连续编号，无冲突）
@@ -60,7 +63,7 @@ host 127.0.0.1 port 3306 user root pass 0000，库 tj_<domain>。
 - 事件驱动：trade 经 RabbitMQ 发布领域事件，Producer 优雅降级（MQ 不可用时为 nil 不阻塞启动）。
 - 代码注释标明的「应有但未接线」集成：course→user(教师)、course→learning(课时)、trade→promotion(优惠券)、pay→真实支付网关。
 - 待优化（有意桩，非未实现）：media 对象存储为 mock（COS/OSS 未接入）；pay 支付回调 URL 为 demo 占位；trade 优惠券未接入；course 教师/课时未接线；learning section_type 忽略。
-- 结构异常：apps/data/api/go.mod 为孤儿模块（真实模块为 apps/data/api/data，已纳入 go.work），建议清理。
+- 结构异常（已解决，2026-08-06）：原孤儿 `apps/data/api/go.mod` 已删除，data 现仅 `apps/data/api/data` 与 `apps/data/rpc/data` 两个真实模块，与其余服务同构（仅深一级）。
 
 | 服务 | API | RPC | 编译 | 备注 |
 |------|-----|-----|:----:|------|
@@ -76,8 +79,8 @@ host 127.0.0.1 port 3306 user root pass 0000，库 tj_<domain>。
 | promotion | 16/16 | 16/16 | ✅ | 已实现 |
 | message | 18/18 | 19/19 | ✅ | 已实现 |
 | remark | 2/2 | 2/2 | ✅ | 已实现 |
-| data | 6/6 | 6/6 | ✅* | 已实现（*真实模块 apps/data/api/data 编译通过；apps/data/api 为孤儿 go.mod）|
-合计 394/394（100%）逻辑文件落地，13/13 真实模块编译通过。整体代码实现完成度 ≈100%，功能完备度 ≈97%（少量外部集成桩）。完整报告见 docs/completion-analysis.md。
+| data | 6/6 | 6/6 | ✅ | 已实现（模块 apps/data/api/data、apps/data/rpc/data 编译通过）|
+合计 394/394（100%）逻辑文件落地，28 个 use 模块（根+pkg+26 服务模块）独立 `go build ./...` 全部通过。整体代码实现完成度 ≈100%，功能完备度 ≈97%（少量外部集成桩）。完整报告见 docs/completion-analysis.md。
 
 ## 批量化实现 stub 服务的可复用工作流（course 已验证）
 对「goctl 已生成骨架、logic 全为 todo 占位」的服务，用此流程高效落地：

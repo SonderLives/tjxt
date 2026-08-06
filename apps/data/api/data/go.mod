@@ -2,8 +2,6 @@ module tjxt/apps/data/api/data
 
 go 1.26.2
 
-require github.com/zeromicro/go-zero v1.10.3
-
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
@@ -94,4 +92,12 @@ require (
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
+	github.com/zeromicro/go-zero v1.10.3
+	tjxt/apps/data/rpc/data v0.0.0-00010101000000-000000000000
+	tjxt/pkg v0.0.0-00010101000000-000000000000
+)
+
+replace (
+	tjxt/apps/data/rpc/data => ../../rpc/data
+	tjxt/pkg => ../../../../pkg
 )

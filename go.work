@@ -2,19 +2,31 @@ go 1.26.2
 
 use (
 	.
-	./apps/auth
-	./apps/course
+	./pkg
+	./apps/auth/api
+	./apps/auth/rpc
+	./apps/course/api
+	./apps/course/rpc
+	./apps/exam/api
+	./apps/exam/rpc
+	./apps/learning/api
+	./apps/learning/rpc
+	./apps/media/api
+	./apps/media/rpc
+	./apps/message/api
+	./apps/message/rpc
+	./apps/pay/api
+	./apps/pay/rpc
+	./apps/promotion/api
+	./apps/promotion/rpc
+	./apps/remark/api
+	./apps/remark/rpc
+	./apps/search/api
+	./apps/search/rpc
+	./apps/trade/api
+	./apps/trade/rpc
+	./apps/user/api
+	./apps/user/rpc
 	./apps/data/api/data
 	./apps/data/rpc/data
-	./apps/exam
-	./apps/learning
-	./apps/media
-	./apps/message
-	./apps/pay
-	./apps/promotion
-	./apps/remark
-	./apps/search
-	./apps/trade
-	./apps/user
-	./pkg
 )

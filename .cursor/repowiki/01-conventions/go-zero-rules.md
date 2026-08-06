@@ -1,6 +1,6 @@
 # go-zero 开发规范与 goctl 生成规则
 
-> 版本：v1.0 | 更新：2026-08-05 | 来源：`.cursor/rules/tjxt-project.mdc`、`.workbuddy/memory/MEMORY.md`
+> 版本：v1.1 | 更新：2026-08-06 | 来源：`.cursor/rules/tjxt-project.mdc`、`.workbuddy/memory/MEMORY.md`、本次模块拆分重构（每 api/rpc 独立 module）
 
 ## 核心原则：生成优先，手写最小化
 
@@ -84,8 +84,8 @@ goctl model mysql ddl \
 
 | 项目 | 规范 | 示例 |
 |------|------|------|
-| 模块路径 | `module tjxt/apps/<svc>` | `module tjxt/apps/auth` |
-| RPC 子目录 | 无独立 go.mod | `apps/auth/rpc/` 直接用父模块 |
+| 模块路径 | `module tjxt/apps/<svc>/api` 与 `module tjxt/apps/<svc>/rpc` | `module tjxt/apps/auth/api`、`module tjxt/apps/auth/rpc` |
+| 目录布局 | api 与 rpc 各自独立 `go.mod` | `apps/<svc>/api/go.mod`、`apps/<svc>/rpc/go.mod` 分别管理依赖 |
 | 目录命名 | gozero 风格（小驼峰，无下划线） | `internal/logic`, `userCoupon` |
 | 文件命名 | 小驼峰 | `userCouponLogic.go`, `couponModel.go` |
 | 包名 | 目录名一致 | `package logic` |
@@ -147,7 +147,7 @@ func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User
 | `make rpc` | 全量重新生成所有 RPC 骨架 |
 | `make model` | 从 DDL 生成所有 Model |
 | `make generate` | `api + rpc` 一键生成 |
-| `make build` | 构建全部 22 个二进制到 `bin/` |
+| `make build` | 构建全部 26 个二进制到 `bin/`（13 服务 × {api,rpc}） |
 | `make test` | 全模块 `go test ./...` |
 | `make fmt` | 全模块 `go fmt ./...` |
 | `make verify` | 校验 `.api`/`.proto`/`internal/` 目录齐全 |

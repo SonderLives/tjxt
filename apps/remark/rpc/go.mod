@@ -1,4 +1,4 @@
-module tjxt/apps/course
+module tjxt/apps/remark/rpc
 
 go 1.26.2
 
@@ -6,9 +6,6 @@ require (
 	github.com/zeromicro/go-zero v1.10.3
 	google.golang.org/grpc v1.80.0
 	google.golang.org/protobuf v1.36.11
-)
-
-require (
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect

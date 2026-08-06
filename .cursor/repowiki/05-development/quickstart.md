@@ -1,4 +1,4 @@
-> 版本：v1.0 | 更新：2026-08-05 | 来源：`Makefile`, `docker-compose.yml`, `go.work`
+> 版本：v1.1 | 更新：2026-08-06 | 来源：`Makefile`, `docker-compose.yml`, `go.work`（本次模块拆分重构）
 
 ---
 
@@ -47,7 +47,7 @@ make docker-up      # 等价于 docker compose up -d
 make init      # go work sync + 逐模块 go mod tidy
 ```
 
-项目为 **多模块工作区**：`go.work` 聚合了 15 个 `use` 条目（13 个服务 + 根模块 + `pkg`）。每个服务的 `api/` 与 `rpc/` 共用服务级 `go.mod`（`module tjxt/apps/<svc>`），通过 `replace tjxt/pkg => ../../pkg` 引用公共库。
+项目为 **多模块工作区（go-zero 官方标准结构）**：`go.work` 聚合了 28 个 `use` 条目（13 个服务的 `api`+`rpc` 共 26 个模块 + `pkg` + 根模块）。每个服务的 `api/` 与 `rpc/` 各有独立 `go.mod`（`module tjxt/apps/<svc>/api` 与 `module tjxt/apps/<svc>/rpc`），通过各自 `replace tjxt/pkg => ../../../pkg` 引用公共库；跨服务依赖（如 `trade` 调 `course`/`pay`）在调用方 `go.mod` 中 `require` + `replace` 到本地相对路径。
 
 ---
 
@@ -127,10 +127,11 @@ make verify     # fmt + lint + test 一站式
 make tidy       # 逐模块 go mod tidy
 ```
 
-单模块快速校验：
+单模块快速校验（api / rpc 各有独立 go.mod，需分别进入）：
 
 ```bash
-cd apps/<svc> && go mod tidy && go build ./... && go vet ./...
+cd apps/<svc>/api && go mod tidy && go build ./... && go vet ./...
+cd apps/<svc>/rpc && go mod tidy && go build ./... && go vet ./...
 ```
 
 ---
@@ -151,7 +152,7 @@ cd apps/<svc> && go mod tidy && go build ./... && go vet ./...
 | 陷阱 | 规避方式 |
 |------|---------|
 | Makefile 服务清单不全 | `SERVICES` 变量只列了 11 个，**漏了 `promotion` 和 `remark`**，这两个服务无法用 `make run-*` 启动，需手工 `cd apps/<svc>/api && go run .` |
-| `data` 服务目录多套一层 | 路径为 `apps/data/api/data/`、`apps/data/rpc/data/`，且存在多份 `go.mod`，与其余 12 个服务不一致 |
+| `data` 服务目录多套一层 | 路径为 `apps/data/api/data/`、`apps/data/rpc/data/`，与其余 12 个服务（`apps/<svc>/{api,rpc}`）相比多嵌套一级；模块数与其余服务一致（各含 api/rpc 两个 go.mod），仅路径更深，已在 `go.work` 中正确 `use` |
 | Windows 下 `rm` 被沙箱拦截 | 清空目录准备重新生成时，`rm -rf` 可能静默失败导致删除不完整，需确认删除结果 |
 | 统一响应易写错 | handler 必须用 `result.Write(w, r, data, err)`，**不要用 goctl 生成的 Result 类型** |
 | JWT 中间件 | 在 `.api` 中用 `@server jwt: Auth` 声明，userId 通过 `auth.UserIdFromCtx(l.ctx)` 获取 |
