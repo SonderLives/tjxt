@@ -1,4 +1,4 @@
-> 版本：v1.3 | 更新：2026-08-06 | 来源：全仓 `go build ./...`（逐模块）+ 逻辑文件清点 + 依赖接线扫描（v1.1 的复核）+ 模块拆分重构（go-zero 官方标准结构）
+> 版本：v1.4 | 更新：2026-08-15 | 来源：全仓 `go build ./...`（逐模块）+ 逻辑文件清点 + 依赖接线扫描（v1.1 的复核）+ 模块拆分重构（go-zero 官方标准结构）
 
 ---
 
@@ -102,6 +102,18 @@ v1.1 标注 media / exam 自定义 model 为空壳。2026-08-06 复核：
 
 `sql/ddl/tj_exam.sql`、`sql/ddl/tj_trade.sql` 中定义了 `undo_log` 表（Seata AT 模式所需），但项目未接入 Seata，该表处于闲置状态，也未生成 model。
 
+### 2.8 可观测性（trace/metrics/logs 统一经 otel-collector）— 已完成（2026-08-15）
+
+三类信号已统一收口到 `otel-collector`，业务代码零改动：
+
+- **Trace**：26 个服务 yaml 注入 `Telemetry{Endpoint:127.0.0.1:4318, Batcher:otlphttp, Sampler:1.0}`；collector `otlp` receiver → `batch` → `otlphttp/jaeger` → `jaeger:4318`；Jaeger UI 16686。
+- **Metrics**：26 个服务 yaml 注入 `Prometheus{Host:0.0.0.0, Port:<唯一>, Path:/metrics}`（RPC 9101–9113 / API 9201–9213）；collector `prometheus` receiver 经 `host.docker.internal` 抓取 → `prometheus` exporter `:8889` 聚合；Prometheus 只抓 `otel-collector:8889`。
+- **Logs**：26 个服务 yaml 注入 `Log{Mode:file, Encoding:json, Path:logs/<svc>, Level:info}`；collector `filelog` 读 `/var/log/tjxt/**/*.log`（宿主 `./logs` 挂载）→ `transform/logsvc` 提升 `service.name`/`level` → `loki` exporter → `loki:3100`；流标签 `service_name`/`level`。
+
+配套新增 `deploy/otel-collector/config.yaml`（三管线）、`deploy/prometheus/prometheus.yml`（只抓 collector）、`deploy/loki/loki-config.yaml`（单实例）、`docker-compose.yml` 加 jaeger/otel-collector/prometheus/loki 四服务。详见 [可观测性文档](../04-infra/observability.md)。
+
+> ⚠️ `Log.Path` 为相对路径，依赖进程 CWD=仓库根；务必从仓库根启动服务，否则日志散落到各服务子目录，collector 采集不到。
+
 ---
 
 ## 3. 数据一致性 / 正确性隐患
@@ -140,6 +152,7 @@ v1.1 标注 media / exam 自定义 model 为空壳。2026-08-06 复核：
 
 ```
 ✅ 13/13 服务 logic 全部落地并编译通过（代码实现 ≈100%）
+✅ 可观测性：trace/metrics/logs 统一经 otel-collector 收口（Jaeger/Prometheus/Loki），业务代码零改动
   → ① media：接入真实对象存储（腾讯云 COS / 阿里 OSS）替换 mock
   → ② pay：接入真实支付网关回调（替换 demo URL）
   → ③ trade → promotion：打通优惠券计算

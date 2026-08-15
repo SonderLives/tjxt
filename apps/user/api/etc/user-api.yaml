@@ -1,5 +1,11 @@
 Name: user-api
 
+Log:
+  Mode: file
+  Encoding: json
+  Path: logs/user-api
+  Level: info
+
 Prometheus:
   Host: 0.0.0.0
   Port: 9201

@@ -139,6 +139,56 @@ func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User
 
 ---
 
+## 已注入的可观测性配置（勿删）
+
+每个服务的 `apps/<svc>/{api,rpc}/etc/*.yaml` 已由脚本注入三块可观测性配置，**禁止删除或改坏字段**：
+
+```yaml
+Telemetry:                 # 链路追踪：go-zero 自动 StartAgent，推 OTLP 到 127.0.0.1:4318
+  Name: <svc>
+  Endpoint: 127.0.0.1:4318
+  Sampler: 1.0
+  Batcher: otlphttp
+
+Prometheus:               # 指标：各自暴露 /metrics，由 otel-collector 抓取后聚合
+  Host: 0.0.0.0
+  Port: <唯一>            # RPC 9101-9113 / API 9201-9213
+  Path: /metrics
+
+Log:                      # 日志：写 JSON 文件，由 collector filelog 采集进 Loki
+  Mode: file
+  Encoding: json
+  Path: logs/<svc>        # 相对仓库根；服务须从仓库根启动
+  Level: info
+```
+
+若需重生成骨架（`goctl api go` / `goctl rpc protoc`），这些配置**不会被覆盖**（goctl 只刷新 types/routes/pb/server），可放心重生成。完整说明见 [可观测性文档](../04-infra/observability.md)。
+
+## 已注入的可观测性配置（勿删）
+
+每个服务的 `apps/<svc>/{api,rpc}/etc/*.yaml` 已由脚本注入三块可观测性配置，**禁止删除或改坏字段**：
+
+```yaml
+Telemetry:                 # 链路追踪：go-zero 自动 StartAgent，推 OTLP 到 127.0.0.1:4318
+  Name: <svc>
+  Endpoint: 127.0.0.1:4318
+  Sampler: 1.0
+  Batcher: otlphttp
+
+Prometheus:               # 指标：各自暴露 /metrics，由 otel-collector 抓取后聚合
+  Host: 0.0.0.0
+  Port: <唯一>            # RPC 9101-9113 / API 9201-9213
+  Path: /metrics
+
+Log:                      # 日志：写 JSON 文件，由 collector filelog 采集进 Loki
+  Mode: file
+  Encoding: json
+  Path: logs/<svc>        # 相对仓库根；服务须从仓库根启动
+  Level: info
+```
+
+若需重生成骨架（`goctl api go` / `goctl rpc protoc`），这些配置**不会被覆盖**（goctl 只刷新 types/routes/pb/server），可放心重生成。完整说明见 [可观测性文档](../04-infra/observability.md)。
+
 ## Makefile 常用目标速查
 
 | 目标 | 作用 |

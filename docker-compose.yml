@@ -37,26 +37,38 @@ services:
     ports:
       - "16686:16686" # Jaeger UI
 
-  # OpenTelemetry Collector（可观测性中枢：trace + metrics）。
-  # 各 Go 服务 Telemetry.Endpoint 仍写 127.0.0.1:4318，现由本容器占用（不再直连 Jaeger）；
-  # 本容器把 OTLP span 经 batch 处理后转发给 jaeger:4318（docker 内网）。
+  # OpenTelemetry Collector（可观测性中枢：trace + metrics + logs）。
+  # trace  ：各 Go 服务 Telemetry.Endpoint 写 127.0.0.1:4318，本容器占用后转给 jaeger:4318（docker 内网）。
   # metrics：本容器用 prometheus receiver 抓 26 个宿主机服务的 /metrics（走 host.docker.internal），
   #          再经 prometheus exporter 在 8889 聚合暴露；Prometheus 只抓 otel-collector:8889。
-  # 未来可在此扩展 logs 管线（如 logs → Loki），业务代码零改动。
+  # logs   ：本容器用 filelog receiver 读取宿主机 ./logs（挂载为 /var/log/tjxt）下的 JSON 日志，
+  #          经 loki exporter 推给 loki:3100。业务代码零改动。
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     command: ["--config=/etc/otelcol-contrib/config.yaml"]
     ports:
       - "4317:4317"   # OTLP gRPC（host）
-      - "4318:4318"   # OTLP HTTP（host，go-zero otlphttp 走这里）
+      - "4318:4318"   # OTLP HTTP（host，go-zero otlphttp + 预留 OTLP logs 走这里）
       - "8889:8889"   # 聚合后的 metrics（host 调试用；Prometheus 走内网 otel-collector:8889）
       - "13133:13133" # health_check
     extra_hosts:
       - "host.docker.internal:host-gateway"   # 让 collector 能抓到宿主机上的 Go 服务
     volumes:
       - ./deploy/otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml:ro
+      - ./logs:/var/log/tjxt:ro                # 各 Go 服务写出的 JSON 日志（filelog 采集源）
     depends_on:
       - jaeger
+      - loki
+
+  # Loki 日志存储。接收 otel-collector 经 loki exporter 推送的日志。
+  # 查询：http://localhost:3100/metrics（健康检查/Loki 自带 API），UI 建议用 Grafana 或 Loki 原生查询。
+  loki:
+    image: grafana/loki:latest
+    command: ["-config.file=/etc/loki/loki-config.yaml"]
+    ports:
+      - "3100:3100"   # Loki HTTP API / 接收推送
+    volumes:
+      - ./deploy/loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
 
   # Prometheus 性能监控。抓取各 Go 服务的 /metrics。
   # 各服务在宿主机本地运行（非容器），metrics 端口见各 etc yaml 的 Prometheus.Port；

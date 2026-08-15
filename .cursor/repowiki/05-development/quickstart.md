@@ -1,4 +1,4 @@
-> 版本：v1.1 | 更新：2026-08-06 | 来源：`Makefile`, `docker-compose.yml`, `go.work`（本次模块拆分重构）
+> 版本：v1.2 | 更新：2026-08-15 | 来源：`Makefile`, `docker-compose.yml`, `go.work`（本次模块拆分重构）
 
 ---
 
@@ -26,7 +26,7 @@ go install github.com/zeromicro/go-zero/tools/goctl@latest
 make docker-up      # 等价于 docker compose up -d
 ```
 
-`docker-compose.yml` 会启动四个容器：
+`docker-compose.yml` 会启动 8 个容器（4 个基础依赖 + 4 个可观测性组件）：
 
 | 服务 | 镜像 | 端口 | 凭据 |
 |------|------|------|------|
@@ -34,10 +34,35 @@ make docker-up      # 等价于 docker compose up -d
 | Redis | `redis:7-alpine` | 6379 | 无密码 |
 | RabbitMQ | `rabbitmq:3.13-management` | 5672 / 15672 | rabbitmq / rabbitmq |
 | etcd | `bitnami/etcd:3.5` | 2379 | 免认证 |
+| Jaeger | `jaegertracing/all-in-one:1.57` | 16686 (UI) | 免认证 |
+| otel-collector | `otel/opentelemetry-collector-contrib:latest` | 4317/4318/8889/13133 | — |
+| Prometheus | `prom/prometheus:v2.53.1` | 9090 (UI) | — |
+| Loki | `grafana/loki:latest` | 3100 | — |
 
 > MySQL 容器首次启动时会自动挂载 `./sql/migration` 到 `/docker-entrypoint-initdb.d`，**自动建库建表并灌入初始数据**。若需要重新初始化，须先 `docker compose down -v` 删除 `mysql-data` 卷。
 
 ⚠️ RabbitMQ 虽已在 compose 中启动，但当前代码的事件总线走的是 **Redis Stream**（见 `pkg/mq/`），RabbitMQ 暂未接线。
+
+### 可观测性栈（trace / metrics / logs）
+
+4 个可观测性容器组成统一收口：go-zero 服务把 trace（OTLP→`127.0.0.1:4318`）、metrics（`/metrics`）、logs（`logs/<svc>/*.log`）送出，由 `otel-collector` 分别转发到 Jaeger / Prometheus / Loki，**业务代码零改动**。各服务 yaml 已注入 `Telemetry` / `Prometheus` / `Log` 三段配置。
+
+```bash
+make docker-up     # 拉起全部 8 个容器（含可观测性）
+make docker-logs   # 跟踪容器日志（含 collector 健康检查 13133）
+```
+
+启动各 Go 服务后，即可在以下界面查看：
+
+| 信号 | 界面 |
+|------|------|
+| Trace | http://localhost:16686 （Jaeger UI） |
+| Metrics | http://localhost:9090 （Prometheus UI，`tjxt-services` target 应 UP） |
+| Logs | http://localhost:3100 （Loki HTTP API，建议接 Grafana 查询） |
+
+> ⚠️ 日志目录 `logs/<svc>` 是**相对路径**，相对进程启动目录（仓库根）。务必从仓库根启动服务（`make run-<svc>` 已改从仓库根 `go run ./apps/...`），否则日志散落到各服务子目录，collector 采集不到。
+
+完整管线、配置与踩坑见 [可观测性文档](../04-infra/observability.md)。
 
 ---
 

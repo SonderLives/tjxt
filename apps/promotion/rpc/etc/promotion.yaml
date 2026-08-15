@@ -1,5 +1,11 @@
 Name: promotion.rpc
 
+Log:
+  Mode: file
+  Encoding: json
+  Path: logs/promotion-rpc
+  Level: info
+
 Prometheus:
   Host: 0.0.0.0
   Port: 9112

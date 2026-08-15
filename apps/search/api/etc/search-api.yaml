@@ -1,5 +1,11 @@
 Name: search-api
 
+Log:
+  Mode: file
+  Encoding: json
+  Path: logs/search-api
+  Level: info
+
 Prometheus:
   Host: 0.0.0.0
   Port: 9210

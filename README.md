@@ -38,10 +38,10 @@ HTTP Client
 
 ```
 tjxt/
-├── go.work                  # 工作区，聚合 13 服务（data 拆 api/rpc 两 module，共 15 个 module）+ pkg，另含根模块
+├── go.work                  # 工作区，聚合 28 个 use 模块（根 + pkg + 13 服务 × {api,rpc} 共 26 个服务模块）
 ├── go.mod                   # 根模块 (仅声明版本)
 ├── Makefile                 # 构建/生成/运行/校验一站式命令
-├── docker-compose.yml       # MySQL/Redis/RabbitMQ/etcd 一键启动
+├── docker-compose.yml       # MySQL/Redis/RabbitMQ/etcd + 可观测性栈（Jaeger/otel-collector/Prometheus/Loki）一键启动
 ├── pkg/                     # 公共代码库 (module: tjxt/pkg)
 │   ├── auth/                # JWT 签发/校验、Claims 定义
 │   ├── mq/                  # Redis Stream 事件总线 (生产者/消费者/事件定义)
@@ -157,23 +157,41 @@ make verify
 # 3. 编译全部 26 个可执行文件 (13 api + 13 rpc) 到 bin/
 make build
 
-# 4. 启动单个服务 (新开终端)
-cd apps/user/api && go run user.go -f etc/user-api.yaml
-cd apps/user/rpc && go run user.go -f etc/user.yaml
-
-# data 是嵌套结构，多一层目录
-cd apps/data/api/data && go run data.go -f etc/data-api.yaml
-cd apps/data/rpc/data && go run data.go -f etc/data.yaml
+# 4. 启动单个服务（务必从仓库根执行，日志落到 logs/<svc>/）
+#    推荐用 Makefile 目标（已改为从仓库根 go run ./apps/...，CWD=仓库根）：
+make run-user          # 启动 user-api
+make run-user-rpc      # 启动 user-rpc
+#    或手动（同样要在仓库根执行）：
+go run ./apps/user/api -f apps/user/api/etc/user-api.yaml
+go run ./apps/user/rpc -f apps/user/rpc/etc/user.yaml
+# data 是嵌套结构，多一层目录：
+go run ./apps/data/api/data -f apps/data/api/data/etc/data-api.yaml
+go run ./apps/data/rpc/data -f apps/data/rpc/data/etc/data.yaml
 ```
 
-**一键启动全部服务** (后台独立窗口，日志写入 `.run/`):
+**一键启动全部服务**（后台独立窗口，日志写入 `logs/<svc>/`）：
 
 ```bash
-make run-all       # 启动所有 API
+make run-all       # 启动所有 API（各开一个独立 PowerShell 窗口）
 make run-all-rpc   # 启动所有 RPC
-make stop-all      # 停止全部
-make logs          # 实时尾部日志
+# 停止：各窗口直接关闭（Ctrl-C）；当前无 stop-all 目标
+# 看服务日志：tail -f logs/course-api/access.log   （替换 <svc> 即可）
+# 看基建容器日志：make docker-logs
 ```
+
+## 🔭 可观测性（trace / metrics / logs 统一经 otel-collector）
+
+各服务 yaml 已注入 `Telemetry`（链路）、`Prometheus`（/metrics）、`Log{Mode:file,...}`（日志文件）。
+先 `make docker-up` 起基建，再起各 Go 服务：
+
+| 信号 | 路径 | 界面/端点 |
+|------|------|-----------|
+| 链路 Trace | go-zero → `127.0.0.1:4318` → otel-collector → Jaeger | Jaeger UI http://localhost:16686 |
+| 指标 Metrics | 各服务 `/metrics`(9101–9113/9201–9213) → otel-collector 聚合 `:8889` → Prometheus | Prometheus http://localhost:9090 |
+| 日志 Logs | `logs/<svc>/*.log`（仓库根）→ 挂进 collector → Loki | Loki `:3100`（建议接 Grafana 查询） |
+
+> ⚠️ 日志路径是**相对路径** `logs/<svc>`，相对进程启动目录（CWD）；服务须从**仓库根**启动，
+> 否则日志会散落到各服务子目录，collector 的 filelog 采集不到。
 
 
 
@@ -208,15 +226,17 @@ make generate                       # api + rpc 全量重生成
 ```bash
 make help            # 全部命令
 make verify          # 环境体检
-make build           # 编译所有服务
+make build           # 编译所有服务（26 个二进制到 bin/）
 make test            # 各模块 go test
 make lint            # golangci-lint
 make fmt             # gofumpt 格式化
-make clean           # 删除 bin/ 与 .run/
-make run-api svc=user    # 前台跑单个 API
-make run-rpc svc=user    # 前台跑单个 RPC
-make run-all / stop-all  # 后台全量启停
-make logs            # tail -f .run/*.log
+make clean           # 删除 bin/ 与各服务下遗留 exe
+make run-<svc>          # 前台跑单个 API（如 make run-user）
+make run-<svc>-rpc      # 前台跑单个 RPC（如 make run-user-rpc）
+make run-all            # 后台并行启动所有 API（各开独立窗口）
+make run-all-rpc        # 后台并行启动所有 RPC
+make docker-up          # 拉起 docker-compose 全部容器（含可观测性栈）
+make docker-logs        # 跟踪容器日志
 make info            # 打印服务→端口映射
 make d2u             # Windows 行尾修复 (CRLF→LF)
 ```
@@ -324,7 +344,7 @@ replace tjxt/pkg => ../../pkg
 | **事件总线**     | 🚧 `pkg/mq` Producer 已实例化，但 trade 等业务 logic 尚未实际 `Publish`（事件未发射） |
 | **数据库**      | ✅ DDL + goctl model（带缓存）已生成，自定义 Model 已扩展                         |
 | **跨域 RPC**    | ⚠️ 已接线 trade→{course,pay}、search→course、learning→course；其余（如 course→user/learning、trade→promotion、pay→真实网关）尚未接线 |
-| **已知缺口**     | ⚠️ media 对象存储为 mock、pay 支付回调为 demo 占位、trade 优惠券未接入、Seata 未接入、`apps/data/api/go.mod` 为孤儿模块 |
+| **已知缺口**     | ⚠️ media 对象存储为 mock、pay 支付回调为 demo 占位、trade 优惠券未接入、Seata 未接入（undo_log 表闲置） |
 
 
 

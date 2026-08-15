@@ -1,5 +1,11 @@
 Name: auth.rpc
 
+Log:
+  Mode: file
+  Encoding: json
+  Path: logs/auth-rpc
+  Level: info
+
 Prometheus:
   Host: 0.0.0.0
   Port: 9102

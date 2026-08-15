@@ -1,0 +1,40 @@
+# 天机学堂 tjxt — Loki 单实例最小配置
+# 接收 otel-collector 经 loki exporter 推送的日志（/loki/api/v1/push）。
+# 本地开发用：filesystem 存储 + inmemory ring，关闭鉴权（auth_enabled: false，无需 tenant）。
+
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+common:
+  instance_addr: 127.0.0.1
+  path_prefix: /tmp/loki
+  storage:
+    filesystem:
+      chunks_directory: /tmp/loki/chunks
+      rules_directory: /tmp/loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2024-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+ruler:
+  storage:
+    type: local
+    local:
+      directory: /tmp/loki/rules
+
+analytics:
+  reporting_enabled: false

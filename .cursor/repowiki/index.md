@@ -1,7 +1,7 @@
 # tjxt 天机学堂 — 项目规格文档索引
 
-> 最后更新：2026-08-06 | 维护者：@team
-> 覆盖：13 个微服务 · 79 篇文档 · 约 11,000 行
+> 最后更新：2026-08-15 | 维护者：@team
+> 覆盖：13 个微服务 · 80 篇文档 · 约 11,200 行
 
 **tjxt** 是基于 **go-zero** 的在线教育微服务系统，采用 **API + RPC 分层**，通过 **etcd** 服务发现，**MySQL + Redis** 存储，**Redis Stream** 做事件总线。无独立网关。
 
@@ -16,7 +16,7 @@
 | 知道能改什么、不能改什么 | [go-zero 开发约束](01-conventions/go-zero-rules.md) ⭐ |
 | 定义接口 | [API 契约规范](01-conventions/api-contracts.md) · [代码风格](01-conventions/code-style.md) |
 | 查错误码 / 事件 / 公共库 | [错误码](03-shared/error-codes.md) · [MQ 事件](03-shared/mq-events.md) · [pkg 契约](03-shared/pkg-contracts.md) |
-| 搭本地环境 | [Docker 基础设施](04-infra/docker-compose.md) |
+| 搭本地环境 | [Docker 基础设施](04-infra/docker-compose.md) · [可观测性（trace/metrics/logs）](04-infra/observability.md) |
 | **看当前进度和坑** | [**实现进度与已知缺口**](06-status/implementation-status.md) ⭐ |
 
 ---
@@ -51,6 +51,7 @@
 2. **契约先行**。proto、DDL、`.api`、`docs/tjxt.openapi.json` 是真实且完整的，因此 `rpc-spec` / `data-model` / `configs` 三类文档对所有服务都可信。
 3. **已知坑请先读** [实现进度与已知缺口](06-status/implementation-status.md)，其中记录了目录结构偏离、缺表、缓存失效、跨服务未接线等 20+ 项问题。
 4. 各服务 `api-spec.md` 由 OpenAPI 机械提取，响应体列残留 URL 编码（`%C2%AB` 即 `«`），可读性待改进。
+5. **可观测性已统一经 otel-collector 收口**（trace→Jaeger / metrics→Prometheus / logs→Loki），业务代码零改动，详见 [可观测性](04-infra/observability.md)。各服务 yaml 中的 `Telemetry` / `Prometheus` / `Log` 三段为可观测性注入，**勿删除**；`Log.Path` 为相对路径，服务须从仓库根启动。
 
 ---
 
@@ -71,6 +72,8 @@
 ---
 
 ## 变更日志
+
+- **2026-08-15（可观测性）** 新增 [可观测性文档](04-infra/observability.md)：trace/metrics/logs 三类信号统一经 `otel-collector` 收口（go-zero 原生 OTLP→Jaeger、scrape 代理→Prometheus、filelog→Loki），业务代码零改动。同步更新 [架构全览](00-architecture/overview.md)（技术栈 + 可观测性架构段）、[实现进度](06-status/implementation-status.md)（§2.8 可观测性）、[快速上手](05-development/quickstart.md)（可观测性起停）、[go-zero 规范](01-conventions/go-zero-rules.md)（注入配置约定）；本索引导航与变更日志同步。
 
 - **2026-08-06（模块拆分）** 将「每服务单 module」重构为 **go-zero 官方标准结构**（每 api/rpc 独立 `go.mod`）：删除聚合 `apps/<svc>/go.mod` 与孤儿 `apps/data/api/go.mod`，新增 26 个服务模块 `go.mod`，重写 `go.work` 聚合 28 个 use 模块；全模块 `go build ./...` 通过。同步 [架构全览](00-architecture/overview.md)（新增模块结构章节、修正端口表为 13 服务）、[go-zero 规范](01-conventions/go-zero-rules.md)（模块路径表）、[快速上手](05-development/quickstart.md)（多模块工作区说明）、[实现进度](06-status/implementation-status.md)（v1.3，§2.1 孤儿 go.mod 已解决）。
 

@@ -1,5 +1,11 @@
 Name: learning.rpc
 
+Log:
+  Mode: file
+  Encoding: json
+  Path: logs/learning-rpc
+  Level: info
+
 Prometheus:
   Host: 0.0.0.0
   Port: 9104

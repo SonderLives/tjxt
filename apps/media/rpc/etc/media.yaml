@@ -1,5 +1,11 @@
 Name: media.rpc
 
+Log:
+  Mode: file
+  Encoding: json
+  Path: logs/media-rpc
+  Level: info
+
 Prometheus:
   Host: 0.0.0.0
   Port: 9106

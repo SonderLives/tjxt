@@ -9,7 +9,7 @@ graph TD
     Client[Client] --> AuthAPI[auth-api:8801]
     Client --> CourseAPI[course-api:8803]
     Client --> TradeAPI[trade-api:8809]
-    Client --> LearningAPI[learning-api:8888]
+    Client --> LearningAPI[learning-api:8804]
     Client --> PayAPI[pay-api:8808]
     Client --> MediaAPI[media-api:8806]
 
@@ -21,7 +21,7 @@ graph TD
     TradeAPI --> CourseRPC
     TradeAPI --> PayRPC[pay-rpc:8088]
     TradeAPI --> PromotionRPC[promotion-rpc]
-    LearningAPI --> LearningRPC[learning-rpc:9000]
+    LearningAPI --> LearningRPC[learning-rpc:8084]
     LearningAPI --> AuthRPC
     LearningAPI --> CourseRPC
     PayAPI --> PayRPC

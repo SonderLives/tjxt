@@ -1,5 +1,11 @@
 Name: user.rpc
 
+Log:
+  Mode: file
+  Encoding: json
+  Path: logs/user-rpc
+  Level: info
+
 Prometheus:
   Host: 0.0.0.0
   Port: 9101

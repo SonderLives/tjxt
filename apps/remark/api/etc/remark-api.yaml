@@ -1,5 +1,11 @@
 Name: remark-api
 
+Log:
+  Mode: file
+  Encoding: json
+  Path: logs/remark-api
+  Level: info
+
 Prometheus:
   Host: 0.0.0.0
   Port: 9213

@@ -3,9 +3,15 @@
 #   - traces  ：接收各 Go 服务（go-zero otlphttp）OTLP span → Jaeger
 #   - metrics ：用 prometheus receiver 抓取各 Go 服务的 /metrics（在宿主机，经 host.docker.internal）
 #              → 经 prometheus exporter 在 8889 聚合暴露 → Prometheus 只抓这一个端点
-# 说明：go-zero v1.10.3 只出 Prometheus 原生 /metrics（无 OTLP metrics 导出），
-#       故 metrics「走 collector」采用「collector 当 scrape 代理」：collector 抓 26 个服务，
-#       再统一暴露给 Prometheus，业务代码零改动。
+#   - logs    ：用 filelog receiver 读取各 Go 服务写出的 JSON 日志文件（宿主机 ./logs 挂载进容器）
+#              → 解析 → 经 loki exporter 推给 Loki
+# 说明：
+#   - go-zero v1.10.3 只出 Prometheus 原生 /metrics（无 OTLP metrics 导出），故 metrics 采用
+#     「collector 当 scrape 代理」：collector 抓 26 个服务，再统一暴露给 Prometheus，业务代码零改动。
+#   - go-zero v1.10.3 无 Loki/OTLP logs 导出，故 logs 采用「文件采集」：go-zero 写 JSON 文件，
+#     collector 用 filelog 读文件 → loki exporter 推送，业务代码零改动。
+#   - 日志目录约定：服务从仓库根启动（CWD=仓库根）时落到 <repo>/logs/<svc>/（<svc> 如 user-rpc、course-api，相对路径），
+#     经 docker-compose 的 ./logs:/var/log/tjxt 挂载进容器，filelog 用 /var/log/tjxt/**/*.log 采集。
 
 receivers:
   otlp:
@@ -55,8 +61,41 @@ receivers:
                 - host.docker.internal:9212   # promotion-api
                 - host.docker.internal:9213   # remark-api
 
+  # 采集各 Go 服务写出的 JSON 日志文件（file 模式：Path/<access|error|slow|stat|severe>.log）。
+  # 日志按服务分目录：/var/log/tjxt/<svc>/ ，<svc> 即各 etc yaml 的 Log.Path 末级目录。
+  filelog:
+    include: [/var/log/tjxt/**/*.log]
+    operators:
+      # 1) 解析 go-zero JSON 日志行（默认字段 @timestamp / level / content）
+      - type: json_parser
+        parse_from: body
+      # 2) 提取时间戳（Go 时间布局，匹配 go-zero 默认格式 2006-01-02T15:04:05.000Z07:00）
+      - type: timestamp
+        parse_from: attributes["@timestamp"]
+        layout: '2006-01-02T15:04:05.000Z07:00'
+      # 3) 提取日志级别（info/error/severe/slow/stat...）
+      - type: severity
+        parse_from: attributes["level"]
+      # 4) 把 content 移到 body（日志正文）
+      - type: move
+        from: attributes["content"]
+        to: body
+      # 5) 从文件路径提取服务名（/var/log/tjxt/<svc>/access.log → <svc>）
+      - type: regex_parser
+        regex: '^/var/log/tjxt/(?P<service>[^/]+)/'
+        parse_from: attributes["log.file.path"]
+
 processors:
   batch: {}                      # 批量发送，降低后端压力
+  # 把文件路径解析出的 service 提升为资源属性 service.name（Loki 据此打 label 区分服务）；
+  # 同时把 level（go-zero JSON 的 level 字段，已是日志属性）提升为资源属性，供 Loki 作为 level 标签。
+  # 注意：loki exporter 的 labels 只认 resource/scope 属性，故必须在此提升。
+  transform/logsvc:
+    log_statements:
+      - context: log
+        statements:
+          - set(resource.attributes["service.name"], attributes["service"])
+          - set(resource.attributes["level"], attributes["level"])
 
 exporters:
   # 转发给 Jaeger 的 OTLP HTTP 接收端（docker 内网，服务名 jaeger + 容器端口 4318）
@@ -73,6 +112,15 @@ exporters:
     resource_to_telemetry_conversion:
       enabled: true
 
+  # 把日志推给 Loki（docker 内网，服务名 loki + 容器端口 3100）
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    # service.name 由 transform/logsvc 写入资源属性，Loki 自动作为流标签；
+    # 如需额外标签可在此追加，例如 labels: [service.name, level]
+    labels:
+      - service.name
+      - level
+
 extensions:
   health_check:
     endpoint: 0.0.0.0:13133
@@ -87,7 +135,7 @@ service:
     metrics:
       receivers: [prometheus]      # collector 抓 26 个服务的 /metrics
       exporters: [prometheus]      # 在 8889 聚合暴露给 Prometheus
-    # 扩展点（暂未启用）：
-    # logs:
-    #   receivers: [otlp]            # 需自定义 logx writer 发 OTLP logs
-    #   exporters: [loki]
+    logs:
+      receivers: [otlp, filelog]   # filelog 读文件（主）；otlp 预留给未来 OTLP logs
+      processors: [transform/logsvc, batch]
+      exporters: [loki]

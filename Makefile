@@ -125,29 +125,29 @@ tidy: ## 对所有 go.mod 执行 go mod tidy
 #        make run-<svc>-rpc   -> 启动 <svc>-rpc
 # data 目录是 apps/data/api/data 和 apps/data/rpc/data，yaml 名固定
 
-run-auth:       ; powershell -NoProfile -Command "Set-Location apps/auth/api;       & $(GO) run . -f etc/auth-api.yaml"
-run-course:     ; powershell -NoProfile -Command "Set-Location apps/course/api;     & $(GO) run . -f etc/course-api.yaml"
-run-data:       ; powershell -NoProfile -Command "Set-Location apps/data/api/data;  & $(GO) run . -f etc/data-api.yaml"
-run-exam:       ; powershell -NoProfile -Command "Set-Location apps/exam/api;       & $(GO) run . -f etc/exam-api.yaml"
-run-learning:   ; powershell -NoProfile -Command "Set-Location apps/learning/api;   & $(GO) run . -f etc/learning-api.yaml"
-run-media:      ; powershell -NoProfile -Command "Set-Location apps/media/api;      & $(GO) run . -f etc/media-api.yaml"
-run-message:    ; powershell -NoProfile -Command "Set-Location apps/message/api;    & $(GO) run . -f etc/message-api.yaml"
-run-pay:        ; powershell -NoProfile -Command "Set-Location apps/pay/api;        & $(GO) run . -f etc/pay-api.yaml"
-run-search:     ; powershell -NoProfile -Command "Set-Location apps/search/api;     & $(GO) run . -f etc/search-api.yaml"
-run-trade:      ; powershell -NoProfile -Command "Set-Location apps/trade/api;      & $(GO) run . -f etc/trade-api.yaml"
-run-user:       ; powershell -NoProfile -Command "Set-Location apps/user/api;       & $(GO) run . -f etc/user-api.yaml"
+run-auth: ; $(GO) run ./apps/auth/api -f apps/auth/api/etc/auth-api.yaml
+run-course: ; $(GO) run ./apps/course/api -f apps/course/api/etc/course-api.yaml
+run-data: ; $(GO) run ./apps/data/api/data -f apps/data/api/data/etc/data-api.yaml
+run-exam: ; $(GO) run ./apps/exam/api -f apps/exam/api/etc/exam-api.yaml
+run-learning: ; $(GO) run ./apps/learning/api -f apps/learning/api/etc/learning-api.yaml
+run-media: ; $(GO) run ./apps/media/api -f apps/media/api/etc/media-api.yaml
+run-message: ; $(GO) run ./apps/message/api -f apps/message/api/etc/message-api.yaml
+run-pay: ; $(GO) run ./apps/pay/api -f apps/pay/api/etc/pay-api.yaml
+run-search: ; $(GO) run ./apps/search/api -f apps/search/api/etc/search-api.yaml
+run-trade: ; $(GO) run ./apps/trade/api -f apps/trade/api/etc/trade-api.yaml
+run-user: ; $(GO) run ./apps/user/api -f apps/user/api/etc/user-api.yaml
 
-run-auth-rpc:     ; powershell -NoProfile -Command "Set-Location apps/auth/rpc;       & $(GO) run . -f etc/auth.yaml"
-run-course-rpc:   ; powershell -NoProfile -Command "Set-Location apps/course/rpc;     & $(GO) run . -f etc/course.yaml"
-run-data-rpc:     ; powershell -NoProfile -Command "Set-Location apps/data/rpc/data;  & $(GO) run . -f etc/data.yaml"
-run-exam-rpc:     ; powershell -NoProfile -Command "Set-Location apps/exam/rpc;       & $(GO) run . -f etc/exam.yaml"
-run-learning-rpc: ; powershell -NoProfile -Command "Set-Location apps/learning/rpc;   & $(GO) run . -f etc/learning.yaml"
-run-media-rpc:    ; powershell -NoProfile -Command "Set-Location apps/media/rpc;      & $(GO) run . -f etc/media.yaml"
-run-message-rpc:  ; powershell -NoProfile -Command "Set-Location apps/message/rpc;    & $(GO) run . -f etc/message.yaml"
-run-pay-rpc:      ; powershell -NoProfile -Command "Set-Location apps/pay/rpc;        & $(GO) run . -f etc/pay.yaml"
-run-search-rpc:   ; powershell -NoProfile -Command "Set-Location apps/search/rpc;     & $(GO) run . -f etc/search.yaml"
-run-trade-rpc:    ; powershell -NoProfile -Command "Set-Location apps/trade/rpc;      & $(GO) run . -f etc/trade.yaml"
-run-user-rpc:     ; powershell -NoProfile -Command "Set-Location apps/user/rpc;       & $(GO) run . -f etc/user.yaml"
+run-auth-rpc: ; $(GO) run ./apps/auth/rpc -f apps/auth/rpc/etc/auth.yaml
+run-course-rpc: ; $(GO) run ./apps/course/rpc -f apps/course/rpc/etc/course.yaml
+run-data-rpc: ; $(GO) run ./apps/data/rpc/data -f apps/data/rpc/data/etc/data.yaml
+run-exam-rpc: ; $(GO) run ./apps/exam/rpc -f apps/exam/rpc/etc/exam.yaml
+run-learning-rpc: ; $(GO) run ./apps/learning/rpc -f apps/learning/rpc/etc/learning.yaml
+run-media-rpc: ; $(GO) run ./apps/media/rpc -f apps/media/rpc/etc/media.yaml
+run-message-rpc: ; $(GO) run ./apps/message/rpc -f apps/message/rpc/etc/message.yaml
+run-pay-rpc: ; $(GO) run ./apps/pay/rpc -f apps/pay/rpc/etc/pay.yaml
+run-search-rpc: ; $(GO) run ./apps/search/rpc -f apps/search/rpc/etc/search.yaml
+run-trade-rpc: ; $(GO) run ./apps/trade/rpc -f apps/trade/rpc/etc/trade.yaml
+run-user-rpc: ; $(GO) run ./apps/user/rpc -f apps/user/rpc/etc/user.yaml
 
 # 后台并行拉起所有 RPC（每个进程留在自己的 PowerShell 窗口里）
 run-all-rpc: ## 后台启动所有 RPC 服务（各自独立窗口）

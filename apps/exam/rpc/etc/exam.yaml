@@ -1,5 +1,11 @@
 Name: exam.rpc
 
+Log:
+  Mode: file
+  Encoding: json
+  Path: logs/exam-rpc
+  Level: info
+
 Prometheus:
   Host: 0.0.0.0
   Port: 9105

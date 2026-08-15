@@ -1,5 +1,11 @@
 Name: exam-api
 
+Log:
+  Mode: file
+  Encoding: json
+  Path: logs/exam-api
+  Level: info
+
 Prometheus:
   Host: 0.0.0.0
   Port: 9205

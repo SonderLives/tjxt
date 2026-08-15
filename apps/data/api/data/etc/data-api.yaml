@@ -1,5 +1,11 @@
 Name: data-api
 
+Log:
+  Mode: file
+  Encoding: json
+  Path: logs/data-api
+  Level: info
+
 Prometheus:
   Host: 0.0.0.0
   Port: 9211

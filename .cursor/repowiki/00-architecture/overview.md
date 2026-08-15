@@ -1,6 +1,6 @@
 # tjxt 整体架构概览
 
-> 版本：v1.1 | 更新：2026-08-06
+> 版本：v1.2 | 更新：2026-08-15
 
 ## 系统拓扑
 
@@ -20,8 +20,8 @@
                                ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                   RPC Service Layer (13 services)                   │
-│  user:8081  auth:8082  course:8083  learning:8084  exam:8805         │
-│  media:8806  message:8087  pay:8808  trade:8089  search:8090         │
+│  user:8081  auth:8082  course:8083  learning:8084  exam:8085         │
+│  media:8086  message:8087  pay:8808  trade:8089  search:8090         │
 │  data:8091   promotion:8092  remark:8093                            │
 └──────────────────────────────┬──────────────────────────────────────┘
                                │
@@ -99,14 +99,27 @@
 | Go | 1.26.x | 工作区模式 `go.work`（每 api/rpc 独立 module） |
 | MySQL | 8.0 | 开发环境 127.0.0.1:3306 root/0000 |
 | Redis | 7.x | 缓存、分布式锁、限流 |
-| RabbitMQ | 3.12 | 事件总线、延迟队列 |
+| RabbitMQ | 3.13 | 事件总线、延迟队列（当前代码事件总线走 Redis Stream，预留） |
 | etcd | 3.5 | 服务发现、配置中心 |
-| Docker Compose | - | 本地一键拉起依赖 |
+| OpenTelemetry Collector | contrib latest | 可观测性中枢：trace/metrics/logs 统一收口 |
+| Jaeger | all-in-one 1.57 | 链路追踪后端（UI 16686） |
+| Prometheus | v2.53.1 | 指标存储与查询（UI 9090） |
+| Loki | latest | 日志存储（HTTP 3100） |
+| Docker Compose | - | 本地一键拉起依赖与可观测性栈 |
+
+## 可观测性（统一 otel-collector 中枢）
+
+trace / metrics / logs 三类信号统一经一个 `otel-collector` 收口，再分别落到 Jaeger / Prometheus / Loki，**业务代码零改动**。完整管线、配置文件、起停与查询见 [可观测性文档](../04-infra/observability.md)。
+
+- **Trace**：go-zero `Telemetry` → `127.0.0.1:4318`（本机 collector）→ `jaeger:4318` → Jaeger UI 16686
+- **Metrics**：26 个服务各自 `/metrics`（RPC 9101–9113 / API 9201–9213）→ collector `prometheus` receiver 抓取 → `:8889` 聚合 → Prometheus（只抓 `otel-collector:8889`）
+- **Logs**：go-zero `Log{file,json}` 写 `logs/<svc>/*.log` → docker 挂载 `./logs` → collector `filelog` → `loki` exporter → Loki 3100（流标签 `service_name` / `level`）
+
+设计上刻意采用「scrape 代理 + filelog」而非 OTLP 直推：go-zero v1.10.3 既无 OTLP metrics exporter，也无 Loki/OTLP logs writer，scrape/filelog 对业务代码零侵入。
 
 ## 部署拓扑（生产）
 
 - K8s Deployment + Service + HPA
 - ConfigMap/Secret 管理配置
-- Prometheus + Grafana 监控
-- Jaeger 链路追踪
-- ELK 日志聚合
+- OpenTelemetry Collector 作为可观测性统一入口（trace/metrics/logs）
+- Jaeger（链路） / Prometheus + Grafana（指标） / Loki + Grafana（日志）
