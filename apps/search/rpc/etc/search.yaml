@@ -1,4 +1,9 @@
 Name: search.rpc
+
+Telemetry:/n  Name: search.rpc
+  Endpoint: 127.0.0.1:4318
+  Sampler: 1.0
+  Batcher: otlphttp
 ListenOn: 0.0.0.0:8090
 Etcd:
   Hosts:
@@ -20,15 +25,16 @@ CourseRpc:
     Key: course.rpc
 
 # 本地 Docker Elasticsearch 9.4.1（9200）。
-# 探测结论：该实例未安装 analysis-smartcn 插件（GET /_analyze 报
-# "failed to find global analyzer [smartcn]"），中文分词回退 standard
-# （中文按单字切分，对按词/单字查询足够；不安装 IK，IK 不跟进 9.x）。
+# Analyzer 默认 cjk：ES 内置、无需插件，中文按二元分词（"汉语世界"→"汉语""语世""世界"），
+# 相关性优于 standard 的单字切分。安装 IK/smartcn 插件后可改为 ik_max_word / smartcn；
+# IK 场景可另设 SearchAnalyzer: ik_smart（检索侧粗粒度）。
 Elasticsearch:
   Addresses:
     - http://127.0.0.1:9200
   Username: ""
   Password: ""
-  Analyzer: standard
+  Analyzer: cjk
+  # SearchAnalyzer: ik_smart
 
 # RabbitMQ，消费 course.events 交换机上的 course.up / course.down 事件
 RabbitMQ:
@@ -36,3 +42,4 @@ RabbitMQ:
   Port: 5672
   User: rabbitmq
   Pass: rabbitmq
+

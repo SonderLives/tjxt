@@ -48,5 +48,7 @@ func downCourse(ctx context.Context, svcCtx *svc.ServiceContext, id int64) error
 	if err = svcCtx.CourseModel.Update(ctx, course); err != nil {
 		return xerr.Wrap(err, xerr.CodeInternal, "课程下架失败")
 	}
+	// 发布下架事件，触发 search 服务从 ES 索引删除（best-effort：失败仅告警）
+	svcCtx.PublishCourseEvent(ctx, id, false)
 	return nil
 }

@@ -30,6 +30,7 @@ service Course {
   rpc CourseSimpleInfoList(CourseSimpleInfoQueryRequest) returns (CourseSimpleInfoListReply);
   rpc CourseFullInfoGet(CourseFullInfoGetRequest) returns (CourseFullInfo);
   rpc CourseSearchInfoForIndex(IdRequest) returns (CourseSearchIndexInfo);
+  rpc CourseSearchIndexInfoList(CourseSearchIndexInfoListRequest) returns (CourseSearchIndexInfoListReply);
   rpc CourseName2Ids(CourseNameRequest) returns (CourseIdList);
   rpc CourseInfoByTeacherIds(TeacherIdsRequest) returns (TeacherCourseCountList);
   rpc CourseSectionGet(IdRequest) returns (CourseSectionInfo);
@@ -329,6 +330,17 @@ message CourseSearchIndexInfo {
   string create_time = 14;
   string publish_time = 15;
   int64  duration = 16;
+}
+
+// 批量拉取已上架课程索引数据，供 search 服务全量重建 ES 索引（分页）。
+message CourseSearchIndexInfoListRequest {
+  int64 page_no = 1;
+  int64 page_size = 2;
+}
+
+message CourseSearchIndexInfoListReply {
+  int64 total = 1;
+  repeated CourseSearchIndexInfo items = 2;
 }
 
 message CourseNameRequest { string name = 1; }

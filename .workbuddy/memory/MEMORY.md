@@ -92,3 +92,18 @@ host 127.0.0.1 port 3306 user root pass 0000，库 tj_<domain>。
 6. **主代理统一编译**：`cd apps/X/rpc && go build ./...` 与 `cd apps/X/api && go build ./...` 必须 rc=0。
 7. **抽样核对 + 文档同步**：抽查 2–3 个关键 logic 确为真实实现（非 stub）；同步 repowiki business-rules.md 与 implementation-status.md。
 8. 跨域字段（销量/评分/老师详情来自其他服务）当前服务无列则填 0/留空，并在文档「已知缺口」标注未接线的 RPC client。
+
+## goctl 代码生成关键坑（2026-08-15 search/course 重踩）
+- **`goctl rpc protoc` 会回填桩并可能错位接线**：重跑 proto 生成时，goctl 在 `internal/logic/`（扁平、包 `logic`）重新生成 todo 桩，并把 `internal/server/<svc>/<svc>server.go` 写成 import 扁平 `internal/logic`（包 `logic`）。但本项目 search 服务的**真实 logic 在 `internal/logic/search/`（包 `searchlogic`）**，`<svc>server.go` 也 import 这个子包。
+- **致命后果**：若把真实 logic 留在 `searchlogic` 子包、却让 server 指向扁平 `logic` 桩，搜索会「编译通过但返回空结果」（SearchCourses 返回空 `CourseSearchPageReply`）。判别依据：`grep -n "internal/logic" internal/server/*/<svc>server.go` 看 server 到底 import 哪个包。
+- **正确做法**：重跑 goctl 后，确认 server import 的包（本例 `internal/logic/search`）与真实 logic 文件所在包一致；若 goctl 在 `internal/logic/` 落了同名桩文件，**删掉扁平桩，保留 `search/` 子包的真实实现**。不要为了迎合 goctl 把 `searchlogic` 拍平到 `internal/logic/`（下次 goctl 又会错位）。
+- 同理 `internal/server/` 下可能出现多余扁平 `<svc>server.go`，main（`<svc>.go`）只 import `internal/server/<svc>` 子包，多余扁平文件直接删。
+
+## search 服务 ES 集成现状（2026-08-15 增强）
+- 课程搜索 `SearchCourses` / `GetTopCoursesByCategory` 走 ES（`svc.CourseDoc` + `courseIndexMapping`，索引名 `course`）。
+- **全量重建索引**：新增 `search` RPC `ReindexCourses(Empty)→(indexed,total)`，并新增 `course` RPC `CourseSearchIndexInfoList(page_no,page_size)→(total,items)`（复用 `CourseModel.PageQuery(status=上架)`，避免 N+1）。search 侧 `svc.ReindexAll` 用 `esutil.BulkIndexer` 批量 upsert（以 courseId 为文档 ID，幂等）；`initReindex` 在 `NewServiceContext` 启动时后台异步跑一次（best-effort，5min 超时），不必依赖 RabbitMQ 事件即可被搜。
+- **中文分词**：默认 analyzer 改为 `cjk`（ES 内置、无需插件、二元分词，优于 standard 单字）；`config.Elasticsearch.SearchAnalyzer` 可选（IK 场景设 `ik_smart`）。改 analyzer 需删旧 `course` 索引重建（`DELETE /course`）。
+- 改 proto 后务必 `export PATH="$PATH:/d/Program Files/protoc-35.0-win64/bin"` 再 `goctl rpc protoc`（protoc 在带空格路径，goctl 1.10.1）。
+- **增量同步已打通（2026-08-15 补齐 Producer）**：course 服务 `svc.Producer`（`*mq.Producer`，`initProducer` 在 `NewServiceContext` 中 nil 容错创建）在 `publishCourse`（上架）成功末尾、`downCourse`（下架实际状态变更）成功末尾调用 `svcCtx.PublishCourseEvent(ctx,id,up)` → 发布 `event.CourseEvent{CourseID}` 到 `mq.ExchangeCourse`（course.events），routing key `course.up`/`course.down`。search 侧消费者（`svc.MQClient.Start` 在 `search.go` 启动 goroutine）消费后 upsert/delete ES 文档。四条入口（CourseUpShelf/CourseUp 批量/CourseDownShelf/CourseDown 批量）经两个共享 helper 全覆盖。
+- **发布语义（best-effort）**：`PublishCourseEvent` 不返回错误——课程主流程（DB 写入）已成功，MQ 发布失败仅 `logx.Errorf` 告警、不回滚课程操作。恢复兜底：search 启动全量 `ReindexAll` + 手动 `ReindexCourses` RPC。MQ 配置缺失/连接不可用时 `Producer=nil`，`PublishCourseEvent` 直接 return（不阻塞课程启动）。
+- **关键约束**：`pkg/mq.Producer` 启动时 `amqp091.Dial` 一次性建连，断线不自动重连（与 search 消费者一致）；RabbitMQ 须在 course/search 启动前就绪，否则该侧增量通道空转（待连重启恢复）。course 的 `course.yaml` 已加 `RabbitMQ{Host:127.0.0.1,Port:5672,User/Pass:rabbitmq}`。

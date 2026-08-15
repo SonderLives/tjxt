@@ -100,7 +100,12 @@ func publishCourse(ctx context.Context, svcCtx *svc.ServiceContext, id int64) er
 	if err = publishCourseCatalogue(ctx, svcCtx, id); err != nil {
 		return err
 	}
-	return publishCourseTeacher(ctx, svcCtx, id)
+	if err = publishCourseTeacher(ctx, svcCtx, id); err != nil {
+		return err
+	}
+	// 发布上架事件，触发 search 服务增量同步 ES 课程索引（best-effort：失败仅告警）
+	svcCtx.PublishCourseEvent(ctx, id, true)
+	return nil
 }
 
 // publishCourseContent 课程内容草稿 -> 正式内容（按 id 替换插入；草稿缺失时写入空内容占位）。

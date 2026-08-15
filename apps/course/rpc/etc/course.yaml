@@ -1,4 +1,9 @@
 Name: course.rpc
+
+Telemetry:/n  Name: course.rpc
+  Endpoint: 127.0.0.1:4318
+  Sampler: 1.0
+  Batcher: otlphttp
 ListenOn: 0.0.0.0:8083
 Etcd:
   Hosts:
@@ -11,3 +16,12 @@ Cache:
   - Host: 127.0.0.1:6379
     Type: node
     Pass: ""
+
+# RabbitMQ，发布课程上架/下架事件（course.events 交换机）
+# 供 search 服务消费并增量同步 ES 课程索引。
+# MQ 未配置或不可用时发布失败仅告警，不阻塞课程操作。
+RabbitMQ:
+  Host: 127.0.0.1
+  Port: 5672
+  User: rabbitmq
+  Pass: rabbitmq

@@ -60,6 +60,12 @@ message CourseSearchPageReply {
   repeated CourseVO items = 2;
 }
 
+// 全量重建索引结果
+message ReindexReply {
+  int64 indexed = 1; // 成功写入 ES 的文档数
+  int64 total = 2;   // 扫描到的已上架课程总数
+}
+
 // ==================== 服务定义 ====================
 service Search {
   // 用户兴趣
@@ -69,4 +75,7 @@ service Search {
   // 课程搜索
   rpc GetTopCoursesByCategory(IdReq) returns (CourseListReply);
   rpc SearchCourses(CourseSearchRequest) returns (CourseSearchPageReply);
+
+  // 全量重建 ES 索引：从 course 服务拉取全部已上架课程批量写入 ES
+  rpc ReindexCourses(Empty) returns (ReindexReply);
 }

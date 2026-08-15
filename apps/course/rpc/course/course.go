@@ -14,62 +14,64 @@ import (
 )
 
 type (
-	CataSimple                   = pb.CataSimple
-	CataSimpleList               = pb.CataSimpleList
-	CataSubjectInfoList          = pb.CataSubjectInfoList
-	CatalogSubjectBind           = pb.CatalogSubjectBind
-	CatalogSubjectInfo           = pb.CatalogSubjectInfo
-	CatalogueTreeList            = pb.CatalogueTreeList
-	CategoryAddRequest           = pb.CategoryAddRequest
-	CategoryInfo                 = pb.CategoryInfo
-	CategoryList                 = pb.CategoryList
-	CategoryListAllRequest       = pb.CategoryListAllRequest
-	CategoryListQueryRequest     = pb.CategoryListQueryRequest
-	CategoryNode                 = pb.CategoryNode
-	CategoryNodeList             = pb.CategoryNodeList
-	CategoryStatusRequest        = pb.CategoryStatusRequest
-	CategoryUpdateRequest        = pb.CategoryUpdateRequest
-	CourseAndSectionView         = pb.CourseAndSectionView
-	CourseBaseInfoSaveRequest    = pb.CourseBaseInfoSaveRequest
-	CourseBaseInfoView           = pb.CourseBaseInfoView
-	CourseCatalogueQueryRequest  = pb.CourseCatalogueQueryRequest
-	CourseCatalogueSaveRequest   = pb.CourseCatalogueSaveRequest
-	CourseChapterInfo            = pb.CourseChapterInfo
-	CourseChapterSave            = pb.CourseChapterSave
-	CourseCheckNameRequest       = pb.CourseCheckNameRequest
-	CourseFullInfo               = pb.CourseFullInfo
-	CourseFullInfoGetRequest     = pb.CourseFullInfoGetRequest
-	CourseIdList                 = pb.CourseIdList
-	CourseMediaBind              = pb.CourseMediaBind
-	CourseMediaSaveRequest       = pb.CourseMediaSaveRequest
-	CourseNameRequest            = pb.CourseNameRequest
-	CoursePageItem               = pb.CoursePageItem
-	CoursePageQueryReply         = pb.CoursePageQueryReply
-	CoursePageQueryRequest       = pb.CoursePageQueryRequest
-	CoursePortalQueryRequest     = pb.CoursePortalQueryRequest
-	CourseSearchIndexInfo        = pb.CourseSearchIndexInfo
-	CourseSectionInfo            = pb.CourseSectionInfo
-	CourseSimpleInfoItem         = pb.CourseSimpleInfoItem
-	CourseSimpleInfoListReply    = pb.CourseSimpleInfoListReply
-	CourseSimpleInfoQueryRequest = pb.CourseSimpleInfoQueryRequest
-	CourseSubjectsSaveRequest    = pb.CourseSubjectsSaveRequest
-	CourseTeachersGetRequest     = pb.CourseTeachersGetRequest
-	CourseTeachersSaveRequest    = pb.CourseTeachersSaveRequest
-	Empty                        = pb.Empty
-	IdRequest                    = pb.IdRequest
-	IdResponse                   = pb.IdResponse
-	IdsRequest                   = pb.IdsRequest
-	MediaIdsRequest              = pb.MediaIdsRequest
-	MediaQuote                   = pb.MediaQuote
-	MediaQuoteList               = pb.MediaQuoteList
-	NameExistReply               = pb.NameExistReply
-	SubjectInfo                  = pb.SubjectInfo
-	TeacherCourseCount           = pb.TeacherCourseCount
-	TeacherCourseCountList       = pb.TeacherCourseCountList
-	TeacherIdsRequest            = pb.TeacherIdsRequest
-	TeacherInfo                  = pb.TeacherInfo
-	TeacherInfoList              = pb.TeacherInfoList
-	TeacherShowBind              = pb.TeacherShowBind
+	CataSimple                       = pb.CataSimple
+	CataSimpleList                   = pb.CataSimpleList
+	CataSubjectInfoList              = pb.CataSubjectInfoList
+	CatalogSubjectBind               = pb.CatalogSubjectBind
+	CatalogSubjectInfo               = pb.CatalogSubjectInfo
+	CatalogueTreeList                = pb.CatalogueTreeList
+	CategoryAddRequest               = pb.CategoryAddRequest
+	CategoryInfo                     = pb.CategoryInfo
+	CategoryList                     = pb.CategoryList
+	CategoryListAllRequest           = pb.CategoryListAllRequest
+	CategoryListQueryRequest         = pb.CategoryListQueryRequest
+	CategoryNode                     = pb.CategoryNode
+	CategoryNodeList                 = pb.CategoryNodeList
+	CategoryStatusRequest            = pb.CategoryStatusRequest
+	CategoryUpdateRequest            = pb.CategoryUpdateRequest
+	CourseAndSectionView             = pb.CourseAndSectionView
+	CourseBaseInfoSaveRequest        = pb.CourseBaseInfoSaveRequest
+	CourseBaseInfoView               = pb.CourseBaseInfoView
+	CourseCatalogueQueryRequest      = pb.CourseCatalogueQueryRequest
+	CourseCatalogueSaveRequest       = pb.CourseCatalogueSaveRequest
+	CourseChapterInfo                = pb.CourseChapterInfo
+	CourseChapterSave                = pb.CourseChapterSave
+	CourseCheckNameRequest           = pb.CourseCheckNameRequest
+	CourseFullInfo                   = pb.CourseFullInfo
+	CourseFullInfoGetRequest         = pb.CourseFullInfoGetRequest
+	CourseIdList                     = pb.CourseIdList
+	CourseMediaBind                  = pb.CourseMediaBind
+	CourseMediaSaveRequest           = pb.CourseMediaSaveRequest
+	CourseNameRequest                = pb.CourseNameRequest
+	CoursePageItem                   = pb.CoursePageItem
+	CoursePageQueryReply             = pb.CoursePageQueryReply
+	CoursePageQueryRequest           = pb.CoursePageQueryRequest
+	CoursePortalQueryRequest         = pb.CoursePortalQueryRequest
+	CourseSearchIndexInfo            = pb.CourseSearchIndexInfo
+	CourseSearchIndexInfoListReply   = pb.CourseSearchIndexInfoListReply
+	CourseSearchIndexInfoListRequest = pb.CourseSearchIndexInfoListRequest
+	CourseSectionInfo                = pb.CourseSectionInfo
+	CourseSimpleInfoItem             = pb.CourseSimpleInfoItem
+	CourseSimpleInfoListReply        = pb.CourseSimpleInfoListReply
+	CourseSimpleInfoQueryRequest     = pb.CourseSimpleInfoQueryRequest
+	CourseSubjectsSaveRequest        = pb.CourseSubjectsSaveRequest
+	CourseTeachersGetRequest         = pb.CourseTeachersGetRequest
+	CourseTeachersSaveRequest        = pb.CourseTeachersSaveRequest
+	Empty                            = pb.Empty
+	IdRequest                        = pb.IdRequest
+	IdResponse                       = pb.IdResponse
+	IdsRequest                       = pb.IdsRequest
+	MediaIdsRequest                  = pb.MediaIdsRequest
+	MediaQuote                       = pb.MediaQuote
+	MediaQuoteList                   = pb.MediaQuoteList
+	NameExistReply                   = pb.NameExistReply
+	SubjectInfo                      = pb.SubjectInfo
+	TeacherCourseCount               = pb.TeacherCourseCount
+	TeacherCourseCountList           = pb.TeacherCourseCountList
+	TeacherIdsRequest                = pb.TeacherIdsRequest
+	TeacherInfo                      = pb.TeacherInfo
+	TeacherInfoList                  = pb.TeacherInfoList
+	TeacherShowBind                  = pb.TeacherShowBind
 
 	Course interface {
 		// ===== 分类管理 =====
@@ -91,6 +93,7 @@ type (
 		CourseSimpleInfoList(ctx context.Context, in *CourseSimpleInfoQueryRequest, opts ...grpc.CallOption) (*CourseSimpleInfoListReply, error)
 		CourseFullInfoGet(ctx context.Context, in *CourseFullInfoGetRequest, opts ...grpc.CallOption) (*CourseFullInfo, error)
 		CourseSearchInfoForIndex(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*CourseSearchIndexInfo, error)
+		CourseSearchIndexInfoList(ctx context.Context, in *CourseSearchIndexInfoListRequest, opts ...grpc.CallOption) (*CourseSearchIndexInfoListReply, error)
 		CourseName2Ids(ctx context.Context, in *CourseNameRequest, opts ...grpc.CallOption) (*CourseIdList, error)
 		CourseInfoByTeacherIds(ctx context.Context, in *TeacherIdsRequest, opts ...grpc.CallOption) (*TeacherCourseCountList, error)
 		CourseSectionGet(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*CourseSectionInfo, error)
@@ -215,6 +218,11 @@ func (m *defaultCourse) CourseFullInfoGet(ctx context.Context, in *CourseFullInf
 func (m *defaultCourse) CourseSearchInfoForIndex(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*CourseSearchIndexInfo, error) {
 	client := pb.NewCourseClient(m.cli.Conn())
 	return client.CourseSearchInfoForIndex(ctx, in, opts...)
+}
+
+func (m *defaultCourse) CourseSearchIndexInfoList(ctx context.Context, in *CourseSearchIndexInfoListRequest, opts ...grpc.CallOption) (*CourseSearchIndexInfoListReply, error) {
+	client := pb.NewCourseClient(m.cli.Conn())
+	return client.CourseSearchIndexInfoList(ctx, in, opts...)
 }
 
 func (m *defaultCourse) CourseName2Ids(ctx context.Context, in *CourseNameRequest, opts ...grpc.CallOption) (*CourseIdList, error) {

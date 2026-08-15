@@ -110,6 +110,11 @@ func (s *CourseServer) CourseSearchInfoForIndex(ctx context.Context, in *pb.IdRe
 	return l.CourseSearchInfoForIndex(in)
 }
 
+func (s *CourseServer) CourseSearchIndexInfoList(ctx context.Context, in *pb.CourseSearchIndexInfoListRequest) (*pb.CourseSearchIndexInfoListReply, error) {
+	l := logic.NewCourseSearchIndexInfoListLogic(ctx, s.svcCtx)
+	return l.CourseSearchIndexInfoList(in)
+}
+
 func (s *CourseServer) CourseName2Ids(ctx context.Context, in *pb.CourseNameRequest) (*pb.CourseIdList, error) {
 	l := logic.NewCourseName2IdsLogic(ctx, s.svcCtx)
 	return l.CourseName2Ids(in)

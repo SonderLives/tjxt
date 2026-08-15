@@ -65,8 +65,10 @@ func (d *CourseDoc) ToCourseVO() *pb.CourseVO {
 }
 
 // courseIndexMapping 课程索引 mapping。
-// name 字段使用配置的 analyzer（standard：中文按单字切分，探测结论见
-// etc/search.yaml），并挂 keyword 子字段支持精确匹配/排序。
+// name 字段使用配置的 analyzer（默认 cjk：ES 内置、中文按二元分词，相关性
+// 优于 standard 的单字切分），并挂 keyword 子字段支持精确匹配/排序。
+// search_analyzer 可选：检索侧分词器（如 IK 场景用 ik_smart），缺省与
+// analyzer 一致。
 // create_time/publish_time 与 course 服务返回的字符串格式一致，映射为
 // date（yyyy-MM-dd HH:mm:ss）便于范围查询。
 const courseIndexMapping = `{
@@ -80,6 +82,7 @@ const courseIndexMapping = `{
       "name": {
         "type": "text",
         "analyzer": "%s",
+        "search_analyzer": "%s",
         "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}
       },
       "cover_url": {"type": "keyword", "ignore_above": 1024},
@@ -126,6 +129,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	initES(svcCtx)
 	initMQ(svcCtx)
+	initReindex(svcCtx)
 
 	return svcCtx
 }
@@ -136,7 +140,11 @@ func initES(svcCtx *ServiceContext) {
 	cfg := svcCtx.Config.Elasticsearch
 	analyzer := strings.TrimSpace(cfg.Analyzer)
 	if analyzer == "" {
-		analyzer = "standard"
+		analyzer = "cjk"
+	}
+	searchAnalyzer := strings.TrimSpace(cfg.SearchAnalyzer)
+	if searchAnalyzer == "" {
+		searchAnalyzer = analyzer
 	}
 
 	es, err := elasticsearch.NewClient(elasticsearch.Config{
@@ -159,15 +167,15 @@ func initES(svcCtx *ServiceContext) {
 	info.Body.Close()
 
 	svcCtx.ES = es
-	logx.Infof("elasticsearch connected: %s, analyzer=%s", strings.TrimSpace(string(infoBody)), analyzer)
+	logx.Infof("elasticsearch connected: %s, analyzer=%s, search_analyzer=%s", strings.TrimSpace(string(infoBody)), analyzer, searchAnalyzer)
 
-	if err := ensureCourseIndex(es, analyzer); err != nil {
+	if err := ensureCourseIndex(es, analyzer, searchAnalyzer); err != nil {
 		logx.Errorf("ensure elasticsearch index %q failed: %v", CourseIndexName, err)
 	}
 }
 
 // ensureCourseIndex 幂等创建 course 索引（Exists → Create）。
-func ensureCourseIndex(es *elasticsearch.Client, analyzer string) error {
+func ensureCourseIndex(es *elasticsearch.Client, analyzer, searchAnalyzer string) error {
 	exists, err := es.Indices.Exists([]string{CourseIndexName})
 	if err != nil {
 		return fmt.Errorf("check index exists: %w", err)
@@ -178,7 +186,7 @@ func ensureCourseIndex(es *elasticsearch.Client, analyzer string) error {
 		return nil
 	}
 
-	mapping := fmt.Sprintf(courseIndexMapping, analyzer)
+	mapping := fmt.Sprintf(courseIndexMapping, analyzer, searchAnalyzer)
 	res, err := es.Indices.Create(CourseIndexName, es.Indices.Create.WithBody(bytes.NewReader([]byte(mapping))))
 	if err != nil {
 		return fmt.Errorf("create index: %w", err)
@@ -187,7 +195,7 @@ func ensureCourseIndex(es *elasticsearch.Client, analyzer string) error {
 	if res.IsError() {
 		return fmt.Errorf("create index %q: %s", CourseIndexName, res.String())
 	}
-	logx.Infof("elasticsearch index %q created, analyzer=%s", CourseIndexName, analyzer)
+	logx.Infof("elasticsearch index %q created, analyzer=%s, search_analyzer=%s", CourseIndexName, analyzer, searchAnalyzer)
 	return nil
 }
 
