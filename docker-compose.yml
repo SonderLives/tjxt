@@ -28,15 +28,45 @@ services:
       ALLOW_NONE_AUTHENTICATION: "yes"
     ports: ["2379:2379"]
   # Jaeger 链路追踪后端（UI + OTLP 接收）。
-  # 各服务的 Telemetry(otlphttp) 把 span 发到 4318；UI 在 16686。
+  # 现在 span 由 otel-collector 转发进来（collector → jaeger:4318，走 docker 内网），
+  # 故 4317/4318 不再映射到宿主机（已让位给 otel-collector）；UI 仍在 16686。
   jaeger:
     image: jaegertracing/all-in-one:1.57
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
     ports:
       - "16686:16686" # Jaeger UI
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP（go-zero otlphttp 走这里）
+
+  # OpenTelemetry Collector（trace 中枢）。
+  # 各 Go 服务 Telemetry.Endpoint 仍写 127.0.0.1:4318，现由本容器占用（不再直连 Jaeger）；
+  # 本容器把 OTLP span 经 batch 处理后转发给 jaeger:4318（docker 内网）。
+  # 未来可在此扩展 metrics / logs 管线（如 logs → Loki），业务代码零改动。
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    ports:
+      - "4317:4317"   # OTLP gRPC（host）
+      - "4318:4318"   # OTLP HTTP（host，go-zero otlphttp 走这里）
+      - "13133:13133" # health_check
+    volumes:
+      - ./deploy/otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    depends_on:
+      - jaeger
+
+  # Prometheus 性能监控。抓取各 Go 服务的 /metrics。
+  # 各服务在宿主机本地运行（非容器），metrics 端口见各 etc yaml 的 Prometheus.Port；
+  # 通过 host.docker.internal 访问宿主机。UI/查询在 http://localhost:9090。
+  prometheus:
+    image: prom/prometheus:v2.53.1
+    ports:
+      - "9090:9090" # Prometheus UI
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - jaeger
+
 volumes:
   mysql-data:
   redis-data:

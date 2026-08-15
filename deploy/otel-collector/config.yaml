@@ -1,0 +1,46 @@
+# OpenTelemetry Collector 配置（天机学堂 tjxt）
+# 角色：trace 中枢。接收各 Go 服务（go-zero otlphttp）推送的 OTLP span，
+#       经 batch 处理后转发给 Jaeger 的 OTLP HTTP 接收端。
+#
+# 为什么加它：把"各服务直连 Jaeger"收敛成"各服务 → Collector → Jaeger"，
+# 未来可在本文件无痛扩展 metrics / logs 管线（如 logs → Loki），无需改业务代码。
+#
+# 当前只处理 traces。metrics 仍由 Prometheus 直拉各服务 /metrics（不过 Collector，
+# 因为 go-zero v1.10.3 只出 Prometheus 原生格式，OTLP metrics 无意义）。
+# logs 暂未接入（Loki 未做）。
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317   # OTLP gRPC
+      http:
+        endpoint: 0.0.0.0:4318   # OTLP HTTP（go-zero otlphttp 走这里）
+
+processors:
+  batch: {}                      # 批量发送，降低后端压力
+
+exporters:
+  # 转发给 Jaeger 的 OTLP HTTP 接收端（docker 内网，服务名 jaeger + 容器端口 4318）
+  otlphttp/jaeger:
+    endpoint: http://jaeger:4318
+    # 默认路径 /v1/traces，与 Jaeger OTLP HTTP 接收端一致
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/jaeger]
+    # 扩展点（暂未启用）：
+    # metrics:
+    #   receivers: [otlp]            # 需 go-zero 改为 OTLP metrics 导出
+    #   exporters: [prometheus]      # 或直接 remote_write 给 Prometheus
+    # logs:
+    #   receivers: [otlp]            # 需自定义 logx writer 发 OTLP logs
+    #   exporters: [loki]

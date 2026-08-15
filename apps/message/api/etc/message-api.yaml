@@ -1,5 +1,10 @@
 Name: message-api
 
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9207
+  Path: /metrics
+
 Telemetry:
   Name: message-api
   Endpoint: 127.0.0.1:4318

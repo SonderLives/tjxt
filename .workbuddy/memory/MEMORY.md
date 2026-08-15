@@ -111,6 +111,17 @@ host 127.0.0.1 port 3306 user root pass 0000，库 tj_<domain>。
 ## 链路追踪（go-zero 内置 OTel，2026-08-15 接入 Jaeger）
 - 配置驱动、零代码：任意服务 yaml 加顶层 `Telemetry{Name,Endpoint,Sampler,Batcher}`，框架（`core/service/serviceconf.go` 自动 `trace.StartAgent`）即对 gRPC/Redis/SQL 自动打 span 并导出。
 - **v1.10.3 致命坑：`Batcher` 选项是 `zipkin|otlpgrpc|otlphttp|file`，没有 `jaeger`**。指向 Jaeger 用 `otlphttp`+`Endpoint:127.0.0.1:4318`（OTLP HTTP，路径 `/v1/traces`）或 `otlpgrpc`+`4317`。本项目统一 `otlphttp`+`4318`，`Sampler:1.0`（开发全采样，生产调低）。
-- 已落地：26 个 `apps/**/etc/*.yaml` 全部注入 `Telemetry`（Name 取各服务自身 Name）；`docker-compose.yml` 加 `jaeger`（`jaegertracing/all-in-one:1.57`，UI 16686 / OTLP 4317+4318）。Endpoint 走 `127.0.0.1`（与 etcd/es/mq 一致：Go 本机跑、基建 docker 化）。
+- 已落地：26 个 `apps/**/etc/*.yaml` 全部注入 `Telemetry`（Name 取各服务自身 Name）；`docker-compose.yml` 加 `jaeger`（`jaegertracing/all-in-one:1.57`，UI 16686）+ `otel-collector`（`opentelemetry-collector-contrib`，OTLP 4317/4318）。**trace 现走「go-zero → collector(127.0.0.1:4318) → jaeger:4318(内网)」，宿主机 4318 已由 collector 占用**（jaeger 不再 host 映射 4317/4318）。Endpoint 仍写 `127.0.0.1:4318`（与 etcd/es/mq 一致：Go 本机跑、基建 docker 化）。collector 配置 `deploy/otel-collector/config.yaml`（otlp receiver + batch + otlphttp→jaeger，仅 traces 管线；metrics/logs 留扩展注释）。
 - **批量改 yaml 的可靠做法**：用 **Write 工具写 .py 脚本文件再 `python file.py`**，不要用 bash heredoc 跑含 `\n` 的 Python——git-bash 下 heredoc 的 `\n` 转义会写成字面 `\n`，导致 YAML `Telemetry:/n  Name:` 解析失败（`mapping values are not allowed here`）。脚本用 list-of-lines + `'\n'.join` 或 `chr(10)` 拼接最稳。
 - trace 仅在跨服务 gRPC 调用产生 span（service→service），纯进程内逻辑无 span；想看链必须先 `docker compose up -d jaeger` 再重启服务，UI 在 http://127.0.0.1:16686。
+
+## 性能监控 Prometheus（2026-08-15 接入）
+- 配置驱动、零代码：任意服务 yaml 加顶层 `Prometheus{Host,Port,Path}`，框架（`core/service/serviceconf.go` 自动 `prometheus.StartAgent`）即启动 `/metrics` HTTP 端点。**关键：go-zero `agent.go` 在 `Host==""` 时直接 return（不启动）**，故 `Host` 必须显式设（本项目统一 `0.0.0.0` 暴露所有网卡，便于 docker 内 Prometheus 跨网络抓取）；`Port` 默认 9101、`Path` 默认 `/metrics`。
+- `Prometheus.Config{Host,Port(default=9101),Path(default=/metrics)}`（core/prometheus/config.go）；`zrpc.RpcConf` 与 `rest.RestConf` 都内嵌 `service.ServiceConf`，二者均自动解析 `Prometheus` 段并启动 agent。
+- **端口唯一性（致命约束）**：26 个服务若共用默认 9101 会在同一宿主机端口冲突。本项目分配：
+  - **RPC metrics 9101–9113**（user=9101, auth=9102, course=9103, learning=9104, exam=9105, media=9106, message=9107, pay=9108, trade=9109, search=9110, data=9111, promotion=9112, remark=9113）
+  - **API metrics 9201–9213**（对应服务同序：user-api=9201 … remark-api=9211? 注意 data-api=9211, promotion-api=9212, remark-api=9213）
+  - 范围故意避开 rpc 8081–8093 / api 8801–8813 / jaeger 16686·4317·4318 / es 9200，避免冲突。
+- 已落地：26 个 `apps/**/etc/*.yaml` 全部注入 `Prometheus{Host:0.0.0.0,Port:<唯一>,Path:/metrics}`；`docker-compose.yml` 新增 `prometheus` 服务（`prom/prometheus:v2.53.1`，9090 UI，挂载 `./deploy/prometheus/prometheus.yml`，`extra_hosts: host.docker.internal:host-gateway`）。
+- **抓取拓扑**：Go 服务本机跑、Prometheus 跑 docker。各服务 metrics 绑 `0.0.0.0:<port>`，Prometheus 经 `host.docker.internal:<port>` 抓取（docker 内才能访问宿主机）。`deploy/prometheus/prometheus.yml` 写死 26 个 target + 自身；改 metrics 端口必须同步改此文件。
+- 使用：先 `docker compose up -d prometheus`（同时需 jaeger/etcd 等），启动各服务，访问 http://127.0.0.1:9090 查询/看 targets。Loki 日志存储**本期未做**（用户选择只加 Prometheus）。
