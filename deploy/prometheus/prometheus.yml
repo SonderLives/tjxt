@@ -1,7 +1,6 @@
 # 天机学堂 Prometheus 抓取配置
-# 各 Go 服务（api/rpc）在宿主机本地运行，metrics 暴露在各 etc yaml 的 Prometheus.Port。
-# Prometheus 运行在 docker 容器内，通过 host.docker.internal 访问宿主机上的服务。
-# 路径均为 /metrics（go-zero 默认）。
+# metrics 现统一由 otel-collector 抓取并聚合暴露（见 deploy/otel-collector/config.yaml），
+# 故 Prometheus 只需抓 collector 这一个端点（:8889），不再直连 26 个 Go 服务。
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
@@ -9,43 +8,12 @@ global:
     cluster: tjxt
 
 scrape_configs:
-  # ---- RPC 服务 metrics（端口 9101–9113）----
-  - job_name: tjxt-rpc
+  # ---- 所有 Go 服务 metrics（已由 collector 聚合在 8889）----
+  - job_name: tjxt-services
     metrics_path: /metrics
     static_configs:
       - targets:
-          - "host.docker.internal:9101"  # user.rpc
-          - "host.docker.internal:9102"  # auth.rpc
-          - "host.docker.internal:9103"  # course.rpc
-          - "host.docker.internal:9104"  # learning.rpc
-          - "host.docker.internal:9105"  # exam.rpc
-          - "host.docker.internal:9106"  # media.rpc
-          - "host.docker.internal:9107"  # message.rpc
-          - "host.docker.internal:9108"  # pay.rpc
-          - "host.docker.internal:9109"  # trade.rpc
-          - "host.docker.internal:9110"  # search.rpc
-          - "host.docker.internal:9111"  # data.rpc
-          - "host.docker.internal:9112"  # promotion.rpc
-          - "host.docker.internal:9113"  # remark.rpc
-
-  # ---- API 服务 metrics（端口 9201–9213）----
-  - job_name: tjxt-api
-    metrics_path: /metrics
-    static_configs:
-      - targets:
-          - "host.docker.internal:9201"  # user-api
-          - "host.docker.internal:9202"  # auth-api
-          - "host.docker.internal:9203"  # course-api
-          - "host.docker.internal:9204"  # learning-api
-          - "host.docker.internal:9205"  # exam-api
-          - "host.docker.internal:9206"  # media-api
-          - "host.docker.internal:9207"  # message-api
-          - "host.docker.internal:9208"  # pay-api
-          - "host.docker.internal:9209"  # trade-api
-          - "host.docker.internal:9210"  # search-api
-          - "host.docker.internal:9211"  # data-api
-          - "host.docker.internal:9212"  # promotion-api
-          - "host.docker.internal:9213"  # remark-api
+          - "otel-collector:8889"   # collector 暴露的聚合 metrics（含 26 个服务）
 
   # ---- Prometheus 自身 ----
   - job_name: prometheus

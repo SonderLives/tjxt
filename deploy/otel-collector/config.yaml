@@ -1,13 +1,11 @@
 # OpenTelemetry Collector 配置（天机学堂 tjxt）
-# 角色：trace 中枢。接收各 Go 服务（go-zero otlphttp）推送的 OTLP span，
-#       经 batch 处理后转发给 Jaeger 的 OTLP HTTP 接收端。
-#
-# 为什么加它：把"各服务直连 Jaeger"收敛成"各服务 → Collector → Jaeger"，
-# 未来可在本文件无痛扩展 metrics / logs 管线（如 logs → Loki），无需改业务代码。
-#
-# 当前只处理 traces。metrics 仍由 Prometheus 直拉各服务 /metrics（不过 Collector，
-# 因为 go-zero v1.10.3 只出 Prometheus 原生格式，OTLP metrics 无意义）。
-# logs 暂未接入（Loki 未做）。
+# 角色：可观测性中枢。
+#   - traces  ：接收各 Go 服务（go-zero otlphttp）OTLP span → Jaeger
+#   - metrics ：用 prometheus receiver 抓取各 Go 服务的 /metrics（在宿主机，经 host.docker.internal）
+#              → 经 prometheus exporter 在 8889 聚合暴露 → Prometheus 只抓这一个端点
+# 说明：go-zero v1.10.3 只出 Prometheus 原生 /metrics（无 OTLP metrics 导出），
+#       故 metrics「走 collector」采用「collector 当 scrape 代理」：collector 抓 26 个服务，
+#       再统一暴露给 Prometheus，业务代码零改动。
 
 receivers:
   otlp:
@@ -17,6 +15,46 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318   # OTLP HTTP（go-zero otlphttp 走这里）
 
+  # 抓取各 Go 服务原生 /metrics（Prometheus 格式）。服务在宿主机跑，collector 在 docker 内，
+  # 故 target 用 host.docker.internal（依赖 docker-compose 的 extra_hosts）。
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: tjxt-rpc
+          metrics_path: /metrics
+          static_configs:
+            - targets:
+                - host.docker.internal:9101   # user.rpc
+                - host.docker.internal:9102   # auth.rpc
+                - host.docker.internal:9103   # course.rpc
+                - host.docker.internal:9104   # learning.rpc
+                - host.docker.internal:9105   # exam.rpc
+                - host.docker.internal:9106   # media.rpc
+                - host.docker.internal:9107   # message.rpc
+                - host.docker.internal:9108   # pay.rpc
+                - host.docker.internal:9109   # trade.rpc
+                - host.docker.internal:9110   # search.rpc
+                - host.docker.internal:9111   # data.rpc
+                - host.docker.internal:9112   # promotion.rpc
+                - host.docker.internal:9113   # remark.rpc
+        - job_name: tjxt-api
+          metrics_path: /metrics
+          static_configs:
+            - targets:
+                - host.docker.internal:9201   # user-api
+                - host.docker.internal:9202   # auth-api
+                - host.docker.internal:9203   # course-api
+                - host.docker.internal:9204   # learning-api
+                - host.docker.internal:9205   # exam-api
+                - host.docker.internal:9206   # media-api
+                - host.docker.internal:9207   # message-api
+                - host.docker.internal:9208   # pay-api
+                - host.docker.internal:9209   # trade-api
+                - host.docker.internal:9210   # search-api
+                - host.docker.internal:9211   # data-api
+                - host.docker.internal:9212   # promotion-api
+                - host.docker.internal:9213   # remark-api
+
 processors:
   batch: {}                      # 批量发送，降低后端压力
 
@@ -25,6 +63,15 @@ exporters:
   otlphttp/jaeger:
     endpoint: http://jaeger:4318
     # 默认路径 /v1/traces，与 Jaeger OTLP HTTP 接收端一致
+
+  # 把收集到的 metrics 在 8889 重新以 Prometheus 格式暴露，供 Prometheus 抓取。
+  # resource_to_telemetry_conversion 把资源属性（含抓取到的 service/instance 标签）转成指标标签，
+  # 以便在 Prometheus 里按服务区分。
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    send_timestamps: true
+    resource_to_telemetry_conversion:
+      enabled: true
 
 extensions:
   health_check:
@@ -37,10 +84,10 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [otlphttp/jaeger]
+    metrics:
+      receivers: [prometheus]      # collector 抓 26 个服务的 /metrics
+      exporters: [prometheus]      # 在 8889 聚合暴露给 Prometheus
     # 扩展点（暂未启用）：
-    # metrics:
-    #   receivers: [otlp]            # 需 go-zero 改为 OTLP metrics 导出
-    #   exporters: [prometheus]      # 或直接 remote_write 给 Prometheus
     # logs:
     #   receivers: [otlp]            # 需自定义 logx writer 发 OTLP logs
     #   exporters: [loki]
