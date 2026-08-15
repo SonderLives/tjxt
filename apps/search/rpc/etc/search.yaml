@@ -1,9 +1,11 @@
 Name: search.rpc
 
-Telemetry:/n  Name: search.rpc
+Telemetry:
+  Name: search.rpc
   Endpoint: 127.0.0.1:4318
   Sampler: 1.0
   Batcher: otlphttp
+
 ListenOn: 0.0.0.0:8090
 Etcd:
   Hosts:
@@ -42,4 +44,3 @@ RabbitMQ:
   Port: 5672
   User: rabbitmq
   Pass: rabbitmq
-

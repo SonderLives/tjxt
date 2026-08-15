@@ -1,4 +1,11 @@
 Name: pay.rpc
+
+Telemetry:
+  Name: pay.rpc
+  Endpoint: 127.0.0.1:4318
+  Sampler: 1.0
+  Batcher: otlphttp
+
 ListenOn: 0.0.0.0:8088
 Etcd:
   Hosts:

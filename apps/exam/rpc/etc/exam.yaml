@@ -1,4 +1,11 @@
 Name: exam.rpc
+
+Telemetry:
+  Name: exam.rpc
+  Endpoint: 127.0.0.1:4318
+  Sampler: 1.0
+  Batcher: otlphttp
+
 ListenOn: 0.0.0.0:8085
 Etcd:
   Hosts:

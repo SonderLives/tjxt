@@ -27,6 +27,16 @@ services:
     environment:
       ALLOW_NONE_AUTHENTICATION: "yes"
     ports: ["2379:2379"]
+  # Jaeger 链路追踪后端（UI + OTLP 接收）。
+  # 各服务的 Telemetry(otlphttp) 把 span 发到 4318；UI 在 16686。
+  jaeger:
+    image: jaegertracing/all-in-one:1.57
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP（go-zero otlphttp 走这里）
 volumes:
   mysql-data:
   redis-data:

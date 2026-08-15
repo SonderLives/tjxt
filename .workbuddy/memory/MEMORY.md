@@ -107,3 +107,10 @@ host 127.0.0.1 port 3306 user root pass 0000，库 tj_<domain>。
 - **增量同步已打通（2026-08-15 补齐 Producer）**：course 服务 `svc.Producer`（`*mq.Producer`，`initProducer` 在 `NewServiceContext` 中 nil 容错创建）在 `publishCourse`（上架）成功末尾、`downCourse`（下架实际状态变更）成功末尾调用 `svcCtx.PublishCourseEvent(ctx,id,up)` → 发布 `event.CourseEvent{CourseID}` 到 `mq.ExchangeCourse`（course.events），routing key `course.up`/`course.down`。search 侧消费者（`svc.MQClient.Start` 在 `search.go` 启动 goroutine）消费后 upsert/delete ES 文档。四条入口（CourseUpShelf/CourseUp 批量/CourseDownShelf/CourseDown 批量）经两个共享 helper 全覆盖。
 - **发布语义（best-effort）**：`PublishCourseEvent` 不返回错误——课程主流程（DB 写入）已成功，MQ 发布失败仅 `logx.Errorf` 告警、不回滚课程操作。恢复兜底：search 启动全量 `ReindexAll` + 手动 `ReindexCourses` RPC。MQ 配置缺失/连接不可用时 `Producer=nil`，`PublishCourseEvent` 直接 return（不阻塞课程启动）。
 - **关键约束**：`pkg/mq.Producer` 启动时 `amqp091.Dial` 一次性建连，断线不自动重连（与 search 消费者一致）；RabbitMQ 须在 course/search 启动前就绪，否则该侧增量通道空转（待连重启恢复）。course 的 `course.yaml` 已加 `RabbitMQ{Host:127.0.0.1,Port:5672,User/Pass:rabbitmq}`。
+
+## 链路追踪（go-zero 内置 OTel，2026-08-15 接入 Jaeger）
+- 配置驱动、零代码：任意服务 yaml 加顶层 `Telemetry{Name,Endpoint,Sampler,Batcher}`，框架（`core/service/serviceconf.go` 自动 `trace.StartAgent`）即对 gRPC/Redis/SQL 自动打 span 并导出。
+- **v1.10.3 致命坑：`Batcher` 选项是 `zipkin|otlpgrpc|otlphttp|file`，没有 `jaeger`**。指向 Jaeger 用 `otlphttp`+`Endpoint:127.0.0.1:4318`（OTLP HTTP，路径 `/v1/traces`）或 `otlpgrpc`+`4317`。本项目统一 `otlphttp`+`4318`，`Sampler:1.0`（开发全采样，生产调低）。
+- 已落地：26 个 `apps/**/etc/*.yaml` 全部注入 `Telemetry`（Name 取各服务自身 Name）；`docker-compose.yml` 加 `jaeger`（`jaegertracing/all-in-one:1.57`，UI 16686 / OTLP 4317+4318）。Endpoint 走 `127.0.0.1`（与 etcd/es/mq 一致：Go 本机跑、基建 docker 化）。
+- **批量改 yaml 的可靠做法**：用 **Write 工具写 .py 脚本文件再 `python file.py`**，不要用 bash heredoc 跑含 `\n` 的 Python——git-bash 下 heredoc 的 `\n` 转义会写成字面 `\n`，导致 YAML `Telemetry:/n  Name:` 解析失败（`mapping values are not allowed here`）。脚本用 list-of-lines + `'\n'.join` 或 `chr(10)` 拼接最稳。
+- trace 仅在跨服务 gRPC 调用产生 span（service→service），纯进程内逻辑无 span；想看链必须先 `docker compose up -d jaeger` 再重启服务，UI 在 http://127.0.0.1:16686。
