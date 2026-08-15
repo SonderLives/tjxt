@@ -12,9 +12,9 @@ type IdVO struct {
 }
 
 type InboxListReq struct {
-	PageNo   int64 `form:"pageNo,optional"`
-	PageSize int64 `form:"pageSize,optional"`
-	Type     int32 `form:"type,optional"`
+	PageNo   int64 `form:"pageNo,omitempty"`
+	PageSize int64 `form:"pageSize,omitempty"`
+	Type     int32 `form:"type,omitempty"`
 }
 
 type InboxListVO struct {
@@ -28,14 +28,14 @@ type MessageTemplateListVO struct {
 }
 
 type MessageTemplateSaveReq struct {
-	Id                int64  `json:"id,optional"`
+	Id                int64  `json:"id,omitempty"`
 	Name              string `json:"name"`
 	PlatformCode      string `json:"platformCode"`
 	SignName          string `json:"signName"`
 	ThirdTemplateCode string `json:"thirdTemplateCode"`
 	Content           string `json:"content"`
 	TemplateId        int64  `json:"templateId"`
-	Status            int32  `json:"status,optional"`
+	Status            int32  `json:"status,omitempty"`
 }
 
 type MessageTemplateVO struct {
@@ -56,14 +56,14 @@ type NoticeTaskListVO struct {
 }
 
 type NoticeTaskSaveReq struct {
-	Id         int64  `json:"id,optional"`
+	Id         int64  `json:"id,omitempty"`
 	TemplateId int64  `json:"templateId"`
 	Name       string `json:"name"`
-	Partial    bool   `json:"partial,optional"`
-	PushTime   string `json:"pushTime,optional"`
-	Interval   int32  `json:"interval,optional"`
-	ExpireTime string `json:"expireTime,optional"`
-	MaxTimes   int32  `json:"maxTimes,optional"`
+	Partial    bool   `json:"partial,omitempty"`
+	PushTime   string `json:"pushTime,omitempty"`
+	Interval   int32  `json:"interval,omitempty"`
+	ExpireTime string `json:"expireTime,omitempty"`
+	MaxTimes   int32  `json:"maxTimes,omitempty"`
 }
 
 type NoticeTaskVO struct {
@@ -85,13 +85,13 @@ type NoticeTemplateListVO struct {
 }
 
 type NoticeTemplateSaveReq struct {
-	Id            int64  `json:"id,optional"`
+	Id            int64  `json:"id,omitempty"`
 	Name          string `json:"name"`
 	Code          string `json:"code"`
 	Type          int32  `json:"type"`
-	Title         string `json:"title,optional"`
+	Title         string `json:"title,omitempty"`
 	Content       string `json:"content"`
-	IsSmsTemplate bool   `json:"isSmsTemplate,optional"`
+	IsSmsTemplate bool   `json:"isSmsTemplate,omitempty"`
 }
 
 type NoticeTemplateVO struct {
@@ -111,8 +111,8 @@ type OkVO struct {
 }
 
 type PageReq struct {
-	PageNo   int64 `form:"pageNo,optional"`
-	PageSize int64 `form:"pageSize,optional"`
+	PageNo   int64 `form:"pageNo,omitempty"`
+	PageSize int64 `form:"pageSize,omitempty"`
 }
 
 type PublicNoticeListVO struct {
@@ -121,7 +121,7 @@ type PublicNoticeListVO struct {
 }
 
 type PublicNoticeSaveReq struct {
-	Id         int64  `json:"id,optional"`
+	Id         int64  `json:"id,omitempty"`
 	Title      string `json:"title"`
 	Content    string `json:"content"`
 	Type       int32  `json:"type"`

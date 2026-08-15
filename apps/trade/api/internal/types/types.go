@@ -6,8 +6,8 @@ package types
 type ApproveFormReq struct {
 	Id             int64  `json:"id"`
 	ApproveType    int64  `json:"approveType"` // 1 同意 2 拒绝
-	ApproveOpinion string `json:"approveOpinion,optional"`
-	Remark         string `json:"remark,optional"`
+	ApproveOpinion string `json:"approveOpinion,omitempty"`
+	Remark         string `json:"remark,omitempty"`
 }
 
 type BizOrderIdPathReq struct {
@@ -49,7 +49,7 @@ type CouponDiscountVO struct {
 	Id             int64  `json:"id"`
 	Name           string `json:"name"`
 	DiscountAmount int64  `json:"discountAmount"`
-	RuleDesc       string `json:"ruleDesc,optional"`
+	RuleDesc       string `json:"ruleDesc,omitempty"`
 }
 
 type EnrollCourseReq struct {
@@ -65,9 +65,9 @@ type FreeCourseReq struct {
 }
 
 type NamePlaceVO struct {
-	Existed bool   `json:"existed,optional"`
-	Url     string `json:"url,optional"`
-	Message string `json:"message,optional"`
+	Existed bool   `json:"existed,omitempty"`
+	Url     string `json:"url,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 type OrderConfirmVO struct {
@@ -92,25 +92,25 @@ type OrderDetailAdminVO struct {
 	Price              int64                 `json:"price"`
 	RealPayAmount      int64                 `json:"realPayAmount"`
 	DiscountAmount     int64                 `json:"discountAmount"`
-	CouponAmount       int64                 `json:"couponAmount,optional"`
-	CouponDesc         string                `json:"couponDesc,optional"`
+	CouponAmount       int64                 `json:"couponAmount,omitempty"`
+	CouponDesc         string                `json:"couponDesc,omitempty"`
 	Status             int64                 `json:"status"`
-	Message            string                `json:"message,optional"`
-	PayChannel         string                `json:"payChannel,optional"`
-	PayOrderNo         int64                 `json:"payOrderNo,optional"`
-	StudyValidTime     string                `json:"studyValidTime,optional"`
-	RefundApplyId      int64                 `json:"refundApplyId,optional"`
-	RefundOrderNo      int64                 `json:"refundOrderNo,optional"`
-	RefundStatus       int64                 `json:"refundStatus,optional"`
-	RefundReason       string                `json:"refundReason,optional"`
-	RefundMessage      string                `json:"refundMessage,optional"`
-	RefundChannel      string                `json:"refundChannel,optional"`
-	RefundFailedReason string                `json:"refundFailedReason,optional"`
-	RefundProposerName string                `json:"refundProposerName,optional"`
-	Remark             string                `json:"remark,optional"`
+	Message            string                `json:"message,omitempty"`
+	PayChannel         string                `json:"payChannel,omitempty"`
+	PayOrderNo         int64                 `json:"payOrderNo,omitempty"`
+	StudyValidTime     string                `json:"studyValidTime,omitempty"`
+	RefundApplyId      int64                 `json:"refundApplyId,omitempty"`
+	RefundOrderNo      int64                 `json:"refundOrderNo,omitempty"`
+	RefundStatus       int64                 `json:"refundStatus,omitempty"`
+	RefundReason       string                `json:"refundReason,omitempty"`
+	RefundMessage      string                `json:"refundMessage,omitempty"`
+	RefundChannel      string                `json:"refundChannel,omitempty"`
+	RefundFailedReason string                `json:"refundFailedReason,omitempty"`
+	RefundProposerName string                `json:"refundProposerName,omitempty"`
+	Remark             string                `json:"remark,omitempty"`
 	CanRefund          bool                  `json:"canRefund"`
-	FailedReason       string                `json:"failedReason,optional"`
-	Nodes              []OrderProgressNodeVO `json:"nodes,optional"`
+	FailedReason       string                `json:"failedReason,omitempty"`
+	Nodes              []OrderProgressNodeVO `json:"nodes,omitempty"`
 }
 
 type OrderDetailItemVO struct {
@@ -121,7 +121,7 @@ type OrderDetailItemVO struct {
 	Price         int64  `json:"price"`
 	RealPayAmount int64  `json:"realPayAmount"`
 	Status        int64  `json:"status"`
-	RefundStatus  int64  `json:"refundStatus,optional"`
+	RefundStatus  int64  `json:"refundStatus,omitempty"`
 	CanRefund     bool   `json:"canRefund"`
 }
 
@@ -133,14 +133,14 @@ type OrderDetailPageReply struct {
 
 type OrderDetailPageReq struct {
 	PageRequest
-	NoNo           int64  `form:"noNo,optional"`
-	Id             int64  `form:"id,optional"`
-	Mobile         string `form:"mobile,optional"`
-	Status         int64  `form:"status,optional"`
-	RefundStatus   int64  `form:"refundStatus,optional"`
-	PayChannel     string `form:"payChannel,optional"`
-	OrderStartTime string `form:"orderStartTime,optional"`
-	OrderEndTime   string `form:"orderEndTime,optional"`
+	NoNo           int64  `form:"noNo,omitempty"`
+	Id             int64  `form:"id,omitempty"`
+	Mobile         string `form:"mobile,omitempty"`
+	Status         int64  `form:"status,omitempty"`
+	RefundStatus   int64  `form:"refundStatus,omitempty"`
+	PayChannel     string `form:"payChannel,omitempty"`
+	OrderStartTime string `form:"orderStartTime,omitempty"`
+	OrderEndTime   string `form:"orderEndTime,omitempty"`
 }
 
 type OrderDetailPageVO struct {
@@ -158,7 +158,7 @@ type OrderDetailPageVO struct {
 	RefundStatusDesc string `json:"refundStatusDesc"`
 	PayChannel       string `json:"payChannel"`
 	CreateTime       string `json:"createTime"`
-	FinishTime       string `json:"finishTime,optional"`
+	FinishTime       string `json:"finishTime,omitempty"`
 }
 
 type OrderIdReq struct {
@@ -173,8 +173,8 @@ type OrderPageReply struct {
 
 type OrderPageReq struct {
 	PageRequest
-	NoNo   int64 `form:"noNo,optional"`
-	Status int64 `form:"status,optional"`
+	NoNo   int64 `form:"noNo,omitempty"`
+	Status int64 `form:"status,omitempty"`
 }
 
 type OrderPageVO struct {
@@ -189,9 +189,9 @@ type OrderPageVO struct {
 
 type OrderProgressNodeVO struct {
 	Name   string `json:"name"`
-	Desc   string `json:"desc,optional"`
+	Desc   string `json:"desc,omitempty"`
 	Status int64  `json:"status"`
-	Time   string `json:"time,optional"`
+	Time   string `json:"time,omitempty"`
 }
 
 type OrderVO struct {
@@ -202,17 +202,17 @@ type OrderVO struct {
 	DiscountAmount int64                 `json:"discountAmount"`
 	Status         int64                 `json:"status"`
 	StatusDesc     string                `json:"statusDesc"`
-	Message        string                `json:"message,optional"`
-	CouponDesc     string                `json:"couponDesc,optional"`
+	Message        string                `json:"message,omitempty"`
+	CouponDesc     string                `json:"couponDesc,omitempty"`
 	Details        []OrderDetailItemVO   `json:"details"`
 	ProgressNodes  []OrderProgressNodeVO `json:"progressNodes"`
 }
 
 type PageRequest struct {
-	PageNo   int64  `form:"pageNo,optional"`
-	PageSize int64  `form:"pageSize,optional"`
-	IsAsc    bool   `form:"isAsc,optional"`
-	SortBy   string `form:"sortBy,optional"`
+	PageNo   int64  `form:"pageNo,omitempty"`
+	PageSize int64  `form:"pageSize,omitempty"`
+	IsAsc    bool   `form:"isAsc,omitempty"`
+	SortBy   string `form:"sortBy,omitempty"`
 }
 
 type PayApplyFormDTO struct {
@@ -221,12 +221,12 @@ type PayApplyFormDTO struct {
 }
 
 type PayChannelDTO struct {
-	Id              int64  `json:"id,optional"`
+	Id              int64  `json:"id,omitempty"`
 	Name            string `json:"name"`
 	ChannelCode     string `json:"channelCode"`
-	ChannelIcon     string `json:"channelIcon,optional"`
+	ChannelIcon     string `json:"channelIcon,omitempty"`
 	ChannelPriority int64  `json:"channelPriority"`
-	Status          int64  `json:"status,optional"`
+	Status          int64  `json:"status,omitempty"`
 }
 
 type PayChannelIdReq struct {
@@ -237,22 +237,22 @@ type PayChannelVO struct {
 	Id              int64  `json:"id"`
 	Name            string `json:"name"`
 	ChannelCode     string `json:"channelCode"`
-	ChannelIcon     string `json:"channelIcon,optional"`
+	ChannelIcon     string `json:"channelIcon,omitempty"`
 	ChannelPriority int64  `json:"channelPriority"`
 }
 
 type PayResultDTO struct {
 	BizOrderId  int64  `json:"bizOrderId"`
 	Status      int64  `json:"status"` // 1支付中 2失败 3成功
-	PayChannel  string `json:"payChannel,optional"`
-	PayOrderNo  int64  `json:"payOrderNo,optional"`
-	SuccessTime string `json:"successTime,optional"`
+	PayChannel  string `json:"payChannel,omitempty"`
+	PayOrderNo  int64  `json:"payOrderNo,omitempty"`
+	SuccessTime string `json:"successTime,omitempty"`
 }
 
 type PlaceOrderReq struct {
 	OrderId   int64   `json:"orderId"`
 	CourseIds []int64 `json:"courseIds"`
-	CouponIds []int64 `json:"couponIds,optional"`
+	CouponIds []int64 `json:"couponIds,omitempty"`
 }
 
 type PlaceOrderResultVO struct {
@@ -290,13 +290,13 @@ type RefundApplyPageReply struct {
 
 type RefundApplyPageReq struct {
 	PageRequest
-	Id             int64  `form:"id,optional"`
-	OrderDetailId  int64  `form:"orderDetailId,optional"`
-	OrderId        int64  `form:"orderId,optional"`
-	RefundStatus   int64  `form:"refundStatus,optional"`
-	Mobile         string `form:"mobile,optional"`
-	ApplyStartTime string `form:"applyStartTime,optional"`
-	ApplyEndTime   string `form:"applyEndTime,optional"`
+	Id             int64  `form:"id,omitempty"`
+	OrderDetailId  int64  `form:"orderDetailId,omitempty"`
+	OrderId        int64  `form:"orderId,omitempty"`
+	RefundStatus   int64  `form:"refundStatus,omitempty"`
+	Mobile         string `form:"mobile,omitempty"`
+	ApplyStartTime string `form:"applyStartTime,omitempty"`
+	ApplyEndTime   string `form:"applyEndTime,omitempty"`
 }
 
 type RefundApplyPageVO struct {
@@ -311,7 +311,7 @@ type RefundApplyPageVO struct {
 	StudentName   string `json:"studentName"`
 	RefundReason  string `json:"refundReason"`
 	CreateTime    string `json:"createTime"`
-	ApproveTime   string `json:"approveTime,optional"`
+	ApproveTime   string `json:"approveTime,omitempty"`
 }
 
 type RefundApplyVO struct {
@@ -321,23 +321,23 @@ type RefundApplyVO struct {
 	Price          int64  `json:"price"`
 	RefundAmount   int64  `json:"refundAmount"`
 	RefundStatus   int64  `json:"refundStatus"`
-	RefundOrderNo  int64  `json:"refundOrderNo,optional"`
-	PayOrderNo     int64  `json:"payOrderNo,optional"`
-	PayChannel     string `json:"payChannel,optional"`
-	RefundChannel  string `json:"refundChannel,optional"`
+	RefundOrderNo  int64  `json:"refundOrderNo,omitempty"`
+	PayOrderNo     int64  `json:"payOrderNo,omitempty"`
+	PayChannel     string `json:"payChannel,omitempty"`
+	RefundChannel  string `json:"refundChannel,omitempty"`
 	RefundReason   string `json:"refundReason"`
-	RefundMessage  string `json:"refundMessage,optional"`
-	FailedReason   string `json:"failedReason,optional"`
-	ApproveOpinion string `json:"approveOpinion,optional"`
-	ApproveType    int64  `json:"approveType,optional"`
-	ApproveTime    string `json:"approveTime,optional"`
-	Remark         string `json:"remark,optional"`
+	RefundMessage  string `json:"refundMessage,omitempty"`
+	FailedReason   string `json:"failedReason,omitempty"`
+	ApproveOpinion string `json:"approveOpinion,omitempty"`
+	ApproveType    int64  `json:"approveType,omitempty"`
+	ApproveTime    string `json:"approveTime,omitempty"`
+	Remark         string `json:"remark,omitempty"`
 	CreateTime     string `json:"createTime"`
 	OrderTime      string `json:"orderTime"`
-	PaySuccessTime string `json:"paySuccessTime,optional"`
-	StudentName    string `json:"studentName,optional"`
-	Mobile         string `json:"mobile,optional"`
-	QuestionDesc   string `json:"questionDesc,optional"`
+	PaySuccessTime string `json:"paySuccessTime,omitempty"`
+	StudentName    string `json:"studentName,omitempty"`
+	Mobile         string `json:"mobile,omitempty"`
+	QuestionDesc   string `json:"questionDesc,omitempty"`
 }
 
 type RefundCancelReq struct {
@@ -348,7 +348,7 @@ type RefundCancelReq struct {
 type RefundFormReq struct {
 	OrderDetailId int64  `json:"orderDetailId"`
 	RefundReason  string `json:"refundReason"`
-	QuestionDesc  string `json:"questionDesc,optional"`
+	QuestionDesc  string `json:"questionDesc,omitempty"`
 }
 
 type RefundIdReq struct {
@@ -358,9 +358,9 @@ type RefundIdReq struct {
 type RefundResultDTO struct {
 	BizPayOrderId    int64  `json:"bizPayOrderId"`
 	BizRefundOrderId int64  `json:"bizRefundOrderId"`
-	PayOrderNo       int64  `json:"payOrderNo,optional"`
-	RefundOrderNo    int64  `json:"refundOrderNo,optional"`
+	PayOrderNo       int64  `json:"payOrderNo,omitempty"`
+	RefundOrderNo    int64  `json:"refundOrderNo,omitempty"`
 	Status           int64  `json:"status"` // 1退款中 2失败 3成功
-	PayChannel       string `json:"payChannel,optional"`
-	RefundChannel    string `json:"refundChannel,optional"`
+	PayChannel       string `json:"payChannel,omitempty"`
+	RefundChannel    string `json:"refundChannel,omitempty"`
 }

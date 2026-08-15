@@ -17,8 +17,8 @@ type OkVO struct {
 
 type QuestionBizListReq struct {
 	BizId    int64 `form:"bizId"`
-	PageNo   int64 `form:"pageNo,optional"`
-	PageSize int64 `form:"pageSize,optional"`
+	PageNo   int64 `form:"pageNo,omitempty"`
+	PageSize int64 `form:"pageSize,omitempty"`
 }
 
 type QuestionBizReq struct {
@@ -27,13 +27,13 @@ type QuestionBizReq struct {
 }
 
 type QuestionListReq struct {
-	PageNo     int64  `form:"pageNo,optional"`
-	PageSize   int64  `form:"pageSize,optional"`
-	Name       string `form:"name,optional"`
-	Type       int32  `form:"type,optional"`
-	CateId1    int64  `form:"cateId1,optional"`
-	CateId2    int64  `form:"cateId2,optional"`
-	Difficulty int32  `form:"difficulty,optional"`
+	PageNo     int64  `form:"pageNo,omitempty"`
+	PageSize   int64  `form:"pageSize,omitempty"`
+	Name       string `form:"name,omitempty"`
+	Type       int32  `form:"type,omitempty"`
+	CateId1    int64  `form:"cateId1,omitempty"`
+	CateId2    int64  `form:"cateId2,omitempty"`
+	Difficulty int32  `form:"difficulty,omitempty"`
 }
 
 type QuestionListVO struct {
@@ -42,7 +42,7 @@ type QuestionListVO struct {
 }
 
 type QuestionSaveReq struct {
-	Id         int64  `json:"id,optional"`
+	Id         int64  `json:"id,omitempty"`
 	Name       string `json:"name"`
 	Type       int32  `json:"type"`
 	CateId1    int64  `json:"cateId1"`
@@ -50,7 +50,7 @@ type QuestionSaveReq struct {
 	CateId3    int64  `json:"cateId3"`
 	Difficulty int32  `json:"difficulty"`
 	Score      int32  `json:"score"`
-	Options    string `json:"options,optional"`
+	Options    string `json:"options,omitempty"`
 	Answer     string `json:"answer"`
 	Analysis   string `json:"analysis"`
 }

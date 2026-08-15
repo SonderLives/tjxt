@@ -34,11 +34,11 @@ type MediaIdVO struct {
 }
 
 type MediaListReq struct {
-	PageNo   int64  `form:"pageNo,optional"`
-	PageSize int64  `form:"pageSize,optional"`
-	Name     string `form:"name,optional"`
-	SortBy   string `form:"sortBy,optional"`
-	IsAsc    string `form:"isAsc,optional"`
+	PageNo   int64  `form:"pageNo,omitempty"`
+	PageSize int64  `form:"pageSize,omitempty"`
+	Name     string `form:"name,omitempty"`
+	SortBy   string `form:"sortBy,omitempty"`
+	IsAsc    string `form:"isAsc,omitempty"`
 }
 
 type MediaListVO struct {
@@ -47,7 +47,7 @@ type MediaListVO struct {
 }
 
 type MediaSaveReq struct {
-	Id       int64   `json:"id,optional"`
+	Id       int64   `json:"id,omitempty"`
 	Filename string  `json:"filename"`
 	Duration float64 `json:"duration"`
 	Size     int64   `json:"size"`
@@ -72,7 +72,7 @@ type OkVO struct {
 }
 
 type SignatureReq struct {
-	MediaId   int64  `json:"mediaId,optional"`
+	MediaId   int64  `json:"mediaId,omitempty"`
 	FileName  string `json:"fileName"`
 	MediaType string `json:"mediaType"`
 }

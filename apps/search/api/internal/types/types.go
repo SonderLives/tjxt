@@ -14,9 +14,9 @@ type CourseSearchPageVO struct {
 
 type CourseSearchReq struct {
 	Keyword  string `form:"keyword"`
-	PageNo   int64  `form:"pageNo,optional"`
-	PageSize int64  `form:"pageSize,optional"`
-	Sort     int32  `form:"sort,optional"` // 0 默认相关度 1 按销量 2 按评分
+	PageNo   int64  `form:"pageNo,omitempty"`
+	PageSize int64  `form:"pageSize,omitempty"`
+	Sort     int32  `form:"sort,omitempty"` // 0 默认相关度 1 按销量 2 按评分
 }
 
 type CourseVO struct {

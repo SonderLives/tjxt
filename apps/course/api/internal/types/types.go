@@ -4,11 +4,11 @@
 package types
 
 type CataSaveItemReq struct {
-	Id       int64             `json:"id,optional"`
+	Id       int64             `json:"id,omitempty"`
 	Name     string            `json:"name"`
 	Index    int64             `json:"index"`
 	Type     int64             `json:"type"`
-	Sections []CataSaveItemReq `json:"sections,optional"`
+	Sections []CataSaveItemReq `json:"sections,omitempty"`
 }
 
 type CataSaveReq struct {
@@ -21,8 +21,8 @@ type CataSimpleInfoVO struct {
 	Id           int64  `json:"id"`
 	Name         string `json:"name"`
 	Index        int64  `json:"index"`
-	ChapterIndex int64  `json:"chapterIndex,optional"`
-	CIndex       int64  `json:"cindex,optional"`
+	ChapterIndex int64  `json:"chapterIndex,omitempty"`
+	CIndex       int64  `json:"cindex,omitempty"`
 }
 
 type CataSubjectVO struct {
@@ -35,19 +35,19 @@ type CatalogueVO struct {
 	Name          string        `json:"name"`
 	Index         int64         `json:"index"`
 	Type          int64         `json:"type"`
-	MediaId       int64         `json:"mediaId,optional"`
-	MediaName     string        `json:"mediaName,optional"`
-	MediaDuration int64         `json:"mediaDuration,optional"`
-	Trailer       bool          `json:"trailer,optional"`
-	SubjectNum    int64         `json:"subjectNum,optional"`
-	TotalScore    int64         `json:"totalScore,optional"`
-	Sections      []CatalogueVO `json:"sections,optional"`
+	MediaId       int64         `json:"mediaId,omitempty"`
+	MediaName     string        `json:"mediaName,omitempty"`
+	MediaDuration int64         `json:"mediaDuration,omitempty"`
+	Trailer       bool          `json:"trailer,omitempty"`
+	SubjectNum    int64         `json:"subjectNum,omitempty"`
+	TotalScore    int64         `json:"totalScore,omitempty"`
+	Sections      []CatalogueVO `json:"sections,omitempty"`
 	CanUpdate     bool          `json:"canUpdate"`
 }
 
 type CategoryAddReq struct {
 	Name     string `json:"name"`
-	ParentId int64  `json:"parentId,optional"`
+	ParentId int64  `json:"parentId,omitempty"`
 	Index    int64  `json:"index"`
 }
 
@@ -60,8 +60,8 @@ type CategoryInfoVO struct {
 	Id                 int64  `json:"id"`
 	Name               string `json:"name"`
 	Level              int64  `json:"level"`
-	FirstCategoryName  string `json:"firstCategoryName,optional"`
-	SecondCategoryName string `json:"secondCategoryName,optional"`
+	FirstCategoryName  string `json:"firstCategoryName,omitempty"`
+	SecondCategoryName string `json:"secondCategoryName,omitempty"`
 	Status             int64  `json:"status"`
 	Index              int64  `json:"index"`
 	CreateTime         string `json:"createTime"`
@@ -69,13 +69,13 @@ type CategoryInfoVO struct {
 }
 
 type CategoryListAllReq struct {
-	Admin bool   `form:"admin,optional"`
-	Name  string `form:"name,optional"`
+	Admin bool   `form:"admin,omitempty"`
+	Name  string `form:"name,omitempty"`
 }
 
 type CategoryListQueryReq struct {
-	Name   string `form:"name,optional"`
-	Status int64  `form:"status,optional"`
+	Name   string `form:"name,omitempty"`
+	Status int64  `form:"status,omitempty"`
 }
 
 type CategoryUpdateReq struct {
@@ -94,7 +94,7 @@ type CategoryVO struct {
 	StatusDesc       string       `json:"statusDesc"`
 	CourseNum        int64        `json:"courseNum"`
 	ThirdCategoryNum int64        `json:"thirdCategoryNum"`
-	Children         []CategoryVO `json:"children,optional"`
+	Children         []CategoryVO `json:"children,omitempty"`
 	UpdateTime       string       `json:"updateTime"`
 	CreateTime       string       `json:"createTime"`
 }
@@ -104,11 +104,11 @@ type ChapterVO struct {
 	Name          string      `json:"name"`
 	Index         int64       `json:"index"`
 	Type          int64       `json:"type"`
-	MediaId       int64       `json:"mediaId,optional"`
-	MediaName     string      `json:"mediaName,optional"`
-	MediaDuration int64       `json:"mediaDuration,optional"`
-	Trailer       bool        `json:"trailer,optional"`
-	Sections      []ChapterVO `json:"sections,optional"`
+	MediaId       int64       `json:"mediaId,omitempty"`
+	MediaName     string      `json:"mediaName,omitempty"`
+	MediaDuration int64       `json:"mediaDuration,omitempty"`
+	Trailer       bool        `json:"trailer,omitempty"`
+	Sections      []ChapterVO `json:"sections,omitempty"`
 }
 
 type CourseAndSectionVO struct {
@@ -116,31 +116,31 @@ type CourseAndSectionVO struct {
 	Name            string      `json:"name"`
 	CoverUrl        string      `json:"coverUrl"`
 	Sections        int64       `json:"sections"`
-	TeacherIcon     string      `json:"teacherIcon,optional"`
-	TeacherName     string      `json:"teacherName,optional"`
-	LessonId        int64       `json:"lessonId,optional"`
-	LatestSectionId int64       `json:"latestSectionId,optional"`
+	TeacherIcon     string      `json:"teacherIcon,omitempty"`
+	TeacherName     string      `json:"teacherName,omitempty"`
+	LessonId        int64       `json:"lessonId,omitempty"`
+	LatestSectionId int64       `json:"latestSectionId,omitempty"`
 	Chapters        []ChapterVO `json:"chapters"`
 }
 
 type CourseBaseInfoGetReq struct {
 	Id  int64 `path:"id"`
-	See bool  `form:"see,optional"`
+	See bool  `form:"see,omitempty"`
 }
 
 type CourseBaseInfoSaveReq struct {
-	Id                int64  `json:"id,optional"`
+	Id                int64  `json:"id,omitempty"`
 	Name              string `json:"name"`
 	CoverUrl          string `json:"coverUrl"`
 	Price             int64  `json:"price"`
 	Free              int64  `json:"free"`
 	ThirdCateId       int64  `json:"thirdCateId"`
-	Introduce         string `json:"introduce,optional"`
-	Detail            string `json:"detail,optional"`
-	UsePeople         string `json:"usePeople,optional"`
-	ValidDuration     int64  `json:"validDuration,optional"`
-	PurchaseStartTime string `json:"purchaseStartTime,optional"`
-	PurchaseEndTime   string `json:"purchaseEndTime,optional"`
+	Introduce         string `json:"introduce,omitempty"`
+	Detail            string `json:"detail,omitempty"`
+	UsePeople         string `json:"usePeople,omitempty"`
+	ValidDuration     int64  `json:"validDuration,omitempty"`
+	PurchaseStartTime string `json:"purchaseStartTime,omitempty"`
+	PurchaseEndTime   string `json:"purchaseEndTime,omitempty"`
 }
 
 type CourseBaseInfoVO struct {
@@ -149,27 +149,27 @@ type CourseBaseInfoVO struct {
 	Price             int64  `json:"price"`
 	Free              int64  `json:"free"`
 	CoverUrl          string `json:"coverUrl"`
-	Detail            string `json:"detail,optional"`
-	Introduce         string `json:"introduce,optional"`
-	UsePeople         string `json:"usePeople,optional"`
+	Detail            string `json:"detail,omitempty"`
+	Introduce         string `json:"introduce,omitempty"`
+	UsePeople         string `json:"usePeople,omitempty"`
 	ValidDuration     int64  `json:"validDuration"`
-	PurchaseStartTime string `json:"purchaseStartTime,optional"`
-	PurchaseEndTime   string `json:"purchaseEndTime,optional"`
+	PurchaseStartTime string `json:"purchaseStartTime,omitempty"`
+	PurchaseEndTime   string `json:"purchaseEndTime,omitempty"`
 	FirstCateId       int64  `json:"firstCateId"`
 	SecondCateId      int64  `json:"secondCateId"`
 	ThirdCateId       int64  `json:"thirdCateId"`
-	CateNames         string `json:"cateNames,optional"`
+	CateNames         string `json:"cateNames,omitempty"`
 	Status            int64  `json:"status"`
 	Step              int64  `json:"step"`
-	Score             int64  `json:"score,optional"`
-	CourseScore       string `json:"coureScore,optional"`
+	Score             int64  `json:"score,omitempty"`
+	CourseScore       string `json:"coureScore,omitempty"`
 	CataTotalNum      int64  `json:"cataTotalNum"`
 	EnrollNum         int64  `json:"enrollNum"`
 	StudyNum          int64  `json:"studyNum"`
 	RealPayAmount     int64  `json:"realPayAmount"`
 	RefundNum         int64  `json:"refundNum"`
-	CreaterName       string `json:"createrName,optional"`
-	UpdaterName       string `json:"updaterName,optional"`
+	CreaterName       string `json:"createrName,omitempty"`
+	UpdaterName       string `json:"updaterName,omitempty"`
 	CanUpdate         bool   `json:"canUpdate"`
 	CreateTime        string `json:"createTime"`
 	UpdateTime        string `json:"updateTime"`
@@ -185,13 +185,13 @@ type CourseCataIdVO struct {
 
 type CourseCataQueryReq struct {
 	Id           int64 `path:"id"`
-	See          bool  `form:"see,optional"`
-	WithPractice bool  `form:"withPractice,optional"`
+	See          bool  `form:"see,omitempty"`
+	WithPractice bool  `form:"withPractice,omitempty"`
 }
 
 type CourseCheckNameReq struct {
 	Name string `form:"name"`
-	Id   int64  `form:"id,optional"`
+	Id   int64  `form:"id,omitempty"`
 }
 
 type CourseFullInfoDTO struct {
@@ -203,16 +203,16 @@ type CourseFullInfoDTO struct {
 	SecondCateId    int64         `json:"secondCateId"`
 	ThirdCateId     int64         `json:"thirdCateId"`
 	ValidDuration   int64         `json:"validDuration"`
-	PurchaseEndTime string        `json:"purchaseEndTime,optional"`
+	PurchaseEndTime string        `json:"purchaseEndTime,omitempty"`
 	SectionNum      int64         `json:"sectionNum"`
-	TeacherIds      []int64       `json:"teacherIds,optional"`
-	Chapters        []CatalogueVO `json:"chapters,optional"`
+	TeacherIds      []int64       `json:"teacherIds,omitempty"`
+	Chapters        []CatalogueVO `json:"chapters,omitempty"`
 }
 
 type CourseFullInfoQueryReq struct {
 	Id            int64 `path:"id"`
-	WithCatalogue bool  `form:"withCatalogue,optional"`
-	WithTeachers  bool  `form:"withTeachers,optional"`
+	WithCatalogue bool  `form:"withCatalogue,omitempty"`
+	WithTeachers  bool  `form:"withTeachers,omitempty"`
 }
 
 type CourseIdListReq struct {
@@ -252,15 +252,15 @@ type CoursePageReply struct {
 
 type CoursePageReq struct {
 	PageRequest
-	Keyword      string `form:"keyword,optional"`
+	Keyword      string `form:"keyword,omitempty"`
 	Status       int64  `form:"status"`
-	Free         int64  `form:"free,optional"`
-	CourseType   int64  `form:"courseType,optional"`
-	FirstCateId  int64  `form:"firstCateId,optional"`
-	SecondCateId int64  `form:"secondCateId,optional"`
-	ThirdCateId  int64  `form:"thirdCateId,optional"`
-	BeginTime    string `form:"beginTime,optional"`
-	EndTime      string `form:"endTime,optional"`
+	Free         int64  `form:"free,omitempty"`
+	CourseType   int64  `form:"courseType,omitempty"`
+	FirstCateId  int64  `form:"firstCateId,omitempty"`
+	SecondCateId int64  `form:"secondCateId,omitempty"`
+	ThirdCateId  int64  `form:"thirdCateId,omitempty"`
+	BeginTime    string `form:"beginTime,omitempty"`
+	EndTime      string `form:"endTime,omitempty"`
 }
 
 type CoursePageVO struct {
@@ -270,30 +270,30 @@ type CoursePageVO struct {
 	Price          int64  `json:"price"`
 	Free           int64  `json:"free"`
 	Status         int64  `json:"status"`
-	StatusDesc     string `json:"statusDesc,optional"`
-	FirstCateName  string `json:"firstCateName,optional"`
-	SecondCateName string `json:"secondCateName,optional"`
-	ThirdCateName  string `json:"thirdCateName,optional"`
-	Score          int64  `json:"score,optional"`
+	StatusDesc     string `json:"statusDesc,omitempty"`
+	FirstCateName  string `json:"firstCateName,omitempty"`
+	SecondCateName string `json:"secondCateName,omitempty"`
+	ThirdCateName  string `json:"thirdCateName,omitempty"`
+	Score          int64  `json:"score,omitempty"`
 	Sold           int64  `json:"sold"`
 	SectionNum     int64  `json:"sectionNum"`
 	MediaDuration  int64  `json:"mediaDuration"`
-	PublishTime    string `json:"publishTime,optional"`
+	PublishTime    string `json:"publishTime,omitempty"`
 	CreateTime     string `json:"createTime"`
 	UpdateTime     string `json:"updateTime"`
 }
 
 type CoursePortalReq struct {
 	PageRequest
-	CategoryIdLv1 int64  `form:"categoryIdLv1,optional"`
-	CategoryIdLv2 int64  `form:"categoryIdLv2,optional"`
-	CategoryIdLv3 int64  `form:"categoryIdLv3,optional"`
-	Free          int64  `form:"free,optional"`
-	Type          int64  `form:"type,optional"`
-	Keyword       string `form:"keyword,optional"`
-	BeginTime     string `form:"beginTime,optional"`
-	EndTime       string `form:"endTime,optional"`
-	Status        int64  `form:"status,optional"`
+	CategoryIdLv1 int64  `form:"categoryIdLv1,omitempty"`
+	CategoryIdLv2 int64  `form:"categoryIdLv2,omitempty"`
+	CategoryIdLv3 int64  `form:"categoryIdLv3,omitempty"`
+	Free          int64  `form:"free,omitempty"`
+	Type          int64  `form:"type,omitempty"`
+	Keyword       string `form:"keyword,omitempty"`
+	BeginTime     string `form:"beginTime,omitempty"`
+	EndTime       string `form:"endTime,omitempty"`
+	Status        int64  `form:"status,omitempty"`
 }
 
 type CourseSaveVO struct {
@@ -315,7 +315,7 @@ type CourseSearchIndexVO struct {
 	CategoryIdLv2 int64  `json:"categoryIdLv2"`
 	CategoryIdLv3 int64  `json:"categoryIdLv3"`
 	CreateTime    string `json:"createTime"`
-	PublishTime   string `json:"publishTime,optional"`
+	PublishTime   string `json:"publishTime,omitempty"`
 	Duration      int64  `json:"duration"`
 }
 
@@ -334,15 +334,15 @@ type CourseSimpleInfoDTO struct {
 	SectionNum      int64  `json:"sectionNum"`
 	Status          int64  `json:"status"`
 	ValidDuration   int64  `json:"validDuration"`
-	PurchaseEndTime string `json:"purchaseEndTime,optional"`
+	PurchaseEndTime string `json:"purchaseEndTime,omitempty"`
 	FirstCateId     int64  `json:"firstCateId"`
 	SecondCateId    int64  `json:"secondCateId"`
 	ThirdCateId     int64  `json:"thirdCateId"`
 }
 
 type CourseSimpleInfoQueryReq struct {
-	Ids          string `form:"ids,optional"`
-	ThirdCataIds string `form:"thirdCataIds,optional"`
+	Ids          string `form:"ids,omitempty"`
+	ThirdCataIds string `form:"thirdCataIds,omitempty"`
 }
 
 type CourseSubjectsSaveItemReq struct {
@@ -371,7 +371,7 @@ type CourseVO struct {
 	CoverUrl   string `json:"coverUrl"`
 	Price      int64  `json:"price"`
 	Free       int64  `json:"free"`
-	Score      int64  `json:"score,optional"`
+	Score      int64  `json:"score,omitempty"`
 	Sold       int64  `json:"sold"`
 	Sections   int64  `json:"sections"`
 	Status     int64  `json:"status"`
@@ -392,10 +392,10 @@ type NameExistVO struct {
 }
 
 type PageRequest struct {
-	PageNo   int64  `form:"pageNo,optional"`
-	PageSize int64  `form:"pageSize,optional"`
-	IsAsc    bool   `form:"isAsc,optional"`
-	SortBy   string `form:"sortBy,optional"`
+	PageNo   int64  `form:"pageNo,omitempty"`
+	PageSize int64  `form:"pageSize,omitempty"`
+	IsAsc    bool   `form:"isAsc,omitempty"`
+	SortBy   string `form:"sortBy,omitempty"`
 }
 
 type SimpleCategoryVO struct {
@@ -403,7 +403,7 @@ type SimpleCategoryVO struct {
 	Name     string             `json:"name"`
 	ParentId int64              `json:"parentId"`
 	Level    int64              `json:"level"`
-	Children []SimpleCategoryVO `json:"children,optional"`
+	Children []SimpleCategoryVO `json:"children,omitempty"`
 }
 
 type SubjectInfoVO struct {
@@ -411,9 +411,9 @@ type SubjectInfoVO struct {
 	Name        string   `json:"name"`
 	SubjectType int64    `json:"subjectType"`
 	Difficulty  int64    `json:"difficulty"`
-	Options     []string `json:"options,optional"`
-	Answer      string   `json:"answer,optional"`
-	Analysis    string   `json:"analysis,optional"`
+	Options     []string `json:"options,omitempty"`
+	Answer      string   `json:"answer,omitempty"`
+	Analysis    string   `json:"analysis,omitempty"`
 	Score       int64    `json:"score"`
 }
 
@@ -426,9 +426,9 @@ type TeacherCourseCountVO struct {
 type TeacherCourseInfoVO struct {
 	Id        int64  `json:"id"`
 	Name      string `json:"name"`
-	Photo     string `json:"photo,optional"`
-	Job       string `json:"job,optional"`
-	Introduce string `json:"introduce,optional"`
-	Icon      string `json:"icon,optional"`
+	Photo     string `json:"photo,omitempty"`
+	Job       string `json:"job,omitempty"`
+	Introduce string `json:"introduce,omitempty"`
+	Icon      string `json:"icon,omitempty"`
 	IsShow    bool   `json:"isShow"`
 }

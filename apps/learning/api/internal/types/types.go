@@ -5,27 +5,27 @@ package types
 
 type LearningLessonDTO struct {
 	Id              int64               `json:"id"`
-	LatestSectionId int64               `json:"latestSectionId,optional"`
+	LatestSectionId int64               `json:"latestSectionId,omitempty"`
 	Records         []LearningRecordDTO `json:"records"`
 }
 
 type LearningLessonVO struct {
 	Id                 int64  `json:"id"`
 	CourseId           int64  `json:"courseId"`
-	CourseName         string `json:"courseName,optional"`
-	CourseCoverUrl     string `json:"courseCoverUrl,optional"`
+	CourseName         string `json:"courseName,omitempty"`
+	CourseCoverUrl     string `json:"courseCoverUrl,omitempty"`
 	CourseAmount       int64  `json:"courseAmount"`
 	Sections           int64  `json:"sections"`
 	LearnedSections    int64  `json:"learnedSections"`
 	Status             string `json:"status"`
 	PlanStatus         string `json:"planStatus"`
-	WeekFreq           int64  `json:"weekFreq,optional"`
-	LatestSectionId    int64  `json:"latestSectionId,optional"`
-	LatestSectionName  string `json:"latestSectionName,optional"`
-	LatestSectionIndex int64  `json:"latestSectionIndex,optional"`
+	WeekFreq           int64  `json:"weekFreq,omitempty"`
+	LatestSectionId    int64  `json:"latestSectionId,omitempty"`
+	LatestSectionName  string `json:"latestSectionName,omitempty"`
+	LatestSectionIndex int64  `json:"latestSectionIndex,omitempty"`
 	CreateTime         string `json:"createTime"`
-	ExpireTime         string `json:"expireTime,optional"`
-	LatestLearnTime    string `json:"latestLearnTime,optional"`
+	ExpireTime         string `json:"expireTime,omitempty"`
+	LatestLearnTime    string `json:"latestLearnTime,omitempty"`
 }
 
 type LearningRecordCommitReq struct {
@@ -34,7 +34,7 @@ type LearningRecordCommitReq struct {
 	SectionType string `json:"sectionType"` // VIDEO / EXAM
 	Moment      int64  `json:"moment"`
 	Duration    int64  `json:"duration"`
-	CommitTime  string `json:"commitTime,optional"`
+	CommitTime  string `json:"commitTime,omitempty"`
 }
 
 type LearningRecordDTO struct {
@@ -67,10 +67,10 @@ type OkVO struct {
 }
 
 type PageRequest struct {
-	PageNo   int64  `form:"pageNo,optional"`
-	PageSize int64  `form:"pageSize,optional"`
-	IsAsc    bool   `form:"isAsc,optional"`
-	SortBy   string `form:"sortBy,optional"`
+	PageNo   int64  `form:"pageNo,omitempty"`
+	PageSize int64  `form:"pageSize,omitempty"`
+	IsAsc    bool   `form:"isAsc,omitempty"`
+	SortBy   string `form:"sortBy,omitempty"`
 }
 
 type PlanPageReply struct {

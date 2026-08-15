@@ -7,6 +7,6 @@ import (
 
 type Config struct {
 	zrpc.RpcServerConf
-	DataSource string          `json:",optional"`
-	Cache      cache.CacheConf `json:",optional"`
+	DataSource string          `json:",omitempty"`
+	Cache      cache.CacheConf `json:",omitempty"`
 }
