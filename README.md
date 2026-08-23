@@ -27,7 +27,8 @@ HTTP Client
 └────────────────────────────┬───────────────────────────────────────────────┘
                              ▼
                    MySQL (sqlx + goctl model --cache)
-                   Redis (缓存 / MQ / Stream)
+                   Redis (缓存)
+                   RabbitMQ (事件总线，见下文「事件流」)
 ```
 
 > ⚠️ **无独立网关**。边缘入口按需自行接入 APISIX / Kong / Nginx。
@@ -44,7 +45,7 @@ tjxt/
 ├── docker-compose.yml       # MySQL/Redis/RabbitMQ/etcd + 可观测性栈（Jaeger/otel-collector/Prometheus/Loki）一键启动
 ├── pkg/                     # 公共代码库 (module: tjxt/pkg)
 │   ├── auth/                # JWT 签发/校验、Claims 定义
-│   ├── mq/                  # Redis Stream 事件总线 (生产者/消费者/事件定义)
+│   ├── mq/                  # RabbitMQ 事件总线 (生产者/消费者/事件定义)
 │   ├── response/            # 统一响应 R{code,msg,requestId,data} + 分页
 │   ├── xerr/                # 业务错误码体系 + HTTP 状态映射
 │   ├── utils/
@@ -128,7 +129,7 @@ tjxt/
 | **MySQL**    | 8.x    | 默认 `root:0000@127.0.0.1:3306` |
 | **Redis**    | 7.x    | 默认 `127.0.0.1:6379`           |
 | **etcd**     | 3.5+   | 默认 `127.0.0.1:2379`，zrpc 服务发现 |
-| **RabbitMQ** | 3.13+  | 可选，预留兼容 Java 版事件              |
+| **RabbitMQ** | 3.13+  | 事件总线（course→search 已接线）；未配置时服务仅告警并跳过，不阻塞启动 |
 | **goctl**    | 最新     | 代码生成工具                        |
 
 
@@ -243,37 +244,45 @@ make d2u             # Windows 行尾修复 (CRLF→LF)
 
 
 
-## 🔄 事件流 (Redis Stream)
+## 🔄 事件流 (RabbitMQ)
 
-RabbitMQ(`pkg/mq/event`)事件名：
+`pkg/mq` 基于 RabbitMQ（amqp091-go）实现：Producer confirm 模式发布；Consumer 泛型注册、手动 ack、处理失败 Nack 重回队列。交换机/路由键常量在 `pkg/mq/mq.go`，消息体定义在 `pkg/mq/event/`。
 
+当前已定义的事件契约与接线状态：
 
-| 事件                      | 发布方       | 订阅方                   |
-| ----------------------- | --------- | --------------------- |
-| `mq:order:success`      | trade     | learning(加课)、data(榜单) |
-| `mq:course:up`          | course    | search(建索引)           |
-| `mq:course:down`        | course    | search(删索引)           |
-| `mq:course:cate:change` | course    | (分类缓存刷新)              |
-| `mq:course:media:quote` | media     | course                |
-| `mq:media:exists`       | media     | (内部)                  |
-| `mq:media:delete`       | media     | course                |
-| `mq:exam:record`        | exam      | learning              |
-| `mq:communication:like` | (future)  | data                  |
-| `mq:data:today`         | data 定时任务 | data(命中缓存)            |
+| 交换机            | 路由键          | 消息体              | 发布方              | 订阅方                                        | 状态 |
+| ---------------- | ------------- | ---------------- | ---------------- | -------------------------------------------- | --- |
+| `course.events`  | `course.up`   | `CourseEvent`     | course.rpc 课程上架 | search.rpc（队列 `search.course.up`，写/更新 ES 索引） | ✅ 已接线 |
+| `course.events`  | `course.down` | `CourseEvent`     | course.rpc 课程下架 | search.rpc（队列 `search.course.down`，删 ES 索引）   | ✅ 已接线 |
+| `order.exchange` | `order.pay`   | `OrderPayEvent`   | trade.rpc         | learning.rpc（加课，规划中）                       | 🚧 契约已定义，trade 尚未发射、learning 未订阅 |
+| `order.exchange` | `order.refund`| `OrderRefundEvent`| trade.rpc         | learning.rpc（退课，规划中）                       | 🚧 同上 |
 
+> Java 版的 `mq:course:cate:change`、`mq:media:*`、`mq:exam:record`、`mq:data:today` 等事件 Go 版尚未实现，需要时按上表模式在 `pkg/mq` 扩展常量与消息体。
+>
+> course 事件为 best-effort：发布失败仅告警、不回滚课程操作；索引一致性由 search 启动全量重建 + 手动 `ReindexCourses` RPC 兜底。
 
-**发布示例** (`pkg/mq/producer.go`):
+**发布示例**（course.rpc 实际用法，见 `apps/course/rpc/internal/svc/servicecontext.go`）:
 
 ```go
-producer.Publish(ctx, mq.EventCourseUp, map[string]any{"courseId": 123})
+svcCtx.Producer.Publish(ctx, mq.ExchangeCourse, mq.RoutingKeyCourseUp, event.CourseEvent{CourseID: id})
 ```
 
-**订阅示例** (`pkg/mq/client.go`):
+**订阅示例**（search.rpc 实际用法，见 `apps/search/rpc/internal/svc/servicecontext.go`）:
 
 ```go
-consumer.Subscribe(ctx, mq.EventCourseUp, func(msg map[string]any) error { ... })
-```
+client := mq.NewClient(dsn)
+mq.Register(client, mq.Binding{
+    Queue:      "search.course.up",
+    Exchange:   mq.ExchangeCourse,
+    RoutingKey: mq.RoutingKeyCourseUp,
+}, func(ctx context.Context, msg *event.CourseEvent) error {
+    // 写入/更新 ES 索引；返回 error 时消息 Nack 重回队列
+    return nil
+})
 
+// main 里以 goroutine 阻塞启动，失败仅告警（apps/search/rpc/search.go）
+go ctx.MQClient.Start(context.Background())
+```
 
 
 ## 🧩 公共包 (pkg/)
@@ -284,7 +293,7 @@ consumer.Subscribe(ctx, mq.EventCourseUp, func(msg map[string]any) error { ... }
 | `pkg/auth`        | JWT `Sign/Parse`、Claims 含 `userId`/`role`                                            |
 | `pkg/xerr`        | 业务错误码 `Codexxx` + `Msg/Wrap/HttpStatus`                                              |
 | `pkg/response`    | 统一响应 `R{code,msg,requestId,data}` + `Page{list,total,pages}` + `Write(w,r,data,err)` |
-| `pkg/mq`          | Redis Stream 生产者/消费者抽象、事件常量                                                          |
+| `pkg/mq`          | RabbitMQ 事件总线：confirm 发布、泛型消费者（手动 ack、失败 Nack 重回队列）、交换机/路由键常量                                                          |
 | `pkg/utils/idgen` | 雪花算法 `NextID()`                                                                      |
 | `pkg/utils/page`  | 分页参数归一化                                                                              |
 
@@ -341,7 +350,7 @@ replace tjxt/pkg => ../../pkg
 | **Logic 业务** | ✅ 394/394 logic 全部实现（API 193 + RPC 201），全库 0 处 TODO/panic 占位           |
 | **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `result.Write`、xerr 错误码已在各 svc 接入       |
 | **包名规范**     | ✅ 模块路径统一 `tjxt/apps/<svc>` (data 为 `tjxt/apps/data/{api,rpc}/data`) |
-| **事件总线**     | 🚧 `pkg/mq` Producer 已实例化，但 trade 等业务 logic 尚未实际 `Publish`（事件未发射） |
+| **事件总线**     | ✅ course→search 上下架事件全链路已接线（发布+消费+ES 索引同步）；🚧 trade 的 `order.pay`/`order.refund` 契约已定义，Producer 已实例化但 logic 尚未发射，learning 亦未订阅 |
 | **数据库**      | ✅ DDL + goctl model（带缓存）已生成，自定义 Model 已扩展                         |
 | **跨域 RPC**    | ⚠️ 已接线 trade→{course,pay}、search→course、learning→course；其余（如 course→user/learning、trade→promotion、pay→真实网关）尚未接线 |
 | **已知缺口**     | ⚠️ media 对象存储为 mock、pay 支付回调为 demo 占位、trade 优惠券未接入、Seata 未接入（undo_log 表闲置） |

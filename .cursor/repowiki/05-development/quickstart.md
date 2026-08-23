@@ -41,7 +41,7 @@ make docker-up      # 等价于 docker compose up -d
 
 > MySQL 容器首次启动时会自动挂载 `./sql/migration` 到 `/docker-entrypoint-initdb.d`，**自动建库建表并灌入初始数据**。若需要重新初始化，须先 `docker compose down -v` 删除 `mysql-data` 卷。
 
-⚠️ RabbitMQ 虽已在 compose 中启动，但当前代码的事件总线走的是 **Redis Stream**（见 `pkg/mq/`），RabbitMQ 暂未接线。
+✅ 事件总线即 RabbitMQ（`pkg/mq`，见 README「事件流」）：course→search 上下架事件同步已接线；trade 订单事件契约已定义但尚未发射。
 
 ### 可观测性栈（trace / metrics / logs）
 

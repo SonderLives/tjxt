@@ -99,7 +99,7 @@
 | Go | 1.26.x | 工作区模式 `go.work`（每 api/rpc 独立 module） |
 | MySQL | 8.0 | 开发环境 127.0.0.1:3306 root/0000 |
 | Redis | 7.x | 缓存、分布式锁、限流 |
-| RabbitMQ | 3.13 | 事件总线、延迟队列（当前代码事件总线走 Redis Stream，预留） |
+| RabbitMQ | 3.13 | 事件总线（`pkg/mq` 基于 amqp091-go，course→search 已接线） |
 | etcd | 3.5 | 服务发现、配置中心 |
 | OpenTelemetry Collector | contrib latest | 可观测性中枢：trace/metrics/logs 统一收口 |
 | Jaeger | all-in-one 1.57 | 链路追踪后端（UI 16686） |
