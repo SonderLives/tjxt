@@ -47,4 +47,4 @@ alwaysApply: true
 
 ---
 
-> 📚 详细文档见 `.cursor/repowiki/`：架构总览 `00-architecture/overview.md`、开发规范 `01-conventions/`、服务级规格 `02-services/<svc>/`（api-spec/rpc-spec/data-model/business-rules/configs）、OpenAPI 契约 `docs/tjxt.openapi.json`。
+> 📚 详细文档见 `openspec/`（项目规格唯一事实源）：服务级规格 `specs/services/<svc>/`、跨服务架构 `specs/architecture/service-topology`、工程约定 `specs/conventions/`（goctl-codegen / api-contracts / code-style / git-workflow）、共享契约 `specs/shared/`（error-codes / mq-events / pkg-contracts）、基础设施 `specs/infra/`（observability / local-env / local-dev-workflow）、OpenAPI 契约 `docs/tjxt.openapi.json`。

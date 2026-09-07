@@ -1,0 +1,63 @@
+schema: spec-driven
+
+# 项目上下文：由项目原 repo wiki（架构/规范类文档，已全量迁移至本目录）浓缩而来。
+# 服务级能力规格见 specs/services/<svc>/spec.md；共享契约见 specs/shared/；基础设施见 specs/infra/。
+context: |
+  # tjxt 天机学堂 — 基于 go-zero 的在线教育微服务系统
+
+  ## 技术栈
+  - go-zero v1.10.3（goctl 代码生成）、Go 1.26.x（go.work 工作区，每 api/rpc 独立 go.mod）
+  - MySQL 8.0（127.0.0.1:3306 root/0000，每服务独享 tj_<domain> 库；data 服务无独立 DB）
+  - Redis 7.x（缓存/分布式锁/限流）、RabbitMQ 3.13（事件总线 pkg/mq，基于 amqp091-go）、etcd 3.5（服务发现/配置）
+  - 可观测性：trace/metrics/logs 统一经 otel-collector 收口 → Jaeger:16686 / Prometheus:9090 / Loki:3100
+
+  ## 服务清单（API 8801-8813 / RPC 8081-8093）
+  user(8801/8081,tj_user) auth(8802/8082,tj_user) course(8803/8083,tj_course) learning(8804/8084,tj_learning)
+  exam(8805/8085,tj_exam) media(8806/8086,tj_media) message(8807/8087,tj_message) pay(8808/8088,tj_pay)
+  trade(8809/8089,tj_trade) search(8810/8090,tj_search) data(8811/8091,无DB) promotion(8812/8092,tj_promotion)
+  remark(8813/8093,tj_remark)
+  注：metrics 端口 RPC 9101-9113 / API 9201-9213，每服务唯一。
+
+  ## 数据流向原则
+  1. 单向依赖：API 层 → RPC 层 → DB/MQ，禁止反向调用
+  2. 跨服务仅走 RPC Client（etcd 发现，key 如 auth.rpc），严禁 import 对方 internal 包
+  3. 数据库隔离：每服务独享库，跨域查询走对应服务 RPC
+  4. 异步解耦：订单支付、消息发送、积分变更等通过 RabbitMQ 事件（pkg/mq/event）
+  5. 跨服务调用统一 3s 超时；写操作 RPC 携带 IdempotencyKey 保证幂等
+
+  ## API 统一契约
+  - 响应：所有 HTTP 接口返回 pkg/response.R{Code,Msg,RequestId,Data}，handler 必须用 result.Write(w,r,data,err)，禁止 httpx.OkJsonCtx/ErrorCtx
+  - 分页：PageRequest{PageNo default=1, PageSize default=20 lte=100} → PageResponse[T]{Total,List,PageNo,PageSize}
+  - 错误码：pkg/xerr；系统通用 100000-100999，领域分段 101000(auth) 102000(course) 103000(trade) 104000(learning) 105000(pay) 106000(media) 107000(promotion) 108000(message) 109000(exam) 110000(search) 111000(user)，不重叠
+  - 鉴权：.api 的 @server(jwt: Auth)；logic 内用 pkg/auth.GetUserId/GetRole 取身份，禁止手解 JWT
+  - 路由：RESTful，非 CRUD 动作用动词前缀（/courses/:id/publish）；URL 前缀 /api/v1；响应字段只增不减
+  - 类型命名 <动作><资源>Req/Resp；goctl 不支持 any，用 interface{}
+
+  ## goctl 生成规则（生成优先，手写最小化）
+  - 只手写：internal/logic/*.go、internal/model/*model.go（Custom 扩展）、业务扩展文件（consts.go/vars.go）
+  - 禁止手写：handler、types、routes、pb、server、config 骨架；禁止改 *_gen.go
+  - 标准流程：DDL(sql/ddl/tj_<domain>.sql) → goctl model（-cache）→ proto → goctl rpc protoc --client=true → .api → goctl api go → 手写 Logic
+  - 目录命名 gozero 风格（小驼峰无下划线）；module path：tjxt/apps/<svc>/api 与 tjxt/apps/<svc>/rpc；跨服务依赖用 require+replace 本地相对路径，伪版本 v0.0.0-00010101000000-000000000000
+
+  ## 代码风格
+  - 错误处理统一 xerr.NewErrCode(...).WithError(err)，禁止裸返回 error / fmt.Errorf 包装
+  - ctx 永远第一位，跨层透传；依赖注入走 svc.ServiceContext
+  - 代码风格：见 specs/conventions/code-style
+  - 提交前 make fmt；Git 流程（分支/Conventional Commits/PR 模板/发布）见 specs/conventions/git-workflow
+
+  ## 可观测性（勿删配置）
+  - 每个服务 apps/<svc>/{api,rpc}/etc/*.yaml 已注入 Telemetry{Endpoint:127.0.0.1:4318,otlphttp} / Prometheus{Port 唯一,/metrics} / Log{Mode:file,Encoding:json,Path:logs/<svc>} 三段，禁止删除或改坏
+  - Log.Path 为相对路径，服务必须从仓库根启动，否则日志采集不到
+  - Prometheus 只抓 otel-collector:8889；go-zero 无 OTLP metrics/logs exporter，故 metrics 走 scrape 代理、logs 走 filelog
+
+  ## 参考文档
+  - 已知缺口：分散记录在各服务 spec 的「> 已知缺口：」引用块中（原实现进度快照已随源 wiki 一并删除）
+  - 本地开发流程：specs/infra/local-dev-workflow；基础设施：specs/infra/local-env；可观测性：specs/infra/observability
+  - 工程约定：specs/conventions/{goctl-codegen,api-contracts,code-style,git-workflow}
+
+# Per-artifact rules (optional)
+rules:
+  spec:
+    - 中文书写；需求陈述保留 SHALL 关键字
+    - 每个 Requirement 按「领域分组」组织，接口/方法清单用表格呈现
+    - 场景使用 WHEN/THEN(/AND) 列表
