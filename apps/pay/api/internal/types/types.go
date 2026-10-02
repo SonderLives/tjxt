@@ -7,10 +7,10 @@ type ApplyPayOrderReq struct {
 	BizOrderNo     int64  `json:"bizOrderNo"`
 	Amount         int64  `json:"amount"` // 单位：分
 	PayChannelCode string `json:"payChannelCode"`
-	PayType        int64  `json:"payType,omitempty"` // 1 h5, 2 mini, 3 mp, 4 native
-	ExpandJson     string `json:"expandJson,omitempty"`
-	NotifyUrl      string `json:"notifyUrl,omitempty"`
-	PayOverSeconds int64  `json:"payOverSeconds,omitempty"` // 默认 30 分钟
+	PayType        int64  `json:"payType,optional"` // 1 h5, 2 mini, 3 mp, 4 native
+	ExpandJson     string `json:"expandJson,optional"`
+	NotifyUrl      string `json:"notifyUrl,optional"`
+	PayOverSeconds int64  `json:"payOverSeconds,optional"` // 默认 30 分钟
 }
 
 type ApplyRefundReq struct {
@@ -25,8 +25,8 @@ type MockPayReq struct {
 
 type NotifyPayFailedReq struct {
 	PayOrderNo int64  `json:"payOrderNo"`
-	ResultCode string `json:"resultCode,omitempty"`
-	ResultMsg  string `json:"resultMsg,omitempty"`
+	ResultCode string `json:"resultCode,optional"`
+	ResultMsg  string `json:"resultMsg,optional"`
 }
 
 type NotifyPaySuccessReq struct {
@@ -39,27 +39,27 @@ type NotifyPaySuccessReq struct {
 
 type NotifyRefundFailedReq struct {
 	RefundOrderNo int64  `json:"refundOrderNo"`
-	ResultCode    string `json:"resultCode,omitempty"`
-	ResultMsg     string `json:"resultMsg,omitempty"`
+	ResultCode    string `json:"resultCode,optional"`
+	ResultMsg     string `json:"resultMsg,optional"`
 }
 
 type NotifyRefundSuccessReq struct {
 	RefundOrderNo int64  `json:"refundOrderNo"`
-	ResultCode    string `json:"resultCode,omitempty"`
-	ResultMsg     string `json:"resultMsg,omitempty"`
-	RefundChannel string `json:"refundChannel,omitempty"`
+	ResultCode    string `json:"resultCode,optional"`
+	ResultMsg     string `json:"resultMsg,optional"`
+	RefundChannel string `json:"refundChannel,optional"`
 }
 
 type PageRequest struct {
-	PageNo   int64 `form:"pageNo,omitempty"`
-	PageSize int64 `form:"pageSize,omitempty"`
+	PageNo   int64 `form:"pageNo,optional"`
+	PageSize int64 `form:"pageSize,optional"`
 }
 
 type PayChannelAddReq struct {
 	Name            string `json:"name"`
 	ChannelCode     string `json:"channelCode"`
 	ChannelPriority int64  `json:"channelPriority"`
-	ChannelIcon     string `json:"channelIcon,omitempty"`
+	ChannelIcon     string `json:"channelIcon,optional"`
 }
 
 type PayChannelCodeReq struct {
@@ -68,9 +68,9 @@ type PayChannelCodeReq struct {
 
 type PayChannelPageReq struct {
 	PageRequest
-	Name        string `form:"name,omitempty"`
-	ChannelCode string `form:"channelCode,omitempty"`
-	Status      int64  `form:"status,omitempty"`
+	Name        string `form:"name,optional"`
+	ChannelCode string `form:"channelCode,optional"`
+	Status      int64  `form:"status,optional"`
 }
 
 type PayChannelStatusReq struct {
@@ -80,9 +80,9 @@ type PayChannelStatusReq struct {
 
 type PayChannelUpdateReq struct {
 	Id              int64  `json:"id"`
-	Name            string `json:"name,omitempty"`
-	ChannelPriority int64  `json:"channelPriority,omitempty"`
-	ChannelIcon     string `json:"channelIcon,omitempty"`
+	Name            string `json:"name,optional"`
+	ChannelPriority int64  `json:"channelPriority,optional"`
+	ChannelIcon     string `json:"channelIcon,optional"`
 }
 
 type PayOrderNoReq struct {
