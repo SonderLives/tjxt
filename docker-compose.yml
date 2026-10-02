@@ -47,6 +47,26 @@ services:
       timeout: 10s
       retries: 20
       start_period: 60s
+  # RustFS 对象存储（S3 兼容协议），media 服务的上传/播放签名后端。
+  # 控制台 http://localhost:9001（rustfsadmin/rustfsadmin）；换 COS/OSS 只改 media.yaml 凭证。
+  rustfs:
+    image: rustfs/rustfs:latest
+    environment:
+      RUSTFS_ACCESS_KEY: rustfsadmin
+      RUSTFS_SECRET_KEY: rustfsadmin
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_VOLUMES: /data
+    ports:
+      - "9000:9000" # S3 API
+      - "9001:9001" # Console
+    volumes: ["rustfs-data:/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    #    ^ RustFS 为 S3 兼容实现，客户端统一用 S3 SDK（见 apps/media/rpc/internal/store）
+
   # Jaeger 链路追踪后端（UI + OTLP 接收）。
   # 现在 span 由 otel-collector 转发进来（collector → jaeger:4318，走 docker 内网），
   # 故 4317/4318 不再映射到宿主机（已让位给 otel-collector）；UI 仍在 16686。
@@ -108,3 +128,4 @@ volumes:
   mysql-data:
   redis-data:
   es-data:
+  rustfs-data:
