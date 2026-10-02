@@ -17,3 +17,7 @@ logs/
 
 # env
 .env
+
+# agent
+.workbuddy
+
