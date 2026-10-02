@@ -70,7 +70,7 @@ CREATE TABLE `pay_order`  (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `creater` bigint NOT NULL DEFAULT 0 COMMENT '创建人',
   `updater` bigint NOT NULL DEFAULT 0 COMMENT '更新人',
-  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '逻辑删除',
+  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '逻辑删除',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `biz_order_no`(`biz_order_no` ASC) USING BTREE,
   UNIQUE INDEX `pay_order_no`(`pay_order_no` ASC) USING BTREE
@@ -121,7 +121,7 @@ CREATE TABLE `refund_order`  (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '退款单据修改时间',
   `creater` bigint NOT NULL DEFAULT 0 COMMENT '单据创建人，一般手动对账产生的单据才有值',
   `updater` bigint NOT NULL DEFAULT 0 COMMENT '单据修改人，一般手动对账产生的单据才有值',
-  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '逻辑删除',
+  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '逻辑删除',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `index_biz_order_id`(`biz_refund_order_no` ASC) USING BTREE,
   INDEX `index_create_time`(`create_time` ASC) USING BTREE,
