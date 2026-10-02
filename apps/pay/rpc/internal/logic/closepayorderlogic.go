@@ -38,8 +38,13 @@ func (l *ClosePayOrderLogic) ClosePayOrder(in *pb.ClosePayOrderRequest) (*pb.Emp
 	case PayOrderStatusClosed:
 		return &pb.EmptyResponse{}, nil
 	}
-	if err := l.svcCtx.PayOrderModel.MarkToClosed(l.ctx, m.Id, "MANUAL_CLOSE", "业务端主动关单"); err != nil {
+	transit, err := l.svcCtx.PayOrderModel.MarkToClosed(l.ctx, m.Id, "MANUAL_CLOSE", "业务端主动关单")
+	if err != nil {
 		return nil, xerr.Wrapf(err, xerr.CodeInternal, "关单失败")
+	}
+	if !transit {
+		// 并发关单下已被其他请求流转，按幂等成功处理
+		logx.WithContext(l.ctx).Infof("close pay order no-op, already terminal, payOrderId=%d", m.Id)
 	}
 	return &pb.EmptyResponse{}, nil
 }

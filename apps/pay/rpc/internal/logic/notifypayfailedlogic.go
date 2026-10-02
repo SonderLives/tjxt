@@ -38,8 +38,12 @@ func (l *NotifyPayFailedLogic) NotifyPayFailed(in *pb.NotifyPayFailedRequest) (*
 	case PayOrderStatusClosed:
 		return &pb.EmptyResponse{}, nil
 	}
-	if err := l.svcCtx.PayOrderModel.MarkToClosed(l.ctx, m.Id, in.ResultCode, in.ResultMsg); err != nil {
+	transit, err := l.svcCtx.PayOrderModel.MarkToClosed(l.ctx, m.Id, in.ResultCode, in.ResultMsg)
+	if err != nil {
 		return nil, xerr.Wrapf(err, xerr.CodeInternal, "更新支付单状态失败")
+	}
+	if !transit {
+		logx.WithContext(l.ctx).Infof("notify pay failed no-op, already terminal, payOrderId=%d", m.Id)
 	}
 	return &pb.EmptyResponse{}, nil
 }
