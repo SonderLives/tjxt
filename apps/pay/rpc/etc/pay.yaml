@@ -25,6 +25,9 @@ Etcd:
 
 DataSource: root:${TJXT_DB_PASS|0000}@tcp(127.0.0.1:3306)/tj_pay?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 
+# 支付渠道实现：mock | 预留 wechat/alipay（实现 gateway.PaymentGateway 后在此切换）
+PayProvider: mock
+
 Cache:
   - Host: 127.0.0.1:6379
     Pass:

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 
+	"tjxt/apps/pay/rpc/internal/gateway"
 	"tjxt/apps/pay/rpc/internal/model"
 	"tjxt/apps/pay/rpc/internal/svc"
 	"tjxt/apps/pay/rpc/pb"
@@ -19,7 +20,7 @@ import (
 //   - 同一 biz_order_no 幂等：若已有 pay_order，直接返回原二维码
 //   - 若原单已支付/已关闭，返回错误，让上游重新发起业务订单
 //   - 默认 30 分钟支付超时
-//   - 实际项目中应调用第三方支付渠道（微信/支付宝），此处为 demo 生成 mock qr url
+//   - 渠道交互经 gateway.PaymentGateway 抽象（demo 为 MockGateway，真实渠道实现该接口即可）
 type ApplyPayOrderLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
@@ -78,6 +79,17 @@ func (l *ApplyPayOrderLogic) ApplyPayOrder(in *pb.ApplyPayOrderRequest) (*pb.App
 	}
 
 	poNo := nextID()
+	// 渠道下单（mock 渠道返回本地可识别二维码；真实渠道在此调用微信/支付宝下单接口）
+	gp, err := l.svcCtx.Gateway.CreatePayment(l.ctx, gateway.CreatePaymentRequest{
+		PayOrderNo:  poNo,
+		BizOrderNo:  in.BizOrderNo,
+		BizUserID:   in.BizUserId,
+		Amount:      in.Amount,
+		ChannelCode: in.PayChannelCode,
+	})
+	if err != nil {
+		return nil, xerr.Wrapf(err, xerr.CodeInternal, "渠道下单失败")
+	}
 	po := &model.PayOrder{
 		BizOrderNo:     in.BizOrderNo,
 		PayOrderNo:     poNo,
@@ -92,7 +104,7 @@ func (l *ApplyPayOrderLogic) ApplyPayOrder(in *pb.ApplyPayOrderRequest) (*pb.App
 		NotifyStatus:   NotifyStatusPending,
 		PayOverTime:    payOverTime,
 		QrCodeUrl: sql.NullString{
-			String: mockQrCodeUrl(poNo, in.Amount),
+			String: gp.QrCodeUrl,
 			Valid:  true,
 		},
 	}
@@ -100,33 +112,4 @@ func (l *ApplyPayOrderLogic) ApplyPayOrder(in *pb.ApplyPayOrderRequest) (*pb.App
 		return nil, xerr.Wrapf(err, xerr.CodeInternal, "创建支付单失败")
 	}
 	return &pb.ApplyPayOrderResponse{QrCodeUrl: po.QrCodeUrl.String}, nil
-}
-
-// mockQrCodeUrl 在真实项目里应该是调用微信/支付宝下单接口拿到的 code_url/prepay_id，
-// demo 中生成一个本地可识别的占位 url。
-func mockQrCodeUrl(payOrderNo, amount int64) string {
-	return "tjxt://mock-pay?order_no=" + itoa(payOrderNo) + "&amount=" + itoa(amount)
-}
-
-func itoa(v int64) string {
-	// 避免引入 strconv 的小工具，特殊情况下仍走 fmt
-	if v == 0 {
-		return "0"
-	}
-	neg := v < 0
-	if neg {
-		v = -v
-	}
-	buf := [20]byte{}
-	i := len(buf)
-	for v > 0 {
-		i--
-		buf[i] = byte('0' + v%10)
-		v /= 10
-	}
-	if neg {
-		i--
-		buf[i] = '-'
-	}
-	return string(buf[i:])
 }

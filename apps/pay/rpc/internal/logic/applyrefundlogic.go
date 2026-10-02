@@ -2,8 +2,8 @@ package logic
 
 import (
 	"context"
-	"database/sql"
 
+	"tjxt/apps/pay/rpc/internal/gateway"
 	"tjxt/apps/pay/rpc/internal/model"
 	"tjxt/apps/pay/rpc/internal/svc"
 	"tjxt/apps/pay/rpc/pb"
@@ -87,18 +87,44 @@ func (l *ApplyRefundLogic) ApplyRefund(in *pb.ApplyRefundRequest) (*pb.RefundRes
 		return nil, xerr.Wrapf(err, xerr.CodeInternal, "创建退款单失败")
 	}
 
-	// 真实生产：调用第三方退款 API，再根据结果 async 通过 NotifyRefundSuccess/Failed 更新
-	// demo 中暂时直接 mock 成功
-	_ = sql.ErrNoRows
-	if err := l.svcCtx.RefundOrderModel.MarkToSuccess(l.ctx, ro.Id, "MOCK_OK", "mock 退款成功", "mock"); err != nil {
-		l.Errorf("mock 退款成功更新失败: %v", err)
+	// 调渠道退款：mock 渠道同步成功；真实渠道（微信/支付宝）为异步受理，
+	// 由 NotifyRefundSuccess/Failed 回调驱动终态
+	res, rerr := l.svcCtx.Gateway.Refund(l.ctx, gateway.RefundRequest{
+		PayOrderNo:       payOrder.PayOrderNo,
+		RefundOrderNo:    roNo,
+		BizRefundOrderNo: in.BizRefundOrderNo,
+		RefundAmount:     in.RefundAmount,
+		ChannelCode:      payOrder.PayChannelCode,
+	})
+	if rerr != nil {
+		// 渠道受理失败：退款单保持 Processing，上游可凭 biz_refund_order_no 幂等重试
+		l.Errorf("gateway refund failed, refundOrderNo=%d: %v", roNo, rerr)
+		return &pb.RefundResultResponse{
+			RefundOrderNo:    roNo,
+			BizRefundOrderNo: in.BizRefundOrderNo,
+			RefundAmount:     in.RefundAmount,
+			Status:           RefundStatusProcessing,
+			ResultMsg:        "渠道退款受理失败，等待重试",
+		}, nil
+	}
+	if res.Synchronous && res.Success {
+		if err := l.svcCtx.RefundOrderModel.MarkToSuccess(l.ctx, ro.Id, res.ChannelNo, res.Msg, payOrder.PayChannelCode); err != nil {
+			l.Errorf("mark refund success failed, refundOrderNo=%d: %v", roNo, err)
+		}
+		return &pb.RefundResultResponse{
+			RefundOrderNo:    roNo,
+			BizRefundOrderNo: in.BizRefundOrderNo,
+			RefundAmount:     in.RefundAmount,
+			Status:           RefundStatusSuccess,
+			ResultMsg:        res.Msg,
+		}, nil
 	}
 
 	return &pb.RefundResultResponse{
 		RefundOrderNo:    roNo,
 		BizRefundOrderNo: in.BizRefundOrderNo,
 		RefundAmount:     in.RefundAmount,
-		Status:           RefundStatusSuccess,
-		ResultMsg:        "mock 退款成功",
+		Status:           RefundStatusProcessing,
+		ResultMsg:        "渠道退款受理中",
 	}, nil
 }
