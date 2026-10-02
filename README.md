@@ -237,8 +237,9 @@ make run-<svc>          # 前台跑单个 API（如 make run-user）
 make run-<svc>-rpc      # 前台跑单个 RPC（如 make run-user-rpc）
 make run-all            # 后台并行启动所有 API（各开独立窗口）
 make run-all-rpc        # 后台并行启动所有 RPC
-make docker-up          # 拉起 docker-compose 全部容器（含可观测性栈）
+make docker-up          # 拉起 docker-compose 全部容器（含可观测性栈 + Elasticsearch + RustFS）
 make docker-logs        # 跟踪容器日志
+make ci                 # 门禁一条龙：结构校验 + 全量构建 + golangci-lint + 测试
 make info            # 打印服务→端口映射
 make d2u             # Windows 行尾修复 (CRLF→LF)
 ```
@@ -346,21 +347,37 @@ replace tjxt/pkg => ../../pkg
 
 ## 📊 业务实现现状
 
-> 结论（2026-08-06 复核）：13/13 服务、API+RPC 共 394 个接口，全部 logic 已实现并 `go build` 逐模块编译通过；功能完备度≈97%（少量桩为有意预留，见下）。
+> 结论（2026-10-02 复核）：13/13 服务、API+RPC 共 394 个接口，全部 logic 已实现并 `go build` 逐模块编译通过；支付闭环/优惠券/对象存储链路已端到端验证。
 
 | 项目           | 状态                                                                  |
 | ------------ | ------------------------------------------------------------------- |
 | **骨架**       | ✅ 13 服务 api+rpc 全部 goctl 生成完毕，`go build ./...` 逐模块编译通过                  |
 | **Logic 业务** | ✅ 394/394 logic 全部实现（API 193 + RPC 201），全库 0 处 TODO/panic 占位           |
-| **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `result.Write`、xerr 错误码已在各 svc 接入       |
+| **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `result.Write`（全服务已统一）、xerr 错误码跨服务还原（`xerr.FromGRPC`） |
 | **包名规范**     | ✅ 模块路径统一 `tjxt/apps/<svc>` (data 为 `tjxt/apps/data/{api,rpc}/data`) |
 | **事件总线**     | ✅ 三段链路全部接线：course→search 上下架同步 ES；pay→trade 支付成功回写订单（条件更新+幂等）；trade→learning 支付加课/退款撤课 |
-| **数据库**      | ✅ DDL + goctl model（带缓存）已生成，自定义 Model 已扩展                         |
-| **跨域 RPC**    | ⚠️ 已接线 trade→{course,pay}、search→course、learning→course；其余（如 course→user/learning、trade→promotion、pay→真实网关）尚未接线 |
-| **已知缺口**     | ⚠️ media 对象存储为 mock、pay 支付渠道为 demo（mock 网关，签名校验已接）、trade 优惠券未接入、Seata 未接入（undo_log 表闲置） |
+| **支付闭环**     | ✅ 下单（事务）→ 渠道下单（gateway 抽象）→ 回调验签（HMAC）→ pay.success → 订单回写 → order.pay → 加课；退款同理。渠道经 `gateway.PaymentGateway` 抽象，mock 可插真实渠道 |
+| **优惠券**      | ✅ trade→promotion 已接线：预下单可用方案（UserCouponAvailable）、下单折扣分摊（UserCouponDiscount）、核销（UserCouponUse）、退款退券（UserCouponRefund） |
+| **对象存储**     | ✅ media 接 S3 兼容存储（RustFS/MinIO/COS/OSS）：预签名 PUT 直传、预签名 GET 播放防盗链、公共读持久地址；未配置自动回退 mock |
+| **数据库**      | ✅ DDL + goctl model（带缓存）已生成，自定义 Model 已扩展；pay.deleted 列已修正为 tinyint |
+| **质量门禁**     | ✅ golangci-lint（逐模块）+ `make ci` + GitHub Actions；pkg/pay 关键路径有单测 |
+| **跨域 RPC**    | ⚠️ 已接线 trade→{course,pay,promotion}、search→course、learning→course；其余（如 course→user/learning）尚未接线 |
+| **已知缺口**     | ⚠️ pay 渠道为 mock 实现（真实微信/支付宝需凭证接入 gateway）、Seata 未接入（undo_log 表闲置）、course→user/learning 详情未接线 |
 
 
 
+
+## 🔐 敏感配置与环境变量
+
+所有服务经 `pkg/confenv` 加载配置，支持 `${VAR|default}` 语法：环境变量存在且非空时覆盖，否则用 yaml 默认值（本地开发零配置）。
+
+| 环境变量                 | 作用                          | 默认值                     |
+| ---------------------- | ----------------------------- | -------------------------- |
+| `TJXT_JWT_SECRET`      | 全部 API 的 JWT 签名密钥        | change-me-in-production |
+| `TJXT_REFRESH_SECRET`  | auth 的 refresh token 密钥     | change-me-refresh-in-production |
+| `TJXT_DB_PASS`         | MySQL root 密码（各 rpc）      | 0000                    |
+| `TJXT_MQ_PASS`         | RabbitMQ 密码                 | rabbitmq                |
+| `TJXT_MINIO_AK`/`TJXT_MINIO_SK` | 对象存储凭据（RustFS/MinIO/COS） | rustfsadmin/rustfsadmin |
 
 ## 🛠 开发规范
 
