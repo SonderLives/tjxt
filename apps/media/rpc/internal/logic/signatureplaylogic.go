@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"time"
 
 	"tjxt/apps/media/rpc/internal/svc"
 	"tjxt/apps/media/rpc/pb"
@@ -40,6 +41,18 @@ func (l *SignaturePlayLogic) SignaturePlay(in *pb.SignatureRequest) (*pb.Signatu
 	if playURL == "" {
 		playURL = mockPlayURL(media.Id)
 	}
-	// mock 实现：真实项目返回 COS/OSS 带签名的播放地址（可追加 token 参数）
+	// 配置了对象存储：按 file.key 生成带时效的预签名播放地址（防盗链）；
+	// 失败回退媒资持久 URL
+	if st := l.svcCtx.Store; st != nil {
+		if file, ferr := l.svcCtx.FileModel.FindByKey(l.ctx, media.FileId); ferr == nil {
+			if u, perr := st.PresignGet(l.ctx, file.Key, 2*time.Hour); perr == nil {
+				playURL = u
+			} else {
+				logx.WithContext(l.ctx).Errorf("presign play url failed, mediaId=%d: %v", media.Id, perr)
+			}
+		} else {
+			logx.WithContext(l.ctx).Errorf("query file for play url failed, mediaId=%d fileId=%s: %v", media.Id, media.FileId, ferr)
+		}
+	}
 	return &pb.SignatureVO{PlayUrl: playURL}, nil
 }

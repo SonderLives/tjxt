@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"time"
 
 	"tjxt/apps/media/rpc/internal/model"
 	"tjxt/apps/media/rpc/internal/svc"
@@ -35,9 +36,9 @@ func (l *SignatureUploadLogic) SignatureUpload(in *pb.SignatureRequest) (*pb.Sig
 		return nil, xerr.BadRequestf("mediaType 仅支持 video/image/audio")
 	}
 
-	// mock 实现：真实项目调用腾讯云 COS / 阿里 OSS 的 STS 接口生成临时签名
-	// （含临时密钥、签名串与上传 URL），此处仅占位并落一条待上传的文件记录
-	key := mockObjectKey(in.FileName)
+	// 配置了对象存储：生成预签名 PUT URL（客户端直传，URL 本身即上传凭证）；
+	// 未配置：回退 mock 地址并落一条待上传的文件记录
+	key := objectKey(in.FileName)
 	file := &model.File{
 		Id:       idgen.NextID(),
 		Key:      key,
@@ -49,10 +50,20 @@ func (l *SignatureUploadLogic) SignatureUpload(in *pb.SignatureRequest) (*pb.Sig
 		return nil, xerr.Wrapf(err, xerr.CodeInternal, "创建文件记录失败")
 	}
 
+	token := ""
+	uploadURL := mockUploadURL(key)
+	if st := l.svcCtx.Store; st != nil {
+		u, err := st.PresignUpload(l.ctx, key, 30*time.Minute)
+		if err != nil {
+			return nil, xerr.Wrapf(err, xerr.CodeInternal, "生成上传签名失败")
+		}
+		uploadURL = u
+	}
+
 	return &pb.SignatureVO{
-		Token:     mockToken(),
+		Token:     token,
 		Url:       "",
-		UploadUrl: mockUploadURL(key),
+		UploadUrl: uploadURL,
 		PlayUrl:   "",
 	}, nil
 }

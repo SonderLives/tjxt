@@ -36,5 +36,5 @@ func (l *FileGetLogic) FileGet(in *pb.FileIdRequest) (*pb.FileVO, error) {
 		}
 		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询文件失败")
 	}
-	return toFileVO(file), nil
+	return toFileVO(file, l.svcCtx.Store), nil
 }

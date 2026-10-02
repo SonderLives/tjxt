@@ -53,12 +53,16 @@ func (l *MediaSaveLogic) create(in *pb.MediaSaveRequest) (*pb.MediaIdReply, erro
 	}
 
 	id := idgen.NextID()
+	// 配置对象存储时生成公共读持久地址，否则 mock 占位
+	mediaURL := mockFileURL(in.FileId)
+	if l.svcCtx.Store != nil {
+		mediaURL = l.svcCtx.Store.PublicURL(in.FileId)
+	}
 	media := &model.Media{
 		Id:       id,
 		FileId:   in.FileId,
 		Filename: in.Filename,
-		// media_url 为 mock 地址，真实项目由 COS/OSS 返回
-		MediaUrl: mockFileURL(in.FileId),
+		MediaUrl: mediaURL,
 		Duration: in.Duration,
 		Size:     in.Size,
 		Status:   MediaStatusUploaded,

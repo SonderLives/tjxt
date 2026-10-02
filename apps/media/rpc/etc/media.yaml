@@ -29,3 +29,13 @@ Cache:
   - Host: 127.0.0.1:6379
     Type: node
     Pass: ""
+
+# S3 兼容对象存储（RustFS / MinIO / COS / OSS；docker compose 提供 rustfs 容器。
+# 留空 Endpoint 则回退 mock）。本机已有 1Panel RustFS 实例时用环境变量覆盖凭据：
+#   TJXT_MINIO_AK / TJXT_MINIO_SK
+MinIO:
+  Endpoint: 127.0.0.1:9000
+  AccessKey: ${TJXT_MINIO_AK|rustfsadmin}
+  SecretKey: ${TJXT_MINIO_SK|rustfsadmin}
+  Bucket: tjxt-media
+  Secure: false

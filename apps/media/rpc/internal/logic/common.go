@@ -1,15 +1,14 @@
 package logic
 
 import (
-	"crypto/md5"
 	"database/sql"
-	"encoding/hex"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
 	"tjxt/apps/media/rpc/internal/model"
+	"tjxt/apps/media/rpc/internal/store"
 	"tjxt/apps/media/rpc/pb"
 	"tjxt/pkg/utils/idgen"
 )
@@ -40,36 +39,26 @@ var supportedMediaTypes = map[string]struct{}{
 	"audio": {},
 }
 
-// mockBaseURL 对象存储的 mock 占位地址。
-// 真实项目中替换为腾讯云 COS / 阿里 OSS 的访问域名（如 https://xxx.cos.ap-guangzhou.myqcloud.com）。
+// mockBaseURL 对象存储未配置（Store==nil）时的 mock 占位地址。
+// 配置 MinIO（S3 协议，兼容 COS/OSS 网关）后所有签名/地址均由 store 生成。
 const mockBaseURL = "http://127.0.0.1:9000"
 
-// mockToken 生成 mock 签名串。
-// 真实项目中由 COS/OSS 的 STS 临时密钥服务签发，包含 ak/sk/token/有效期等。
-func mockToken() string {
-	sum := md5.Sum([]byte(strconv.FormatInt(idgen.NextID(), 10)))
-	return hex.EncodeToString(sum[:])
+// objectKey 按文件名生成云端对象 key：media/<雪花ID><扩展名>。
+func objectKey(filename string) string {
+	return fmt.Sprintf("media/%d%s", idgen.NextID(), fileExt(filename))
 }
 
-// mockObjectKey 按文件名生成云端 key：mock/<雪花ID><文件扩展名>。
-// 真实项目中 key 由 COS/OSS 上传策略生成（目录 + 雪花ID + 扩展名）。
-func mockObjectKey(filename string) string {
-	return fmt.Sprintf("mock/%d%s", idgen.NextID(), fileExt(filename))
-}
-
-// mockFileURL 生成文件的 mock 访问地址。
-// 真实项目返回 COS/OSS 的持久化访问地址。
+// mockFileURL 生成文件的 mock 访问地址（Store==nil 回退用）。
 func mockFileURL(key string) string {
 	return mockBaseURL + "/" + key
 }
 
-// mockUploadURL 生成文件的 mock 上传地址。
-// 真实项目返回 COS/OSS 的 PUT 直传地址或预签名上传 URL。
+// mockUploadURL 生成文件的 mock 上传地址（Store==nil 回退用）。
 func mockUploadURL(key string) string {
 	return mockBaseURL + "/upload/" + key
 }
 
-// mockPlayURL 生成媒资的 mock 播放地址。
+// mockPlayURL 生成媒资的 mock 播放地址（Store==nil 回退用）。
 func mockPlayURL(idOrKey any) string {
 	return fmt.Sprintf("%s/play/%v", mockBaseURL, idOrKey)
 }
@@ -118,13 +107,16 @@ func toMediaVO(m *model.Media) *pb.MediaVO {
 }
 
 // toFileVO 文件模型转 RPC VO
-func toFileVO(m *model.File) *pb.FileVO {
+func toFileVO(m *model.File, st *store.Store) *pb.FileVO {
+	path := mockFileURL(m.Key)
+	if st != nil {
+		path = st.PublicURL(m.Key)
+	}
 	return &pb.FileVO{
 		Id:       m.Id,
 		Key:      m.Key,
 		Filename: m.Filename,
-		// Path 表中无对应字段，真实场景为 OSS/COS 的访问地址，此处 mock 生成
-		Path:   mockFileURL(m.Key),
-		Status: int32(m.Status),
+		Path:     path,
+		Status:   int32(m.Status),
 	}
 }
