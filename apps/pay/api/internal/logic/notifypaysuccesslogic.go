@@ -39,7 +39,7 @@ func verifySign(secret string, payOrderNo int64, sign string) bool {
 		return false
 	}
 	mac := hmac.New(sha256.New, []byte(secret))
-	mac.Write([]byte(fmt.Sprintf("payOrderNo=%d", payOrderNo)))
+	_, _ = fmt.Fprintf(mac, "payOrderNo=%d", payOrderNo)
 	expected := hex.EncodeToString(mac.Sum(nil))
 	return hmac.Equal([]byte(expected), []byte(sign))
 }
