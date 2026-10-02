@@ -11,8 +11,8 @@ import (
 	"tjxt/apps/learning/api/internal/handler"
 	"tjxt/apps/learning/api/internal/svc"
 
-	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/rest"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/learning-api.yaml", "the config file")

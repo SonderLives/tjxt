@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/auth/api/internal/logic/privilege"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func DeletePrivilegeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func DeletePrivilegeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := privilege.NewDeletePrivilegeLogic(r.Context(), svcCtx)
 		resp, err := l.DeletePrivilege(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

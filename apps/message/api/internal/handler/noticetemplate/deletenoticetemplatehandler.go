@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/message/api/internal/logic/noticetemplate"
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func DeleteNoticeTemplateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func DeleteNoticeTemplateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := noticetemplate.NewDeleteNoticeTemplateLogic(r.Context(), svcCtx)
 		resp, err := l.DeleteNoticeTemplate(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

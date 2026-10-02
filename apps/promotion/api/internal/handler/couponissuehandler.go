@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/promotion/api/internal/logic"
 	"tjxt/apps/promotion/api/internal/svc"
 	"tjxt/apps/promotion/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func CouponIssueHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func CouponIssueHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewCouponIssueLogic(r.Context(), svcCtx)
 		err := l.CouponIssue(&req)
-		result.Write(w, r, nil, err)
+		response.Write(w, r, nil, err)
 	}
 }

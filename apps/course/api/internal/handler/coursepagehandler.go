@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/course/api/internal/logic"
 	"tjxt/apps/course/api/internal/svc"
 	"tjxt/apps/course/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func CoursePageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func CoursePageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewCoursePageLogic(r.Context(), svcCtx)
 		resp, err := l.CoursePage(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

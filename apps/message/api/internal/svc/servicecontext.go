@@ -8,8 +8,8 @@ import (
 )
 
 type ServiceContext struct {
-	Config      config.Config
-	MessageRpc  messageclient.Message
+	Config     config.Config
+	MessageRpc messageclient.Message
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {

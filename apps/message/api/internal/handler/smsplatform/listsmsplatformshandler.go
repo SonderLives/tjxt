@@ -8,13 +8,13 @@ import (
 
 	"tjxt/apps/message/api/internal/logic/smsplatform"
 	"tjxt/apps/message/api/internal/svc"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func ListSmsPlatformsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		l := smsplatform.NewListSmsPlatformsLogic(r.Context(), svcCtx)
 		resp, err := l.ListSmsPlatforms()
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

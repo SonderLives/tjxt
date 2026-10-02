@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/user/api/internal/logic/admin"
 	"tjxt/apps/user/api/internal/svc"
 	"tjxt/apps/user/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func PageQueryTeachersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func PageQueryTeachersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := admin.NewPageQueryTeachersLogic(r.Context(), svcCtx)
 		resp, err := l.PageQueryTeachers(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

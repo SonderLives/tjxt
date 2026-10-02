@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/user/api/internal/logic/user"
 	"tjxt/apps/user/api/internal/svc"
 	"tjxt/apps/user/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func UpdateCurrentUserHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func UpdateCurrentUserHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := user.NewUpdateCurrentUserLogic(r.Context(), svcCtx)
 		err := l.UpdateCurrentUser(&req)
-		result.Write(w, r, nil, err)
+		response.Write(w, r, nil, err)
 	}
 }

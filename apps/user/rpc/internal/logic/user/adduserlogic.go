@@ -75,22 +75,22 @@ func (l *AddUserLogic) AddUser(in *pb.UserDTO) (*pb.IdResponse, error) {
 		return nil, xerr.Wrap(err, xerr.CodeInternal, "创建用户失败")
 	}
 	detail := &model.UserDetail{
-		Id:        id,
-		Type:      userType,
-		Name:      in.Name,
-		Gender:    int64(in.Gender),
-		Icon:      nullStr(in.Icon),
-		Email:     nullStr(in.Email),
-		Qq:        nullStr(in.Qq),
-		Job:       nullStr(in.Job),
-		Province:  nullStr(in.Province),
-		City:      nullStr(in.City),
-		District:  nullStr(in.District),
-		Intro:     nullStr(in.Intro),
-		Photo:     nullStr(in.Photo),
-		RoleId:    in.RoleId,
-		Creater:   sql.NullInt64{Int64: id, Valid: true},
-		Updater:   id,
+		Id:       id,
+		Type:     userType,
+		Name:     in.Name,
+		Gender:   int64(in.Gender),
+		Icon:     nullStr(in.Icon),
+		Email:    nullStr(in.Email),
+		Qq:       nullStr(in.Qq),
+		Job:      nullStr(in.Job),
+		Province: nullStr(in.Province),
+		City:     nullStr(in.City),
+		District: nullStr(in.District),
+		Intro:    nullStr(in.Intro),
+		Photo:    nullStr(in.Photo),
+		RoleId:   in.RoleId,
+		Creater:  sql.NullInt64{Int64: id, Valid: true},
+		Updater:  id,
 	}
 	if _, err := l.svcCtx.UserDetailModel.Insert(l.ctx, detail); err != nil {
 		return nil, xerr.Wrap(err, xerr.CodeInternal, "创建用户失败")

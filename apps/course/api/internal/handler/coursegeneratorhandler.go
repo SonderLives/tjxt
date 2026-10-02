@@ -8,7 +8,7 @@ import (
 
 	"tjxt/apps/course/api/internal/logic"
 	"tjxt/apps/course/api/internal/svc"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func CourseGeneratorHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -16,6 +16,6 @@ func CourseGeneratorHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewCourseGeneratorLogic(r.Context(), svcCtx)
 		resp, err := l.CourseGenerator()
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

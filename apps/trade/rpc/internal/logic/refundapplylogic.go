@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	promotionclient "tjxt/apps/promotion/rpc/promotion"
 	payclient "tjxt/apps/pay/rpc/pay"
+	promotionclient "tjxt/apps/promotion/rpc/promotion"
 	"tjxt/apps/trade/rpc/internal/model"
 	"tjxt/apps/trade/rpc/internal/svc"
 	"tjxt/apps/trade/rpc/pb"

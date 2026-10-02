@@ -35,7 +35,7 @@ func (l *SaveInterestsLogic) SaveInterests(req *types.SaveInterestsReq) (resp *t
 	}
 
 	if _, err = l.svcCtx.SearchRpc.SaveInterests(l.ctx, &searchclient.SaveInterestsReq{
-		Id:         userId,
+		Id:        userId,
 		Interests: req.Interests,
 	}); err != nil {
 		return nil, err

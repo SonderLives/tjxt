@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/trade/api/internal/logic"
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func CartAddHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func CartAddHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewCartAddLogic(r.Context(), svcCtx)
 		resp, err := l.CartAdd(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

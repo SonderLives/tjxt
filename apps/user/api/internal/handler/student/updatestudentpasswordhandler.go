@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/user/api/internal/logic/student"
 	"tjxt/apps/user/api/internal/svc"
 	"tjxt/apps/user/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func UpdateStudentPasswordHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func UpdateStudentPasswordHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := student.NewUpdateStudentPasswordLogic(r.Context(), svcCtx)
 		err := l.UpdateStudentPassword(&req)
-		result.Write(w, r, nil, err)
+		response.Write(w, r, nil, err)
 	}
 }

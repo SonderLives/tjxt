@@ -8,7 +8,7 @@ import (
 
 	"tjxt/apps/course/api/internal/logic"
 	"tjxt/apps/course/api/internal/svc"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func CategoryListOneLevelHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -16,6 +16,6 @@ func CategoryListOneLevelHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewCategoryListOneLevelLogic(r.Context(), svcCtx)
 		resp, err := l.CategoryListOneLevel()
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

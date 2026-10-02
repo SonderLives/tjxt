@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/message/api/internal/logic/notice"
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func ListPublicNoticesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func ListPublicNoticesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := notice.NewListPublicNoticesLogic(r.Context(), svcCtx)
 		resp, err := l.ListPublicNotices(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

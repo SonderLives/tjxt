@@ -28,11 +28,11 @@ type ServiceContext struct {
 	OrderDetailModel model.OrderDetailModel
 	RefundApplyModel model.RefundApplyModel
 
-	PayRpc      payclient.Pay
-	CourseRpc   courseclient.Course
+	PayRpc       payclient.Pay
+	CourseRpc    courseclient.Course
 	PromotionRpc promotionclient.Promotion
-	MQProducer  *mq.Producer // 可为 nil：MQ 未就绪时不阻塞启动
-	MQClient    *mq.Client   // 可为 nil：MQ 未就绪时跳过消费者启动
+	MQProducer   *mq.Producer // 可为 nil：MQ 未就绪时不阻塞启动
+	MQClient     *mq.Client   // 可为 nil：MQ 未就绪时跳过消费者启动
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -47,7 +47,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		RefundApplyModel: model.NewRefundApplyModel(conn, c.Cache),
 		PayRpc:           payclient.NewPay(zrpc.MustNewClient(c.PayRpc)),
 		CourseRpc:        courseclient.NewCourse(zrpc.MustNewClient(c.CourseRpc)),
-	PromotionRpc:     promotionclient.NewPromotion(zrpc.MustNewClient(c.PromotionRpc)),
+		PromotionRpc:     promotionclient.NewPromotion(zrpc.MustNewClient(c.PromotionRpc)),
 	}
 
 	dsn := fmt.Sprintf("amqp://%s:%s@%s:%d/", c.RabbitMQ.User, c.RabbitMQ.Pass, c.RabbitMQ.Host, c.RabbitMQ.Port)

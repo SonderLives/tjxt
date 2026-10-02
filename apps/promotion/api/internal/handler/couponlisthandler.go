@@ -8,7 +8,7 @@ import (
 
 	"tjxt/apps/promotion/api/internal/logic"
 	"tjxt/apps/promotion/api/internal/svc"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func CouponListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -16,6 +16,6 @@ func CouponListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewCouponListLogic(r.Context(), svcCtx)
 		resp, err := l.CouponList()
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

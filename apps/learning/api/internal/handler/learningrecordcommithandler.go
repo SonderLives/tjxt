@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/learning/api/internal/logic"
 	"tjxt/apps/learning/api/internal/svc"
 	"tjxt/apps/learning/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func LearningRecordCommitHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func LearningRecordCommitHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewLearningRecordCommitLogic(r.Context(), svcCtx)
 		resp, err := l.LearningRecordCommit(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

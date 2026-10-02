@@ -341,7 +341,7 @@ replace tjxt/pkg => ../../pkg
 
 - 成功: `result.Ok()` / `result.OkData(data)`
 - 失败: `result.Fail(err)` 自动映射 `xerr` 错误码 → HTTP 状态码
-- 所有 handler 统一用 `result.Write(w, r, data, err)`
+- 所有 handler 统一用 `response.Write(w, r, data, err)`
 
 
 
@@ -353,7 +353,7 @@ replace tjxt/pkg => ../../pkg
 | ------------ | ------------------------------------------------------------------- |
 | **骨架**       | ✅ 13 服务 api+rpc 全部 goctl 生成完毕，`go build ./...` 逐模块编译通过                  |
 | **Logic 业务** | ✅ 394/394 logic 全部实现（API 193 + RPC 201），全库 0 处 TODO/panic 占位           |
-| **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `result.Write`（全服务已统一）、xerr 错误码跨服务还原（`xerr.FromGRPC`） |
+| **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `response.Write`（全服务已统一）、xerr 错误码跨服务还原（`xerr.FromGRPC`） |
 | **包名规范**     | ✅ 模块路径统一 `tjxt/apps/<svc>` (data 为 `tjxt/apps/data/{api,rpc}/data`) |
 | **事件总线**     | ✅ 三段链路全部接线：course→search 上下架同步 ES；pay→trade 支付成功回写订单（条件更新+幂等）；trade→learning 支付加课/退款撤课 |
 | **支付闭环**     | ✅ 下单（事务）→ 渠道下单（gateway 抽象）→ 回调验签（HMAC）→ pay.success → 订单回写 → order.pay → 加课；退款同理。渠道经 `gateway.PaymentGateway` 抽象，mock 可插真实渠道 |

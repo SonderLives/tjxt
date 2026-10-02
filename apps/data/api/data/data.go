@@ -11,8 +11,8 @@ import (
 	"tjxt/apps/data/api/data/internal/handler"
 	"tjxt/apps/data/api/data/internal/svc"
 
-	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/rest"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/data-api.yaml", "the config file")

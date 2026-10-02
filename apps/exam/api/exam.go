@@ -11,8 +11,8 @@ import (
 	"tjxt/apps/exam/api/internal/handler"
 	"tjxt/apps/exam/api/internal/svc"
 
-	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/rest"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/exam-api.yaml", "the config file")

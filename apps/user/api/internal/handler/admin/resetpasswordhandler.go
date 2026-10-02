@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/user/api/internal/logic/admin"
 	"tjxt/apps/user/api/internal/svc"
 	"tjxt/apps/user/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func ResetPasswordHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func ResetPasswordHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := admin.NewResetPasswordLogic(r.Context(), svcCtx)
 		err := l.ResetPassword(&req)
-		result.Write(w, r, nil, err)
+		response.Write(w, r, nil, err)
 	}
 }

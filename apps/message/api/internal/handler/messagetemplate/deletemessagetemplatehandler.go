@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/message/api/internal/logic/messagetemplate"
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func DeleteMessageTemplateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func DeleteMessageTemplateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := messagetemplate.NewDeleteMessageTemplateLogic(r.Context(), svcCtx)
 		resp, err := l.DeleteMessageTemplate(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

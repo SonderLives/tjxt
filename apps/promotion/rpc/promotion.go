@@ -9,11 +9,11 @@ import (
 	"tjxt/apps/promotion/rpc/internal/svc"
 	"tjxt/apps/promotion/rpc/pb"
 
-	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/promotion.yaml", "the config file")

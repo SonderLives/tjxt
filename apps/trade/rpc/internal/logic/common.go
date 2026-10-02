@@ -36,12 +36,12 @@ const (
 
 // 退款状态：1待审批 2取消退款 3同意退款 4拒绝退款 5退款成功 6退款失败
 const (
-	RefundStatusPending  int64 = 1
-	RefundStatusCancel   int64 = 2
-	RefundStatusApprove  int64 = 3
-	RefundStatusReject   int64 = 4
-	RefundStatusSuccess  int64 = 5
-	RefundStatusFailed   int64 = 6
+	RefundStatusPending int64 = 1
+	RefundStatusCancel  int64 = 2
+	RefundStatusApprove int64 = 3
+	RefundStatusReject  int64 = 4
+	RefundStatusSuccess int64 = 5
+	RefundStatusFailed  int64 = 6
 )
 
 // ===================== 订单状态描述 =====================
@@ -303,25 +303,25 @@ func toOrderDetailAdminVO(d *model.OrderDetail, order *model.Order, ra *model.Re
 
 func toRefundApplyVO(ra *model.RefundApply, order *model.Order, detail *model.OrderDetail) *pb.RefundApplyVO {
 	vo := &pb.RefundApplyVO{
-		Id:              ra.Id,
-		OrderId:         ra.OrderId,
-		OrderDetailId:   ra.OrderDetailId,
-		Price:           nullInt64Value(detailPrice(detail)),
-		RefundAmount:    ra.RefundAmount,
-		RefundStatus:    int32(ra.Status),
-		RefundOrderNo:   nullInt64Value(ra.RefundOrderNo),
-		PayOrderNo:      nullInt64Value(ra.PayOrderNo),
-		PayChannel:      nullStringValue(ra.RefundChannel),
-		RefundChannel:   nullStringValue(ra.RefundChannel),
-		RefundReason:    ra.RefundReason,
-		RefundMessage:   ra.Message,
-		FailedReason:    nullStringValue(ra.FailedReason),
-		ApproveOpinion:  nullStringValue(ra.ApproveOpinion),
-		ApproveType:     0,
-		Remark:          nullStringValue(ra.Remark),
-		CreateTime:      formatTime(ra.CreateTime),
-		OrderTime:       formatNullTime(orderCreateTime(order)),
-		PaySuccessTime:  formatNullTime(paySuccessTime(order)),
+		Id:             ra.Id,
+		OrderId:        ra.OrderId,
+		OrderDetailId:  ra.OrderDetailId,
+		Price:          nullInt64Value(detailPrice(detail)),
+		RefundAmount:   ra.RefundAmount,
+		RefundStatus:   int32(ra.Status),
+		RefundOrderNo:  nullInt64Value(ra.RefundOrderNo),
+		PayOrderNo:     nullInt64Value(ra.PayOrderNo),
+		PayChannel:     nullStringValue(ra.RefundChannel),
+		RefundChannel:  nullStringValue(ra.RefundChannel),
+		RefundReason:   ra.RefundReason,
+		RefundMessage:  ra.Message,
+		FailedReason:   nullStringValue(ra.FailedReason),
+		ApproveOpinion: nullStringValue(ra.ApproveOpinion),
+		ApproveType:    0,
+		Remark:         nullStringValue(ra.Remark),
+		CreateTime:     formatTime(ra.CreateTime),
+		OrderTime:      formatNullTime(orderCreateTime(order)),
+		PaySuccessTime: formatNullTime(paySuccessTime(order)),
 	}
 	return vo
 }

@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/message/api/internal/logic/noticetemplate"
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func SaveNoticeTemplateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func SaveNoticeTemplateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := noticetemplate.NewSaveNoticeTemplateLogic(r.Context(), svcCtx)
 		resp, err := l.SaveNoticeTemplate(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

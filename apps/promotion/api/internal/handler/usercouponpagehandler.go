@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/promotion/api/internal/logic"
 	"tjxt/apps/promotion/api/internal/svc"
 	"tjxt/apps/promotion/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func UserCouponPageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func UserCouponPageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewUserCouponPageLogic(r.Context(), svcCtx)
 		resp, err := l.UserCouponPage(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

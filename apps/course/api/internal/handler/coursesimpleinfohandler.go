@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/course/api/internal/logic"
 	"tjxt/apps/course/api/internal/svc"
 	"tjxt/apps/course/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func CourseSimpleInfoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func CourseSimpleInfoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewCourseSimpleInfoLogic(r.Context(), svcCtx)
 		resp, err := l.CourseSimpleInfo(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

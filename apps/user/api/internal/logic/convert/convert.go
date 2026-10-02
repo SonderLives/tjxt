@@ -186,23 +186,23 @@ func FromUserDTO(in *types.UserDTO) *pb.UserDTO {
 
 func FromUserFormReq(in *types.UserFormReq) *pb.UserFormRequest {
 	return &pb.UserFormRequest{
-		Username:   in.Username,
-		CellPhone:  in.CellPhone,
-		Type:       in.Type,
-		Name:       in.Name,
-		Gender:     in.Gender,
-		Icon:       in.Icon,
-		Email:      in.Email,
-		Qq:         in.Qq,
-		Job:        in.Job,
-		Province:   in.Province,
-		City:       in.City,
-		District:   in.District,
-		Intro:      in.Intro,
-		Photo:      in.Photo,
-		RoleId:     in.RoleId,
+		Username:    in.Username,
+		CellPhone:   in.CellPhone,
+		Type:        in.Type,
+		Name:        in.Name,
+		Gender:      in.Gender,
+		Icon:        in.Icon,
+		Email:       in.Email,
+		Qq:          in.Qq,
+		Job:         in.Job,
+		Province:    in.Province,
+		City:        in.City,
+		District:    in.District,
+		Intro:       in.Intro,
+		Photo:       in.Photo,
+		RoleId:      in.RoleId,
 		OldPassword: in.OldPassword,
-		Password:   in.Password,
+		Password:    in.Password,
 	}
 }
 
@@ -233,8 +233,8 @@ func FromCheckCellPhoneReq(in *types.CheckCellPhoneReq) *pb.CheckCellPhoneReques
 
 func FromUpdateStatusReq(in *types.UpdateStatusReq, operator int64) *pb.UpdateStatusRequest {
 	return &pb.UpdateStatusRequest{
-		UserId:  in.Id,
-		Status:  in.Status,
+		UserId:   in.Id,
+		Status:   in.Status,
 		Operator: operator,
 	}
 }

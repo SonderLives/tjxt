@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/course/api/internal/logic"
 	"tjxt/apps/course/api/internal/svc"
 	"tjxt/apps/course/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func CategoryListAllHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func CategoryListAllHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewCategoryListAllLogic(r.Context(), svcCtx)
 		resp, err := l.CategoryListAll(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

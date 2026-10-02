@@ -11,8 +11,8 @@ import (
 	"tjxt/apps/promotion/api/internal/handler"
 	"tjxt/apps/promotion/api/internal/svc"
 
-	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/rest"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/promotion-api.yaml", "the config file")

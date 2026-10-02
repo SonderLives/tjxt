@@ -32,14 +32,14 @@ func (l *CategoryGetLogic) CategoryGet(req *types.IdPathReq) (resp *types.Catego
 		return nil, xerr.Wrap(gerr, xerr.CodeInternal, "查询分类失败")
 	}
 	return &types.CategoryInfoVO{
-		Id:               info.Id,
-		Name:             info.Name,
-		Level:            int64(info.Level),
-		FirstCategoryName: info.FirstCategoryName,
+		Id:                 info.Id,
+		Name:               info.Name,
+		Level:              int64(info.Level),
+		FirstCategoryName:  info.FirstCategoryName,
 		SecondCategoryName: info.SecondCategoryName,
-		Status:           int64(info.Status),
-		Index:            int64(info.Priority),
-		CreateTime:       info.CreateTime,
-		UpdateTime:       info.UpdateTime,
+		Status:             int64(info.Status),
+		Index:              int64(info.Priority),
+		CreateTime:         info.CreateTime,
+		UpdateTime:         info.UpdateTime,
 	}, nil
 }

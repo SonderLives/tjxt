@@ -11,8 +11,8 @@ import (
 	"tjxt/apps/trade/api/internal/handler"
 	"tjxt/apps/trade/api/internal/svc"
 
-	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/rest"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/trade-api.yaml", "the config file")

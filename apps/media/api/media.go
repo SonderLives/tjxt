@@ -11,8 +11,8 @@ import (
 	"tjxt/apps/media/api/internal/handler"
 	"tjxt/apps/media/api/internal/svc"
 
-	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/rest"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/media-api.yaml", "the config file")

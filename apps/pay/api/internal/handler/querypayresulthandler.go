@@ -8,10 +8,10 @@ import (
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 
-	result "tjxt/pkg/response"
 	"tjxt/apps/pay/api/internal/logic"
 	"tjxt/apps/pay/api/internal/svc"
 	"tjxt/apps/pay/api/internal/types"
+	"tjxt/pkg/response"
 )
 
 func QueryPayResultHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -24,6 +24,6 @@ func QueryPayResultHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewQueryPayResultLogic(r.Context(), svcCtx)
 		resp, err := l.QueryPayResult(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

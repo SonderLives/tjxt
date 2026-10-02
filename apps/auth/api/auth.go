@@ -11,8 +11,8 @@ import (
 	"tjxt/apps/auth/api/internal/handler"
 	"tjxt/apps/auth/api/internal/svc"
 
-	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/rest"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/auth-api.yaml", "the config file")

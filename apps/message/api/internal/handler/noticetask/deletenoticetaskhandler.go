@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/message/api/internal/logic/noticetask"
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func DeleteNoticeTaskHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func DeleteNoticeTaskHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := noticetask.NewDeleteNoticeTaskLogic(r.Context(), svcCtx)
 		resp, err := l.DeleteNoticeTask(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

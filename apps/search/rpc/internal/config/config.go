@@ -21,10 +21,10 @@ type Config struct {
 	// SearchAnalyzer：检索分词器，缺省与 Analyzer 一致；IK 场景可设为
 	// ik_smart（粗粒度）以提升检索性能与精度。
 	Elasticsearch struct {
-		Addresses     []string
-		Username      string
-		Password      string
-		Analyzer      string
+		Addresses      []string
+		Username       string
+		Password       string
+		Analyzer       string
 		SearchAnalyzer string
 	}
 

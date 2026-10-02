@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/trade/api/internal/logic"
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func PayChannelDeleteHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func PayChannelDeleteHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewPayChannelDeleteLogic(r.Context(), svcCtx)
 		resp, err := l.PayChannelDelete(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/auth/api/internal/logic/menu"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func DeleteMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func DeleteMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := menu.NewDeleteMenuLogic(r.Context(), svcCtx)
 		resp, err := l.DeleteMenu(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

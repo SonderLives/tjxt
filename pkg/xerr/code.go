@@ -1,7 +1,7 @@
 // Package xerr 定义统一的业务错误码与错误类型。
 //
 // 所有微服务统一通过该包返回业务错误：逻辑层返回 *Error，
-// handler 层通过 result.Write 将错误渲染为统一的 R 响应结构。
+// handler 层通过 response.Write 将错误渲染为统一的 R 响应结构。
 package xerr
 
 import "fmt"

@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/search/api/internal/logic/search"
 	"tjxt/apps/search/api/internal/svc"
 	"tjxt/apps/search/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func SearchCoursesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func SearchCoursesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := search.NewSearchCoursesLogic(r.Context(), svcCtx)
 		resp, err := l.SearchCourses(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

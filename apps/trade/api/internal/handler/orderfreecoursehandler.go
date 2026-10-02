@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/trade/api/internal/logic"
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func OrderFreeCourseHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func OrderFreeCourseHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewOrderFreeCourseLogic(r.Context(), svcCtx)
 		resp, err := l.OrderFreeCourse(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

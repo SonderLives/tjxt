@@ -9,7 +9,7 @@ import (
 	"tjxt/apps/data/api/data/internal/logic/board"
 	"tjxt/apps/data/api/data/internal/svc"
 	"tjxt/apps/data/api/data/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
@@ -24,6 +24,6 @@ func GetBoardDataHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := board.NewGetBoardDataLogic(r.Context(), svcCtx)
 		resp, err := l.GetBoardData(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

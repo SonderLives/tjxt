@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/trade/api/internal/logic"
 	"tjxt/apps/trade/api/internal/svc"
 	"tjxt/apps/trade/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func RefundResultQueryHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func RefundResultQueryHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewRefundResultQueryLogic(r.Context(), svcCtx)
 		resp, err := l.RefundResultQuery(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

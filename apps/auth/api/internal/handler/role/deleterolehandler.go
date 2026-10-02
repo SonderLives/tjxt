@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/auth/api/internal/logic/role"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func DeleteRoleHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func DeleteRoleHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := role.NewDeleteRoleLogic(r.Context(), svcCtx)
 		resp, err := l.DeleteRole(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

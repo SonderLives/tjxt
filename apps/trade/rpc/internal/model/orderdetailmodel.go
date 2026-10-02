@@ -39,6 +39,7 @@ func NewOrderDetailModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Opt
 
 // 已支付/已报名/已完成的订单明细状态（可作为"报名"口径）
 const paidDetailStatusSQL = "2,4,5"
+
 // 已同意退款/退款成功的退款状态（可作为"退款"口径）
 const refundedDetailStatusSQL = "3,5"
 
@@ -113,7 +114,7 @@ func (m *customOrderDetailModel) StatByCourseId(ctx context.Context, courseId in
 	statQuery := fmt.Sprintf("select count(*) as `cnt`, coalesce(sum(`real_pay_amount`),0) as `sum` from %s where `course_id` = ? and `status` in (%s)", m.table, paidDetailStatusSQL)
 	var row struct {
 		Cnt int64         `db:"cnt"`
-		Sum  sql.NullInt64 `db:"sum"`
+		Sum sql.NullInt64 `db:"sum"`
 	}
 	if e := m.QueryRowNoCacheCtx(ctx, &row, statQuery, courseId); e != nil {
 		return 0, 0, 0, e

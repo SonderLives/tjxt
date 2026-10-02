@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/learning/api/internal/logic"
 	"tjxt/apps/learning/api/internal/svc"
 	"tjxt/apps/learning/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func LearningRecordsByCourseHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func LearningRecordsByCourseHandler(svcCtx *svc.ServiceContext) http.HandlerFunc
 
 		l := logic.NewLearningRecordsByCourseLogic(r.Context(), svcCtx)
 		resp, err := l.LearningRecordsByCourse(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

@@ -8,7 +8,7 @@ import (
 
 	"tjxt/apps/learning/api/internal/logic"
 	"tjxt/apps/learning/api/internal/svc"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func LearningNowHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -16,6 +16,6 @@ func LearningNowHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewLearningNowLogic(r.Context(), svcCtx)
 		resp, err := l.LearningNow()
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

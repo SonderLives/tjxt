@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/exam/api/internal/logic/questionbiz"
 	"tjxt/apps/exam/api/internal/svc"
 	"tjxt/apps/exam/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func AddQuestionBizHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func AddQuestionBizHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := questionbiz.NewAddQuestionBizLogic(r.Context(), svcCtx)
 		resp, err := l.AddQuestionBiz(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

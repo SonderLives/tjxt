@@ -8,7 +8,7 @@ import (
 
 	"tjxt/apps/user/api/internal/logic/user"
 	"tjxt/apps/user/api/internal/svc"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func GetCurrentUserHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -16,6 +16,6 @@ func GetCurrentUserHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := user.NewGetCurrentUserLogic(r.Context(), svcCtx)
 		resp, err := l.GetCurrentUser()
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

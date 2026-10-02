@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/user/api/internal/logic/user"
 	"tjxt/apps/user/api/internal/svc"
 	"tjxt/apps/user/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func GetUserByIdHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func GetUserByIdHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := user.NewGetUserByIdLogic(r.Context(), svcCtx)
 		resp, err := l.GetUserById(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

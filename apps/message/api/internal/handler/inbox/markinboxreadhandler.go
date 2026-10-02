@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/message/api/internal/logic/inbox"
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func MarkInboxReadHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func MarkInboxReadHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := inbox.NewMarkInboxReadLogic(r.Context(), svcCtx)
 		resp, err := l.MarkInboxRead(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

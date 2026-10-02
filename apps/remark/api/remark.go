@@ -11,8 +11,8 @@ import (
 	"tjxt/apps/remark/api/internal/handler"
 	"tjxt/apps/remark/api/internal/svc"
 
-	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/rest"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/remark-api.yaml", "the config file")

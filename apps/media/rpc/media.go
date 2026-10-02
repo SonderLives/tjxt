@@ -9,11 +9,11 @@ import (
 	"tjxt/apps/media/rpc/internal/svc"
 	"tjxt/apps/media/rpc/pb"
 
-	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/media.yaml", "the config file")

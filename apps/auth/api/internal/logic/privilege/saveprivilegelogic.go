@@ -6,9 +6,9 @@ package privilege
 import (
 	"context"
 
-	authclient "tjxt/apps/auth/rpc/client/auth"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
+	authclient "tjxt/apps/auth/rpc/client/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

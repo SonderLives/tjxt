@@ -28,7 +28,7 @@ func NewCategoryDisableOrEnableLogic(ctx context.Context, svcCtx *svc.ServiceCon
 // CategoryDisableOrEnable 启用/禁用分类。
 func (l *CategoryDisableOrEnableLogic) CategoryDisableOrEnable(req *types.CategoryDisableReq) (resp *types.NameExistVO, err error) {
 	_, err = l.svcCtx.CourseRpc.CategoryDisableOrEnable(l.ctx, &pb.CategoryStatusRequest{
-		Id:    req.Id,
+		Id:     req.Id,
 		Status: int32(req.Status),
 	})
 	if err != nil {

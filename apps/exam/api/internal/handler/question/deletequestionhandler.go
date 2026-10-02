@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/exam/api/internal/logic/question"
 	"tjxt/apps/exam/api/internal/svc"
 	"tjxt/apps/exam/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func DeleteQuestionHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func DeleteQuestionHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := question.NewDeleteQuestionLogic(r.Context(), svcCtx)
 		resp, err := l.DeleteQuestion(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

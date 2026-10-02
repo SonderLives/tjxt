@@ -11,8 +11,8 @@ import (
 	"tjxt/apps/pay/api/internal/handler"
 	"tjxt/apps/pay/api/internal/svc"
 
-	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/rest"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/pay-api.yaml", "the config file")

@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/auth/api/internal/logic/assign"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func SaveRoleMenusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func SaveRoleMenusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := assign.NewSaveRoleMenusLogic(r.Context(), svcCtx)
 		resp, err := l.SaveRoleMenus(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

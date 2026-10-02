@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/auth/api/internal/logic/assign"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func SaveRolePrivilegesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func SaveRolePrivilegesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := assign.NewSaveRolePrivilegesLogic(r.Context(), svcCtx)
 		resp, err := l.SaveRolePrivileges(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

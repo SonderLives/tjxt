@@ -8,7 +8,7 @@ import (
 
 	"tjxt/apps/trade/api/internal/logic"
 	"tjxt/apps/trade/api/internal/svc"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func PayChannelsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -16,6 +16,6 @@ func PayChannelsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewPayChannelsLogic(r.Context(), svcCtx)
 		resp, err := l.PayChannels()
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

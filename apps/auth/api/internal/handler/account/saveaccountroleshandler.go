@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/auth/api/internal/logic/account"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func SaveAccountRolesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func SaveAccountRolesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := account.NewSaveAccountRolesLogic(r.Context(), svcCtx)
 		resp, err := l.SaveAccountRoles(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

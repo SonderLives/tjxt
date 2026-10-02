@@ -9,7 +9,7 @@ import (
 	"tjxt/apps/data/api/data/internal/logic/today"
 	"tjxt/apps/data/api/data/internal/svc"
 	"tjxt/apps/data/api/data/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
@@ -24,6 +24,6 @@ func SetTodayDataHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := today.NewSetTodayDataLogic(r.Context(), svcCtx)
 		resp, err := l.SetTodayData(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

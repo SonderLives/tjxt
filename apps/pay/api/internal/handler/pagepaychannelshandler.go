@@ -8,10 +8,10 @@ import (
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 
-	result "tjxt/pkg/response"
 	"tjxt/apps/pay/api/internal/logic"
 	"tjxt/apps/pay/api/internal/svc"
 	"tjxt/apps/pay/api/internal/types"
+	"tjxt/pkg/response"
 )
 
 func PagePayChannelsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -24,6 +24,6 @@ func PagePayChannelsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewPagePayChannelsLogic(r.Context(), svcCtx)
 		resp, err := l.PagePayChannels(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

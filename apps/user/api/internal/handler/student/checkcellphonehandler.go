@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/user/api/internal/logic/student"
 	"tjxt/apps/user/api/internal/svc"
 	"tjxt/apps/user/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func CheckCellPhoneHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func CheckCellPhoneHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := student.NewCheckCellPhoneLogic(r.Context(), svcCtx)
 		resp, err := l.CheckCellPhone(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

@@ -1,8 +1,8 @@
-// Package result 提供统一的 API 响应结构 R。
+// Package response 提供统一的 API 响应结构 R。
 //
 // 接口契约见 Apifox 中统一响应模型 R{code,msg,requestId,data}。
-// 所有服务通过 result.Write 输出标准响应，请求链路 ID 取自 trace。
-package result
+// 所有服务通过 response.Write 输出标准响应，请求链路 ID 取自 trace。
+package response
 
 import (
 	"net/http"

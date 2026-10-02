@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/message/api/internal/logic/inbox"
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func DeleteInboxHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func DeleteInboxHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := inbox.NewDeleteInboxLogic(r.Context(), svcCtx)
 		resp, err := l.DeleteInbox(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/auth/api/internal/logic/loginrecord"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 )
 
 func ListLoginRecordsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -23,6 +23,6 @@ func ListLoginRecordsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := loginrecord.NewListLoginRecordsLogic(r.Context(), svcCtx)
 		resp, err := l.ListLoginRecords(&req)
-		result.Write(w, r, resp, err)
+		response.Write(w, r, resp, err)
 	}
 }

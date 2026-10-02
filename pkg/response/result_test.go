@@ -1,4 +1,4 @@
-package result_test
+package response_test
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	result "tjxt/pkg/response"
+	"tjxt/pkg/response"
 	"tjxt/pkg/xerr"
 )
 
@@ -15,7 +15,7 @@ func TestWriteSuccess(t *testing.T) {
 	r := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()
 
-	result.Write(w, r, map[string]any{"k": "v"}, nil)
+	response.Write(w, r, map[string]any{"k": "v"}, nil)
 
 	if w.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", w.Code)
@@ -33,7 +33,7 @@ func TestWriteBizError(t *testing.T) {
 	r := httptest.NewRequest(http.MethodGet, "/x", nil)
 	w := httptest.NewRecorder()
 
-	result.Write(w, r, nil, xerr.New(xerr.CodeNotFound, "课程不存在"))
+	response.Write(w, r, nil, xerr.New(xerr.CodeNotFound, "课程不存在"))
 
 	if w.Code != http.StatusNotFound {
 		t.Fatalf("status = %d, want 404", w.Code)
@@ -48,7 +48,7 @@ func TestWritePlainErrorMaskedAs500(t *testing.T) {
 	r := httptest.NewRequest(http.MethodGet, "/x", nil)
 	w := httptest.NewRecorder()
 
-	result.Write(w, r, nil, errors.New("internal secret detail"))
+	response.Write(w, r, nil, errors.New("internal secret detail"))
 
 	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want 500", w.Code)
@@ -64,13 +64,13 @@ func TestWritePlainErrorMaskedAs500(t *testing.T) {
 }
 
 func TestFailNilErrReturnsOK(t *testing.T) {
-	if got := result.Fail(nil); got.Code != 200 {
+	if got := response.Fail(nil); got.Code != 200 {
 		t.Fatalf("Fail(nil).Code = %d", got.Code)
 	}
 }
 
 func TestPageStruct(t *testing.T) {
-	p := result.Page{List: []int{1, 2}, Total: 2, Pages: 1}
+	p := response.Page{List: []int{1, 2}, Total: 2, Pages: 1}
 	if p.Total != 2 || p.Pages != 1 {
 		t.Fatalf("unexpected page: %+v", p)
 	}
