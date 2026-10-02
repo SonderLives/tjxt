@@ -189,6 +189,14 @@ func coursePrice(m map[int64]*courseclient.CourseSimpleInfoItem, id int64) int64
 	return 0
 }
 
+// courseThirdCate 返回课程三级分类 id（优惠券适用范围匹配用）。
+func courseThirdCate(m map[int64]*courseclient.CourseSimpleInfoItem, id int64) int64 {
+	if it, ok := m[id]; ok {
+		return it.ThirdCateId
+	}
+	return 0
+}
+
 // ===================== VO 构建 =====================
 
 func toCartVO(c *model.Cart) *pb.CartVO {

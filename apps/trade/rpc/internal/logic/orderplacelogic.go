@@ -2,8 +2,11 @@ package logic
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 	"time"
 
+	promotionclient "tjxt/apps/promotion/rpc/promotion"
 	"tjxt/apps/trade/rpc/internal/model"
 	"tjxt/apps/trade/rpc/internal/svc"
 	"tjxt/apps/trade/rpc/pb"
@@ -40,39 +43,76 @@ func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderRe
 	courseMap := fetchCourseMap(l.ctx, l.svcCtx, in.CourseIds)
 
 	var total int64
+	courseList := make([]*promotionclient.OrderCourseDTO, 0, len(in.CourseIds))
 	for _, id := range in.CourseIds {
 		total += coursePrice(courseMap, id)
+		courseList = append(courseList, &promotionclient.OrderCourseDTO{
+			CateId: courseThirdCate(courseMap, id),
+			Id:     id,
+			Price:  coursePrice(courseMap, id),
+		})
 	}
 
-	// 优惠券暂未接入，实付金额等于课程价格之和
+	// 优惠券折扣：选了券则调 promotion 计算总优惠与每课分摊
+	var discountAmount int64
+	discountDetail := map[int64]int64{}
+	if len(in.CouponIds) > 0 {
+		reply, derr := l.svcCtx.PromotionRpc.UserCouponDiscount(l.ctx, &promotionclient.OrderCouponDTO{
+			CourseList:    courseList,
+			UserCouponIds: in.CouponIds,
+			UserId:        userId,
+		})
+		if derr != nil {
+			return nil, xerr.Wrap(derr, xerr.CodeInternal, "计算优惠券折扣失败")
+		}
+		discountAmount = reply.DiscountAmount
+		if discountAmount > total {
+			discountAmount = total
+		}
+		for cid, amt := range reply.DiscountDetail {
+			discountDetail[cid] = amt
+		}
+	}
+
 	order := &model.Order{
 		Id:             nextID(),
 		UserId:         userId,
 		TotalAmount:    total,
-		RealAmount:     total,
-		DiscountAmount: 0,
+		RealAmount:     total - discountAmount,
+		DiscountAmount: discountAmount,
 		Status:         OrderStatusPending,
 		Creater:        userId,
 		Updater:        userId,
 		CreateTime:     now(),
 	}
+	if len(in.CouponIds) > 0 {
+		if b, jerr := json.Marshal(in.CouponIds); jerr == nil {
+			order.CouponIds = sql.NullString{String: string(b), Valid: true}
+		}
+	}
 
 	details := make([]*model.OrderDetail, 0, len(in.CourseIds))
 	for _, id := range in.CourseIds {
 		price := coursePrice(courseMap, id)
+		courseDiscount := discountDetail[id]
+		realPay := price - courseDiscount
+		if realPay < 0 {
+			realPay = 0
+		}
 		details = append(details, &model.OrderDetail{
-			Id:            nextID(),
-			OrderId:       order.Id,
-			UserId:        userId,
-			CourseId:      id,
-			Name:          courseName(courseMap, id),
-			CoverUrl:      courseCover(courseMap, id),
-			Price:         price,
-			RealPayAmount: price,
-			Status:        DetailStatusPending,
-			Creater:       userId,
-			Updater:       userId,
-			CreateTime:    now(),
+			Id:             nextID(),
+			OrderId:        order.Id,
+			UserId:         userId,
+			CourseId:       id,
+			Name:           courseName(courseMap, id),
+			CoverUrl:       courseCover(courseMap, id),
+			Price:          price,
+			RealPayAmount:  realPay,
+			DiscountAmount: courseDiscount,
+			Status:         DetailStatusPending,
+			Creater:        userId,
+			Updater:        userId,
+			CreateTime:     now(),
 		})
 	}
 
@@ -87,9 +127,9 @@ func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderRe
 		}
 		for _, d := range details {
 			if _, err := session.ExecCtx(ctx,
-				"insert into `order_detail` (id, order_id, user_id, course_id, name, cover_url, price, real_pay_amount, status, creater, updater, create_time) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+				"insert into `order_detail` (id, order_id, user_id, course_id, name, cover_url, price, discount_amount, real_pay_amount, status, creater, updater, create_time) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 				d.Id, d.OrderId, d.UserId, d.CourseId, d.Name, d.CoverUrl,
-				d.Price, d.RealPayAmount, d.Status, d.Creater, d.Updater, d.CreateTime); err != nil {
+				d.Price, d.DiscountAmount, d.RealPayAmount, d.Status, d.Creater, d.Updater, d.CreateTime); err != nil {
 				return err
 			}
 		}
@@ -98,9 +138,20 @@ func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderRe
 		return nil, xerr.Wrap(err, xerr.CodeInternal, "创建订单失败")
 	}
 
+	// 核销优惠券：失败不影响订单创建（折扣已生效），券状态由过期/对账兜底
+	if len(in.CouponIds) > 0 {
+		if _, uerr := l.svcCtx.PromotionRpc.UserCouponUse(l.ctx, &promotionclient.IdsRequest{
+			Ids:     in.CouponIds,
+			UserId:  userId,
+			OrderId: order.Id,
+		}); uerr != nil {
+			l.Errorf("use coupons failed, orderId=%d couponIds=%v: %v", order.Id, in.CouponIds, uerr)
+		}
+	}
+
 	return &pb.PlaceOrderResultVO{
 		OrderId:    order.Id,
-		PayAmount:  total,
+		PayAmount:  order.RealAmount,
 		Status:     int32(OrderStatusPending),
 		PayOutTime: now().Add(15 * time.Minute).Unix(),
 	}, nil

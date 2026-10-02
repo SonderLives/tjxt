@@ -26,4 +26,7 @@ type Config struct {
 
 	// CourseRpc 调用 course 服务（购物车/订单需要课程名、价格、封面）
 	CourseRpc zrpc.RpcClientConf
+
+	// PromotionRpc 调用 promotion 服务（优惠券可用方案、折扣计算、核销与退还）
+	PromotionRpc zrpc.RpcClientConf
 }

@@ -9,6 +9,7 @@ import (
 
 	courseclient "tjxt/apps/course/rpc/course"
 	payclient "tjxt/apps/pay/rpc/pay"
+	promotionclient "tjxt/apps/promotion/rpc/promotion"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -29,6 +30,7 @@ type ServiceContext struct {
 
 	PayRpc      payclient.Pay
 	CourseRpc   courseclient.Course
+	PromotionRpc promotionclient.Promotion
 	MQProducer  *mq.Producer // 可为 nil：MQ 未就绪时不阻塞启动
 	MQClient    *mq.Client   // 可为 nil：MQ 未就绪时跳过消费者启动
 }
@@ -45,6 +47,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		RefundApplyModel: model.NewRefundApplyModel(conn, c.Cache),
 		PayRpc:           payclient.NewPay(zrpc.MustNewClient(c.PayRpc)),
 		CourseRpc:        courseclient.NewCourse(zrpc.MustNewClient(c.CourseRpc)),
+	PromotionRpc:     promotionclient.NewPromotion(zrpc.MustNewClient(c.PromotionRpc)),
 	}
 
 	dsn := fmt.Sprintf("amqp://%s:%s@%s:%d/", c.RabbitMQ.User, c.RabbitMQ.Pass, c.RabbitMQ.Host, c.RabbitMQ.Port)

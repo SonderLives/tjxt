@@ -2,8 +2,10 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
+	promotionclient "tjxt/apps/promotion/rpc/promotion"
 	payclient "tjxt/apps/pay/rpc/pay"
 	"tjxt/apps/trade/rpc/internal/model"
 	"tjxt/apps/trade/rpc/internal/svc"
@@ -61,7 +63,8 @@ func (l *RefundApplyLogic) RefundApply(in *pb.RefundApplyRequest) (*pb.RefundRes
 	}, nil
 }
 
-// publishOrderRefund 向 learning 发布退款成功事件（order.exchange / order.refund）。
+// publishOrderRefund 向 learning 发布退款成功事件（order.exchange / order.refund），
+// 并退还订单使用的优惠券（UserCouponRefund，失败仅告警）。
 func (l *RefundApplyLogic) publishOrderRefund(orderId int64) {
 	if l.svcCtx.MQProducer == nil {
 		logx.Errorf("mq producer unavailable, skip order.refund event, orderId=%d", orderId)
@@ -76,6 +79,21 @@ func (l *RefundApplyLogic) publishOrderRefund(orderId int64) {
 		logx.Errorf("query order for order.refund event failed, orderId=%d: %v", orderId, err)
 		return
 	}
+
+	// 退还订单所用优惠券（幂等：promotion 侧对已退券直接忽略）
+	if order.CouponIds.Valid && order.CouponIds.String != "" {
+		var couponIds []int64
+		if jerr := json.Unmarshal([]byte(order.CouponIds.String), &couponIds); jerr == nil && len(couponIds) > 0 {
+			if _, uerr := l.svcCtx.PromotionRpc.UserCouponRefund(l.ctx, &promotionclient.IdsRequest{
+				Ids:     couponIds,
+				UserId:  order.UserId,
+				OrderId: order.Id,
+			}); uerr != nil {
+				logx.Errorf("refund coupons failed, orderId=%d couponIds=%v: %v", order.Id, couponIds, uerr)
+			}
+		}
+	}
+
 	details, err := l.svcCtx.OrderDetailModel.ListByOrderId(l.ctx, orderId)
 	if err != nil {
 		logx.Errorf("list order details for order.refund event failed, orderId=%d: %v", orderId, err)
