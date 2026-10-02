@@ -24,13 +24,13 @@ jobs:
       - name: Install golangci-lint
         run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 
-      - name: Build all modules
+      - name: Lint all modules
         run: |
           set -e
           for m in $(go work edit -json | jq -r '.Use[].DiskPath'); do
-            if [ "${m#./}" = "." ]; then continue; fi   # 根模块仅声明 go 版本，无代码
-            echo "build ${m}"
-            (cd "${m#./}" && go build ./...)
+            if [ "${m#./}" = "." ]; then continue; fi
+            echo "lint ${m}"
+            (cd "${m#./}" && golangci-lint run ./...)
           done
 
       - name: Test all modules
@@ -42,11 +42,11 @@ jobs:
             (cd "${m#./}" && go test ./...)
           done
 
-      - name: Lint all modules
+      - name: Build all modules
         run: |
           set -e
           for m in $(go work edit -json | jq -r '.Use[].DiskPath'); do
-            if [ "${m#./}" = "." ]; then continue; fi
-            echo "lint ${m}"
-            (cd "${m#./}" && golangci-lint run ./...)
+            if [ "${m#./}" = "." ]; then continue; fi   # 根模块仅声明 go 版本，无代码
+            echo "build ${m}"
+            (cd "${m#./}" && go build ./...)
           done
