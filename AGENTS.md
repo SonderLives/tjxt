@@ -22,5 +22,5 @@
 
 ## GitHub 与 Codex
 
-- `@codex` 的 PR 审查依赖用户将 ChatGPT/Codex 账号连接到 GitHub，并授权访问本仓库；不要将 Codex 伪装成提交作者或共同作者。
+- `@codex` 的 PR 审查依赖用户将 ChatGPT/Codex 账号连接到 GitHub，并授权访问本仓库。Codex 实际参与编写的提交应保留用户为主要作者，并添加共同作者行 `Co-authored-by: Codex <noreply@openai.com>`；仅对 Codex 实际参与的提交添加署名。
 - 除非用户明确要求，不要自行提交、推送、评论或合并 PR。
