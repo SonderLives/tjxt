@@ -10,6 +10,7 @@ import (
 	"tjxt/apps/search/api/internal/logic/interests"
 	"tjxt/apps/search/api/internal/svc"
 	"tjxt/apps/search/api/internal/types"
+	result "tjxt/pkg/response"
 )
 
 func SaveInterestsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -22,10 +23,6 @@ func SaveInterestsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := interests.NewSaveInterestsLogic(r.Context(), svcCtx)
 		resp, err := l.SaveInterests(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.Write(w, r, resp, err)
 	}
 }

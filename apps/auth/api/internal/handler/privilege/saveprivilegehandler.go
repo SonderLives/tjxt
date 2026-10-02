@@ -10,6 +10,7 @@ import (
 	"tjxt/apps/auth/api/internal/logic/privilege"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
+	result "tjxt/pkg/response"
 )
 
 func SavePrivilegeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -22,10 +23,6 @@ func SavePrivilegeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := privilege.NewSavePrivilegeLogic(r.Context(), svcCtx)
 		resp, err := l.SavePrivilege(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.Write(w, r, resp, err)
 	}
 }

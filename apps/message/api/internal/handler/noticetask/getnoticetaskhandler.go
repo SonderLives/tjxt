@@ -10,6 +10,7 @@ import (
 	"tjxt/apps/message/api/internal/logic/noticetask"
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
+	result "tjxt/pkg/response"
 )
 
 func GetNoticeTaskHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -22,10 +23,6 @@ func GetNoticeTaskHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := noticetask.NewGetNoticeTaskLogic(r.Context(), svcCtx)
 		resp, err := l.GetNoticeTask(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.Write(w, r, resp, err)
 	}
 }

@@ -10,6 +10,7 @@ import (
 	"tjxt/apps/auth/api/internal/logic/menu"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
+	result "tjxt/pkg/response"
 )
 
 func SaveMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -22,10 +23,6 @@ func SaveMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := menu.NewSaveMenuLogic(r.Context(), svcCtx)
 		resp, err := l.SaveMenu(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.Write(w, r, resp, err)
 	}
 }

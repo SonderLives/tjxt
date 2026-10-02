@@ -10,6 +10,7 @@ import (
 	"tjxt/apps/remark/api/internal/logic/like"
 	"tjxt/apps/remark/api/internal/svc"
 	"tjxt/apps/remark/api/internal/types"
+	result "tjxt/pkg/response"
 )
 
 func LikeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -22,10 +23,6 @@ func LikeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := like.NewLikeLogic(r.Context(), svcCtx)
 		resp, err := l.Like(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.Write(w, r, resp, err)
 	}
 }

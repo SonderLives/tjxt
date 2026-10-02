@@ -10,6 +10,7 @@ import (
 	"tjxt/apps/auth/api/internal/logic/assign"
 	"tjxt/apps/auth/api/internal/svc"
 	"tjxt/apps/auth/api/internal/types"
+	result "tjxt/pkg/response"
 )
 
 func GetRoleMenusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -22,10 +23,6 @@ func GetRoleMenusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := assign.NewGetRoleMenusLogic(r.Context(), svcCtx)
 		resp, err := l.GetRoleMenus(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.Write(w, r, resp, err)
 	}
 }

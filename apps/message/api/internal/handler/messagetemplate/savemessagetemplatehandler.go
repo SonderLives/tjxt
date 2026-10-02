@@ -10,6 +10,7 @@ import (
 	"tjxt/apps/message/api/internal/logic/messagetemplate"
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
+	result "tjxt/pkg/response"
 )
 
 func SaveMessageTemplateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -22,10 +23,6 @@ func SaveMessageTemplateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := messagetemplate.NewSaveMessageTemplateLogic(r.Context(), svcCtx)
 		resp, err := l.SaveMessageTemplate(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.Write(w, r, resp, err)
 	}
 }
