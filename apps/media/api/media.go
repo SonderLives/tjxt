@@ -11,7 +11,7 @@ import (
 	"tjxt/apps/media/api/internal/handler"
 	"tjxt/apps/media/api/internal/svc"
 
-	"github.com/zeromicro/go-zero/core/conf"
+	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/rest"
 )
 
@@ -21,7 +21,7 @@ func main() {
 	flag.Parse()
 
 	var c config.Config
-	conf.MustLoad(*configFile, &c)
+	confenv.MustLoad(*configFile, &c)
 
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()

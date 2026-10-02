@@ -21,7 +21,7 @@ Host: 0.0.0.0
 Port: 8808
 
 Auth:
-  AccessSecret: "change-me-in-production"
+  AccessSecret: "${TJXT_JWT_SECRET|change-me-in-production}"
   AccessExpire: 7200
 
 # 支付回调签名密钥：sign = hex(hmac_sha256(secret, "payOrderNo=<no>"))

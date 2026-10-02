@@ -23,7 +23,7 @@ Etcd:
   - 127.0.0.1:2379
   Key: learning.rpc
 
-DataSource: root:0000@tcp(127.0.0.1:3306)/tj_learning?charset=utf8mb4&parseTime=true&loc=Local
+DataSource: root:${TJXT_DB_PASS|0000}@tcp(127.0.0.1:3306)/tj_learning?charset=utf8mb4&parseTime=true&loc=Local
 
 Cache:
   - Host: 127.0.0.1:6379
@@ -34,7 +34,7 @@ RabbitMQ:
   Host: 127.0.0.1
   Port: 5672
   User: rabbitmq
-  Pass: rabbitmq
+  Pass: ${TJXT_MQ_PASS|rabbitmq}
   PayQueue: learning.lesson.pay.queue
   RefundQueue: learning.lesson.refund.queue
   PayExchange: order.exchange

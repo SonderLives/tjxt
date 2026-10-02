@@ -9,7 +9,7 @@ import (
 	"tjxt/apps/data/rpc/data/internal/svc"
 	"tjxt/apps/data/rpc/data/pb"
 
-	"github.com/zeromicro/go-zero/core/conf"
+	"tjxt/pkg/confenv"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
@@ -22,7 +22,7 @@ func main() {
 	flag.Parse()
 
 	var c config.Config
-	conf.MustLoad(*configFile, &c)
+	confenv.MustLoad(*configFile, &c)
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
