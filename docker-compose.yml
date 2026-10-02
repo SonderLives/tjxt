@@ -23,10 +23,30 @@ services:
       RABBITMQ_DEFAULT_PASS: rabbitmq
     ports: ["5672:5672", "15672:15672"]
   etcd:
-    image: bitnami/etcd:3.5
-    environment:
-      ALLOW_NONE_AUTHENTICATION: "yes"
+    image: quay.io/coreos/etcd:v3.5.21
+    # bitnami/etcd 已从 Docker Hub 下架，改用官方镜像；单节点需把 peer 参数指回 0.0.0.0
+    command: ["etcd", "--listen-client-urls", "http://0.0.0.0:2379", "--advertise-client-urls", "http://0.0.0.0:2379",
+              "--listen-peer-urls", "http://0.0.0.0:2380", "--initial-advertise-peer-urls", "http://0.0.0.0:2380",
+              "--initial-cluster", "default=http://0.0.0.0:2380"]
     ports: ["2379:2379"]
+  # Elasticsearch 全文检索后端，search.rpc 硬依赖（索引/检索）。
+  # 单节点 + 关闭安全认证，与 apps/search/rpc/etc/search.yaml（Addresses: 127.0.0.1:9200，无用户名密码）对齐；
+  # 分词用 ES 内置 cjk（二元分词），无需装插件。启动自检/建索引由 search.rpc 的 initES/ensureCourseIndex 完成。
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.1
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      xpack.security.http.ssl.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports: ["9200:9200"]
+    volumes: ["es-data:/usr/share/elasticsearch/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
   # Jaeger 链路追踪后端（UI + OTLP 接收）。
   # 现在 span 由 otel-collector 转发进来（collector → jaeger:4318，走 docker 内网），
   # 故 4317/4318 不再映射到宿主机（已让位给 otel-collector）；UI 仍在 16686。
@@ -87,3 +107,4 @@ services:
 volumes:
   mysql-data:
   redis-data:
+  es-data:
