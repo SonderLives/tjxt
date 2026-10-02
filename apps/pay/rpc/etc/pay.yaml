@@ -30,4 +30,10 @@ Cache:
     Pass:
     Type: node
 
+RabbitMQ:
+  Host: 127.0.0.1
+  Port: 5672
+  User: rabbitmq
+  Pass: rabbitmq
+
 TablePrefix: ""

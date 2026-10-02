@@ -75,12 +75,20 @@ type QueryRefundResultReq {
 	BizRefundOrderNo int64 `form:"bizRefundOrderNo"`
 }
 
-// ============ 回调（不开放给业务用户，供内部模拟） ============
+// ============ 回调（生产供支付网关调用，HMAC-SHA256 签名校验） ============
+// 注意：可选字段必须用 go-zero 的 optional 标记，omitempty 会被当作必填校验
 type NotifyPaySuccessReq {
 	PayOrderNo int64  `json:"payOrderNo"`
-	ResultCode string `json:"resultCode,omitempty"`
-	ResultMsg  string `json:"resultMsg,omitempty"`
-	QrCodeUrl  string `json:"qrCodeUrl,omitempty"`
+	ResultCode string `json:"resultCode,optional"`
+	ResultMsg  string `json:"resultMsg,optional"`
+	QrCodeUrl  string `json:"qrCodeUrl,optional"`
+	// sign = hex(hmac_sha256(PayNotifySecret, "payOrderNo=<PayOrderNo>"))
+	Sign string `json:"sign"`
+}
+
+// ============ 模拟支付网关（demo 用，登录用户本人确认支付自己的订单） ============
+type MockPayReq {
+	BizOrderNo int64 `json:"bizOrderNo"`
 }
 
 type NotifyPayFailedReq {
@@ -158,7 +166,7 @@ service pay-api {
 	get /channels/code/:code (PayChannelCodeReq) returns (Result)
 }
 
-// ============ 内部/回调（暂不鉴权，生产应加白名单 + 签名） ============
+// ============ 内部/回调（pay-success 带 HMAC 签名校验，退款回调暂为内部模拟） ============
 @server (
 	prefix: /pay-notify
 )
@@ -174,5 +182,15 @@ service pay-api {
 
 	@handler NotifyRefundFailedHandler
 	post /refund-failed (NotifyRefundFailedReq) returns (Result)
+}
+
+// ============ 模拟支付网关（demo：JWT + 属主校验，代替真实渠道回调） ============
+@server (
+	jwt:    Auth
+	prefix: /pay-notify
+)
+service pay-api {
+	@handler MockPayHandler
+	post /mock-pay (MockPayReq) returns (Result)
 }
 

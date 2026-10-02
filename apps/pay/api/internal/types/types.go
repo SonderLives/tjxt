@@ -19,6 +19,10 @@ type ApplyRefundReq struct {
 	RefundAmount     int64 `json:"refundAmount"`
 }
 
+type MockPayReq struct {
+	BizOrderNo int64 `json:"bizOrderNo"`
+}
+
 type NotifyPayFailedReq struct {
 	PayOrderNo int64  `json:"payOrderNo"`
 	ResultCode string `json:"resultCode,omitempty"`
@@ -27,9 +31,10 @@ type NotifyPayFailedReq struct {
 
 type NotifyPaySuccessReq struct {
 	PayOrderNo int64  `json:"payOrderNo"`
-	ResultCode string `json:"resultCode,omitempty"`
-	ResultMsg  string `json:"resultMsg,omitempty"`
-	QrCodeUrl  string `json:"qrCodeUrl,omitempty"`
+	ResultCode string `json:"resultCode,optional"`
+	ResultMsg  string `json:"resultMsg,optional"`
+	QrCodeUrl  string `json:"qrCodeUrl,optional"`
+	Sign       string `json:"sign"`
 }
 
 type NotifyRefundFailedReq struct {

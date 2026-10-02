@@ -16,6 +16,9 @@ type Config struct {
 		AccessExpire int64
 	}
 
+	// PayNotifySecret 支付回调签名密钥：sign = hex(hmac_sha256(secret, "payOrderNo=<no>"))
+	PayNotifySecret string
+
 	// PayRpc 支付 RPC 客户端配置（通过 etcd 服务发现）
 	PayRpc zrpc.RpcClientConf
 }

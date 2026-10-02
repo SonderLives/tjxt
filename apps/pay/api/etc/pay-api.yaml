@@ -24,6 +24,9 @@ Auth:
   AccessSecret: "change-me-in-production"
   AccessExpire: 7200
 
+# 支付回调签名密钥：sign = hex(hmac_sha256(secret, "payOrderNo=<no>"))
+PayNotifySecret: "change-me-pay-notify-secret"
+
 PayRpc:
   Etcd:
     Hosts:

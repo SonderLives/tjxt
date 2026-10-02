@@ -10,4 +10,12 @@ type Config struct {
 	DataSource  string
 	Cache       cache.CacheConf
 	TablePrefix string
+
+	// RabbitMQ 用于支付成功事件发布到 trade（pay.exchange / pay.success）
+	RabbitMQ struct {
+		Host string
+		Port int
+		User string
+		Pass string
+	}
 }

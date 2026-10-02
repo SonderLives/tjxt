@@ -5,10 +5,15 @@ package logic
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
 
 	"tjxt/apps/pay/api/internal/svc"
 	"tjxt/apps/pay/api/internal/types"
 	payclient "tjxt/apps/pay/rpc/pay"
+	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +32,22 @@ func NewNotifyPaySuccessLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 	}
 }
 
+// verifySign 校验支付网关回调签名。
+// 规则：sign = hex(hmac_sha256(PayNotifySecret, "payOrderNo=<PayOrderNo>")).
+func verifySign(secret string, payOrderNo int64, sign string) bool {
+	if secret == "" || sign == "" {
+		return false
+	}
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write([]byte(fmt.Sprintf("payOrderNo=%d", payOrderNo)))
+	expected := hex.EncodeToString(mac.Sum(nil))
+	return hmac.Equal([]byte(expected), []byte(sign))
+}
+
 func (l *NotifyPaySuccessLogic) NotifyPaySuccess(req *types.NotifyPaySuccessReq) (resp *types.Result, err error) {
+	if !verifySign(l.svcCtx.Config.PayNotifySecret, req.PayOrderNo, req.Sign) {
+		return nil, xerr.Unauthorized("支付回调签名校验失败")
+	}
 	if _, err := l.svcCtx.PayRpc.NotifyPaySuccess(l.ctx, &payclient.NotifyPaySuccessRequest{
 		PayOrderNo: req.PayOrderNo,
 		ResultCode: req.ResultCode,
