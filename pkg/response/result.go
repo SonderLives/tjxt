@@ -38,9 +38,13 @@ func OkData(data any) *R {
 }
 
 // Fail 由 error 构造失败响应，提取业务错误码与提示信息。
+// RPC 调用返回的错误经 gRPC 传输后业务码丢失，优先尝试还原（xerr.FromGRPC）。
 func Fail(err error) *R {
 	if err == nil {
 		return Ok()
+	}
+	if e, ok := xerr.FromGRPC(err); ok {
+		return &R{Code: int64(e.Code), Msg: e.Msg, Data: nil}
 	}
 	return &R{
 		Code: int64(xerr.CodeOf(err)),
@@ -52,9 +56,12 @@ func Fail(err error) *R {
 // Write 将 data / err 渲染为标准响应写入 w。
 //
 // - err == nil 时写入 code=200 的成功响应；
-// - err 为业务错误时写入对应错误码，并返回匹配的 HTTP 状态码；
+// - err 为业务错误（含 RPC 传来的可还原错误）时写入对应错误码与 HTTP 状态码；
 // - 非业务错误一律按 500 处理，避免泄露内部细节。
 func Write(w http.ResponseWriter, r *http.Request, data any, err error) {
+	if e, ok := xerr.FromGRPC(err); ok {
+		err = e // 还原跨服务业务错误，使 Fail/HttpStatus 生效
+	}
 	resp := OkData(data)
 	status := http.StatusOK
 	if err != nil {
