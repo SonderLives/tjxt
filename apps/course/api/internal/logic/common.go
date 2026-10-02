@@ -3,19 +3,10 @@ package logic
 import (
 	"strconv"
 	"strings"
-	"time"
 
 	"tjxt/apps/course/api/internal/types"
 	"tjxt/apps/course/rpc/pb"
 )
-
-// formatTime 时间格式化（空值返回空串）。
-func formatTime(t time.Time) string {
-	if t.IsZero() {
-		return ""
-	}
-	return t.Format("2006-01-02 15:04:05")
-}
 
 // parseIds 将逗号分隔的 id 字符串解析为 int64 切片（忽略非法片段）。
 func parseIds(s string) []int64 {

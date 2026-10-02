@@ -147,6 +147,7 @@ func initES(svcCtx *ServiceContext) {
 		searchAnalyzer = analyzer
 	}
 
+	//nolint:staticcheck // NewClient 已废弃但可用，随客户端升级一并迁 New+Option API
 	es, err := elasticsearch.NewClient(elasticsearch.Config{
 		Addresses: cfg.Addresses,
 		Username:  cfg.Username,
@@ -164,7 +165,7 @@ func initES(svcCtx *ServiceContext) {
 		return
 	}
 	infoBody, _ := io.ReadAll(info.Body)
-	info.Body.Close()
+	_ = info.Body.Close()
 
 	svcCtx.ES = es
 	logx.Infof("elasticsearch connected: %s, analyzer=%s, search_analyzer=%s", strings.TrimSpace(string(infoBody)), analyzer, searchAnalyzer)
@@ -180,7 +181,7 @@ func ensureCourseIndex(es *elasticsearch.Client, analyzer, searchAnalyzer string
 	if err != nil {
 		return fmt.Errorf("check index exists: %w", err)
 	}
-	exists.Body.Close()
+	_ = exists.Body.Close()
 	if exists.StatusCode == http.StatusOK {
 		logx.Infof("elasticsearch index %q already exists", CourseIndexName)
 		return nil
@@ -191,7 +192,7 @@ func ensureCourseIndex(es *elasticsearch.Client, analyzer, searchAnalyzer string
 	if err != nil {
 		return fmt.Errorf("create index: %w", err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 	if res.IsError() {
 		return fmt.Errorf("create index %q: %s", CourseIndexName, res.String())
 	}

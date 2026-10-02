@@ -25,7 +25,7 @@ func courseSearch(ctx context.Context, svcCtx *svc.ServiceContext, body []byte) 
 	if err != nil {
 		return nil, xerr.Wrapf(err, xerr.CodeServiceUnavailable, "搜索服务暂不可用")
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 	if res.IsError() {
 		return nil, xerr.Wrapf(fmt.Errorf("%s", res.String()), xerr.CodeServiceUnavailable, "搜索服务暂不可用")
 	}

@@ -1,0 +1,46 @@
+# 持续集成：与本地 `make ci` 同口径（结构校验在 PowerShell 侧，CI 上由逐模块 build 覆盖）。
+# 逐模块 build/test/lint —— go.work 工作区下的 ./... 只覆盖主模块，必须循环。
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache: true
+
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+
+      - name: Build all modules
+        run: |
+          set -e
+          for m in $(go work edit -json | jq -r '.Use[].DiskPath'); do
+            echo "build ${m}"
+            (cd "${m#./}" && go build ./...)
+          done
+
+      - name: Test all modules
+        run: |
+          set -e
+          for m in $(go work edit -json | jq -r '.Use[].DiskPath'); do
+            echo "test ${m}"
+            (cd "${m#./}" && go test ./...)
+          done
+
+      - name: Lint all modules
+        run: |
+          set -e
+          for m in $(go work edit -json | jq -r '.Use[].DiskPath'); do
+            echo "lint ${m}"
+            (cd "${m#./}" && golangci-lint run ./...)
+          done

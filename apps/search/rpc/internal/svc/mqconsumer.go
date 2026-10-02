@@ -93,7 +93,7 @@ func (c *courseIndexConsumer) syncUp(ctx context.Context, courseId int64) error 
 	if err != nil {
 		return fmt.Errorf("index course doc: %w", err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 	if res.IsError() {
 		return fmt.Errorf("index course doc: %s", res.String())
 	}
@@ -107,7 +107,7 @@ func (c *courseIndexConsumer) syncDown(ctx context.Context, courseId int64) erro
 	if err != nil {
 		return fmt.Errorf("delete course doc: %w", err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 	if res.StatusCode == http.StatusNotFound {
 		return nil
 	}

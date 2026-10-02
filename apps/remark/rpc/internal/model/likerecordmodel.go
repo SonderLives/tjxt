@@ -49,7 +49,7 @@ func (m *customLikeRecordModel) FindLikedBizIds(ctx context.Context, userId int6
 		"select `biz_id` from %s where `user_id`=? and `biz_type`=? and `liked`=1 and `biz_id` in (%s)",
 		m.table, strings.Join(placeholders, ","))
 	var rows []int64
-	if err := m.CachedConn.QueryRowsNoCacheCtx(ctx, &rows, query, args...); err != nil {
+	if err := m.QueryRowsNoCacheCtx(ctx, &rows, query, args...); err != nil {
 		return nil, err
 	}
 	return rows, nil

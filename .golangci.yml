@@ -1,0 +1,33 @@
+# golangci-lint 配置（v2 格式，golangci-lint >= v2.0）
+# 原则：生成代码（handler/types/pb/model _gen.go）不查，手写代码全查。
+version: "2"
+
+linters:
+  # default: standard 已含 errcheck/govet/ineffassign/staticcheck/unused
+  default: standard
+  exclusions:
+    rules:
+      # 测试文件不查未检查的错误与未使用变量
+      - path: _test\.go
+        linters:
+          - errcheck
+      # goctl 生成的代码不做检查
+      - path: internal/handler/
+        linters:
+          - errcheck
+          - staticcheck
+      - path: internal/types/
+        linters:
+          - errcheck
+          - staticcheck
+      - path: internal/model/.*_gen\.go
+        linters:
+          - errcheck
+          - staticcheck
+      - path: pb/
+        linters:
+          - errcheck
+          - staticcheck
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

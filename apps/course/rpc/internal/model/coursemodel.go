@@ -58,9 +58,10 @@ func (m *customCourseModel) PageQuery(ctx context.Context, f CoursePageFilter, o
 		conds = append(conds, "`status` = ?")
 		args = append(args, f.Status)
 	}
-	if f.Free == 1 {
+	switch f.Free {
+	case 1:
 		conds = append(conds, "`free` = 1")
-	} else if f.Free == 2 {
+	case 2:
 		conds = append(conds, "`free` = 0")
 	}
 	if f.CourseType != 0 {

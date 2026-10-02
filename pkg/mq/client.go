@@ -78,10 +78,9 @@ func (c *Client) SetAutoAck(autoAck bool) {
 
 // Register 注册消费者。handler 签名必须为 func(ctx context.Context, msg *T) error。
 func Register[T any](c *Client, binding Binding, handler Handler[T]) {
-	var zero T
-	msgType := reflect.TypeOf(zero)
-	if msgType.Kind() != reflect.Ptr {
-		msgType = reflect.PtrTo(msgType)
+	msgType := reflect.TypeFor[T]()
+	if msgType.Kind() != reflect.Pointer {
+		msgType = reflect.PointerTo(msgType)
 	}
 
 	c.mu.Lock()

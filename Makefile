@@ -21,7 +21,7 @@ RPC_DIRS := apps/auth/rpc apps/course/rpc apps/data/rpc/data apps/exam/rpc apps/
 # 服务名（用于二进制文件命名、run 目标解析）
 SERVICES := auth course data exam learning media message pay promotion remark search trade user
 
-.PHONY: help init generate api rpc model build test fmt lint clean \
+.PHONY: help init generate api rpc model build test fmt lint ci clean \
         docker-up docker-down docker-logs verify sync tidy \
         run-all $(SERVICES:%=run-%) $(SERVICES:%=run-%-rpc)
 
@@ -94,14 +94,16 @@ build: ## 构建全部 26 个可执行文件到 bin/
 	  $$jobs | ForEach-Object { Write-Host ('  build {0,-22} -> bin/{1}.exe' -f $$_.d, $$_.n); & $(GO) build -o ('bin/{0}.exe' -f $$_.n) ('./{0}' -f $$_.d); if ($$LASTEXITCODE -ne 0) { $$fail = 1 } }; \
 	  if ($$fail) { exit 1 }; Write-Host 'done -> bin/' -ForegroundColor Green"
 
-test: ## go test 所有模块
-	@powershell -NoProfile -Command "$(API_DIRS) $(RPC_DIRS) | ForEach-Object { Push-Location $$_; Write-Host ('  test {0}' -f $$_); & $(GO) test ./...; Pop-Location }"
+test: ## go test 所有模块（含 pkg）
+	@powershell -NoProfile -Command "('pkg $(API_DIRS) $(RPC_DIRS)') -split ' ' | ForEach-Object { Push-Location $$_; Write-Host ('  test {0}' -f $$_); & $(GO) test ./...; if ($$LASTEXITCODE -ne 0) { Pop-Location; exit 1 }; Pop-Location }"
 
 fmt: ## go fmt 所有模块
-	@powershell -NoProfile -Command "$(API_DIRS) $(RPC_DIRS) | ForEach-Object { Push-Location $$_; & $(GO) fmt ./...; Pop-Location }"
+	@powershell -NoProfile -Command "('pkg $(API_DIRS) $(RPC_DIRS)') -split ' ' | ForEach-Object { Push-Location $$_; & $(GO) fmt ./...; Pop-Location }"
 
-lint: ## golangci-lint（如果已安装）
-	@powershell -NoProfile -Command "if (Get-Command golangci-lint -ErrorAction SilentlyContinue) { golangci-lint run ./... } else { Write-Host 'golangci-lint 未安装，跳过' -ForegroundColor Yellow }"
+lint: ## golangci-lint 逐模块检查（未安装或发现问题即失败退出）
+	@powershell -NoProfile -Command "if (-not (Get-Command golangci-lint -ErrorAction SilentlyContinue)) { Write-Host 'golangci-lint 未安装：go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest 或 scoop install golangci-lint' -ForegroundColor Red; exit 1 }; ('pkg $(API_DIRS) $(RPC_DIRS)') -split ' ' | ForEach-Object { Push-Location $$_; Write-Host ('  lint {0}' -f $$_); & golangci-lint run ./...; if ($$LASTEXITCODE -ne 0) { Pop-Location; exit 1 }; Pop-Location }"
+
+ci: verify build lint test ## 一条龙门禁：结构校验 + 全量构建 + lint + 测试（CI 与本地同一入口）
 
 clean: ## 删除 bin/ 与各服务下遗留的 exe
 	@powershell -NoProfile -Command "if (Test-Path bin) { Remove-Item -Recurse -Force bin }; $(API_DIRS) $(RPC_DIRS) | ForEach-Object { Get-ChildItem -Path $$_ -Filter *.exe -ErrorAction SilentlyContinue | Remove-Item -Force }"

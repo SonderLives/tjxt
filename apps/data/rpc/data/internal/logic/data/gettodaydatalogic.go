@@ -38,22 +38,22 @@ func (l *GetTodayDataLogic) GetTodayData(in *pb.Empty) (*pb.TodayDataVO, error) 
 	if v, err := strconv.ParseFloat(vals["visits"], 64); err == nil {
 		resp.Visits = v
 	} else {
-		l.Logger.Errorf("解析今日数据失败 field=visits value=%q err=%v", vals["visits"], err)
+		l.Errorf("解析今日数据失败 field=visits value=%q err=%v", vals["visits"], err)
 	}
 	if v, err := strconv.ParseFloat(vals["orderAmount"], 64); err == nil {
 		resp.OrderAmount = v
 	} else {
-		l.Logger.Errorf("解析今日数据失败 field=orderAmount value=%q err=%v", vals["orderAmount"], err)
+		l.Errorf("解析今日数据失败 field=orderAmount value=%q err=%v", vals["orderAmount"], err)
 	}
 	if v, err := strconv.ParseInt(vals["orderNum"], 10, 32); err == nil {
 		resp.OrderNum = int32(v)
 	} else {
-		l.Logger.Errorf("解析今日数据失败 field=orderNum value=%q err=%v", vals["orderNum"], err)
+		l.Errorf("解析今日数据失败 field=orderNum value=%q err=%v", vals["orderNum"], err)
 	}
 	if v, err := strconv.ParseInt(vals["stuNewNum"], 10, 32); err == nil {
 		resp.StuNewNum = int32(v)
 	} else {
-		l.Logger.Errorf("解析今日数据失败 field=stuNewNum value=%q err=%v", vals["stuNewNum"], err)
+		l.Errorf("解析今日数据失败 field=stuNewNum value=%q err=%v", vals["stuNewNum"], err)
 	}
 	return resp, nil
 }

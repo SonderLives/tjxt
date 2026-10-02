@@ -59,7 +59,7 @@ func (l *GetBoardDataLogic) readBoardData(t int) ([]float64, error) {
 	}
 	var vals []float64
 	if err := json.Unmarshal([]byte(val), &vals); err != nil {
-		l.Logger.Errorf("解析看板数据失败 type=%d err=%v", t, err)
+		l.Errorf("解析看板数据失败 type=%d err=%v", t, err)
 		return nil, nil
 	}
 	return vals, nil

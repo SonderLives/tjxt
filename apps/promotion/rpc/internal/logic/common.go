@@ -67,13 +67,6 @@ func formatNullTime(t sql.NullTime) string {
 	return t.Time.Format(timeLayout)
 }
 
-func formatNullString(s sql.NullString) string {
-	if !s.Valid {
-		return ""
-	}
-	return s.String
-}
-
 // sqlNow 返回当前时间的 sql.NullTime。
 func sqlNow() sql.NullTime {
 	return sql.NullTime{Time: time.Now(), Valid: true}
