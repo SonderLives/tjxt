@@ -19,7 +19,8 @@ type (
 		orderModel
 		PageQueryByUser(ctx context.Context, userId, pageNo, pageSize, status, noNo int64, sortBy string, isAsc bool) ([]*Order, int64, error)
 		UpdateStatus(ctx context.Context, id, status int64, message string) error
-		MarkPaid(ctx context.Context, id, payOrderNo int64, payChannel string, payTime time.Time, realAmount int64) error
+		// MarkPaid 待支付(1) -> 已支付(2)，条件更新；返回是否真的发生状态流转
+		MarkPaid(ctx context.Context, id, payOrderNo int64, payChannel string, payTime time.Time, realAmount int64) (bool, error)
 		MarkClosed(ctx context.Context, id int64, message string) error
 	}
 	customOrderModel struct {
@@ -93,20 +94,24 @@ func (m *customOrderModel) UpdateStatus(ctx context.Context, id, status int64, m
 	return m.Update(ctx, order)
 }
 
-// MarkPaid 标记订单为已支付，写入支付流水号、渠道、支付时间与实付金额
-func (m *customOrderModel) MarkPaid(ctx context.Context, id, payOrderNo int64, payChannel string, payTime time.Time, realAmount int64) error {
-	order, err := m.FindOne(ctx, id)
+// MarkPaid 标记订单为已支付（status 1 -> 2），写入支付流水号、渠道、支付时间与实付金额。
+// 带 `status = 1` 条件更新：并发消费/重复事件下只有第一次真正流转（幂等）；
+// 同时失效订单主键缓存。返回 false 表示订单不处于待支付态（已被处理或已终态）。
+func (m *customOrderModel) MarkPaid(ctx context.Context, id, payOrderNo int64, payChannel string, payTime time.Time, realAmount int64) (bool, error) {
+	orderIdKey := fmt.Sprintf("%s%v", cacheTjTradeOrderIdPrefix, id)
+	res, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
+		return conn.ExecCtx(ctx,
+			fmt.Sprintf("update %s set `status` = 2, `pay_order_no` = ?, `pay_channel` = ?, `pay_time` = ?, `real_amount` = if(? > 0, ?, `real_amount`), `update_time` = ? where `id` = ? and `status` = 1", m.table),
+			payOrderNo, payChannel, payTime, realAmount, realAmount, time.Now(), id)
+	}, orderIdKey)
 	if err != nil {
-		return err
+		return false, err
 	}
-	order.Status = 2
-	order.PayOrderNo = sql.NullInt64{Int64: payOrderNo, Valid: true}
-	order.PayChannel = payChannel
-	order.PayTime = sql.NullTime{Time: payTime, Valid: true}
-	if realAmount > 0 {
-		order.RealAmount = realAmount
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return false, err
 	}
-	return m.Update(ctx, order)
+	return affected > 0, nil
 }
 
 // MarkClosed 标记订单关闭（取消/超时）

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 
@@ -10,6 +11,7 @@ import (
 	"tjxt/apps/trade/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
@@ -33,6 +35,16 @@ func main() {
 		}
 	})
 	defer s.Stop()
+
+	// MQ 消费者（pay.success → 订单回写已支付并转发 order.pay）以 goroutine 运行，
+	// 失败仅告警，不阻塞服务启动
+	if ctx.MQClient != nil {
+		go func() {
+			if err := ctx.MQClient.Start(context.Background()); err != nil {
+				logx.Errorf("trade mq consumer stopped: %v", err)
+			}
+		}()
+	}
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
