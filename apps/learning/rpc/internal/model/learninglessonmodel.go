@@ -49,8 +49,10 @@ type (
 		UpdatePlan(ctx context.Context, userID, courseID, weekFreq int64) error
 		// RemoveLesson 删除该用户对这门课的学习记录（status 置 3）
 		RemoveLesson(ctx context.Context, userID, courseID int64) error
-		// UpdateLatestLearn 提交学习记录时，更新最新学习进度
+		// UpdateLatestLearn 提交视频学习记录时，更新最新学习进度
 		UpdateLatestLearn(ctx context.Context, lessonID, sectionID, moment, duration int64) error
+		// UpdateLatestLearnTime 提交考试学习记录时，只更新最近学习时间与状态
+		UpdateLatestLearnTime(ctx context.Context, lessonID, moment, duration int64) error
 		// IncrLearnedSections +1 learned_sections，用于学习记录被确认完成时
 		IncrLearnedSections(ctx context.Context, lessonID int64) error
 	}
@@ -185,6 +187,20 @@ func (m *customLearningLessonModel) UpdateLatestLearn(ctx context.Context, lesso
 			update_time = NOW()
 		WHERE id = ?`, m.table),
 		sql.NullInt64{Int64: sectionID, Valid: sectionID > 0},
+		time.Now(),
+		LessonStatusNotStart, LessonStatusInLearn,
+		lessonID)
+	return err
+}
+
+// UpdateLatestLearnTime 考试小节提交：仅刷新最近学习时间与进行中状态，不动视频进度字段。
+func (m *customLearningLessonModel) UpdateLatestLearnTime(ctx context.Context, lessonID, moment, duration int64) error {
+	_, err := m.ExecNoCacheCtx(ctx,
+		fmt.Sprintf(`UPDATE %s SET
+			latest_learn_time = ?,
+			status = IF(status = ?, ?, status),
+			update_time = NOW()
+		WHERE id = ?`, m.table),
 		time.Now(),
 		LessonStatusNotStart, LessonStatusInLearn,
 		lessonID)

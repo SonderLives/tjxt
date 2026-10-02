@@ -28,10 +28,11 @@ func NewLessonGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LessonG
 
 // 指定课程的学习信息
 func (l *LessonGetLogic) LessonGet(req *types.LessonRequest) (*types.LearningLessonVO, error) {
-	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
+	userID, err := auth.UserIdFromCtx(l.ctx)
+	if err != nil {
 		return nil, err
 	}
-	vo, err := l.svcCtx.LearningRpc.LessonGet(l.ctx, &pb.LessonRequest{CourseId: req.CourseId})
+	vo, err := l.svcCtx.LearningRpc.LessonGet(l.ctx, &pb.LessonRequest{CourseId: req.CourseId, UserId: userID})
 	if err != nil {
 		return nil, err
 	}

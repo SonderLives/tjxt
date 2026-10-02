@@ -21,7 +21,7 @@ type LearningService interface {
 	CreatePlan(ctx context.Context, userID, courseID, weekFreq int64) error
 	ValidateLesson(ctx context.Context, userID, courseID int64) (int64, error)
 	CurrentLesson(ctx context.Context, userID int64) (*model.LearningLesson, error)
-	CommitRecord(ctx context.Context, userID, lessonID, sectionID, moment, duration int64, commitTime string) error
+	CommitRecord(ctx context.Context, userID, lessonID, sectionID, sectionType, moment, duration int64, commitTime string) error
 	ListLessonPlans(ctx context.Context, userID, pageNo, pageSize int64, asc bool) ([]*model.LearningLesson, int64, error)
 }
 
@@ -113,10 +113,20 @@ func (s *learningService) CurrentLesson(ctx context.Context, userID int64) (*mod
 	return s.m.FindLatestLearnedByUser(ctx, userID)
 }
 
-// CommitRecord 提交学习记录：更新 lesson 的最新进度
-func (s *learningService) CommitRecord(ctx context.Context, userID, lessonID, sectionID, moment, duration int64, commitTime string) error {
+// 小节类型（与 proto LearningRecordCommitRequest.section_type 对应）
+const (
+	SectionTypeVideo = 1
+	SectionTypeExam  = 2
+)
+
+// CommitRecord 提交学习记录：更新 lesson 的最新进度。
+// sectionType：1=视频小节（更新最近学习小节），2=考试小节（只更新最近学习时间）。
+func (s *learningService) CommitRecord(ctx context.Context, userID, lessonID, sectionID, sectionType, moment, duration int64, commitTime string) error {
 	if lessonID <= 0 || sectionID <= 0 {
 		return xerr.BadRequestf("lessonID/sectionID 非法")
+	}
+	if sectionType == SectionTypeExam {
+		return s.m.UpdateLatestLearnTime(ctx, lessonID, moment, duration)
 	}
 	return s.m.UpdateLatestLearn(ctx, lessonID, sectionID, moment, duration)
 }

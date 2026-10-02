@@ -17,4 +17,6 @@ type Config struct {
 
 	// CourseRpc 课程域 RPC（通过 etcd 服务发现）
 	CourseRpc zrpc.RpcClientConf
+	// LearningRpc 用户课表/学习进度 RPC（通过 etcd 服务发现）
+	LearningRpc zrpc.RpcClientConf
 }

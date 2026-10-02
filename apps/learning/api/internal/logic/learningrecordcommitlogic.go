@@ -31,7 +31,7 @@ func (l *LearningRecordCommitLogic) LearningRecordCommit(req *types.LearningReco
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	// section_type 字符串（VIDEO/EXAM）映射为 proto 数字占位（服务层目前忽略该字段）
+	// section_type 字符串（VIDEO/EXAM）映射为 proto 数字（1 视频 2 考试），服务层据此区分进度更新方式
 	var sectionType int32
 	switch req.SectionType {
 	case "EXAM":

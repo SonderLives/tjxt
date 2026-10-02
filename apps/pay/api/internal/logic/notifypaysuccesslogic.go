@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"io"
 
 	"tjxt/apps/pay/api/internal/svc"
 	"tjxt/apps/pay/api/internal/types"
@@ -33,19 +34,20 @@ func NewNotifyPaySuccessLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 // verifySign 校验支付网关回调签名。
-// 规则：sign = hex(hmac_sha256(PayNotifySecret, "payOrderNo=<PayOrderNo>")).
-func verifySign(secret string, payOrderNo int64, sign string) bool {
+// 规则：sign = hex(hmac_sha256(PayNotifySecret, canonical))，
+// canonical 由各回调接口约定：支付类为 "payOrderNo=<no>"，退款类为 "refundOrderNo=<no>"。
+func verifySign(secret, canonical, sign string) bool {
 	if secret == "" || sign == "" {
 		return false
 	}
 	mac := hmac.New(sha256.New, []byte(secret))
-	_, _ = fmt.Fprintf(mac, "payOrderNo=%d", payOrderNo)
+	_, _ = io.WriteString(mac, canonical)
 	expected := hex.EncodeToString(mac.Sum(nil))
 	return hmac.Equal([]byte(expected), []byte(sign))
 }
 
 func (l *NotifyPaySuccessLogic) NotifyPaySuccess(req *types.NotifyPaySuccessReq) (resp *types.Result, err error) {
-	if !verifySign(l.svcCtx.Config.PayNotifySecret, req.PayOrderNo, req.Sign) {
+	if !verifySign(l.svcCtx.Config.PayNotifySecret, fmt.Sprintf("payOrderNo=%d", req.PayOrderNo), req.Sign) {
 		return nil, xerr.Unauthorized("支付回调签名校验失败")
 	}
 	if _, err := l.svcCtx.PayRpc.NotifyPaySuccess(l.ctx, &payclient.NotifyPaySuccessRequest{

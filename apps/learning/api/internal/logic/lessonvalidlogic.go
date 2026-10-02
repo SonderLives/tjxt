@@ -28,10 +28,11 @@ func NewLessonValidLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Lesso
 
 // 学员是否已报名（返回 lessonId；未报名时 RPC 返回 NotFound）
 func (l *LessonValidLogic) LessonValid(req *types.LessonRequest) (*types.LessonValidVO, error) {
-	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
+	userID, err := auth.UserIdFromCtx(l.ctx)
+	if err != nil {
 		return nil, err
 	}
-	reply, err := l.svcCtx.LearningRpc.LessonValid(l.ctx, &pb.LessonRequest{CourseId: req.CourseId})
+	reply, err := l.svcCtx.LearningRpc.LessonValid(l.ctx, &pb.LessonRequest{CourseId: req.CourseId, UserId: userID})
 	if err != nil {
 		return nil, err
 	}

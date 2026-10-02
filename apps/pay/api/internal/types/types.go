@@ -27,6 +27,7 @@ type NotifyPayFailedReq struct {
 	PayOrderNo int64  `json:"payOrderNo"`
 	ResultCode string `json:"resultCode,optional"`
 	ResultMsg  string `json:"resultMsg,optional"`
+	Sign       string `json:"sign"`
 }
 
 type NotifyPaySuccessReq struct {
@@ -41,6 +42,7 @@ type NotifyRefundFailedReq struct {
 	RefundOrderNo int64  `json:"refundOrderNo"`
 	ResultCode    string `json:"resultCode,optional"`
 	ResultMsg     string `json:"resultMsg,optional"`
+	Sign          string `json:"sign"`
 }
 
 type NotifyRefundSuccessReq struct {
@@ -48,6 +50,7 @@ type NotifyRefundSuccessReq struct {
 	ResultCode    string `json:"resultCode,optional"`
 	ResultMsg     string `json:"resultMsg,optional"`
 	RefundChannel string `json:"refundChannel,optional"`
+	Sign          string `json:"sign"`
 }
 
 type PageRequest struct {

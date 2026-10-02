@@ -31,7 +31,11 @@ func NewMockPayLogic(ctx context.Context, svcCtx *svc.ServiceContext) *MockPayLo
 
 // MockPay 模拟支付网关回调（demo）：登录用户本人确认支付自己的订单。
 // 真实环境由支付渠道回调 /pay-notify/pay-success（带 HMAC 签名），不走本接口。
+// 生产环境应置 MockPayEnabled=false 关闭本接口。
 func (l *MockPayLogic) MockPay(req *types.MockPayReq) (resp *types.Result, err error) {
+	if !l.svcCtx.Config.MockPayEnabled {
+		return nil, xerr.Forbidden("模拟支付未开启")
+	}
 	userId, err := auth.UserIdFromCtx(l.ctx)
 	if err != nil {
 		return nil, xerr.New(xerr.CodeUnauthorized, "未登录")

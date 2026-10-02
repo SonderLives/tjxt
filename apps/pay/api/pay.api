@@ -95,6 +95,8 @@ type NotifyPayFailedReq {
 	PayOrderNo int64  `json:"payOrderNo"`
 	ResultCode string `json:"resultCode,optional"`
 	ResultMsg  string `json:"resultMsg,optional"`
+	// sign = hex(hmac_sha256(PayNotifySecret, "payOrderNo=<PayOrderNo>"))
+	Sign string `json:"sign"`
 }
 
 type NotifyRefundSuccessReq {
@@ -102,12 +104,16 @@ type NotifyRefundSuccessReq {
 	ResultCode    string `json:"resultCode,optional"`
 	ResultMsg     string `json:"resultMsg,optional"`
 	RefundChannel string `json:"refundChannel,optional"`
+	// sign = hex(hmac_sha256(PayNotifySecret, "refundOrderNo=<RefundOrderNo>"))
+	Sign string `json:"sign"`
 }
 
 type NotifyRefundFailedReq {
 	RefundOrderNo int64  `json:"refundOrderNo"`
 	ResultCode    string `json:"resultCode,optional"`
 	ResultMsg     string `json:"resultMsg,optional"`
+	// sign = hex(hmac_sha256(PayNotifySecret, "refundOrderNo=<RefundOrderNo>"))
+	Sign string `json:"sign"`
 }
 
 // ============ 业务侧（需登录） ============

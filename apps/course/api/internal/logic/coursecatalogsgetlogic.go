@@ -9,6 +9,8 @@ import (
 	"tjxt/apps/course/api/internal/svc"
 	"tjxt/apps/course/api/internal/types"
 	"tjxt/apps/course/rpc/pb"
+	learningpb "tjxt/apps/learning/rpc/pb"
+	"tjxt/pkg/auth"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -30,9 +32,21 @@ func NewCourseCatalogsGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 
 // CourseCatalogsGet 查询课程目录（学员端播放页：课程信息 + 章节树）。
 func (l *CourseCatalogsGetLogic) CourseCatalogsGet(req *types.IdPathReq) (resp *types.CourseAndSectionVO, err error) {
+	userID, authErr := auth.UserIdFromCtx(l.ctx)
+	if authErr != nil {
+		return nil, authErr
+	}
 	view, gerr := l.svcCtx.CourseRpc.CourseCatalogsGet(l.ctx, &pb.IdRequest{Id: req.Id})
 	if gerr != nil {
 		return nil, xerr.Wrap(gerr, xerr.CodeInternal, "查询课程目录失败")
+	}
+	lesson, lessonErr := l.svcCtx.LearningRpc.LessonGet(l.ctx, &learningpb.LessonRequest{CourseId: req.Id, UserId: userID})
+	if lessonErr == nil && lesson != nil {
+		view.LessonId = lesson.Id
+		view.LatestSectionId = lesson.LatestSectionId
+	} else if lessonErr != nil {
+		// 未报名学员正常浏览目录时 learning 返回 NotFound；保持进度字段为 0。
+		l.Errorf("query learning progress failed, userId=%d courseId=%d: %v", userID, req.Id, lessonErr)
 	}
 	resp = &types.CourseAndSectionVO{
 		Id:              view.Id,

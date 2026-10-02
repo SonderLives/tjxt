@@ -105,6 +105,9 @@ lint: ## golangci-lint 逐模块检查（未安装或发现问题即失败退出
 
 ci: verify build lint test ## 一条龙门禁：结构校验 + 全量构建 + lint + 测试（CI 与本地同一入口）
 
+test-integration: ## 集成测试（依赖本地 MySQL/Redis/RabbitMQ，需先 docker-up；不可达时自动跳过）
+	@powershell -NoProfile -Command "('pkg apps/pay/rpc apps/trade/rpc apps/learning/rpc') -split ' ' | ForEach-Object { Push-Location $$_; Write-Host ('  itest {0}' -f $$_); & $(GO) test -tags integration -count=1 ./...; if ($$LASTEXITCODE -ne 0) { Pop-Location; exit 1 }; Pop-Location }"
+
 clean: ## 删除 bin/ 与各服务下遗留的 exe
 	@powershell -NoProfile -Command "if (Test-Path bin) { Remove-Item -Recurse -Force bin }; $(API_DIRS) $(RPC_DIRS) | ForEach-Object { Get-ChildItem -Path $$_ -Filter *.exe -ErrorAction SilentlyContinue | Remove-Item -Force }"
 

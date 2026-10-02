@@ -33,6 +33,12 @@ Cache:
 # RabbitMQ，发布课程上架/下架事件（course.events 交换机）
 # 供 search 服务消费并增量同步 ES 课程索引。
 # MQ 未配置或不可用时发布失败仅告警，不阻塞课程操作。
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
+
 RabbitMQ:
   Host: 127.0.0.1
   Port: 5672

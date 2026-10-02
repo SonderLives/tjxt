@@ -60,6 +60,7 @@ func (*Empty) Descriptor() ([]byte, []int) {
 type LessonRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CourseId      int64                  `protobuf:"varint,1,opt,name=course_id,json=courseId,proto3" json:"course_id,omitempty"`
+	UserId        int64                  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"` // API 由 JWT 解析后透传；内部 RPC 间调用用户课表时使用
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -97,6 +98,13 @@ func (*LessonRequest) Descriptor() ([]byte, []int) {
 func (x *LessonRequest) GetCourseId() int64 {
 	if x != nil {
 		return x.CourseId
+	}
+	return 0
+}
+
+func (x *LessonRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
 	}
 	return 0
 }
@@ -931,9 +939,10 @@ var File_learning_proto protoreflect.FileDescriptor
 const file_learning_proto_rawDesc = "" +
 	"\n" +
 	"\x0elearning.proto\x12\blearning\"\a\n" +
-	"\x05Empty\",\n" +
+	"\x05Empty\"E\n" +
 	"\rLessonRequest\x12\x1b\n" +
-	"\tcourse_id\x18\x01 \x01(\x03R\bcourseId\"1\n" +
+	"\tcourse_id\x18\x01 \x01(\x03R\bcourseId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\"1\n" +
 	"\x12LessonCountRequest\x12\x1b\n" +
 	"\tcourse_id\x18\x01 \x01(\x03R\bcourseId\"y\n" +
 	"\x11LessonPageRequest\x12\x17\n" +

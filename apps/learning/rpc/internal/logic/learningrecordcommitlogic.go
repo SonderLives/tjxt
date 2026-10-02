@@ -31,7 +31,7 @@ func (l *LearningRecordCommitLogic) LearningRecordCommit(in *pb.LearningRecordCo
 	if err != nil {
 		return nil, err
 	}
-	if err := l.svcCtx.LearningService.CommitRecord(l.ctx, userID, in.LessonId, in.SectionId, in.Moment, in.Duration, in.CommitTime); err != nil {
+	if err := l.svcCtx.LearningService.CommitRecord(l.ctx, userID, in.LessonId, in.SectionId, int64(in.SectionType), in.Moment, in.Duration, in.CommitTime); err != nil {
 		return nil, err
 	}
 	return &pb.Empty{}, nil

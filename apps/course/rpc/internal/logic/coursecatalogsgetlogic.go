@@ -52,14 +52,37 @@ func (l *CourseCatalogsGetLogic) CourseCatalogsGet(in *pb.IdRequest) (*pb.Course
 		sections = formatNullInt64(course.SectionNum)
 	}
 
-	// 教师姓名/头像归属 user 服务，course 侧未接线，此处留空；lesson_id 属 learning 服务，填 0。
+	// 教师展示信息（姓名/头像）来自 user 服务：取该课程首个允许展示的老师。
+	// user 服务不可用时回落为空串，不阻塞目录展示。
+	teachers, terr := l.svcCtx.CourseTeacherModel.ListByCourseId(l.ctx, in.Id)
+	teacherName, teacherIcon := "", ""
+	if terr == nil {
+		ids := make([]int64, 0, len(teachers))
+		for _, t := range teachers {
+			if t.IsShow == 1 {
+				ids = append(ids, t.TeacherId)
+			}
+		}
+		if len(ids) > 0 {
+			if tm := fetchTeacherMap(l.ctx, l.svcCtx, ids); tm != nil {
+				if ti, ok := tm[ids[0]]; ok && ti != nil {
+					teacherName, teacherIcon = ti.Name, ti.Icon
+				}
+			}
+		}
+	} else {
+		l.Errorf("query course teachers failed, courseId=%d: %v", in.Id, terr)
+	}
+
+	// LessonId/LatestSectionId（当前用户课表与最近学习小节）需要请求携带 userId，
+	// 现协议 IdRequest 无该字段，待 proto 演进后经 learning 服务补齐。
 	return &pb.CourseAndSectionView{
 		Id:              course.Id,
 		Name:            course.Name,
 		CoverUrl:        course.CoverUrl,
 		Sections:        sections,
-		TeacherIcon:     "",
-		TeacherName:     "",
+		TeacherIcon:     teacherIcon,
+		TeacherName:     teacherName,
 		LessonId:        0,
 		LatestSectionId: 0,
 		Chapters:        buildCataTree(list),

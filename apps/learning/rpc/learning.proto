@@ -53,6 +53,7 @@ message Empty {}
 
 message LessonRequest {
   int64 course_id = 1;
+  int64 user_id = 2; // API 由 JWT 解析后透传；内部 RPC 间调用用户课表时使用
 }
 
 message LessonCountRequest {

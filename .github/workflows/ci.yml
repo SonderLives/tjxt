@@ -25,6 +25,7 @@ jobs:
         run: |
           set -e
           for m in $(go work edit -json | jq -r '.Use[].DiskPath'); do
+            if [ "${m#./}" = "." ]; then continue; fi   # 根模块仅声明 go 版本，无代码
             echo "build ${m}"
             (cd "${m#./}" && go build ./...)
           done
@@ -33,6 +34,7 @@ jobs:
         run: |
           set -e
           for m in $(go work edit -json | jq -r '.Use[].DiskPath'); do
+            if [ "${m#./}" = "." ]; then continue; fi
             echo "test ${m}"
             (cd "${m#./}" && go test ./...)
           done
@@ -41,6 +43,7 @@ jobs:
         run: |
           set -e
           for m in $(go work edit -json | jq -r '.Use[].DiskPath'); do
+            if [ "${m#./}" = "." ]; then continue; fi
             echo "lint ${m}"
             (cd "${m#./}" && golangci-lint run ./...)
           done

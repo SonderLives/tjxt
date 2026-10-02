@@ -1,12 +1,17 @@
 package logic
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
 	"tjxt/apps/course/rpc/internal/model"
+	"tjxt/apps/course/rpc/internal/svc"
 	"tjxt/apps/course/rpc/pb"
+	userclient "tjxt/apps/user/rpc/client/user"
 	"tjxt/pkg/utils/idgen"
+
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 // 分类状态
@@ -137,4 +142,31 @@ func categoryNameMap(list []*model.Category) map[int64]*model.Category {
 		m[c.Id] = c
 	}
 	return m
+}
+
+// userClient teacherInfo 提取教师展示信息（姓名/头像/职位/简介来自 user 服务）。
+type teacherInfo struct {
+	Name      string
+	Icon      string
+	Photo     string
+	Job       string
+	Introduce string
+}
+
+// fetchTeacherMap 批量查询教师（user 服务），返回 user_id -> 展示信息。
+// user 服务不可用时返回空 map，调用方回落到空字符串展示，不阻塞课程主流程。
+func fetchTeacherMap(ctx context.Context, svcCtx *svc.ServiceContext, teacherIds []int64) map[int64]*teacherInfo {
+	res := make(map[int64]*teacherInfo, len(teacherIds))
+	if len(teacherIds) == 0 {
+		return res
+	}
+	reply, err := svcCtx.UserRpc.GetUsersByIds(ctx, &userclient.UserIdsRequest{UserIds: teacherIds})
+	if err != nil {
+		logx.WithContext(ctx).Errorf("query teachers from user service failed, ids=%v: %v", teacherIds, err)
+		return res
+	}
+	for _, u := range reply.List {
+		res[u.Id] = &teacherInfo{Name: u.Name, Icon: u.Icon, Photo: u.Icon, Job: u.Job, Introduce: u.Intro}
+	}
+	return res
 }

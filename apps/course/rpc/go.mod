@@ -99,6 +99,9 @@ require (
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
+	tjxt/apps/user/rpc v0.0.0-00010101000000-000000000000
 )
 
 replace tjxt/pkg => ../../../pkg
+
+replace tjxt/apps/user/rpc => ../../user/rpc

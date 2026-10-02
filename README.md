@@ -99,21 +99,21 @@ tjxt/
 ## 🗂 服务清单
 
 
-| 服务           | API 端口 | RPC 地址         | etcd Key         | 数据库         | 核心职责                  |
-| ------------ | ------ | -------------- | -------------- | ----------- | --------------------- |
-| **auth**     | 8802   | 127.0.0.1:8082 | `auth.rpc`     | tj_auth     | 登录/注册、Token 签发刷新、权限校验 |
-| **user**     | 8801   | 127.0.0.1:8081 | `user.rpc`     | tj_user     | 用户档案、教师/学员详情、角色部门     |
-| **course**   | 8803   | 127.0.0.1:8083 | `course.rpc`   | tj_course   | 课程/分类/章节/媒体资源 CRUD    |
-| **learning** | 8804   | 127.0.0.1:8084 | `learning.rpc` | tj_learning | 学习进度、收藏、笔记、考试记录       |
-| **exam**     | 8805   | 127.0.0.1:8085 | `exam.rpc`     | tj_exam     | 试卷/题库/考试/评分/记录        |
-| **media**    | 8806   | 127.0.0.1:8086 | `media.rpc`    | tj_media    | 文件上传、媒资管理、转码回调        |
-| **message**  | 8807   | 127.0.0.1:8087 | `message.rpc`  | tj_message  | 站内信/通知/公告、模板消息        |
-| **pay**      | 8808   | 127.0.0.1:8088 | `pay.rpc`      | tj_pay      | 订单支付、退款、回调、账单         |
-| **trade**    | 8809   | 127.0.0.1:8089 | `trade.rpc`    | tj_trade    | 交易订单、优惠券、分佣结算         |
-| **search**   | 8810   | 127.0.0.1:8090 | `search.rpc`   | tj_search   | 课程/用户全文检索、建议词         |
-| **data**     | 8811   | 127.0.0.1:8091 | `data.rpc`     | — (Redis)   | 统计大屏、榜单、今日数据聚合        |
-| **promotion**| 8812   | 127.0.0.1:8092 | `promotion.rpc`| tj_promotion| 优惠券、营销活动、秒杀、积分        |
-| **remark**   | 8813   | 127.0.0.1:8093 | `remark.rpc`   | tj_remark   | 评价/评论、评分、回复            |
+| 服务            | API 端口 | RPC 地址         | etcd Key        | 数据库          | 核心职责                  |
+| ------------- | ------ | -------------- | --------------- | ------------ | --------------------- |
+| **auth**      | 8802   | 127.0.0.1:8082 | `auth.rpc`      | tj_auth      | 登录/注册、Token 签发刷新、权限校验 |
+| **user**      | 8801   | 127.0.0.1:8081 | `user.rpc`      | tj_user      | 用户档案、教师/学员详情、角色部门     |
+| **course**    | 8803   | 127.0.0.1:8083 | `course.rpc`    | tj_course    | 课程/分类/章节/媒体资源 CRUD    |
+| **learning**  | 8804   | 127.0.0.1:8084 | `learning.rpc`  | tj_learning  | 学习进度、收藏、笔记、考试记录       |
+| **exam**      | 8805   | 127.0.0.1:8085 | `exam.rpc`      | tj_exam      | 试卷/题库/考试/评分/记录        |
+| **media**     | 8806   | 127.0.0.1:8086 | `media.rpc`     | tj_media     | 文件上传、媒资管理、转码回调        |
+| **message**   | 8807   | 127.0.0.1:8087 | `message.rpc`   | tj_message   | 站内信/通知/公告、模板消息        |
+| **pay**       | 8808   | 127.0.0.1:8088 | `pay.rpc`       | tj_pay       | 订单支付、退款、回调、账单         |
+| **trade**     | 8809   | 127.0.0.1:8089 | `trade.rpc`     | tj_trade     | 交易订单、优惠券、分佣结算         |
+| **search**    | 8810   | 127.0.0.1:8090 | `search.rpc`    | tj_search    | 课程/用户全文检索、建议词         |
+| **data**      | 8811   | 127.0.0.1:8091 | `data.rpc`      | — (Redis)    | 统计大屏、榜单、今日数据聚合        |
+| **promotion** | 8812   | 127.0.0.1:8092 | `promotion.rpc` | tj_promotion | 优惠券、营销活动、秒杀、积分        |
+| **remark**    | 8813   | 127.0.0.1:8093 | `remark.rpc`    | tj_remark    | 评价/评论、评分、回复           |
 
 
 > 📌 各服务 API/RPC 端口已在 `apps/*/api/etc/*.yaml` 与 `apps/*/rpc/etc/*.yaml` 中唯一分配，可同时启动（media-api 8806、promotion-api 8812、course.rpc 8083、trade.rpc 8089、message.rpc 8087、promotion.rpc 8092）。
@@ -123,15 +123,15 @@ tjxt/
 ## 📦 前置依赖
 
 
-| 组件           | 版本要求   | 说明                            |
-| ------------ | ------ | ----------------------------- |
-| **Go**       | ≥ 1.26 | 用到 `go.work` 工作区              |
-| **MySQL**    | 8.x    | 默认 `root:0000@127.0.0.1:3306` |
-| **Redis**    | 7.x    | 默认 `127.0.0.1:6379`           |
-| **etcd**     | 3.5+   | 默认 `127.0.0.1:2379`，zrpc 服务发现 |
-| **Elasticsearch** | 9.x   | search 服务的检索后端，默认 `http://127.0.0.1:9200`（compose 已内置单节点免认证） |
-| **RabbitMQ** | 3.13+  | 事件总线（course→search 已接线）；未配置时服务仅告警并跳过，不阻塞启动 |
-| **goctl**    | 最新     | 代码生成工具                        |
+| 组件                | 版本要求   | 说明                                                           |
+| ----------------- | ------ | ------------------------------------------------------------ |
+| **Go**            | ≥ 1.26 | 用到 `go.work` 工作区                                             |
+| **MySQL**         | 8.x    | 默认 `root:0000@127.0.0.1:3306`                                |
+| **Redis**         | 7.x    | 默认 `127.0.0.1:6379`                                          |
+| **etcd**          | 3.5+   | 默认 `127.0.0.1:2379`，zrpc 服务发现                                |
+| **Elasticsearch** | 9.x    | search 服务的检索后端，默认 `http://127.0.0.1:9200`（compose 已内置单节点免认证） |
+| **RabbitMQ**      | 3.13+  | 事件总线（course→search 已接线）；未配置时服务仅告警并跳过，不阻塞启动                   |
+| **goctl**         | 最新     | 代码生成工具                                                       |
 
 
 ```bash
@@ -181,16 +181,20 @@ make run-all-rpc   # 启动所有 RPC
 # 看基建容器日志：make docker-logs
 ```
 
+
+
 ## 🔭 可观测性（trace / metrics / logs 统一经 otel-collector）
 
 各服务 yaml 已注入 `Telemetry`（链路）、`Prometheus`（/metrics）、`Log{Mode:file,...}`（日志文件）。
 先 `make docker-up` 起基建，再起各 Go 服务：
 
-| 信号 | 路径 | 界面/端点 |
-|------|------|-----------|
-| 链路 Trace | go-zero → `127.0.0.1:4318` → otel-collector → Jaeger | Jaeger UI http://localhost:16686 |
-| 指标 Metrics | 各服务 `/metrics`(9101–9113/9201–9213) → otel-collector 聚合 `:8889` → Prometheus | Prometheus http://localhost:9090 |
-| 日志 Logs | `logs/<svc>/*.log`（仓库根）→ 挂进 collector → Loki | Loki `:3100`（建议接 Grafana 查询） |
+
+| 信号         | 路径                                                                           | 界面/端点                                                      |
+| ---------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 链路 Trace   | go-zero → `127.0.0.1:4318` → otel-collector → Jaeger                         | Jaeger UI [http://localhost:16686](http://localhost:16686) |
+| 指标 Metrics | 各服务 `/metrics`(9101–9113/9201–9213) → otel-collector 聚合 `:8889` → Prometheus | Prometheus [http://localhost:9090](http://localhost:9090)  |
+| 日志 Logs    | `logs/<svc>/*.log`（仓库根）→ 挂进 collector → Loki                                 | Loki `:3100`（建议接 Grafana 查询）                               |
+
 
 > ⚠️ 日志路径是**相对路径** `logs/<svc>`，相对进程启动目录（CWD）；服务须从**仓库根**启动，
 > 否则日志会散落到各服务子目录，collector 的 filelog 采集不到。
@@ -237,9 +241,8 @@ make run-<svc>          # 前台跑单个 API（如 make run-user）
 make run-<svc>-rpc      # 前台跑单个 RPC（如 make run-user-rpc）
 make run-all            # 后台并行启动所有 API（各开独立窗口）
 make run-all-rpc        # 后台并行启动所有 RPC
-make docker-up          # 拉起 docker-compose 全部容器（含可观测性栈 + Elasticsearch + RustFS）
+make docker-up          # 拉起 docker-compose 全部容器（含可观测性栈）
 make docker-logs        # 跟踪容器日志
-make ci                 # 门禁一条龙：结构校验 + 全量构建 + golangci-lint + 测试
 make info            # 打印服务→端口映射
 make d2u             # Windows 行尾修复 (CRLF→LF)
 ```
@@ -252,13 +255,15 @@ make d2u             # Windows 行尾修复 (CRLF→LF)
 
 当前已定义的事件契约与接线状态：
 
-| 交换机            | 路由键          | 消息体              | 发布方              | 订阅方                                        | 状态 |
-| ---------------- | ------------- | ---------------- | ---------------- | -------------------------------------------- | --- |
-| `course.events`  | `course.up`   | `CourseEvent`     | course.rpc 课程上架 | search.rpc（队列 `search.course.up`，写/更新 ES 索引） | ✅ 已接线 |
-| `course.events`  | `course.down` | `CourseEvent`     | course.rpc 课程下架 | search.rpc（队列 `search.course.down`，删 ES 索引）   | ✅ 已接线 |
-| `pay.exchange`   | `pay.success` | `PaySuccessEvent` | pay.rpc 支付成功回调 | trade.rpc（队列 `trade.order.paid`，条件更新订单为已支付） | ✅ 已接线 |
-| `order.exchange` | `order.pay`   | `OrderPayEvent`   | trade.rpc 订单置为已支付 | learning.rpc（队列 `learning.lesson.pay.queue`，为用户加课） | ✅ 已接线 |
-| `order.exchange` | `order.refund`| `OrderRefundEvent`| trade.rpc 退款成功  | learning.rpc（队列 `learning.lesson.refund.queue`，撤销课程） | ✅ 已接线 |
+
+| 交换机              | 路由键            | 消息体                | 发布方               | 订阅方                                                  | 状态    |
+| ---------------- | -------------- | ------------------ | ----------------- | ---------------------------------------------------- | ----- |
+| `course.events`  | `course.up`    | `CourseEvent`      | course.rpc 课程上架   | search.rpc（队列 `search.course.up`，写/更新 ES 索引）         | ✅ 已接线 |
+| `course.events`  | `course.down`  | `CourseEvent`      | course.rpc 课程下架   | search.rpc（队列 `search.course.down`，删 ES 索引）          | ✅ 已接线 |
+| `pay.exchange`   | `pay.success`  | `PaySuccessEvent`  | pay.rpc 支付成功回调    | trade.rpc（队列 `trade.order.paid`，条件更新订单为已支付）          | ✅ 已接线 |
+| `order.exchange` | `order.pay`    | `OrderPayEvent`    | trade.rpc 订单置为已支付 | learning.rpc（队列 `learning.lesson.pay.queue`，为用户加课）   | ✅ 已接线 |
+| `order.exchange` | `order.refund` | `OrderRefundEvent` | trade.rpc 退款成功    | learning.rpc（队列 `learning.lesson.refund.queue`，撤销课程） | ✅ 已接线 |
+
 
 > 支付链路（demo）：`POST /pay-notify/pay-success` 需要 HMAC 签名——`sign = hex(hmac_sha256(PayNotifySecret, "payOrderNo=<payOrderNo>"))`，密钥在 `apps/pay/api/etc/pay-api.yaml` 的 `PayNotifySecret`；本地演示用 `POST /pay-notify/mock-pay`（JWT 鉴权 + 支付单属主校验），二者最终都走 `NotifyPaySuccess` RPC，条件更新 + 幂等。
 >
@@ -290,6 +295,7 @@ go ctx.MQClient.Start(context.Background())
 ```
 
 
+
 ## 🧩 公共包 (pkg/)
 
 
@@ -298,7 +304,7 @@ go ctx.MQClient.Start(context.Background())
 | `pkg/auth`        | JWT `Sign/Parse`、Claims 含 `userId`/`role`                                            |
 | `pkg/xerr`        | 业务错误码 `Codexxx` + `Msg/Wrap/HttpStatus`                                              |
 | `pkg/response`    | 统一响应 `R{code,msg,requestId,data}` + `Page{list,total,pages}` + `Write(w,r,data,err)` |
-| `pkg/mq`          | RabbitMQ 事件总线：confirm 发布、泛型消费者（手动 ack、失败 Nack 重回队列）、交换机/路由键常量                                                          |
+| `pkg/mq`          | RabbitMQ 事件总线：confirm 发布、泛型消费者（手动 ack、失败 Nack 重回队列）、交换机/路由键常量                        |
 | `pkg/utils/idgen` | 雪花算法 `NextID()`                                                                      |
 | `pkg/utils/page`  | 分页参数归一化                                                                              |
 
@@ -341,43 +347,28 @@ replace tjxt/pkg => ../../pkg
 
 - 成功: `result.Ok()` / `result.OkData(data)`
 - 失败: `result.Fail(err)` 自动映射 `xerr` 错误码 → HTTP 状态码
-- 所有 handler 统一用 `response.Write(w, r, data, err)`
+- 所有 handler 统一用 `result.Write(w, r, data, err)`
 
 
 
 ## 📊 业务实现现状
 
-> 结论（2026-10-02 复核）：13/13 服务、API+RPC 共 394 个接口，全部 logic 已实现并 `go build` 逐模块编译通过；支付闭环/优惠券/对象存储链路已端到端验证。
+> 结论（2026-08-06 复核）：13/13 服务、API+RPC 共 394 个接口，全部 logic 已实现并 `go build` 逐模块编译通过；功能完备度≈97%（少量桩为有意预留，见下）。
 
-| 项目           | 状态                                                                  |
-| ------------ | ------------------------------------------------------------------- |
-| **骨架**       | ✅ 13 服务 api+rpc 全部 goctl 生成完毕，`go build ./...` 逐模块编译通过                  |
-| **Logic 业务** | ✅ 394/394 logic 全部实现（API 193 + RPC 201），全库 0 处 TODO/panic 占位           |
-| **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `response.Write`（全服务已统一）、xerr 错误码跨服务还原（`xerr.FromGRPC`） |
-| **包名规范**     | ✅ 模块路径统一 `tjxt/apps/<svc>` (data 为 `tjxt/apps/data/{api,rpc}/data`) |
-| **事件总线**     | ✅ 三段链路全部接线：course→search 上下架同步 ES；pay→trade 支付成功回写订单（条件更新+幂等）；trade→learning 支付加课/退款撤课 |
-| **支付闭环**     | ✅ 下单（事务）→ 渠道下单（gateway 抽象）→ 回调验签（HMAC）→ pay.success → 订单回写 → order.pay → 加课；退款同理。渠道经 `gateway.PaymentGateway` 抽象，mock 可插真实渠道 |
-| **优惠券**      | ✅ trade→promotion 已接线：预下单可用方案（UserCouponAvailable）、下单折扣分摊（UserCouponDiscount）、核销（UserCouponUse）、退款退券（UserCouponRefund） |
-| **对象存储**     | ✅ media 接 S3 兼容存储（RustFS/MinIO/COS/OSS）：预签名 PUT 直传、预签名 GET 播放防盗链、公共读持久地址；未配置自动回退 mock |
-| **数据库**      | ✅ DDL + goctl model（带缓存）已生成，自定义 Model 已扩展；pay.deleted 列已修正为 tinyint |
-| **质量门禁**     | ✅ golangci-lint（逐模块）+ `make ci` + GitHub Actions；pkg/pay 关键路径有单测 |
-| **跨域 RPC**    | ⚠️ 已接线 trade→{course,pay,promotion}、search→course、learning→course；其余（如 course→user/learning）尚未接线 |
-| **已知缺口**     | ⚠️ pay 渠道为 mock 实现（真实微信/支付宝需凭证接入 gateway）、Seata 未接入（undo_log 表闲置）、course→user/learning 详情未接线 |
+
+| 项目           | 状态                                                                                                              |
+| ------------ | --------------------------------------------------------------------------------------------------------------- |
+| **骨架**       | ✅ 13 服务 api+rpc 全部 goctl 生成完毕，`go build ./...` 逐模块编译通过                                                          |
+| **Logic 业务** | ✅ 394/394 logic 全部实现（API 193 + RPC 201），全库 0 处 TODO/panic 占位                                                    |
+| **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `result.Write`、xerr 错误码已在各 svc 接入                                                |
+| **包名规范**     | ✅ 模块路径统一 `tjxt/apps/<svc>` (data 为 `tjxt/apps/data/{api,rpc}/data`)                                             |
+| **事件总线**     | ✅ 三段链路全部接线：course→search 上下架同步 ES；pay→trade 支付成功回写订单（条件更新+幂等）；trade→learning 支付加课/退款撤课                          |
+| **数据库**      | ✅ DDL + goctl model（带缓存）已生成，自定义 Model 已扩展                                                                       |
+| **跨域 RPC**   | ⚠️ 已接线 trade→{course,pay}、search→course、learning→course；其余（如 course→user/learning、trade→promotion、pay→真实网关）尚未接线 |
+| **已知缺口**     | ⚠️ media 对象存储为 mock、pay 支付渠道为 demo（mock 网关，签名校验已接）、trade 优惠券未接入、Seata 未接入（undo_log 表闲置）                         |
 
 
 
-
-## 🔐 敏感配置与环境变量
-
-所有服务经 `pkg/confenv` 加载配置，支持 `${VAR|default}` 语法：环境变量存在且非空时覆盖，否则用 yaml 默认值（本地开发零配置）。
-
-| 环境变量                 | 作用                          | 默认值                     |
-| ---------------------- | ----------------------------- | -------------------------- |
-| `TJXT_JWT_SECRET`      | 全部 API 的 JWT 签名密钥        | change-me-in-production |
-| `TJXT_REFRESH_SECRET`  | auth 的 refresh token 密钥     | change-me-refresh-in-production |
-| `TJXT_DB_PASS`         | MySQL root 密码（各 rpc）      | 0000                    |
-| `TJXT_MQ_PASS`         | RabbitMQ 密码                 | rabbitmq                |
-| `TJXT_MINIO_AK`/`TJXT_MINIO_SK` | 对象存储凭据（RustFS/MinIO/COS） | rustfsadmin/rustfsadmin |
 
 ## 🛠 开发规范
 

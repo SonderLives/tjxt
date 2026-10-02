@@ -28,10 +28,11 @@ func NewLearningRecordsByCourseLogic(ctx context.Context, svcCtx *svc.ServiceCon
 
 // 查询某课程的学习记录（含最新进度与历史列表）
 func (l *LearningRecordsByCourseLogic) LearningRecordsByCourse(req *types.LessonRequest) (*types.LearningLessonDTO, error) {
-	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
+	userID, err := auth.UserIdFromCtx(l.ctx)
+	if err != nil {
 		return nil, err
 	}
-	reply, err := l.svcCtx.LearningRpc.LearningRecordsByCourse(l.ctx, &pb.LessonRequest{CourseId: req.CourseId})
+	reply, err := l.svcCtx.LearningRpc.LearningRecordsByCourse(l.ctx, &pb.LessonRequest{CourseId: req.CourseId, UserId: userID})
 	if err != nil {
 		return nil, err
 	}

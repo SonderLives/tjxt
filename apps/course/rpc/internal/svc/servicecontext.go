@@ -6,11 +6,13 @@ import (
 
 	"tjxt/apps/course/rpc/internal/config"
 	"tjxt/apps/course/rpc/internal/model"
+	userclient "tjxt/apps/user/rpc/client/user"
 	"tjxt/pkg/mq"
 	"tjxt/pkg/mq/event"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
@@ -28,6 +30,9 @@ type ServiceContext struct {
 	CourseTeacherModel          model.CourseTeacherModel
 	CourseTeacherDraftModel     model.CourseTeacherDraftModel
 	SubjectModel                model.SubjectModel
+
+	// UserRpc user 服务客户端：课程目录/教师列表的教师展示信息来自 user
+	UserRpc userclient.User
 
 	// Producer 课程上下架事件发布者，可为 nil：RabbitMQ 未配置或连接失败时
 	// 跳过发布（best-effort），不阻塞课程服务启动与课程主流程。
@@ -51,6 +56,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		CourseTeacherModel:          model.NewCourseTeacherModel(conn, c.Cache),
 		CourseTeacherDraftModel:     model.NewCourseTeacherDraftModel(conn, c.Cache),
 		SubjectModel:                model.NewSubjectModel(conn, c.Cache),
+		UserRpc:                     userclient.NewUser(zrpc.MustNewClient(c.UserRpc)),
 	}
 	initProducer(svcCtx)
 	return svcCtx

@@ -3,8 +3,6 @@ package logic
 import (
 	"context"
 
-	"tjxt/pkg/auth"
-
 	"tjxt/apps/learning/rpc/internal/svc"
 	"tjxt/apps/learning/rpc/pb"
 
@@ -29,7 +27,7 @@ func NewLearningRecordsByCourseLogic(ctx context.Context, svcCtx *svc.ServiceCon
 // 注：学习记录不再单独建表，仅以 learning_lesson 的最新进度表示，
 // 故历史 records 列表为空，只返回当前最新进度。
 func (l *LearningRecordsByCourseLogic) LearningRecordsByCourse(in *pb.LessonRequest) (*pb.LearningRecordsReply, error) {
-	userID, err := auth.UserIdFromCtx(l.ctx)
+	userID, err := lessonRequestUserID(l.ctx, in.UserId)
 	if err != nil {
 		return nil, err
 	}
