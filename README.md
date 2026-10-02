@@ -42,7 +42,7 @@ tjxt/
 ├── go.work                  # 工作区，聚合 28 个 use 模块（根 + pkg + 13 服务 × {api,rpc} 共 26 个服务模块）
 ├── go.mod                   # 根模块 (仅声明版本)
 ├── Makefile                 # 构建/生成/运行/校验一站式命令
-├── docker-compose.yml       # MySQL/Redis/RabbitMQ/etcd + 可观测性栈（Jaeger/otel-collector/Prometheus/Loki）一键启动
+├── docker-compose.yml       # MySQL/Redis/RabbitMQ/etcd/Elasticsearch + 可观测性栈（Jaeger/otel-collector/Prometheus/Loki）一键启动
 ├── pkg/                     # 公共代码库 (module: tjxt/pkg)
 │   ├── auth/                # JWT 签发/校验、Claims 定义
 │   ├── mq/                  # RabbitMQ 事件总线 (生产者/消费者/事件定义)
@@ -129,6 +129,7 @@ tjxt/
 | **MySQL**    | 8.x    | 默认 `root:0000@127.0.0.1:3306` |
 | **Redis**    | 7.x    | 默认 `127.0.0.1:6379`           |
 | **etcd**     | 3.5+   | 默认 `127.0.0.1:2379`，zrpc 服务发现 |
+| **Elasticsearch** | 9.x   | search 服务的检索后端，默认 `http://127.0.0.1:9200`（compose 已内置单节点免认证） |
 | **RabbitMQ** | 3.13+  | 事件总线（course→search 已接线）；未配置时服务仅告警并跳过，不阻塞启动 |
 | **goctl**    | 最新     | 代码生成工具                        |
 
@@ -254,12 +255,15 @@ make d2u             # Windows 行尾修复 (CRLF→LF)
 | ---------------- | ------------- | ---------------- | ---------------- | -------------------------------------------- | --- |
 | `course.events`  | `course.up`   | `CourseEvent`     | course.rpc 课程上架 | search.rpc（队列 `search.course.up`，写/更新 ES 索引） | ✅ 已接线 |
 | `course.events`  | `course.down` | `CourseEvent`     | course.rpc 课程下架 | search.rpc（队列 `search.course.down`，删 ES 索引）   | ✅ 已接线 |
-| `order.exchange` | `order.pay`   | `OrderPayEvent`   | trade.rpc         | learning.rpc（加课，规划中）                       | 🚧 契约已定义，trade 尚未发射、learning 未订阅 |
-| `order.exchange` | `order.refund`| `OrderRefundEvent`| trade.rpc         | learning.rpc（退课，规划中）                       | 🚧 同上 |
+| `pay.exchange`   | `pay.success` | `PaySuccessEvent` | pay.rpc 支付成功回调 | trade.rpc（队列 `trade.order.paid`，条件更新订单为已支付） | ✅ 已接线 |
+| `order.exchange` | `order.pay`   | `OrderPayEvent`   | trade.rpc 订单置为已支付 | learning.rpc（队列 `learning.lesson.pay.queue`，为用户加课） | ✅ 已接线 |
+| `order.exchange` | `order.refund`| `OrderRefundEvent`| trade.rpc 退款成功  | learning.rpc（队列 `learning.lesson.refund.queue`，撤销课程） | ✅ 已接线 |
 
+> 支付链路（demo）：`POST /pay-notify/pay-success` 需要 HMAC 签名——`sign = hex(hmac_sha256(PayNotifySecret, "payOrderNo=<payOrderNo>"))`，密钥在 `apps/pay/api/etc/pay-api.yaml` 的 `PayNotifySecret`；本地演示用 `POST /pay-notify/mock-pay`（JWT 鉴权 + 支付单属主校验），二者最终都走 `NotifyPaySuccess` RPC，条件更新 + 幂等。
+>
 > Java 版的 `mq:course:cate:change`、`mq:media:*`、`mq:exam:record`、`mq:data:today` 等事件 Go 版尚未实现，需要时按上表模式在 `pkg/mq` 扩展常量与消息体。
 >
-> course 事件为 best-effort：发布失败仅告警、不回滚课程操作；索引一致性由 search 启动全量重建 + 手动 `ReindexCourses` RPC 兜底。
+> 事件发布均为 best-effort：发布失败仅告警、不回滚业务操作；消费侧以幂等（条件更新 / ON DUPLICATE KEY）兜底重复投递。索引一致性由 search 启动全量重建 + 手动 `ReindexCourses` RPC 兜底。
 
 **发布示例**（course.rpc 实际用法，见 `apps/course/rpc/internal/svc/servicecontext.go`）:
 
@@ -350,10 +354,10 @@ replace tjxt/pkg => ../../pkg
 | **Logic 业务** | ✅ 394/394 logic 全部实现（API 193 + RPC 201），全库 0 处 TODO/panic 占位           |
 | **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `result.Write`、xerr 错误码已在各 svc 接入       |
 | **包名规范**     | ✅ 模块路径统一 `tjxt/apps/<svc>` (data 为 `tjxt/apps/data/{api,rpc}/data`) |
-| **事件总线**     | ✅ course→search 上下架事件全链路已接线（发布+消费+ES 索引同步）；🚧 trade 的 `order.pay`/`order.refund` 契约已定义，Producer 已实例化但 logic 尚未发射，learning 亦未订阅 |
+| **事件总线**     | ✅ 三段链路全部接线：course→search 上下架同步 ES；pay→trade 支付成功回写订单（条件更新+幂等）；trade→learning 支付加课/退款撤课 |
 | **数据库**      | ✅ DDL + goctl model（带缓存）已生成，自定义 Model 已扩展                         |
 | **跨域 RPC**    | ⚠️ 已接线 trade→{course,pay}、search→course、learning→course；其余（如 course→user/learning、trade→promotion、pay→真实网关）尚未接线 |
-| **已知缺口**     | ⚠️ media 对象存储为 mock、pay 支付回调为 demo 占位、trade 优惠券未接入、Seata 未接入（undo_log 表闲置） |
+| **已知缺口**     | ⚠️ media 对象存储为 mock、pay 支付渠道为 demo（mock 网关，签名校验已接）、trade 优惠券未接入、Seata 未接入（undo_log 表闲置） |
 
 
 
