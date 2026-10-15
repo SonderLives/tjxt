@@ -4,7 +4,7 @@ go 1.26.2
 
 require (
 	github.com/golang-jwt/jwt/v4 v4.5.2
-	github.com/rabbitmq/amqp091-go v1.13.0
+	github.com/rabbitmq/amqp091-go v1.14.0
 	github.com/zeromicro/go-zero v1.10.3
 	google.golang.org/grpc v1.83.2
 )
