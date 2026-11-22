@@ -2,10 +2,12 @@ package medialogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/rpc/media/internal/model"
 	"tjxt/rpc/media/internal/svc"
 	"tjxt/rpc/media/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +33,7 @@ func (l *MediaGetLogic) MediaGet(in *pb.MediaIdRequest) (*pb.MediaVO, error) {
 	}
 	media, err := l.svcCtx.MediaModel.FindOneNotDeleted(l.ctx, in.MediaId)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("媒资不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询媒资失败")

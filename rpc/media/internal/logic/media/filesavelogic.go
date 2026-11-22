@@ -2,12 +2,13 @@ package medialogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 	"tjxt/rpc/media/internal/model"
 	"tjxt/rpc/media/internal/svc"
 	"tjxt/rpc/media/pb"
-	"tjxt/pkg/idgen"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -33,7 +34,7 @@ func (l *FileSaveLogic) FileSave(in *pb.FileSaveRequest) (*pb.FileIdReply, error
 	// 按 key 查重，已存在（未删除）返回冲突
 	if _, err := l.svcCtx.FileModel.FindByKey(l.ctx, in.Key); err == nil {
 		return nil, errorx.Conflict("文件已存在")
-	} else if !isNotFound(err) {
+	} else if !errors.Is(err, model.ErrNotFound) {
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询文件失败")
 	}
 

@@ -2,11 +2,12 @@ package medialogic
 
 import (
 	"context"
-	"time"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/rpc/media/internal/model"
 	"tjxt/rpc/media/internal/svc"
 	"tjxt/rpc/media/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,14 +31,14 @@ func (l *SignaturePreviewLogic) SignaturePreview(in *pb.SignatureRequest) (*pb.S
 	if in.MediaId > 0 {
 		media, err := l.svcCtx.MediaModel.FindOneNotDeleted(l.ctx, in.MediaId)
 		if err != nil {
-			if isNotFound(err) {
+			if errors.Is(err, model.ErrNotFound) {
 				return nil, errorx.NotFound("媒资不存在")
 			}
 			return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询媒资失败")
 		}
 		if st := l.svcCtx.Store; st != nil {
 			if file, ferr := l.svcCtx.FileModel.FindByKey(l.ctx, media.FileId); ferr == nil {
-				if u, perr := st.PresignGet(l.ctx, file.Key, 2*time.Hour); perr == nil {
+				if u, perr := st.PresignGet(l.ctx, file.Key, PresignViewTTL); perr == nil {
 					return &pb.SignatureVO{PlayUrl: u}, nil
 				} else {
 					logx.WithContext(l.ctx).Errorf("presign preview url failed, mediaId=%d: %v", in.MediaId, perr)
