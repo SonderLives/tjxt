@@ -1,4 +1,4 @@
-package logic
+package examlogic
 
 import (
 	"context"
