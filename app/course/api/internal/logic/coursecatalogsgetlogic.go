@@ -6,11 +6,11 @@ package logic
 import (
 	"context"
 
-	"tjxt/service/course/api/internal/svc"
-	"tjxt/service/course/api/internal/types"
-	"tjxt/common/auth"
-	"tjxt/service/course/rpc/pb"
-	learningpb "tjxt/service/learning/rpc/pb"
+	"tjxt/app/course/api/internal/svc"
+	"tjxt/app/course/api/internal/types"
+	"tjxt/pkg/auth"
+	"tjxt/app/course/rpc/pb"
+	learningpb "tjxt/app/learning/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

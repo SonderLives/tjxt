@@ -6,9 +6,9 @@ package handler
 import (
 	"net/http"
 
-	"tjxt/service/learning/api/internal/logic"
-	"tjxt/service/learning/api/internal/svc"
-	"tjxt/common/response"
+	"tjxt/app/learning/api/internal/logic"
+	"tjxt/app/learning/api/internal/svc"
+	"tjxt/pkg/response"
 )
 
 func LearningNowHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

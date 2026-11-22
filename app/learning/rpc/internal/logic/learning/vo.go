@@ -3,9 +3,9 @@ package learninglogic
 import (
 	"database/sql"
 
-	"tjxt/service/learning/rpc/internal/model"
-	"tjxt/service/learning/rpc/pb"
-	"tjxt/common/timex"
+	"tjxt/app/learning/rpc/internal/model"
+	"tjxt/app/learning/rpc/pb"
+	"tjxt/pkg/timex"
 )
 
 // nullInt64 解包 sql.NullInt64：无效值返回 0

@@ -6,10 +6,10 @@ package top10
 import (
 	"net/http"
 
-	"tjxt/service/data/api/internal/logic/top10"
-	"tjxt/service/data/api/internal/svc"
-	"tjxt/service/data/api/internal/types"
-	"tjxt/common/response"
+	"tjxt/app/data/api/internal/logic/top10"
+	"tjxt/app/data/api/internal/svc"
+	"tjxt/app/data/api/internal/types"
+	"tjxt/pkg/response"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )

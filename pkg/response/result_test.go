@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"tjxt/common/response"
-	"tjxt/common/errorx"
+	"tjxt/pkg/response"
+	"tjxt/pkg/errorx"
 )
 
 func TestWriteSuccess(t *testing.T) {

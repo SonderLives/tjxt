@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"tjxt/service/promotion/rpc/internal/model"
+	"tjxt/app/promotion/rpc/internal/model"
 )
 
 // parseScopes 解析 scopes JSON（形如 [1,2,3]）为 id 列表。

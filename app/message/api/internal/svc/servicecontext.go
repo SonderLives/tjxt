@@ -1,9 +1,9 @@
 package svc
 
 import (
-	"tjxt/service/message/api/internal/config"
+	"tjxt/app/message/api/internal/config"
 
-	backendsvc "tjxt/service/message/api/backend/svc"
+	backendsvc "tjxt/app/message/api/backend/svc"
 )
 
 type ServiceContext struct {

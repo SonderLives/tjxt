@@ -3,10 +3,10 @@ package learninglogic
 import (
 	"context"
 
-	"tjxt/common/auth"
+	"tjxt/pkg/auth"
 
-	"tjxt/service/learning/rpc/internal/svc"
-	"tjxt/service/learning/rpc/pb"
+	"tjxt/app/learning/rpc/internal/svc"
+	"tjxt/app/learning/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

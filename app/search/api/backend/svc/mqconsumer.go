@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"time"
 
-	courseclient "tjxt/service/course/rpc/client/course"
-	"tjxt/common/mq/event"
-	"tjxt/common/errorx"
+	courseclient "tjxt/app/course/rpc/client/course"
+	"tjxt/pkg/mq/event"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

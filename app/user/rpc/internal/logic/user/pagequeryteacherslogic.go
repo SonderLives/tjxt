@@ -3,10 +3,10 @@ package userlogic
 import (
 	"context"
 
-	"tjxt/service/user/rpc/internal/svc"
-	"tjxt/service/user/rpc/pb"
-	"tjxt/common/page"
-	"tjxt/common/errorx"
+	"tjxt/app/user/rpc/internal/svc"
+	"tjxt/app/user/rpc/pb"
+	"tjxt/pkg/page"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

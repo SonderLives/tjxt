@@ -3,9 +3,9 @@ package courselogic
 import (
 	"database/sql"
 
-	"tjxt/common/timex"
-	"tjxt/service/course/rpc/internal/model"
-	"tjxt/service/course/rpc/pb"
+	"tjxt/pkg/timex"
+	"tjxt/app/course/rpc/internal/model"
+	"tjxt/app/course/rpc/pb"
 )
 
 // formatNullInt64 取 sql.NullInt64 有效值，无效返回 0。

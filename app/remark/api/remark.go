@@ -7,12 +7,12 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/service/remark/api/internal/config"
-	"tjxt/service/remark/api/internal/handler"
-	"tjxt/service/remark/api/internal/svc"
+	"tjxt/app/remark/api/internal/config"
+	"tjxt/app/remark/api/internal/handler"
+	"tjxt/app/remark/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
-	"tjxt/common/confenv"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/remark-api.yaml", "the config file")

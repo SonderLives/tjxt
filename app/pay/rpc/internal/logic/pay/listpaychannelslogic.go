@@ -3,9 +3,9 @@ package paylogic
 import (
 	"context"
 
-	"tjxt/service/pay/rpc/internal/svc"
-	"tjxt/service/pay/rpc/pb"
-	"tjxt/common/errorx"
+	"tjxt/app/pay/rpc/internal/svc"
+	"tjxt/app/pay/rpc/pb"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

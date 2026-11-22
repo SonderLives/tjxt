@@ -6,11 +6,11 @@ package media
 import (
 	"context"
 
-	backendlogic "tjxt/service/media/api/backend/logic"
-	mediaclient "tjxt/service/media/api/backend/pb"
-	"tjxt/service/media/api/internal/svc"
-	"tjxt/service/media/api/internal/types"
-	"tjxt/common/auth"
+	backendlogic "tjxt/app/media/api/backend/logic"
+	mediaclient "tjxt/app/media/api/backend/pb"
+	"tjxt/app/media/api/internal/svc"
+	"tjxt/app/media/api/internal/types"
+	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

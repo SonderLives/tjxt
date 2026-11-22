@@ -6,12 +6,12 @@ package question
 import (
 	"context"
 
-	backendlogic "tjxt/service/exam/api/backend/logic"
-	"tjxt/service/exam/api/backend/pb"
-	"tjxt/service/exam/api/internal/logic"
-	"tjxt/service/exam/api/internal/svc"
-	"tjxt/service/exam/api/internal/types"
-	"tjxt/common/auth"
+	backendlogic "tjxt/app/exam/api/backend/logic"
+	"tjxt/app/exam/api/backend/pb"
+	"tjxt/app/exam/api/internal/logic"
+	"tjxt/app/exam/api/internal/svc"
+	"tjxt/app/exam/api/internal/types"
+	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

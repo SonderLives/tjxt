@@ -109,7 +109,7 @@ user 服务 SHALL 暴露以下密码与状态管理接口：
 
 `UserPageRequest` 关键字段：`page_no`（< 1 归一化为 1）、`page_size`（缺省 10，上限 100）、`sort_by`（排序白名单：name / status / id，其它落回 create_time）、`is_asc`（true 升序，false 降序）、`name`（姓名模糊匹配 `d.name like %?%`）、`phone`（手机号模糊匹配 `u.cell_phone like %?%`）、`status`（负值表示不过滤）。响应 VO 独有字段：`StudentPageVO`（gender, course_amount）、`TeacherPageVO`（photo, job, intro, course_amount, exam_question_amount）、`StaffVO`（role_id, role_name）。
 
-消费方 SHALL 为 `user-api` 自身 API 层（`service/user/api/internal/svc/servicecontext.go` import `userclient "tjxt/service/user/rpc/client/user"`，用户管理全部 HTTP 接口最终走自身 RPC）与 `auth-api`（`service/auth/api/internal/svc/servicecontext.go` import 同一 client，登录接口 `service/auth/api/internal/logic/account/loginlogic.go:32` 调用 `LoginVerify` 核验凭证）。user 服务是身份域的基础设施，`user.rpc` 只被上述两个 API 服务在 `svc/servicecontext.go` 中显式装配。
+消费方 SHALL 为 `user-api` 自身 API 层（`service/user/api/internal/svc/servicecontext.go` import `userclient "tjxt/app/user/rpc/client/user"`，用户管理全部 HTTP 接口最终走自身 RPC）与 `auth-api`（`service/auth/api/internal/svc/servicecontext.go` import 同一 client，登录接口 `service/auth/api/internal/logic/account/loginlogic.go:32` 调用 `LoginVerify` 核验凭证）。user 服务是身份域的基础设施，`user.rpc` 只被上述两个 API 服务在 `svc/servicecontext.go` 中显式装配。
 
 #### Scenario: 用户登录核验
 

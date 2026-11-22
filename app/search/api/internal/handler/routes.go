@@ -6,10 +6,10 @@ package handler
 import (
 	"net/http"
 
-	interests "tjxt/service/search/api/internal/handler/interests"
-	recommend "tjxt/service/search/api/internal/handler/recommend"
-	search "tjxt/service/search/api/internal/handler/search"
-	"tjxt/service/search/api/internal/svc"
+	interests "tjxt/app/search/api/internal/handler/interests"
+	recommend "tjxt/app/search/api/internal/handler/recommend"
+	search "tjxt/app/search/api/internal/handler/search"
+	"tjxt/app/search/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"tjxt/common/errorx"
-	"tjxt/service/user/rpc/internal/model"
-	"tjxt/service/user/rpc/internal/svc"
-	"tjxt/service/user/rpc/pb"
+	"tjxt/pkg/errorx"
+	"tjxt/app/user/rpc/internal/model"
+	"tjxt/app/user/rpc/internal/svc"
+	"tjxt/app/user/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlc"

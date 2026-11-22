@@ -5,12 +5,12 @@ import (
 	"errors"
 	"time"
 
-	"tjxt/common/errorx"
-	"tjxt/common/mq"
-	"tjxt/common/mq/event"
-	"tjxt/service/pay/rpc/internal/model"
-	"tjxt/service/pay/rpc/internal/svc"
-	"tjxt/service/pay/rpc/pb"
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/mq"
+	"tjxt/pkg/mq/event"
+	"tjxt/app/pay/rpc/internal/model"
+	"tjxt/app/pay/rpc/internal/svc"
+	"tjxt/app/pay/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

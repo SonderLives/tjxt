@@ -5,13 +5,13 @@ import (
 	"database/sql"
 	"encoding/json"
 
-	promotionclient "tjxt/service/promotion/rpc/client/promotion"
-	"tjxt/service/trade/api/backend/model"
-	"tjxt/service/trade/api/backend/svc"
-	"tjxt/service/trade/api/backend/pb"
-	"tjxt/common/auth"
-	"tjxt/common/errorx"
-	"tjxt/common/idgen"
+	promotionclient "tjxt/app/promotion/rpc/client/promotion"
+	"tjxt/app/trade/api/backend/model"
+	"tjxt/app/trade/api/backend/svc"
+	"tjxt/app/trade/api/backend/pb"
+	"tjxt/pkg/auth"
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

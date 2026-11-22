@@ -8,10 +8,10 @@ import (
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 
-	"tjxt/service/media/api/internal/logic/signature"
-	"tjxt/service/media/api/internal/svc"
-	"tjxt/service/media/api/internal/types"
-	"tjxt/common/response"
+	"tjxt/app/media/api/internal/logic/signature"
+	"tjxt/app/media/api/internal/svc"
+	"tjxt/app/media/api/internal/types"
+	"tjxt/pkg/response"
 )
 
 func SignaturePlayHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

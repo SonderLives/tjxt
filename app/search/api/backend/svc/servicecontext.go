@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"strings"
 
-	courseclient "tjxt/service/course/rpc/client/course"
-	"tjxt/service/search/api/backend/config"
-	"tjxt/service/search/api/backend/model"
-	"tjxt/service/search/api/backend/pb"
-	"tjxt/common/mq"
+	courseclient "tjxt/app/course/rpc/client/course"
+	"tjxt/app/search/api/backend/config"
+	"tjxt/app/search/api/backend/model"
+	"tjxt/app/search/api/backend/pb"
+	"tjxt/pkg/mq"
 
 	"github.com/elastic/go-elasticsearch/v9"
 	"github.com/zeromicro/go-zero/core/logx"

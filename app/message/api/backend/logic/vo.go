@@ -1,9 +1,9 @@
 package messagelogic
 
 import (
-	"tjxt/service/message/api/backend/model"
-	"tjxt/service/message/api/backend/pb"
-	"tjxt/common/timex"
+	"tjxt/app/message/api/backend/model"
+	"tjxt/app/message/api/backend/pb"
+	"tjxt/pkg/timex"
 )
 
 func toNoticeTemplateVO(m *model.NoticeTemplate) *pb.NoticeTemplateVO {

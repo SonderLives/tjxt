@@ -3,9 +3,9 @@ package logic
 import (
 	"context"
 
-	"tjxt/service/learning/api/internal/svc"
-	"tjxt/service/learning/api/internal/types"
-	"tjxt/service/learning/rpc/pb"
+	"tjxt/app/learning/api/internal/svc"
+	"tjxt/app/learning/api/internal/types"
+	"tjxt/app/learning/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

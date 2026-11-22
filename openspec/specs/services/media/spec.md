@@ -166,7 +166,7 @@ media 服务的 RPC 层 SHALL 提供以下文件管理方法：
 
 media 服务的消费关系与跨域引用计数 SHALL 满足：
 
-**已接线消费方**：`media-api`（自身 API 层）——`service/media/api/internal/svc/servicecontext.go` 中 import `mediaclient "tjxt/service/media/rpc/media"`，所有媒资/文件/签名 HTTP 接口最终走自身 RPC（HTTP Handler → `mediaclient.Media` RPC，经 etcd key `media.rpc` 发现）。
+**已接线消费方**：`media-api`（自身 API 层）——`service/media/api/internal/svc/servicecontext.go` 中 import `mediaclient "tjxt/app/media/rpc/media"`，所有媒资/文件/签名 HTTP 接口最终走自身 RPC（HTTP Handler → `mediaclient.Media` RPC，经 etcd key `media.rpc` 发现）。
 
 **跨域引用计数规则**（设计意图，契约推导）：
 

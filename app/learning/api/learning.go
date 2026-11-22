@@ -7,12 +7,12 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/service/learning/api/internal/config"
-	"tjxt/service/learning/api/internal/handler"
-	"tjxt/service/learning/api/internal/svc"
+	"tjxt/app/learning/api/internal/config"
+	"tjxt/app/learning/api/internal/handler"
+	"tjxt/app/learning/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
-	"tjxt/common/confenv"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/learning-api.yaml", "the config file")

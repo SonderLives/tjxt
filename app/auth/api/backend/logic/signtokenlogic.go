@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"tjxt/service/auth/api/backend/pb"
-	"tjxt/service/auth/api/backend/svc"
-	authutil "tjxt/common/auth"
+	"tjxt/app/auth/api/backend/pb"
+	"tjxt/app/auth/api/backend/svc"
+	authutil "tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

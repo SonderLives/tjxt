@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"tjxt/service/course/api/internal/types"
-	"tjxt/service/course/rpc/pb"
+	"tjxt/app/course/api/internal/types"
+	"tjxt/app/course/rpc/pb"
 )
 
 // parseIds 将逗号分隔的 id 字符串解析为 int64 切片（忽略非法片段）。

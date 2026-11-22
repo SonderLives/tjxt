@@ -1,12 +1,12 @@
-module tjxt/service/auth/api
+module tjxt/app/auth/api
 
 go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
 	google.golang.org/protobuf v1.36.11
-	tjxt/common v0.0.0-00010101000000-000000000000
-	tjxt/service/user/rpc v0.0.0-00010101000000-000000000000
+	tjxt/pkg v0.0.0-00010101000000-000000000000
+	tjxt/app/user/rpc v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -103,6 +103,6 @@ require (
 )
 
 replace (
-	tjxt/common => ../../../common
-	tjxt/service/user/rpc => ../../../service/user/rpc
+	tjxt/pkg => ../../../pkg
+	tjxt/app/user/rpc => ../../../app/user/rpc
 )

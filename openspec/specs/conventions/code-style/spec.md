@@ -90,7 +90,7 @@ return nil, fmt.Errorf("db error: %w", err)
 服务目录 SHALL 保持 go-zero 生成的标准布局（13 个服务统一为顶层 `service/<svc>/api`、`service/<svc>/rpc` 两类模块目录）。
 
 ```
-service/<svc>/api/                      # HTTP API 服务（module: tjxt/service/<svc>/api）
+service/<svc>/api/                      # HTTP API 服务（module: tjxt/app/<svc>/api）
 ├── <svc>.api                  # API 定义（源头）
 ├── etc/<svc>-api.yaml         # API 配置
 ├── internal/
@@ -101,7 +101,7 @@ service/<svc>/api/                      # HTTP API 服务（module: tjxt/service
 │   └── types/                 # goctl 生成，请求响应结构体
 └── <svc>.go                   # main 入口
 
-service/<svc>/rpc/                      # RPC 服务（module: tjxt/service/<svc>/rpc）
+service/<svc>/rpc/                      # RPC 服务（module: tjxt/app/<svc>/rpc）
 ├── <svc>.proto                # Proto 定义（源头）
 ├── <svc>.go                   # main 入口
 ├── etc/<svc>.yaml             # RPC 配置
@@ -146,22 +146,22 @@ import (
 )
 
 import (
-    "tjxt/service/user/rpc/user"   // RPC client（示例用保留 RPC 服务；折叠服务的 client 已随折叠移除）
-    "tjxt/common/response"
-    "tjxt/common/errorx"
+    "tjxt/app/user/rpc/user"   // RPC client（示例用保留 RPC 服务；折叠服务的 client 已随折叠移除）
+    "tjxt/pkg/response"
+    "tjxt/pkg/errorx"
 )
 ```
 
 禁止项：
 
 - 相对路径 import（`import "../logic"`）
-- 跨服务 import `internal`（`import "tjxt/service/user/rpc/internal/logic"`）
+- 跨服务 import `internal`（`import "tjxt/app/user/rpc/internal/logic"`）
 - 循环依赖
 
 #### Scenario: 跨服务复用能力
 
 - **WHEN** 服务 A 需要服务 B 的能力
-- **THEN** 通过 B 的 RPC client（`tjxt/service/<svc>/rpc/client/<svc>`）调用，或经 MQ 事件解耦
+- **THEN** 通过 B 的 RPC client（`tjxt/app/<svc>/rpc/client/<svc>`）调用，或经 MQ 事件解耦
 - **AND** import B 的 `internal` 包一律视为违规，Code Review 应拒绝
 
 ### Requirement: 测试与文件头约定

@@ -4,16 +4,16 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/service/user/rpc/internal/config"
-	userserver "tjxt/service/user/rpc/internal/server/user"
-	"tjxt/service/user/rpc/internal/svc"
-	"tjxt/service/user/rpc/pb"
+	"tjxt/app/user/rpc/internal/config"
+	userserver "tjxt/app/user/rpc/internal/server/user"
+	"tjxt/app/user/rpc/internal/svc"
+	"tjxt/app/user/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"tjxt/common/confenv"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/user.yaml", "the config file")

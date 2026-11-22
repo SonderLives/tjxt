@@ -5,14 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 
-	payclient "tjxt/service/pay/rpc/client/pay"
-	promotionclient "tjxt/service/promotion/rpc/client/promotion"
-	"tjxt/service/trade/api/backend/model"
-	"tjxt/service/trade/api/backend/svc"
-	"tjxt/service/trade/api/backend/pb"
-	"tjxt/common/mq"
-	"tjxt/common/mq/event"
-	"tjxt/common/errorx"
+	payclient "tjxt/app/pay/rpc/client/pay"
+	promotionclient "tjxt/app/promotion/rpc/client/promotion"
+	"tjxt/app/trade/api/backend/model"
+	"tjxt/app/trade/api/backend/svc"
+	"tjxt/app/trade/api/backend/pb"
+	"tjxt/pkg/mq"
+	"tjxt/pkg/mq/event"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

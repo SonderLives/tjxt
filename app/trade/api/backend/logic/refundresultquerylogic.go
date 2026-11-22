@@ -3,10 +3,10 @@ package tradelogic
 import (
 	"context"
 
-	payclient "tjxt/service/pay/rpc/client/pay"
-	"tjxt/service/trade/api/backend/svc"
-	"tjxt/service/trade/api/backend/pb"
-	"tjxt/common/errorx"
+	payclient "tjxt/app/pay/rpc/client/pay"
+	"tjxt/app/trade/api/backend/svc"
+	"tjxt/app/trade/api/backend/pb"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

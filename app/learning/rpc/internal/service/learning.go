@@ -6,8 +6,8 @@ import (
 	"database/sql"
 	"errors"
 
-	"tjxt/service/learning/rpc/internal/model"
-	"tjxt/common/errorx"
+	"tjxt/app/learning/rpc/internal/model"
+	"tjxt/pkg/errorx"
 )
 
 // LearningService 学习域业务接口。

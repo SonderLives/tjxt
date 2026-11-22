@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/service/course/api/internal/logic"
-	"tjxt/service/course/api/internal/svc"
-	"tjxt/service/course/api/internal/types"
-	"tjxt/common/response"
+	"tjxt/app/course/api/internal/logic"
+	"tjxt/app/course/api/internal/svc"
+	"tjxt/app/course/api/internal/types"
+	"tjxt/pkg/response"
 )
 
 func CoursePageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

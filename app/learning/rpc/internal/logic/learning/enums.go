@@ -1,7 +1,7 @@
 package learninglogic
 
 import (
-	"tjxt/service/learning/rpc/internal/model"
+	"tjxt/app/learning/rpc/internal/model"
 )
 
 // 学习状态 / 计划状态 对外枚举字符串

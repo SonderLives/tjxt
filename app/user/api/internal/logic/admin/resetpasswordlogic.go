@@ -3,11 +3,11 @@ package admin
 import (
 	"context"
 
-	"tjxt/service/user/api/internal/svc"
-	"tjxt/service/user/api/internal/types"
+	"tjxt/app/user/api/internal/svc"
+	"tjxt/app/user/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	pb "tjxt/service/user/rpc/pb"
+	pb "tjxt/app/user/rpc/pb"
 )
 
 type ResetPasswordLogic struct {

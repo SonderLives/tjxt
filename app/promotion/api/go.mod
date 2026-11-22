@@ -1,11 +1,11 @@
-module tjxt/service/promotion/api
+module tjxt/app/promotion/api
 
 go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
-	tjxt/service/promotion/rpc v0.0.0-00010101000000-000000000000
-	tjxt/common v0.0.0-00010101000000-000000000000
+	tjxt/app/promotion/rpc v0.0.0-00010101000000-000000000000
+	tjxt/pkg v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -101,6 +101,6 @@ require (
 )
 
 replace (
-	tjxt/service/promotion/rpc => ../../../service/promotion/rpc
-	tjxt/common => ../../../common
+	tjxt/app/promotion/rpc => ../../../app/promotion/rpc
+	tjxt/pkg => ../../../pkg
 )

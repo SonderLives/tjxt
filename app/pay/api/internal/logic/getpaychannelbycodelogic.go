@@ -6,9 +6,9 @@ package logic
 import (
 	"context"
 
-	"tjxt/service/pay/api/internal/svc"
-	"tjxt/service/pay/api/internal/types"
-	payclient "tjxt/service/pay/rpc/client/pay"
+	"tjxt/app/pay/api/internal/svc"
+	"tjxt/app/pay/api/internal/types"
+	payclient "tjxt/app/pay/rpc/client/pay"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

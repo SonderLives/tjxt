@@ -7,12 +7,12 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/service/auth/api/internal/config"
-	"tjxt/service/auth/api/internal/handler"
-	"tjxt/service/auth/api/internal/svc"
+	"tjxt/app/auth/api/internal/config"
+	"tjxt/app/auth/api/internal/handler"
+	"tjxt/app/auth/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
-	"tjxt/common/confenv"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/auth-api.yaml", "the config file")

@@ -1,9 +1,9 @@
 package svc
 
 import (
-	backendsvc "tjxt/service/auth/api/backend/svc"
-	"tjxt/service/auth/api/internal/config"
-	userclient "tjxt/service/user/rpc/client/user"
+	backendsvc "tjxt/app/auth/api/backend/svc"
+	"tjxt/app/auth/api/internal/config"
+	userclient "tjxt/app/user/rpc/client/user"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )

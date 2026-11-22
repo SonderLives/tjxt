@@ -5,12 +5,12 @@ import (
 	"database/sql"
 	"errors"
 
-	"tjxt/service/message/api/backend/model"
-	"tjxt/service/message/api/backend/pb"
-	"tjxt/service/message/api/backend/svc"
-	"tjxt/common/auth"
-	"tjxt/common/errorx"
-	"tjxt/common/idgen"
+	"tjxt/app/message/api/backend/model"
+	"tjxt/app/message/api/backend/pb"
+	"tjxt/app/message/api/backend/svc"
+	"tjxt/pkg/auth"
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

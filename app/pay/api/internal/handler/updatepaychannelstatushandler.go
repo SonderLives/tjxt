@@ -8,10 +8,10 @@ import (
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 
-	"tjxt/service/pay/api/internal/logic"
-	"tjxt/service/pay/api/internal/svc"
-	"tjxt/service/pay/api/internal/types"
-	"tjxt/common/response"
+	"tjxt/app/pay/api/internal/logic"
+	"tjxt/app/pay/api/internal/svc"
+	"tjxt/app/pay/api/internal/types"
+	"tjxt/pkg/response"
 )
 
 func UpdatePayChannelStatusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

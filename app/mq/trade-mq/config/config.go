@@ -1,7 +1,7 @@
 package config
 
 import (
-	"tjxt/service/trade/api/backend/config"
+	"tjxt/app/trade/api/backend/config"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

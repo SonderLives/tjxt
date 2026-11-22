@@ -6,11 +6,11 @@ package inbox
 import (
 	"context"
 
-	backendlogic "tjxt/service/message/api/backend/logic"
-	"tjxt/service/message/api/backend/pb"
-	"tjxt/service/message/api/internal/svc"
-	"tjxt/service/message/api/internal/types"
-	"tjxt/common/auth"
+	backendlogic "tjxt/app/message/api/backend/logic"
+	"tjxt/app/message/api/backend/pb"
+	"tjxt/app/message/api/internal/svc"
+	"tjxt/app/message/api/internal/types"
+	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

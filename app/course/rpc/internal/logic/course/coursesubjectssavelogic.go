@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 
-	"tjxt/service/course/rpc/internal/model"
-	"tjxt/service/course/rpc/internal/svc"
-	"tjxt/service/course/rpc/pb"
-	"tjxt/common/errorx"
+	"tjxt/app/course/rpc/internal/model"
+	"tjxt/app/course/rpc/internal/svc"
+	"tjxt/app/course/rpc/pb"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

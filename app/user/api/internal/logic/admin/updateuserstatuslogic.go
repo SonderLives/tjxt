@@ -3,10 +3,10 @@ package admin
 import (
 	"context"
 
-	"tjxt/service/user/api/internal/logic/convert"
-	"tjxt/service/user/api/internal/svc"
-	"tjxt/service/user/api/internal/types"
-	"tjxt/common/auth"
+	"tjxt/app/user/api/internal/logic/convert"
+	"tjxt/app/user/api/internal/svc"
+	"tjxt/app/user/api/internal/types"
+	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

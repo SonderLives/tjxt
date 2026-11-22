@@ -8,8 +8,8 @@
 1. 保留原始 `func (l *XxxLogic) Xxx(...)` 签名与返回值形式（命名返回 `resp` 也要保留）。
 2. 子代理之间**不运行 `go build`**（并发冲突）。最后由主控统一编译修复。
 3. 每个文件只改自己负责的文件，互不覆盖。
-4. 错误统一用 `tjxt/common/errorx`：`errorx.BadRequestf`、`errorx.NotFound`、`errorx.New(code, msg)`、`errorx.Wrap(err, msg)`。
-   - 导入：`"tjxt/common/errorx"`。
+4. 错误统一用 `tjxt/pkg/errorx`：`errorx.BadRequestf`、`errorx.NotFound`、`errorx.New(code, msg)`、`errorx.Wrap(err, msg)`。
+   - 导入：`"tjxt/pkg/errorx"`。
    - 常见 code：`errorx.CodeBadRequest`、`errorx.CodeNotFound`、`errorx.CodeConflict`、`errorx.CodeInternal`。
 5. 金额、id、status、数量一律用 **int64**；proto 里 `int32` 字段在构造 pb 时显式 `int32(x)`；API types 里都是 int64，无需转换。
 6. 自定义 Model 内嵌 `CachedConn`，**统一使用** `m.QueryRowsNoCacheCtx` / `m.QueryRowNoCacheCtx` / `m.ExecNoCacheCtx`（不要直接用 `QueryRowsCtx`，被遮蔽会编译失败）。
@@ -48,7 +48,7 @@ API (`api/internal/svc`): `l.svcCtx.TradeRpc (tradeclient.Trade)` —— API 层
 
 ## §4 API 层约定（api/internal/logic）
 
-1. user_id 从 JWT 取：`userId, err := auth.UserIdFromCtx(l.ctx)`（import `"tjxt/common/auth"`）。需要鉴权的接口先取；公开统计类（如 PurchaseInfo 用 courseId 查询）可不取。
+1. user_id 从 JWT 取：`userId, err := auth.UserIdFromCtx(l.ctx)`（import `"tjxt/pkg/auth"`）。需要鉴权的接口先取；公开统计类（如 PurchaseInfo 用 courseId 查询）可不取。
 2. 调用 RPC：`reply, err := l.svcCtx.TradeRpc.Xxx(l.ctx, &pb.XxxRequest{...})`，pb 类型用别名 `tradeclient.XxxRequest`（已在 `tradeclient` 包里 `= pb.XxxRequest`）。
    - 导入：`"tjxt/apps/trade/rpc/pb"` 以及 `"tjxt/apps/trade/rpc/trade"`（别名 `tradeclient`）。实际上 handler 已 import，logic 只要 import pb 和 tradeclient。
 3. 把 `pb.Reply` 映射到 `*types.XxxResp` / `[]types.Xxx` 后返回 `(resp, err)`。**handler 已经 `result.Write(w,r,resp,err)`**，logic 只管返回。

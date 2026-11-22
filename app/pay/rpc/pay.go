@@ -4,16 +4,16 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/service/pay/rpc/internal/config"
-	payserver "tjxt/service/pay/rpc/internal/server/pay"
-	"tjxt/service/pay/rpc/internal/svc"
-	"tjxt/service/pay/rpc/pb"
+	"tjxt/app/pay/rpc/internal/config"
+	payserver "tjxt/app/pay/rpc/internal/server/pay"
+	"tjxt/app/pay/rpc/internal/svc"
+	"tjxt/app/pay/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"tjxt/common/confenv"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/pay.yaml", "the config file")

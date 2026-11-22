@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/service/search/api/internal/logic/interests"
-	"tjxt/service/search/api/internal/svc"
-	"tjxt/service/search/api/internal/types"
-	"tjxt/common/response"
+	"tjxt/app/search/api/internal/logic/interests"
+	"tjxt/app/search/api/internal/svc"
+	"tjxt/app/search/api/internal/types"
+	"tjxt/pkg/response"
 )
 
 func SaveInterestsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

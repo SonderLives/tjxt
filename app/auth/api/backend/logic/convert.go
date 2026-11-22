@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"sort"
 
-	"tjxt/service/auth/api/backend/model"
-	"tjxt/service/auth/api/backend/pb"
-	"tjxt/common/timex"
+	"tjxt/app/auth/api/backend/model"
+	"tjxt/app/auth/api/backend/pb"
+	"tjxt/pkg/timex"
 )
 
 // fixedRoleType 固定角色类型：不允许删除或修改 code。

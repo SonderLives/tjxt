@@ -3,13 +3,13 @@ package svc
 import (
 	"fmt"
 
-	"tjxt/service/trade/api/backend/config"
-	"tjxt/service/trade/api/backend/model"
-	"tjxt/common/mq"
+	"tjxt/app/trade/api/backend/config"
+	"tjxt/app/trade/api/backend/model"
+	"tjxt/pkg/mq"
 
-	courseclient "tjxt/service/course/rpc/client/course"
-	payclient "tjxt/service/pay/rpc/client/pay"
-	promotionclient "tjxt/service/promotion/rpc/client/promotion"
+	courseclient "tjxt/app/course/rpc/client/course"
+	payclient "tjxt/app/pay/rpc/client/pay"
+	promotionclient "tjxt/app/promotion/rpc/client/promotion"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"

@@ -3,13 +3,13 @@ package account
 import (
 	"context"
 
-	backendlogic "tjxt/service/auth/api/backend/logic"
-	authpb "tjxt/service/auth/api/backend/pb"
-	authutil "tjxt/common/auth"
-	userclient "tjxt/service/user/rpc/client/user"
+	backendlogic "tjxt/app/auth/api/backend/logic"
+	authpb "tjxt/app/auth/api/backend/pb"
+	authutil "tjxt/pkg/auth"
+	userclient "tjxt/app/user/rpc/client/user"
 
-	"tjxt/service/auth/api/internal/svc"
-	"tjxt/service/auth/api/internal/types"
+	"tjxt/app/auth/api/internal/svc"
+	"tjxt/app/auth/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

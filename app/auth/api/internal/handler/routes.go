@@ -6,13 +6,13 @@ package handler
 import (
 	"net/http"
 
-	account "tjxt/service/auth/api/internal/handler/account"
-	assign "tjxt/service/auth/api/internal/handler/assign"
-	loginrecord "tjxt/service/auth/api/internal/handler/loginrecord"
-	menu "tjxt/service/auth/api/internal/handler/menu"
-	privilege "tjxt/service/auth/api/internal/handler/privilege"
-	role "tjxt/service/auth/api/internal/handler/role"
-	"tjxt/service/auth/api/internal/svc"
+	account "tjxt/app/auth/api/internal/handler/account"
+	assign "tjxt/app/auth/api/internal/handler/assign"
+	loginrecord "tjxt/app/auth/api/internal/handler/loginrecord"
+	menu "tjxt/app/auth/api/internal/handler/menu"
+	privilege "tjxt/app/auth/api/internal/handler/privilege"
+	role "tjxt/app/auth/api/internal/handler/role"
+	"tjxt/app/auth/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

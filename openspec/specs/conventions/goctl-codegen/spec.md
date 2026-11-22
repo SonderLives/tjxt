@@ -213,11 +213,11 @@ func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User
 
 | 项目 | 规范 | 示例 |
 |------|------|------|
-| 模块路径 | `module tjxt/service/<svc>/api`、`module tjxt/service/<svc>/rpc`（保留服务）、`module tjxt/app/mq/<svc>`（MQ 消费者） | `module tjxt/service/auth/api` |
+| 模块路径 | `module tjxt/app/<svc>/api`、`module tjxt/app/<svc>/rpc`（保留服务）、`module tjxt/app/mq/<svc>`（MQ 消费者） | `module tjxt/app/auth/api` |
 | 依赖组织 | api / rpc / mq 各自独立 `go.mod` | `service/<svc>/api/go.mod`、`service/<svc>/rpc/go.mod`、`app/mq/trade-mq/go.mod` |
-| 公共库引用 | 各模块 `replace tjxt/common => ../../../pkg`（data 服务四级 `../../../../pkg`；app/mq 为三级） | — |
-| 跨服务依赖 | 调用方 `go.mod` 中 `require` + 本地相对路径 `replace`，伪版本 `v0.0.0-00010101000000-000000000000` | `tjxt/service/course/rpc => ../../course/rpc` |
-| 折叠服务 backend | 业务包随迁 `service/<svc>/api/backend`（config/logic/model/pb/svc），仅同模块内引用 | `tjxt/service/search/api/backend` |
+| 公共库引用 | 各模块 `replace tjxt/pkg => ../../../pkg`（data 服务四级 `../../../../pkg`；app/mq 为三级） | — |
+| 跨服务依赖 | 调用方 `go.mod` 中 `require` + 本地相对路径 `replace`，伪版本 `v0.0.0-00010101000000-000000000000` | `tjxt/app/course/rpc => ../../course/rpc` |
+| 折叠服务 backend | 业务包随迁 `service/<svc>/api/backend`（config/logic/model/pb/svc），仅同模块内引用 | `tjxt/app/search/api/backend` |
 | 目录命名 | gozero 风格（小驼峰，无下划线） | `internal/logic`、`userCoupon` |
 | 文件命名 | 小驼峰 | `userCouponLogic.go`、`couponModel.go` |
 | 包名 | 与目录名一致 | `package logic` |

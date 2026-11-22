@@ -3,9 +3,9 @@ package userlogic
 import (
 	"database/sql"
 
-	"tjxt/common/timex"
-	"tjxt/service/user/rpc/internal/model"
-	"tjxt/service/user/rpc/pb"
+	"tjxt/pkg/timex"
+	"tjxt/app/user/rpc/internal/model"
+	"tjxt/app/user/rpc/pb"
 )
 
 // nullStr 将字符串转为 sql.NullString，空字符串视为 NULL。

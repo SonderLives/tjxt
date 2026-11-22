@@ -4,8 +4,8 @@
 package svc
 
 import (
-	"tjxt/service/pay/api/internal/config"
-	payclient "tjxt/service/pay/rpc/client/pay"
+	"tjxt/app/pay/api/internal/config"
+	payclient "tjxt/app/pay/rpc/client/pay"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )

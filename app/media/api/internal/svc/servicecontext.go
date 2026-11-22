@@ -4,9 +4,9 @@
 package svc
 
 import (
-	"tjxt/service/media/api/internal/config"
+	"tjxt/app/media/api/internal/config"
 
-	backendsvc "tjxt/service/media/api/backend/svc"
+	backendsvc "tjxt/app/media/api/backend/svc"
 )
 
 type ServiceContext struct {

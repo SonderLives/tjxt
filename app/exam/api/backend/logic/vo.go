@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"tjxt/service/exam/api/backend/model"
-	"tjxt/service/exam/api/backend/pb"
-	"tjxt/common/timex"
+	"tjxt/app/exam/api/backend/model"
+	"tjxt/app/exam/api/backend/pb"
+	"tjxt/pkg/timex"
 )
 
 // toQuestionVO 组装题目完整 VO（含详情）

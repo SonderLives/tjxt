@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"tjxt/common/idgen"
+	"tjxt/pkg/idgen"
 )
 
 // mockBaseURL 对象存储未配置（Store==nil）时的 mock 占位地址。

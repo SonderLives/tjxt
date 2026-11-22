@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/service/learning/rpc/internal/logic/learning"
-	"tjxt/service/learning/rpc/internal/svc"
-	"tjxt/service/learning/rpc/pb"
+	"tjxt/app/learning/rpc/internal/logic/learning"
+	"tjxt/app/learning/rpc/internal/svc"
+	"tjxt/app/learning/rpc/pb"
 )
 
 type LearningServer struct {

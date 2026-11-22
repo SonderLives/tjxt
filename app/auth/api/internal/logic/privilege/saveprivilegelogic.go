@@ -6,10 +6,10 @@ package privilege
 import (
 	"context"
 
-	backendlogic "tjxt/service/auth/api/backend/logic"
-	authpb "tjxt/service/auth/api/backend/pb"
-	"tjxt/service/auth/api/internal/svc"
-	"tjxt/service/auth/api/internal/types"
+	backendlogic "tjxt/app/auth/api/backend/logic"
+	authpb "tjxt/app/auth/api/backend/pb"
+	"tjxt/app/auth/api/internal/svc"
+	"tjxt/app/auth/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

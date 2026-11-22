@@ -6,10 +6,10 @@ package handler
 import (
 	"net/http"
 
-	file "tjxt/service/media/api/internal/handler/file"
-	media "tjxt/service/media/api/internal/handler/media"
-	signature "tjxt/service/media/api/internal/handler/signature"
-	"tjxt/service/media/api/internal/svc"
+	file "tjxt/app/media/api/internal/handler/file"
+	media "tjxt/app/media/api/internal/handler/media"
+	signature "tjxt/app/media/api/internal/handler/signature"
+	"tjxt/app/media/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

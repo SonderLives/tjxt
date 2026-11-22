@@ -7,7 +7,7 @@ package course
 import (
 	"context"
 
-	"tjxt/service/course/rpc/pb"
+	"tjxt/app/course/rpc/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

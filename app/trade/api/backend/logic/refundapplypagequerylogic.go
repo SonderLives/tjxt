@@ -3,11 +3,11 @@ package tradelogic
 import (
 	"context"
 
-	"tjxt/service/trade/api/backend/model"
-	"tjxt/service/trade/api/backend/svc"
-	"tjxt/service/trade/api/backend/pb"
-	"tjxt/common/errorx"
-	"tjxt/common/page"
+	"tjxt/app/trade/api/backend/model"
+	"tjxt/app/trade/api/backend/svc"
+	"tjxt/app/trade/api/backend/pb"
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/page"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

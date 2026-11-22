@@ -1,4 +1,4 @@
-module tjxt/service/search/api
+module tjxt/app/search/api
 
 go 1.26.2
 
@@ -6,8 +6,8 @@ require (
 	github.com/elastic/go-elasticsearch/v9 v9.4.1
 	github.com/zeromicro/go-zero v1.10.3
 	google.golang.org/protobuf v1.36.11
-	tjxt/common v0.0.0-00010101000000-000000000000
-	tjxt/service/course/rpc v0.0.0-00010101000000-000000000000
+	tjxt/pkg v0.0.0-00010101000000-000000000000
+	tjxt/app/course/rpc v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -108,6 +108,6 @@ require (
 )
 
 replace (
-	tjxt/common => ../../../common
-	tjxt/service/course/rpc => ../../../service/course/rpc
+	tjxt/pkg => ../../../pkg
+	tjxt/app/course/rpc => ../../../app/course/rpc
 )

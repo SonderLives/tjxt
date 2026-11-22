@@ -1,12 +1,12 @@
-module tjxt/service/course/api
+module tjxt/app/course/api
 
 go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
-	tjxt/service/course/rpc v0.0.0-00010101000000-000000000000
-	tjxt/service/learning/rpc v0.0.0-00010101000000-000000000000
-	tjxt/common v0.0.0-00010101000000-000000000000
+	tjxt/app/course/rpc v0.0.0-00010101000000-000000000000
+	tjxt/app/learning/rpc v0.0.0-00010101000000-000000000000
+	tjxt/pkg v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -102,7 +102,7 @@ require (
 )
 
 replace (
-	tjxt/service/course/rpc => ../../../service/course/rpc
-	tjxt/service/learning/rpc => ../../../service/learning/rpc
-	tjxt/common => ../../../common
+	tjxt/app/course/rpc => ../../../app/course/rpc
+	tjxt/app/learning/rpc => ../../../app/learning/rpc
+	tjxt/pkg => ../../../pkg
 )

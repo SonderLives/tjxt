@@ -4,8 +4,8 @@
 package svc
 
 import (
-	backendsvc "tjxt/service/trade/api/backend/svc"
-	"tjxt/service/trade/api/internal/config"
+	backendsvc "tjxt/app/trade/api/backend/svc"
+	"tjxt/app/trade/api/internal/config"
 )
 
 type ServiceContext struct {

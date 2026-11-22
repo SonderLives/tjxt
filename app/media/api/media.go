@@ -7,12 +7,12 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/service/media/api/internal/config"
-	"tjxt/service/media/api/internal/handler"
-	"tjxt/service/media/api/internal/svc"
+	"tjxt/app/media/api/internal/config"
+	"tjxt/app/media/api/internal/handler"
+	"tjxt/app/media/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
-	"tjxt/common/confenv"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/media-api.yaml", "the config file")

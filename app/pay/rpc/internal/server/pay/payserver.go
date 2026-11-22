@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/service/pay/rpc/internal/logic/pay"
-	"tjxt/service/pay/rpc/internal/svc"
-	"tjxt/service/pay/rpc/pb"
+	"tjxt/app/pay/rpc/internal/logic/pay"
+	"tjxt/app/pay/rpc/internal/svc"
+	"tjxt/app/pay/rpc/pb"
 )
 
 type PayServer struct {

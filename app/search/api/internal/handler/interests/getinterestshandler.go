@@ -6,9 +6,9 @@ package interests
 import (
 	"net/http"
 
-	"tjxt/service/search/api/internal/logic/interests"
-	"tjxt/service/search/api/internal/svc"
-	"tjxt/common/response"
+	"tjxt/app/search/api/internal/logic/interests"
+	"tjxt/app/search/api/internal/svc"
+	"tjxt/pkg/response"
 )
 
 func GetInterestsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

@@ -11,10 +11,10 @@ import (
 	"fmt"
 	"io"
 
-	"tjxt/service/pay/api/internal/svc"
-	"tjxt/service/pay/api/internal/types"
-	payclient "tjxt/service/pay/rpc/client/pay"
-	"tjxt/common/errorx"
+	"tjxt/app/pay/api/internal/svc"
+	"tjxt/app/pay/api/internal/types"
+	payclient "tjxt/app/pay/rpc/client/pay"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

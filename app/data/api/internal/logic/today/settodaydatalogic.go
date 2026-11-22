@@ -6,10 +6,10 @@ package today
 import (
 	"context"
 
-	backendlogic "tjxt/service/data/api/backend/logic"
-	dataclient "tjxt/service/data/api/backend/pb"
-	"tjxt/service/data/api/internal/svc"
-	"tjxt/service/data/api/internal/types"
+	backendlogic "tjxt/app/data/api/backend/logic"
+	dataclient "tjxt/app/data/api/backend/pb"
+	"tjxt/app/data/api/internal/svc"
+	"tjxt/app/data/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

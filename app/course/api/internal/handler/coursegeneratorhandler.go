@@ -6,9 +6,9 @@ package handler
 import (
 	"net/http"
 
-	"tjxt/service/course/api/internal/logic"
-	"tjxt/service/course/api/internal/svc"
-	"tjxt/common/response"
+	"tjxt/app/course/api/internal/logic"
+	"tjxt/app/course/api/internal/svc"
+	"tjxt/pkg/response"
 )
 
 func CourseGeneratorHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

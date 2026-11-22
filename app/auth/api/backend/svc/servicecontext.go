@@ -1,8 +1,8 @@
 package svc
 
 import (
-	"tjxt/service/auth/api/backend/config"
-	"tjxt/service/auth/api/backend/model"
+	"tjxt/app/auth/api/backend/config"
+	"tjxt/app/auth/api/backend/model"
 
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )

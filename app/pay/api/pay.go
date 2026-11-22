@@ -7,12 +7,12 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/service/pay/api/internal/config"
-	"tjxt/service/pay/api/internal/handler"
-	"tjxt/service/pay/api/internal/svc"
+	"tjxt/app/pay/api/internal/config"
+	"tjxt/app/pay/api/internal/handler"
+	"tjxt/app/pay/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
-	"tjxt/common/confenv"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/pay-api.yaml", "the config file")

@@ -4,12 +4,12 @@ import (
 	"context"
 	"strconv"
 
-	backendlogic "tjxt/service/remark/api/backend/logic"
-	"tjxt/service/remark/api/backend/pb"
-	"tjxt/common/auth"
+	backendlogic "tjxt/app/remark/api/backend/logic"
+	"tjxt/app/remark/api/backend/pb"
+	"tjxt/pkg/auth"
 
-	"tjxt/service/remark/api/internal/svc"
-	"tjxt/service/remark/api/internal/types"
+	"tjxt/app/remark/api/internal/svc"
+	"tjxt/app/remark/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

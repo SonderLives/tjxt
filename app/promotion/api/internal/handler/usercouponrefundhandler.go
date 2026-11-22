@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/service/promotion/api/internal/logic"
-	"tjxt/service/promotion/api/internal/svc"
-	"tjxt/service/promotion/api/internal/types"
-	"tjxt/common/response"
+	"tjxt/app/promotion/api/internal/logic"
+	"tjxt/app/promotion/api/internal/svc"
+	"tjxt/app/promotion/api/internal/types"
+	"tjxt/pkg/response"
 )
 
 func UserCouponRefundHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

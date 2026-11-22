@@ -61,8 +61,8 @@ pay 服务 SHALL 以 gRPC 服务名 `Pay` 注册于 etcd（key `pay.rpc`，监�
 
 | 消费方 | 调用方式 | 说明 |
 |--------|---------|------|
-| `pay-api`（自身 API 层） | `service/pay/api/internal/svc/servicecontext.go` import `payclient "tjxt/service/pay/rpc/pay"` | 渠道管理、下单、关单、回调、退款、结果查询共 13 个 handler 全部转发到自身 RPC |
-| `trade-rpc` | `service/trade/rpc/internal/svc/servicecontext.go:10` import `payclient "tjxt/service/pay/rpc/pay"`，装配为 `PayRpc payclient.Pay` | 交易域调用支付/退款下单、关单、支付/退款结果查询（见 `service/trade/rpc/internal/config/config.go:24` 注释） |
+| `pay-api`（自身 API 层） | `service/pay/api/internal/svc/servicecontext.go` import `payclient "tjxt/app/pay/rpc/pay"` | 渠道管理、下单、关单、回调、退款、结果查询共 13 个 handler 全部转发到自身 RPC |
+| `trade-rpc` | `service/trade/rpc/internal/svc/servicecontext.go:10` import `payclient "tjxt/app/pay/rpc/pay"`，装配为 `PayRpc payclient.Pay` | 交易域调用支付/退款下单、关单、支付/退款结果查询（见 `service/trade/rpc/internal/config/config.go:24` 注释） |
 
 > 已知缺口：`trade.rpc` 已在 `servicecontext.go:38` 完成 `PayRpc` 装配、`trade.yaml` 也已配置 `PayRpc.Etcd.Key: pay.rpc`，但 `service/trade/rpc/internal/logic/` 下暂无任何实际调用点，属于已接线未落地的依赖。
 

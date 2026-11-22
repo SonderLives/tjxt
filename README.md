@@ -53,7 +53,7 @@ tjxt/
 ├── docker-compose.yml       # MySQL/Redis/RabbitMQ/etcd/ES/RustFS + 可观测性栈（Jaeger/otel-collector/Prometheus/Loki）一键启动
 ├── tools/
 │   └── goctl-templates/     # goctl 自定义模板（api/rpc 生成统一走该目录，handler 统一 result.Write）
-├── common/                  # 公共代码库 (module: tjxt/common)
+├── common/                  # 公共代码库 (module: tjxt/pkg)
 │   ├── auth/                # JWT 签发/校验、Claims 定义
 │   ├── mq/                  # RabbitMQ 事件总线 (生产者/消费者/事件定义)
 │   ├── response/            # 统一响应 R{code,msg,requestId,data} + 分页
@@ -69,7 +69,7 @@ tjxt/
 ├── deploy/                  # 观测栈配置 (otel-collector / prometheus / loki)
 ├── service/
 │   └── <svc>/               # 每服务一个目录，下分 api / rpc（rpc 仅 5 个保留服务存在）
-│       ├── api/             # 13 个 HTTP API 服务模块（module: tjxt/service/<svc>/api，auth/course/data/exam/learning/media/message/pay/promotion/remark/search/trade/user）
+│       ├── api/             # 13 个 HTTP API 服务模块（module: tjxt/app/<svc>/api，auth/course/data/exam/learning/media/message/pay/promotion/remark/search/trade/user）
 │       │   ├── go.mod
 │       │   ├── <svc>.api          # goctl API 定义 (路由/请求/响应)
 │       │   ├── <svc>.go           # main 入口
@@ -86,7 +86,7 @@ tjxt/
 │       │       ├── model/         #   sqlx Model (goctl 生成 + 扩展)
 │       │       ├── pb/            #   生成的 pb 类型（make pb / buf generate 产出）
 │       │       └── svc/           #   服务上下文 (DB/Redis/缓存)
-│       └── rpc/             # 5 个保留 RPC 服务模块（user/course/learning/pay/promotion，module: tjxt/service/<svc>/rpc）
+│       └── rpc/             # 5 个保留 RPC 服务模块（user/course/learning/pay/promotion，module: tjxt/app/<svc>/rpc）
 │           ├── go.mod
 │           ├── <svc>.proto        # gRPC 服务定义
 │           ├── <svc>.go           # main 入口
@@ -414,8 +414,8 @@ ctx.MQClient.Start(context.Background())
 **使用方式** (在任意服务 `go.mod` 引入):
 
 ```go
-require tjxt/common v0.0.0
-replace tjxt/common => ../../../common
+require tjxt/pkg v0.0.0
+replace tjxt/pkg => ../../../common
 ```
 
 
@@ -463,7 +463,7 @@ replace tjxt/common => ../../../common
 | **骨架**       | ✅ 13 api + 5 保留 rpc + 2 mq 全部生成/实现完毕，`go build ./...` 逐模块编译通过                                                   |
 | **Logic 业务** | ✅ 394/394 logic 全部实现（API 193 + RPC 201，其中 8 个折叠服务的 RPC logic 位于 `service/<svc>/api/backend/logic`），全库 0 处 TODO/panic 占位 |
 | **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `result.Write`、errorx 错误码已在各 svc 接入                                                |
-| **包名规范**     | ✅ 模块路径统一 `tjxt/service/<svc>/api` / `tjxt/service/<svc>/rpc` / `tjxt/app/mq/<svc>`                              |
+| **包名规范**     | ✅ 模块路径统一 `tjxt/app/<svc>/api` / `tjxt/app/<svc>/rpc` / `tjxt/app/mq/<svc>`                              |
 | **事件总线**     | ✅ 三段链路全部接线：course.rpc→search-mq 上下架同步 ES；pay.rpc→trade-mq 支付成功回写订单（条件更新+幂等）；trade（trade-mq/api 后端）→learning.rpc 支付加课/退款撤课            |
 | **数据库**      | ✅ DDL + goctl model（带缓存）已生成，自定义 Model 已扩展                                                                       |
 | **跨域 RPC**   | ⚠️ 已接线 trade backend→{course,pay}、search-mq→course、learning→course；其余（如 course→user/learning、trade→promotion、pay→真实网关）尚未接线 |

@@ -3,10 +3,10 @@ package logic
 import (
 	"context"
 
-	courseclient "tjxt/service/course/rpc/client/course"
-	"tjxt/service/learning/api/internal/svc"
-	"tjxt/service/learning/api/internal/types"
-	"tjxt/service/learning/rpc/pb"
+	courseclient "tjxt/app/course/rpc/client/course"
+	"tjxt/app/learning/api/internal/svc"
+	"tjxt/app/learning/api/internal/types"
+	"tjxt/app/learning/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

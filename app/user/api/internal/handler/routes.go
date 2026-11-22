@@ -6,10 +6,10 @@ package handler
 import (
 	"net/http"
 
-	admin "tjxt/service/user/api/internal/handler/admin"
-	student "tjxt/service/user/api/internal/handler/student"
-	user "tjxt/service/user/api/internal/handler/user"
-	"tjxt/service/user/api/internal/svc"
+	admin "tjxt/app/user/api/internal/handler/admin"
+	student "tjxt/app/user/api/internal/handler/student"
+	user "tjxt/app/user/api/internal/handler/user"
+	"tjxt/app/user/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

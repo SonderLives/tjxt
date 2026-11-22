@@ -3,10 +3,10 @@ package promotionlogic
 import (
 	"context"
 
-	"tjxt/service/promotion/rpc/internal/svc"
-	"tjxt/service/promotion/rpc/pb"
-	"tjxt/common/page"
-	"tjxt/common/errorx"
+	"tjxt/app/promotion/rpc/internal/svc"
+	"tjxt/app/promotion/rpc/pb"
+	"tjxt/pkg/page"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

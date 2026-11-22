@@ -6,9 +6,9 @@ package user
 import (
 	"net/http"
 
-	"tjxt/service/user/api/internal/logic/user"
-	"tjxt/service/user/api/internal/svc"
-	"tjxt/common/response"
+	"tjxt/app/user/api/internal/logic/user"
+	"tjxt/app/user/api/internal/svc"
+	"tjxt/pkg/response"
 )
 
 func GetCurrentUserHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

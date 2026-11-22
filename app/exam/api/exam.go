@@ -7,12 +7,12 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/service/exam/api/internal/config"
-	"tjxt/service/exam/api/internal/handler"
-	"tjxt/service/exam/api/internal/svc"
+	"tjxt/app/exam/api/internal/config"
+	"tjxt/app/exam/api/internal/handler"
+	"tjxt/app/exam/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
-	"tjxt/common/confenv"
+	"tjxt/pkg/confenv"
 )
 
 var configFile = flag.String("f", "etc/exam-api.yaml", "the config file")

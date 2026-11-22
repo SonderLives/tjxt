@@ -3,8 +3,8 @@
 package convert
 
 import (
-	"tjxt/service/user/api/internal/types"
-	pb "tjxt/service/user/rpc/pb"
+	"tjxt/app/user/api/internal/types"
+	pb "tjxt/app/user/rpc/pb"
 )
 
 // ===== RPC -> API 视图对象 =====

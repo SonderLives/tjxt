@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/service/trade/api/internal/logic"
-	"tjxt/service/trade/api/internal/svc"
-	"tjxt/service/trade/api/internal/types"
-	"tjxt/common/response"
+	"tjxt/app/trade/api/internal/logic"
+	"tjxt/app/trade/api/internal/svc"
+	"tjxt/app/trade/api/internal/types"
+	"tjxt/pkg/response"
 )
 
 func CartUpdateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

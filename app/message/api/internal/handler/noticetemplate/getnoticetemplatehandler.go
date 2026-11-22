@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/service/message/api/internal/logic/noticetemplate"
-	"tjxt/service/message/api/internal/svc"
-	"tjxt/service/message/api/internal/types"
-	"tjxt/common/response"
+	"tjxt/app/message/api/internal/logic/noticetemplate"
+	"tjxt/app/message/api/internal/svc"
+	"tjxt/app/message/api/internal/types"
+	"tjxt/pkg/response"
 )
 
 func GetNoticeTemplateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

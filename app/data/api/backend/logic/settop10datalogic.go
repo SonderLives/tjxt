@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"tjxt/service/data/api/backend/pb"
-	"tjxt/service/data/api/backend/svc"
-	"tjxt/common/errorx"
+	"tjxt/app/data/api/backend/pb"
+	"tjxt/app/data/api/backend/svc"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

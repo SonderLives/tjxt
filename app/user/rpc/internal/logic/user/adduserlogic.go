@@ -5,11 +5,11 @@ import (
 	"database/sql"
 	"errors"
 
-	"tjxt/service/user/rpc/internal/model"
-	"tjxt/service/user/rpc/internal/svc"
-	"tjxt/service/user/rpc/pb"
-	"tjxt/common/idgen"
-	"tjxt/common/errorx"
+	"tjxt/app/user/rpc/internal/model"
+	"tjxt/app/user/rpc/internal/svc"
+	"tjxt/app/user/rpc/pb"
+	"tjxt/pkg/idgen"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"golang.org/x/crypto/bcrypt"

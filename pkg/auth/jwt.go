@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"tjxt/common/errorx"
+	"tjxt/pkg/errorx"
 
 	"github.com/golang-jwt/jwt/v4"
 )

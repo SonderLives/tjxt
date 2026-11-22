@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"strings"
 
-	backendlogic "tjxt/service/trade/api/backend/logic"
-	"tjxt/service/trade/api/backend/pb"
-	"tjxt/service/trade/api/internal/svc"
-	"tjxt/service/trade/api/internal/types"
-	"tjxt/common/errorx"
+	backendlogic "tjxt/app/trade/api/backend/logic"
+	"tjxt/app/trade/api/backend/pb"
+	"tjxt/app/trade/api/internal/svc"
+	"tjxt/app/trade/api/internal/types"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

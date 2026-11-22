@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/service/auth/api/internal/logic/account"
-	"tjxt/service/auth/api/internal/svc"
-	"tjxt/service/auth/api/internal/types"
-	"tjxt/common/response"
+	"tjxt/app/auth/api/internal/logic/account"
+	"tjxt/app/auth/api/internal/svc"
+	"tjxt/app/auth/api/internal/types"
+	"tjxt/pkg/response"
 )
 
 func GetAccountRolesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

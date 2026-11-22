@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"tjxt/common/errorx"
+	"tjxt/pkg/errorx"
 )
 
 // Context 中的 claim 键名（go-zero rest.WithJwt 注入 ctx 时以 JWT 载荷字段名为 key，类型为 string，
