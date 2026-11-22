@@ -28,8 +28,8 @@ func NewOrderDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Order
 }
 
 func (l *OrderDeleteLogic) OrderDelete(in *pb.IdRequest) (*pb.Empty, error) {
-	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
-		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
+	if _, err := auth.UserIdFromIncomingMD(l.ctx); err != nil {
+		return nil, err
 	}
 
 	// 先删明细，再删主单

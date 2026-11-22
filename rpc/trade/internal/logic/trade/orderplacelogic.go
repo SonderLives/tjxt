@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"time"
 
 	promotionclient "tjxt/rpc/promotion/client/promotion"
 	"tjxt/rpc/trade/internal/model"
@@ -12,9 +11,9 @@ import (
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type OrderPlaceLogic struct {
@@ -32,9 +31,9 @@ func NewOrderPlaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OrderP
 }
 
 func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderResultVO, error) {
-	userId, err := auth.UserIdFromCtx(l.ctx)
+	userId, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
-		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
+		return nil, err
 	}
 	if len(in.CourseIds) == 0 {
 		return nil, errorx.BadRequestf("课程ID不能为空")
@@ -75,7 +74,7 @@ func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderRe
 	}
 
 	order := &model.Order{
-		Id:             nextID(),
+		Id:             idgen.NextID(),
 		UserId:         userId,
 		TotalAmount:    total,
 		RealAmount:     total - discountAmount,
@@ -100,7 +99,7 @@ func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderRe
 			realPay = 0
 		}
 		details = append(details, &model.OrderDetail{
-			Id:             nextID(),
+			Id:             idgen.NextID(),
 			OrderId:        order.Id,
 			UserId:         userId,
 			CourseId:       id,
@@ -116,25 +115,9 @@ func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderRe
 		})
 	}
 
-	// order + details 同事务写入：中途失败整体回滚，避免留下无明细的脏订单。
-	// 新行尚无缓存条目，事务内直接 Exec 即可，无需失效缓存。
-	if err = l.svcCtx.DB.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
-		if _, err := session.ExecCtx(ctx,
-			"insert into `order` (id, user_id, total_amount, real_amount, discount_amount, status, creater, updater, create_time) values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-			order.Id, order.UserId, order.TotalAmount, order.RealAmount, order.DiscountAmount,
-			order.Status, order.Creater, order.Updater, order.CreateTime); err != nil {
-			return err
-		}
-		for _, d := range details {
-			if _, err := session.ExecCtx(ctx,
-				"insert into `order_detail` (id, order_id, user_id, course_id, name, cover_url, price, discount_amount, real_pay_amount, status, creater, updater, create_time) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-				d.Id, d.OrderId, d.UserId, d.CourseId, d.Name, d.CoverUrl,
-				d.Price, d.DiscountAmount, d.RealPayAmount, d.Status, d.Creater, d.Updater, d.CreateTime); err != nil {
-				return err
-			}
-		}
-		return nil
-	}); err != nil {
+	// order + details 同事务写入（事务下沉至 model，logic 只编排）：
+	// 中途失败整体回滚，避免留下无明细的脏订单
+	if err = l.svcCtx.OrderModel.PlaceOrderTx(l.ctx, order, details); err != nil {
 		return nil, errorx.Wrap(err, errorx.CodeInternal, "创建订单失败")
 	}
 
@@ -153,6 +136,6 @@ func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderRe
 		OrderId:    order.Id,
 		PayAmount:  order.RealAmount,
 		Status:     int32(OrderStatusPending),
-		PayOutTime: now().Add(15 * time.Minute).Unix(),
+		PayOutTime: now().Add(OrderPayTimeout).Unix(),
 	}, nil
 }

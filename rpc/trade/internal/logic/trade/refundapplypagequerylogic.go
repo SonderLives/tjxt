@@ -7,6 +7,7 @@ import (
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/errorx"
+	"tjxt/pkg/page"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -60,7 +61,7 @@ func (l *RefundApplyPageQueryLogic) RefundApplyPageQuery(in *pb.RefundApplyPageR
 
 	return &pb.RefundApplyPageReply{
 		Total: total,
-		Pages: calcPages(total, pageSize),
+		Pages: page.CalcPages(total, pageSize),
 		List:  list,
 	}, nil
 }

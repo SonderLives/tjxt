@@ -7,6 +7,8 @@ import (
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
+	"tjxt/pkg/page"
+	"tjxt/pkg/timex"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,9 +28,9 @@ func NewOrderPageQueryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Or
 }
 
 func (l *OrderPageQueryLogic) OrderPageQuery(in *pb.OrderPageRequest) (*pb.OrderPageReply, error) {
-	userId, err := auth.UserIdFromCtx(l.ctx)
+	userId, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
-		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
+		return nil, err
 	}
 
 	orders, total, err := l.svcCtx.OrderModel.PageQueryByUser(l.ctx, userId, in.PageNo, in.PageSize, in.Status, in.NoNo, in.SortBy, in.IsAsc)
@@ -44,7 +46,7 @@ func (l *OrderPageQueryLogic) OrderPageQuery(in *pb.OrderPageRequest) (*pb.Order
 			StatusDesc:  orderStatusDesc(order.Status),
 			TotalAmount: order.TotalAmount,
 			RealAmount:  order.RealAmount,
-			CreateTime:  formatTime(order.CreateTime),
+			CreateTime:  timex.Format(order.CreateTime),
 		}
 		details, e := l.svcCtx.OrderDetailModel.ListByOrderId(l.ctx, order.Id)
 		if e == nil {
@@ -57,7 +59,7 @@ func (l *OrderPageQueryLogic) OrderPageQuery(in *pb.OrderPageRequest) (*pb.Order
 
 	return &pb.OrderPageReply{
 		Total: total,
-		Pages: calcPages(total, in.PageSize),
+		Pages: page.CalcPages(total, in.PageSize),
 		List:  list,
 	}, nil
 }

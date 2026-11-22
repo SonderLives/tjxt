@@ -10,6 +10,7 @@ import (
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,9 +31,9 @@ func NewRefundApplyCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 
 // ===== 退款申请 =====
 func (l *RefundApplyCreateLogic) RefundApplyCreate(in *pb.RefundApplyFormRequest) (*pb.Empty, error) {
-	userId, err := auth.UserIdFromCtx(l.ctx)
+	userId, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
-		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
+		return nil, err
 	}
 	if in.OrderDetailId <= 0 {
 		return nil, errorx.BadRequestf("订单明细ID不能为空")
@@ -47,7 +48,7 @@ func (l *RefundApplyCreateLogic) RefundApplyCreate(in *pb.RefundApplyFormRequest
 	}
 
 	ra := &model.RefundApply{
-		Id:            nextID(),
+		Id:            idgen.NextID(),
 		UserId:        userId,
 		OrderId:       detail.OrderId,
 		OrderDetailId: in.OrderDetailId,

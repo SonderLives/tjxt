@@ -2,13 +2,13 @@ package tradelogic
 
 import (
 	"context"
-	"time"
 
 	"tjxt/rpc/trade/internal/model"
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,9 +28,9 @@ func NewOrderFreeCourseLogic(ctx context.Context, svcCtx *svc.ServiceContext) *O
 }
 
 func (l *OrderFreeCourseLogic) OrderFreeCourse(in *pb.FreeCourseRequest) (*pb.PlaceOrderResultVO, error) {
-	userId, err := auth.UserIdFromCtx(l.ctx)
+	userId, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
-		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
+		return nil, err
 	}
 	if in.CourseId <= 0 {
 		return nil, errorx.BadRequestf("课程ID不能为空")
@@ -40,7 +40,7 @@ func (l *OrderFreeCourseLogic) OrderFreeCourse(in *pb.FreeCourseRequest) (*pb.Pl
 
 	// 免费课程金额为 0，下单即视为已支付
 	order := &model.Order{
-		Id:             nextID(),
+		Id:             idgen.NextID(),
 		UserId:         userId,
 		TotalAmount:    0,
 		RealAmount:     0,
@@ -55,7 +55,7 @@ func (l *OrderFreeCourseLogic) OrderFreeCourse(in *pb.FreeCourseRequest) (*pb.Pl
 	}
 
 	detail := &model.OrderDetail{
-		Id:            nextID(),
+		Id:            idgen.NextID(),
 		OrderId:       order.Id,
 		UserId:        userId,
 		CourseId:      in.CourseId,
@@ -76,6 +76,6 @@ func (l *OrderFreeCourseLogic) OrderFreeCourse(in *pb.FreeCourseRequest) (*pb.Pl
 		OrderId:    order.Id,
 		PayAmount:  0,
 		Status:     int32(OrderStatusPaid),
-		PayOutTime: now().Add(15 * time.Minute).Unix(),
+		PayOutTime: now().Add(OrderPayTimeout).Unix(),
 	}, nil
 }

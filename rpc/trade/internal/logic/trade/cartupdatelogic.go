@@ -28,9 +28,9 @@ func NewCartUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CartUp
 }
 
 func (l *CartUpdateLogic) CartUpdate(in *pb.CartUpdateRequest) (*pb.Empty, error) {
-	userId, err := auth.UserIdFromCtx(l.ctx)
+	userId, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
-		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
+		return nil, err
 	}
 	if in.Id <= 0 {
 		return nil, errorx.BadRequestf("购物车条目ID不能为空")
