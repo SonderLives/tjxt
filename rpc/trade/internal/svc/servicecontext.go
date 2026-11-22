@@ -19,10 +19,6 @@ import (
 type ServiceContext struct {
 	Config config.Config
 
-	// DB 原始连接：跨模型事务（如下单的 order+order_detail 原子写入）用它开事务，
-	// 新插入的行尚无缓存条目，事务内直接 Exec、无需额外失效缓存
-	DB sqlx.SqlConn
-
 	CartModel        model.CartModel
 	OrderModel       model.OrderModel
 	OrderDetailModel model.OrderDetailModel
@@ -40,7 +36,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	svcCtx := &ServiceContext{
 		Config:           c,
-		DB:               conn,
 		CartModel:        model.NewCartModel(conn, c.Cache),
 		OrderModel:       model.NewOrderModel(conn, c.Cache),
 		OrderDetailModel: model.NewOrderDetailModel(conn, c.Cache),

@@ -22,6 +22,8 @@ type (
 		// MarkPaid 待支付(1) -> 已支付(2)，条件更新；返回是否真的发生状态流转
 		MarkPaid(ctx context.Context, id, payOrderNo int64, payChannel string, payTime time.Time, realAmount int64) (bool, error)
 		MarkClosed(ctx context.Context, id int64, message string) error
+		// PlaceOrderTx 同事务写入订单主单与明细，中途失败整体回滚
+		PlaceOrderTx(ctx context.Context, order *Order, details []*OrderDetail) error
 	}
 	customOrderModel struct {
 		*defaultOrderModel
@@ -117,4 +119,26 @@ func (m *customOrderModel) MarkPaid(ctx context.Context, id, payOrderNo int64, p
 // MarkClosed 标记订单关闭（取消/超时）
 func (m *customOrderModel) MarkClosed(ctx context.Context, id int64, message string) error {
 	return m.UpdateStatus(ctx, id, 3, message)
+}
+
+// PlaceOrderTx 同事务写入订单主单与全部明细：中途失败整体回滚，
+// 避免留下无明细的脏订单。新行尚无缓存条目，事务内直接 Exec 即可，无需失效缓存。
+func (m *customOrderModel) PlaceOrderTx(ctx context.Context, order *Order, details []*OrderDetail) error {
+	return m.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		if _, err := session.ExecCtx(ctx,
+			"insert into `order` (id, user_id, total_amount, real_amount, discount_amount, status, creater, updater, create_time) values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			order.Id, order.UserId, order.TotalAmount, order.RealAmount, order.DiscountAmount,
+			order.Status, order.Creater, order.Updater, order.CreateTime); err != nil {
+			return err
+		}
+		for _, d := range details {
+			if _, err := session.ExecCtx(ctx,
+				"insert into `order_detail` (id, order_id, user_id, course_id, name, cover_url, price, discount_amount, real_pay_amount, status, creater, updater, create_time) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+				d.Id, d.OrderId, d.UserId, d.CourseId, d.Name, d.CoverUrl,
+				d.Price, d.DiscountAmount, d.RealPayAmount, d.Status, d.Creater, d.Updater, d.CreateTime); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
