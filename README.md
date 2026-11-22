@@ -63,8 +63,9 @@ tjxt/
 │   ├── timex/               # 统一时间格式化 Layout/Format/Parse
 │   └── go.mod
 ├── sql/
-│   ├── ddl/                 # goctl model 生成用的纯 DDL (按库分文件)
-│   └── migration/           # 完整迁移脚本 (含索引/外键/初始数据)
+│   ├── migrations/          # goose 迁移：每业务库一个目录（00001_schema.sql + 00002_seed.sql）
+│   ├── thirdparty/          # 第三方基建脚本（gogs/nacos/seata/xxl_job，不归 goose 管理）
+│   └── bootstrap.sql        # 业务库建库引导（goose 迁移前先建库）
 ├── docs/                    # 架构/设计/历史文档
 ├── deploy/                  # 观测栈配置 (otel-collector / prometheus / loki)
 └── app/                     # 全部业务进程：服务目录（下分 api / rpc）+ mq 消费者
@@ -258,7 +259,7 @@ make run-all-rpc   # 启动 5 个保留 RPC + 2 个 MQ 消费者（各开一个�
 make api            # 根据 .api 重生成所有 API 代码
 make rpc            # 根据 .proto 重生成 5 个保留 RPC 服务的 pb/server/client/logic（goctl）
 make pb             # buf generate 重生成 8 个折叠服务的 pb 类型（app/<svc>/api/backend/pb）
-make model          # 根据 sql/ddl/*.sql 生成 model（输出到 ./model/<db>/）
+make model          # 根据 sql/migrations/<db>/00001_schema.sql 生成 model（输出到 ./model/<db>/）
 make generate       # api + rpc + pb 全量重生成
 make check-gen      # 重生成 api + pb 并校验与仓库零漂移（api types 与 pb 类型双守卫）
 ```
@@ -419,12 +420,57 @@ replace tjxt/pkg => ../../../pkg
 
 
 
-## 🗄 数据库规范
+## 🗄 数据库规范（goose 管理）
 
-- **DDL 位置**: `sql/ddl/tj_<svc>.sql` (纯建表，供 goctl model 生成)
-- **迁移脚本**: `sql/migration/` (含索引/外键/初始数据，生产执行)
+数据库结构由 **pressly/goose** 管理，一个业务库一个迁移目录，每个目录内两个迁移：
+
+```
+sql/
+├── migrations/                  # goose 管理（12 个业务库，目录名 = 库名后缀）
+│   ├── auth/00001_schema.sql    # Up：建表 DDL（含索引）；Down：逆序 DROP TABLE IF EXISTS
+│   ├── auth/00002_seed.sql      # Up：演示基线数据 INSERT；Down：按表 DELETE（仅 9 个有种子数据的库）
+│   └── course/… user/… exam/…
+├── thirdparty/                  # gogs/nacos/seata/xxl_job：第三方基建脚本，不归 goose 管理
+│                                # （自带 CREATE DATABASE/USE，docker 首次启动自动执行）
+└── bootstrap.sql                # 12 个业务库的建库引导（goose 不建库，迁移前先执行）
+```
+
+- **迁移文件命名**: `<序号>_<名称>.sql`（goose 顺序版本），文件内 `-- +goose Up` / `-- +goose Down` 注解分节
+- **schema 迁移**：与真实库表集合一致（exam/trade 含 Seata `undo_log`、message 含复合主键 `notice_task_target`）；原 `sql/ddl/tj_exam_business.sql`、`tj_message_model.sql` 两个 goctl 生成专用变体已退役
+- **seed 迁移**：教学演示基线数据（演示账号/配置），仅限本地开发与教学，禁止用于生产
 - **命名**: 表名单数 (`user` `course` `order`)，主键 `id BIGINT`，时间 `create_time`/`update_time`
 - **缓存**: `goctl model ... -c` 生成带 Redis 缓存的 Model，键前缀 `cache:#{table}:`
+
+### 常用命令
+
+```bash
+go install github.com/pressly/goose/v3/cmd/goose@latest   # 安装 goose CLI
+make migrate-up                    # 12 个业务库全部 up（先建库：sql/bootstrap.sql 或 docker-up 首次初始化）
+make migrate-down                  # 每库回退 1 步（MIGRATE_STEPS=n 可指定步数）
+make migrate-status                # 查看各库迁移状态
+make migrate-up TJXT_DB_PASS=xxx   # 口令默认 0000，可用环境变量覆盖（MIGRATE_HOST/USER 亦可）
+
+# 手工对单库操作（goose 原生命令）
+goose -dir sql/migrations/user mysql "root:0000@tcp(127.0.0.1:3306)/tj_user" up
+goose -dir sql/migrations/user mysql "root:0000@tcp(127.0.0.1:3306)/tj_user" create add_column_x sql   # 新增迁移
+goose -dir sql/migrations/user mysql "root:0000@tcp(127.0.0.1:3306)/tj_user" status
+```
+
+> 已有旧数据（非 goose 初始化）的本地库：直接 `make migrate-up` 会因表已存在而失败，
+> 属预期防护；需要切换到 goose 管理请清空数据卷重建（`docker compose down -v && make docker-up && make migrate-up`）。
+
+### goctl model 生成源
+
+`make model` 从 **sql/migrations/<db>/00001_schema.sql** 生成（与真实库同源，输出到 `./model/<db>/`）。
+其中 exam/trade 的 `undo_log`（无主键）与 message 的 `notice_task_target`（复合主键）goctl 无法解析，
+生成前自动剥除这三张表的 CREATE TABLE 块（等价原 ddl 变体文件的作用）。
+goctl 版本固定 1.10.1（实测新旧源产物字节一致）。
+
+### thirdparty 说明
+
+`sql/thirdparty/` 下四个脚本原样迁自原 `sql/migration/`，**不归 goose 管理**：它们自带
+`CREATE DATABASE`/`USE` 与全部建表+初始数据，由 docker-entrypoint-initdb.d 首次启动自动执行
+（或手动导入）。第三方库（gogs/nacos/seata/xxl_job）不参与 `make migrate-*`。
 
 
 

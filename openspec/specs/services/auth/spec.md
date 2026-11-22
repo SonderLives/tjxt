@@ -375,7 +375,7 @@ auth 服务 SHALL 暴露以下角色管理接口：
 
 ### Requirement: 数据模型与存储不变量
 
-auth 服务 SHALL 将数据存储于 MySQL `tj_auth` 库（DDL 来源 `sql/ddl/tj_auth.sql`）的七张表：
+auth 服务 SHALL 将数据存储于 MySQL `tj_auth` 库（schema 见 `sql/migrations/auth/00001_schema.sql`）的七张表：
 
 | 表 | 用途 | 关键字段 |
 |----|------|---------|

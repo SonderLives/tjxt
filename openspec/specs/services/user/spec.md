@@ -334,7 +334,7 @@ user 服务 SHALL 按以下规则管理账户状态：
 
 ### Requirement: 数据模型与存储不变量
 
-user 服务 SHALL 将用户数据存储于 MySQL `tj_user` 库（DDL 来源 `sql/ddl/tj_user.sql`）的两张表：
+user 服务 SHALL 将用户数据存储于 MySQL `tj_user` 库（schema 见 `sql/migrations/user/00001_schema.sql`）的两张表：
 
 | 表 | 用途 | 关键字段 |
 |----|------|---------|

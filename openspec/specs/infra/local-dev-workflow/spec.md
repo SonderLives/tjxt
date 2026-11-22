@@ -44,14 +44,15 @@ go install github.com/zeromicro/go-zero/tools/goctl@latest
 | Prometheus | `prom/prometheus:v2.53.1` | 9090 (UI) | — |
 | Loki | `grafana/loki:latest` | 3100 | — |
 
-- MySQL 容器首次启动挂载 `./sql/migration` 到 `/docker-entrypoint-initdb.d`，自动建库建表并灌入初始数据
+- MySQL 容器首次启动挂载 `./sql/thirdparty`（第三方基建库脚本）与 `./sql/bootstrap.sql`（业务库建库引导）到 `/docker-entrypoint-initdb.d`；业务库表结构与种子数据由 goose 管理，容器就绪后执行 `make migrate-up`
 - 需要重新初始化时须先 `docker compose down -v` 删除 `mysql-data` 卷
 - 可观测性信号入口：Trace http://localhost:16686、Metrics http://localhost:9090（`tjxt-services` target 应 UP）、Logs http://localhost:3100
 
 #### Scenario: 首次拉起环境
 
 - **WHEN** 执行 `make docker-up`
-- **THEN** 8 个容器启动，MySQL 自动执行 `sql/migration` 下的脚本建库建表并灌入初始数据
+- **THEN** 8 个容器启动，MySQL 自动执行第三方基建脚本与业务库建库引导（第三方库建库建表灌数据；业务库仅建库）
+- **AND** 执行 `make migrate-up` 完成业务库建表与种子数据
 - **AND** 可用 `make docker-logs` 跟踪容器日志（含 collector 健康检查 13133）
 
 #### Scenario: 重新初始化数据库
@@ -89,7 +90,8 @@ go install github.com/zeromicro/go-zero/tools/goctl@latest
 | `make api` | 按 `.api` 全量重生成 handler/types/routes（13 个服务） |
 | `make rpc` | 按 `.proto` 全量重生成 pb/server/client（仅 5 个保留 RPC 服务，goctl） |
 | `make pb` | buf generate 重生成 8 个折叠服务的 pb 类型到 `app/<svc>/api/backend/pb/` |
-| `make model` | 按 `sql/ddl/*.sql` 生成带缓存的 model |
+| `make model` | 按 `sql/migrations/<db>/00001_schema.sql` 生成带缓存的 model（exam/trade/message 自动剥除 goctl 不解析的表） |
+| `make migrate-up` / `make migrate-down` / `make migrate-status` | goose 迁移 12 个业务库：全量应用 / 回退（MIGRATE_STEPS 步，默认 1）/ 查看状态 |
 | `make generate` | `api + rpc + pb` 一键生成 |
 | `make check-gen` | 重生成 api + pb 后 `git diff --exit-code -- app`（api types 与 pb 类型双守卫） |
 | `make build` | 构建全部 20 个二进制（13 api + 5 rpc + 2 mq）到 `bin/` |
@@ -115,20 +117,23 @@ cd app/<svc>/rpc && go mod tidy && go build ./... && go vet ./...
 
 ### Requirement: 数据库目录约定
 
-SQL 脚本 SHALL 按用途分放两个目录，改表时同步更新：
+SQL 脚本 SHALL 由 pressly/goose 管理，一业务库一迁移目录，改表时新增迁移：
 
 | 目录 | 用途 |
 |------|------|
-| `sql/ddl/tj_<domain>.sql` | **纯 DDL**，供 `goctl model` 解析，不含数据 |
-| `sql/migration/tj_<domain>.sql` | 完整迁移脚本，含索引/外键/初始数据，供 Docker 初始化 |
+| `sql/migrations/<db>/00001_schema.sql` | `tj_<db>` 库建表 DDL（含索引，与真实库表集合一致），Up 建表 / Down 逆序 DROP |
+| `sql/migrations/<db>/00002_seed.sql` | 演示基线数据（仅 9 个有种子数据的库存在），Up INSERT / Down 按表 DELETE |
+| `sql/migrations/<db>/00003_….sql` | 后续表结构变更用 `goose create` 追加的新迁移 |
+| `sql/thirdparty/` | gogs/nacos/seata/xxl_job 第三方基建脚本，不归 goose 管理 |
+| `sql/bootstrap.sql` | 业务库建库引导（goose 不建库，迁移前执行） |
 
 一库一服务，库名 `tj_<domain>`。
 
 #### Scenario: 表结构变更
 
 - **WHEN** 某域新增字段或索引
-- **THEN** 同时更新 `sql/ddl/` 与 `sql/migration/` 下对应脚本
-- **AND** 只改一处会导致 goctl 生成的 model 与实际库结构漂移
+- **THEN** 用 `goose -dir sql/migrations/<db> mysql "<DSN>/tj_<db>" create <name> sql` 新增迁移文件（编号递增），Up 写变更、Down 写逆操作
+- **AND** `make model` 从迁移 schema 生成 model，只改迁移不重新生成 model 会导致两者漂移
 
 ### Requirement: 已知开发陷阱
 

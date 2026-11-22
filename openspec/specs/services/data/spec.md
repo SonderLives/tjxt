@@ -229,7 +229,7 @@ data-api SHALL 仅做 DTO 转换并全部转发 RPC，遵循以下规则（📋 
 
 data 服务 SHALL 不依赖任何持久化组件（无 MySQL / 无 Redis / 无 model 层），以「上游统计回填 → 大屏快照读写」的聚合模式提供数据存取：
 
-- 无关系型表：`sql/ddl/` 下 14 个文件中无 `tj_data.sql`（其余 12 个服务均有对应 DDL）
+- 无关系型表：`sql/migrations/` 下 12 个库目录中无 `data/`（其余 12 个服务均有对应迁移）
 - 无 MySQL 连接：`app/data/rpc/etc/data.yaml` 全文仅 `Name` / `ListenOn` / `Etcd` 三段，无 `DataSource`
 - 无 Redis 连接：`data.yaml` 无 `Cache` / `Redis` 段（`00-architecture/overview.md` 服务表中 data 的「数据库」列亦为 `-`）
 - 无 model 层：`app/data/rpc/internal/` 下只有 `config` / `logic` / `server` / `svc`，无 model 目录；`ServiceContext` 仅有 `Config` 一个字段
@@ -265,7 +265,7 @@ Redis Key 设计（📋 设计意图，推导，代码中不存在，供实现�
 
 - **WHEN** 需要为 data 服务接入真实存储
 - **THEN** 若采用 Redis：在 `data.yaml` 增加 `Redis` 段、`internal/config/config.go` 增加 `redis.RedisConf` 字段、`ServiceContext` 注入 `*redis.Redis`
-- **AND** 若改用 MySQL：补 `sql/ddl/tj_data.sql` 并按约定生成 model
+- **AND** 若改用 MySQL：在 `sql/migrations/` 新增 `data/` 迁移目录并按约定生成 model
 
 ### Requirement: 服务配置与已知结构性缺口
 
@@ -283,7 +283,7 @@ data SHALL 按以下配置部署运行：
 
 已知结构性缺口（configs.md ⚠️ 逐条如实记录；原「目录多套一层」「三份 go.mod」两项已随 data 目录扁平化修复）：
 
-1. 无 DDL：`sql/ddl/` 下存在 `tj_message.sql` / `tj_message_model.sql` / `tj_search.sql`，但没有 `tj_data.sql`
+1. 无迁移目录：`sql/migrations/` 下存在 `message/` / `search/` 等 12 个库目录，但没有 `data/`
 2. 配置缺 DataSource / Cache：`data.yaml` 仅有 Name / ListenOn / Etcd 三段，RPC 暂无可用数据源配置
 3. JWT 配置悬空：`data-api.yaml` 声明了 `Auth.AccessSecret` / `AccessExpire`，但 `data.api` 路由无 `jwt: Auth`，鉴权未生效
 

@@ -363,7 +363,7 @@ message 服务的 API 层 SHALL 为纯转发层：
 
 ### Requirement: 数据模型表清单与关系
 
-message 服务 SHALL 将数据持久化于 MySQL `tj_message` 库的 7 张表。message 是全仓唯一拥有两份 DDL 的服务：`sql/ddl/tj_message.sql`（7 表，完整库结构，字段注释最完整，字段语义以此为准）与 `sql/ddl/tj_message_model.sql`（6 表，精简版，goctl 模型生成源，剔除了复合主键的 `notice_task_target`）：
+message 服务 SHALL 将数据持久化于 MySQL `tj_message` 库的 7 张表。schema 由 goose 迁移 `sql/migrations/message/00001_schema.sql` 管理（7 表，字段语义以此为准）；goctl 无法解析复合主键的 `notice_task_target`（历史上由独立的 ddl 精简变体文件承担生成源，该变体已退役），现 `make model` 生成时自动剥除，model 仅覆盖 6 张表：
 
 | 表 | 职责 | 关键字段与索引 |
 |----|------|--------------|

@@ -40,8 +40,8 @@
 
 ```
 1. 设计 DB 表结构
-2. 写入 sql/ddl/tj_<domain>.sql（纯 DDL）
-3. goctl model 生成 Model 层
+2. goose -dir sql/migrations/<db> mysql "<DSN>/tj_<db>" create <name> sql 新增迁移（Up 建表 / Down 逆操作）
+3. goctl model 生成 Model 层（源为 sql/migrations/<db>/ 迁移 schema，make model）
 4. 设计 app/<svc>/rpc/<svc>.proto
 5. goctl rpc 生成 RPC 骨架（pb/server/client/logic/svc/config）
 6. 设计 app/<svc>/api/<svc>.api
@@ -53,7 +53,7 @@
 新增或改造一个**折叠服务**（无跨服务调用方，RPC 层已并入 API 进程）SHALL 按以下顺序执行：
 
 ```
-1. 设计 DB 表结构 → sql/ddl/tj_<domain>.sql → goctl model 生成到 app/<svc>/api/backend/model
+1. 设计 DB 表结构 → goose 新增迁移到 sql/migrations/<db>/ → goctl model 生成到 app/<svc>/api/backend/model
 2. 设计 app/<svc>/api/<svc>.proto（pb 契约，go_package 锚定 ./backend/pb）
 3. cd app/<svc>/api && buf generate --template ../../../buf.gen.yaml 生成 pb 类型到 backend/pb/
 4. 设计 app/<svc>/api/<svc>.api
@@ -62,11 +62,11 @@
 7. 构建测试
 ```
 
-#### Scenario: DDL 先行
+#### Scenario: 迁移先行
 
 - **WHEN** 新增业务域能力
-- **THEN** 先落 `sql/ddl/tj_<domain>.sql` 纯 DDL，再生成 Model
-- **AND** 改表时同步更新 `sql/migration/tj_<domain>.sql`，避免 model 与实际库结构漂移
+- **THEN** 先落 `sql/migrations/<db>/` 迁移脚本（`goose create` 新增，Up/Down 成对），再生成 Model
+- **AND** `make model` 从迁移 schema 生成，避免 model 与实际库结构漂移
 
 ### Requirement: goctl API 生成
 
@@ -165,7 +165,7 @@ Model 层 SHALL 由 DDL 生成，并只允许在 Custom Model 中扩展：
 
 ```bash
 goctl model mysql ddl \
-  -src sql/ddl/tj_<domain>.sql \
+  -src sql/migrations/<db>/00001_schema.sql \
   -dir app/<svc>/rpc/internal/model \
   -cache --style gozero
 ```

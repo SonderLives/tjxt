@@ -522,7 +522,7 @@ pay 服务的存储层 SHALL 满足以下不变量：
 - `IncrNotifyTimes` / `SetNotifyStatus` / `IncrNotifyFailedTimes` / `MarkToPaying` / `MarkToProcessing` 已定义但当前无 logic 调用，为回调重试机制预留
 - `vars.go` 定义 `ErrNotFound = sqlx.ErrNotFound`；logic 层的 `isNotFound(err)` 同时判定 `sql.ErrNoRows` 与 `model.ErrNotFound` 两种情况
 
-> 注：本规格的表清单以 data-model.md（来源 `sql/ddl/tj_pay.sql`）为准——实际仅 `pay_channel` / `pay_order` / `refund_order` 三张表；对账能力当前仅体现为 RPC 完整详情查询（`QueryPayOrderByBizOrderNo` / `QueryRefundByBizRefundNo`），无独立对账/流水表。
+> 注：本规格的表清单以 data-model.md（来源 `sql/migrations/pay/00001_schema.sql`）为准——实际仅 `pay_channel` / `pay_order` / `refund_order` 三张表；对账能力当前仅体现为 RPC 完整详情查询（`QueryPayOrderByBizOrderNo` / `QueryRefundByBizRefundNo`），无独立对账/流水表。
 
 #### Scenario: 唯一索引兜底并发下单
 

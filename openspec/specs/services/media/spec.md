@@ -174,7 +174,7 @@ media 服务的消费关系与跨域引用计数 SHALL 满足：
 - 被引用的媒资不可删除：`quote_num > 0` 时 `MediaDelete` 应拒绝（与 `file.status=3` 语义一致）
 - 绑定动作在 course 侧：`Course.CourseMediaSave` 写入 `media_id`，文件 `status` 应流转为 3（已使用）
 
-> 已知缺口（未接线）：course 与 media 之间是双向逻辑依赖——`app/course/api/internal/svc/servicecontext.go` **未** import `mediaclient`，`app/course/api/etc/*.yaml` 亦无 `MediaRpc` 配置项；`app/media/api` 的 internal/svc 与 backend/svc servicecontext.go 也未持有 `CourseRpc`。跨服务调用尚未接线，两侧目前均以本地字段/占位方式表达（course 侧 `course.proto:52` 定义 `CourseMediaSave`、`course.proto:36` 定义 `CourseMediaUseInfo` 回传 `media_id` → `quote_num`，`sql/ddl/tj_course.sql:91,123` 两处 `media_id` 列）。
+> 已知缺口（未接线）：course 与 media 之间是双向逻辑依赖——`app/course/api/internal/svc/servicecontext.go` **未** import `mediaclient`，`app/course/api/etc/*.yaml` 亦无 `MediaRpc` 配置项；`app/media/api` 的 internal/svc 与 backend/svc servicecontext.go 也未持有 `CourseRpc`。跨服务调用尚未接线，两侧目前均以本地字段/占位方式表达（course 侧 `course.proto:52` 定义 `CourseMediaSave`、`course.proto:36` 定义 `CourseMediaUseInfo` 回传 `media_id` → `quote_num`，`sql/migrations/course/00001_schema.sql:69,93` 两处 `media_id` 列）。
 
 #### Scenario: 媒资列表回填引用计数（设计意图）
 
@@ -316,7 +316,7 @@ media 服务的数据层 SHALL 基于 MySQL `tj_media` 库的两张表，并通�
 存储与模型不变量：
 
 - `file` 与 `media` 之间**无数据库外键关联**：`file` 记录普通文件/图片，`media` 记录视频媒资，两者走不同的上传通道（`FileSave` vs `MediaSave`）
-- 跨域引用无数据库外键，靠应用层维护：`course.section.media_id ──→ media.id`（`sql/ddl/tj_course.sql:91`）、`course.catalogue.media_id ──→ media.id`（`sql/ddl/tj_course.sql:123`）、`media.useTimes ←── course.CourseMediaUseInfo`
+- 跨域引用无数据库外键，靠应用层维护：`course.section.media_id ──→ media.id`（`sql/migrations/course/00001_schema.sql:69`）、`course.catalogue.media_id ──→ media.id`（`sql/migrations/course/00001_schema.sql:93`）、`media.useTimes ←── course.CourseMediaUseInfo`
 - `FileVO.path` 与 `MediaVO.useTimes` 在表中**无对应列**，分别由 `key` 拼接对象存储访问前缀、由 course 域回传 `quote_num` 在应用层组装/聚合
 - 缓存 key 前缀（goctl 生成）：`file` → `cache:file:id:`，`media` → `cache:media:id:`
 - Go 结构体映射：`*_gen.go` 与表字段一一对应（`request_id` 映射可空类型 `sql.NullString`，tinyint 映射 `int64`，`media.duration` 映射 `float64`）

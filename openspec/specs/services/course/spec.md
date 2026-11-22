@@ -541,7 +541,7 @@ Step 枚举（由代码常量确定）：
 
 ### Requirement: 数据模型与表清单
 
-course 域 SHALL 使用 MySQL `tj_course` 库（DDL：`sql/ddl/tj_course.sql`），正式表与草稿表成对组织。所有 `*_gen.go` 由 goctl 生成，禁止修改；12 个自定义 Model 文件（`categorymodel.go`、`coursemodel.go`、`coursedraftmodel.go`、`coursecontentmodel.go`、`coursecontentdraftmodel.go`、`coursecataloguemodel.go`、`coursecataloguedraftmodel.go`、`coursecatasubjectdraftmodel.go`、`courseteachermodel.go`、`courseteacherdraftmodel.go`、`coursesubjectmodel.go`、`subjectmodel.go`）均为标准 CRUD 接口包装，无额外业务方法（与 auth 域不同）。
+course 域 SHALL 使用 MySQL `tj_course` 库（schema：`sql/migrations/course/00001_schema.sql`），正式表与草稿表成对组织。所有 `*_gen.go` 由 goctl 生成，禁止修改；12 个自定义 Model 文件（`categorymodel.go`、`coursemodel.go`、`coursedraftmodel.go`、`coursecontentmodel.go`、`coursecontentdraftmodel.go`、`coursecataloguemodel.go`、`coursecataloguedraftmodel.go`、`coursecatasubjectdraftmodel.go`、`courseteachermodel.go`、`courseteacherdraftmodel.go`、`coursesubjectmodel.go`、`subjectmodel.go`）均为标准 CRUD 接口包装，无额外业务方法（与 auth 域不同）。
 
 表清单（表名 / 用途 / 关键字段）：
 
