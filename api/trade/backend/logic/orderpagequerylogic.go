@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"tjxt/api/trade/backend/svc"
-	"tjxt/rpc/trade/pb"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
 	"tjxt/pkg/page"
@@ -28,7 +28,7 @@ func NewOrderPageQueryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Or
 }
 
 func (l *OrderPageQueryLogic) OrderPageQuery(in *pb.OrderPageRequest) (*pb.OrderPageReply, error) {
-	userId, err := auth.UserIdFromIncomingMD(l.ctx)
+	userId, err := auth.UserIdFromCtx(l.ctx)
 	if err != nil {
 		return nil, err
 	}

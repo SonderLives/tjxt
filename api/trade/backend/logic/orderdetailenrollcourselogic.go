@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"tjxt/api/trade/backend/svc"
-	"tjxt/rpc/trade/pb"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"

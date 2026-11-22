@@ -9,7 +9,7 @@ import (
 	promotionclient "tjxt/rpc/promotion/client/promotion"
 	"tjxt/api/trade/backend/model"
 	"tjxt/api/trade/backend/svc"
-	"tjxt/rpc/trade/pb"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/pkg/mq"
 	"tjxt/pkg/mq/event"
 	"tjxt/pkg/errorx"

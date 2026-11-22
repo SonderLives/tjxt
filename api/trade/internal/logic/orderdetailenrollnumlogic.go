@@ -8,9 +8,10 @@ import (
 	"strconv"
 	"strings"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -43,7 +44,7 @@ func (l *OrderDetailEnrollNumLogic) OrderDetailEnrollNum(req *types.EnrollNumReq
 		ids = append(ids, id)
 	}
 
-	if _, err = l.svcCtx.TradeRpc.OrderDetailEnrollNum(l.ctx, &pb.EnrollNumRequest{CourseIdList: ids}); err != nil {
+	if _, err = backendlogic.NewOrderDetailEnrollNumLogic(l.ctx, l.svcCtx.Backend).OrderDetailEnrollNum(&pb.EnrollNumRequest{CourseIdList: ids}); err != nil {
 		return nil, err
 	}
 	return &types.NamePlaceVO{Existed: true, Message: "ok"}, nil

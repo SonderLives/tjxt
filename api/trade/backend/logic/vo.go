@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"tjxt/api/trade/backend/model"
-	"tjxt/rpc/trade/pb"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/pkg/timex"
 )
 

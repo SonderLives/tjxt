@@ -6,7 +6,7 @@ import (
 
 	"tjxt/api/trade/backend/model"
 	"tjxt/api/trade/backend/svc"
-	"tjxt/rpc/trade/pb"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
 
@@ -28,7 +28,7 @@ func NewOrderCancelLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Order
 }
 
 func (l *OrderCancelLogic) OrderCancel(in *pb.IdRequest) (*pb.Empty, error) {
-	if _, err := auth.UserIdFromIncomingMD(l.ctx); err != nil {
+	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
 

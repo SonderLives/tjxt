@@ -7,7 +7,7 @@ import (
 
 	"tjxt/api/trade/backend/model"
 	"tjxt/api/trade/backend/svc"
-	"tjxt/rpc/trade/pb"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
 	"tjxt/pkg/idgen"
@@ -31,7 +31,7 @@ func NewRefundApplyCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 
 // ===== 退款申请 =====
 func (l *RefundApplyCreateLogic) RefundApplyCreate(in *pb.RefundApplyFormRequest) (*pb.Empty, error) {
-	userId, err := auth.UserIdFromIncomingMD(l.ctx)
+	userId, err := auth.UserIdFromCtx(l.ctx)
 	if err != nil {
 		return nil, err
 	}

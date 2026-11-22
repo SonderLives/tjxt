@@ -6,7 +6,7 @@ import (
 
 	"tjxt/api/trade/backend/model"
 	"tjxt/api/trade/backend/svc"
-	"tjxt/rpc/trade/pb"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
 	"tjxt/pkg/idgen"
@@ -30,7 +30,7 @@ func NewCartAddLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CartAddLo
 
 // ===== 购物车 =====
 func (l *CartAddLogic) CartAdd(in *pb.CartAddRequest) (*pb.Empty, error) {
-	userId, err := auth.UserIdFromIncomingMD(l.ctx)
+	userId, err := auth.UserIdFromCtx(l.ctx)
 	if err != nil {
 		return nil, err
 	}

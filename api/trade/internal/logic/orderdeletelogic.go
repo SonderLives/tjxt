@@ -6,9 +6,10 @@ package logic
 import (
 	"context"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewOrderDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Order
 }
 
 func (l *OrderDeleteLogic) OrderDelete(req *types.OrderIdReq) (resp *types.NamePlaceVO, err error) {
-	if _, err = l.svcCtx.TradeRpc.OrderDelete(l.ctx, &pb.IdRequest{Id: req.Id}); err != nil {
+	if _, err = backendlogic.NewOrderDeleteLogic(l.ctx, l.svcCtx.Backend).OrderDelete(&pb.IdRequest{Id: req.Id}); err != nil {
 		return nil, err
 	}
 	return &types.NamePlaceVO{Existed: true, Message: "ok"}, nil

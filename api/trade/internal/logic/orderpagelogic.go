@@ -6,9 +6,10 @@ package logic
 import (
 	"context"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewOrderPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OrderPa
 }
 
 func (l *OrderPageLogic) OrderPage(req *types.OrderPageReq) (resp *types.OrderPageReply, err error) {
-	reply, err := l.svcCtx.TradeRpc.OrderPageQuery(l.ctx, &pb.OrderPageRequest{
+	reply, err := backendlogic.NewOrderPageQueryLogic(l.ctx, l.svcCtx.Backend).OrderPageQuery(&pb.OrderPageRequest{
 		PageNo:   req.PageNo,
 		PageSize: req.PageSize,
 		IsAsc:    req.IsAsc,

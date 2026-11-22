@@ -11,7 +11,7 @@ import (
 // 业务字段（DataSource/Cache/RabbitMQ/下游客户端）内嵌 backend/config，
 // 与 backend/svc.ServiceContext 的整体构造保持一致。
 type Config struct {
-	Log logx.LogConf `json:",optional"`
+	Log logx.LogConf
 
 	config.Config
 }

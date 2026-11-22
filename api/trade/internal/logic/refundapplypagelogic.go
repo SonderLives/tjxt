@@ -6,9 +6,10 @@ package logic
 import (
 	"context"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewRefundApplyPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *R
 }
 
 func (l *RefundApplyPageLogic) RefundApplyPage(req *types.RefundApplyPageReq) (resp *types.RefundApplyPageReply, err error) {
-	reply, err := l.svcCtx.TradeRpc.RefundApplyPageQuery(l.ctx, &pb.RefundApplyPageRequest{
+	reply, err := backendlogic.NewRefundApplyPageQueryLogic(l.ctx, l.svcCtx.Backend).RefundApplyPageQuery(&pb.RefundApplyPageRequest{
 		PageNo:         req.PageNo,
 		PageSize:       req.PageSize,
 		IsAsc:          req.IsAsc,

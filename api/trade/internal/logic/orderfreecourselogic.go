@@ -6,9 +6,10 @@ package logic
 import (
 	"context"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewOrderFreeCourseLogic(ctx context.Context, svcCtx *svc.ServiceContext) *O
 }
 
 func (l *OrderFreeCourseLogic) OrderFreeCourse(req *types.FreeCourseReq) (resp *types.PlaceOrderResultVO, err error) {
-	reply, err := l.svcCtx.TradeRpc.OrderFreeCourse(l.ctx, &pb.FreeCourseRequest{CourseId: req.CourseId})
+	reply, err := backendlogic.NewOrderFreeCourseLogic(l.ctx, l.svcCtx.Backend).OrderFreeCourse(&pb.FreeCourseRequest{CourseId: req.CourseId})
 	if err != nil {
 		return nil, err
 	}

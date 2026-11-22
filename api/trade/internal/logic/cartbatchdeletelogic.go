@@ -8,9 +8,10 @@ import (
 	"strconv"
 	"strings"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -47,7 +48,7 @@ func (l *CartBatchDeleteLogic) CartBatchDelete(req *types.CartBatchDeleteReq) (r
 		return nil, errorx.BadRequestf("购物车id不能为空")
 	}
 
-	if _, err = l.svcCtx.TradeRpc.CartBatchDelete(l.ctx, &pb.CartBatchDeleteRequest{Ids: ids}); err != nil {
+	if _, err = backendlogic.NewCartBatchDeleteLogic(l.ctx, l.svcCtx.Backend).CartBatchDelete(&pb.CartBatchDeleteRequest{Ids: ids}); err != nil {
 		return nil, err
 	}
 	return &types.NamePlaceVO{Existed: true, Message: "ok"}, nil

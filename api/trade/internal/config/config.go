@@ -4,8 +4,9 @@
 package config
 
 import (
+	"tjxt/api/trade/backend/config"
+
 	"github.com/zeromicro/go-zero/rest"
-	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type Config struct {
@@ -16,6 +17,8 @@ type Config struct {
 		AccessExpire int64
 	}
 
-	// TradeRpc 交易域 RPC 客户端（通过 etcd 服务发现）
-	TradeRpc zrpc.RpcClientConf
+	// Backend 交易域 backend 业务配置（原 rpc/trade 配置随包并入：
+	// DataSource/Cache/RabbitMQ 与下游 zrpc 客户端 PayRpc/CourseRpc/PromotionRpc，
+	// 字段名保持原习惯，供 backend/svc.ServiceContext 整体构造）。
+	config.Config
 }

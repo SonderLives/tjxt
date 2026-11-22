@@ -7,7 +7,7 @@ import (
 	payclient "tjxt/rpc/pay/client/pay"
 	"tjxt/api/trade/backend/model"
 	"tjxt/api/trade/backend/svc"
-	"tjxt/rpc/trade/pb"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
