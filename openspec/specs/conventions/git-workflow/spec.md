@@ -82,7 +82,7 @@ PR SHALL 按「本地校验 → 模板化描述 → Review → Squash merge」�
 ## 影响范围
 - 服务：auth / course / trade ...
 - 接口变更：是/否（如是，需同步更新 openspec/specs/services/<svc>/spec.md）
-- 数据库变更：是/否（如是，需同步 sql/ddl/ 与 sql/migration/）
+- 数据库变更：是/否（如是，需在 sql/migrations/<db>/ 新增 goose 迁移并同步 model）
 
 ## 测试验证
 - 单测：`make test` 通过
@@ -98,7 +98,7 @@ PR SHALL 按「本地校验 → 模板化描述 → Review → Squash merge」�
 #### Scenario: 接口或数据库变更
 
 - **WHEN** PR 修改了 `.api` / `.proto` 或表结构
-- **THEN** 必须在同一 PR 内同步更新对应 openspec 规格与 `sql/ddl/`、`sql/migration/`
+- **THEN** 必须在同一 PR 内同步更新对应 openspec 规格与 `sql/migrations/` 迁移脚本
 - **AND** 「影响范围」中显式勾选「接口变更：是」或「数据库变更：是」
 
 #### Scenario: 合并前门禁

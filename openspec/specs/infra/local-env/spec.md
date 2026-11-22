@@ -12,7 +12,7 @@
 
 | 容器 | 镜像 | 宿主机端口 | 凭证/说明 |
 |------|------|------------|-----------|
-| mysql | mysql:8.0 | 3306 | root/0000；挂载 `sql/migration` 初始化 |
+| mysql | mysql:8.0 | 3306 | root/0000；首次启动挂载 `sql/thirdparty`（第三方基建库）与 `sql/bootstrap.sql`（业务库建库引导）初始化，业务库结构由 goose 应用 |
 | redis | redis:7-alpine | 6379 | named volume 持久化 |
 | rabbitmq | rabbitmq:3.13-management | 5672 / 15672 | rabbitmq/rabbitmq；15672 为管理界面 |
 | etcd | bitnami/etcd:3.5 | 2379 | ALLOW_NONE_AUTHENTICATION=yes |
@@ -20,7 +20,8 @@
 #### Scenario: 初始化建库
 
 - **WHEN** mysql 容器首次启动（无 named volume 数据）
-- **THEN** 执行 `./sql/migration` 下的初始化脚本完成建库建表
+- **THEN** 执行 `./sql/thirdparty` 下的第三方基建脚本（gogs/nacos/seata/xxl_job，自带 CREATE DATABASE/USE）与 `sql/bootstrap.sql`（12 个业务库建库引导）
+- **AND** 业务库表结构与种子数据由 goose 管理，容器就绪后执行 `make migrate-up` 完成
 
 ### Requirement: 可观测性容器
 
@@ -74,6 +75,25 @@ curl -s http://127.0.0.1:3100/ready            # loki
 
 - **WHEN** 开发者执行上述健康检查命令
 - **THEN** 八项依赖（MySQL/Redis/RabbitMQ/etcd/Jaeger/otel-collector/Prometheus/Loki）各自返回成功响应，即可启动 Go 服务
+
+### Requirement: 数据库迁移（goose）
+
+业务库结构 SHALL 由 pressly/goose 管理：
+
+- 迁移脚本位于 `sql/migrations/<db>/`（12 个业务库各一目录：`00001_schema.sql` 建表 + `00002_seed.sql` 演示种子数据，后者仅 9 个有种子数据的库存在）
+- 第三方基建库（gogs/nacos/seata/xxl_job）不归 goose 管理，由 `sql/thirdparty/` 脚本初始化
+- goose 不建库：迁移前须先执行 `sql/bootstrap.sql`（docker 首次启动自动执行）
+
+#### Scenario: 全量应用迁移
+
+- **WHEN** 开发者执行 `make migrate-up`（或单库 `goose -dir sql/migrations/<db> mysql "<DSN>/tj_<db>" up`）
+- **THEN** 各业务库按序应用 schema 与 seed 迁移，goose 在库内记录版本表 `goose_db_version`
+- **AND** 回退用 `make migrate-down`（每库回退 MIGRATE_STEPS 步，默认 1），状态查看用 `make migrate-status`
+
+#### Scenario: 已有旧数据的环境
+
+- **WHEN** 本地库由旧版初始化脚本（含建表）灌入而非 goose 初始化
+- **THEN** 直接 `make migrate-up` 因表已存在而失败（防护），需清空数据卷重建后迁移
 
 ### Requirement: 数据持久化
 

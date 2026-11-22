@@ -334,7 +334,7 @@ trade 数据库 `tj_trade` SHALL 包含 5 张表：
 - order.pay_order_no → tj_pay.pay_order；refund_apply.refund_order_no → tj_pay.refund_order（跨库，无外键）
 - `*_gen.go` 由 goctl 生成禁止修改，扩展方法统一放同名自定义 .go 文件（如 ordermodel.go 扩展 OrderModel）
 
-> 已知缺口：tj_trade 库不含 pay_channel / pay_order / refund_order 表（定义在 `sql/ddl/tj_pay.sql`，trade 经 PayRpc 代理调用 pay 服务，本库不落地支付流水）；undo_log 无对应 model，未接入分布式事务框架。
+> 已知缺口：tj_trade 库不含 pay_channel / pay_order / refund_order 表（定义在 `sql/migrations/pay/00001_schema.sql`，trade 经 PayRpc 代理调用 pay 服务，本库不落地支付流水）；undo_log 无对应 model，未接入分布式事务框架。
 > 注（源冲突）：data-model.md 记载 4 个自定义 Model（cartmodel.go / ordermodel.go / orderdetailmodel.go / refundapplymodel.go）均为 goctl 空壳、仅 Insert / FindOne / Update / Delete 四个基础方法；business-rules.md（v1.1）则记载上述 Model 已补齐分页、聚合、按 user_id 查询、状态更新、双写等扩展方法且编译通过。本规格按 data-model.md 表述记录并如实加注。
 
 #### Scenario: order 表保留字

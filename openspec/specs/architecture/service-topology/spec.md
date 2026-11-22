@@ -167,15 +167,15 @@ Client → media-api → media backend (获取上传签名，RPC 层已折叠)
 一库一服务 SHALL 作为数据域边界，SQL 脚本 SHALL 分目录管理并在发布前同步。
 
 - 库名规则：`tj_<domain>`，每服务独享；data 服务无独立库
-- 纯 DDL：`sql/ddl/tj_<domain>.sql`（goctl model 专用，仅建表/索引）
-- 含数据迁移：`sql/migration/tj_<domain>.sql`（上线执行，含初始数据与结构变更）
-- 版本控制：每次发布前必须同步更新对应 DDL 文件，CI 校验 model 生成无报错
+- 迁移脚本：`sql/migrations/<db>/`（pressly/goose 管理，00001_schema.sql 建表 + 00002_seed.sql 种子数据；后续变更用 `goose create` 追加迁移）
+- 第三方基建：`sql/thirdparty/`（gogs/nacos/seata/xxl_job，不归 goose 管理）
+- 版本控制：每次发布前必须以新增迁移承载变更，`make model` 从迁移 schema 生成并校验无报错
 
 #### Scenario: 表结构变更
 
 - **WHEN** 某域新增表或字段
-- **THEN** `sql/ddl/` 与 `sql/migration/` 两个目录下的同名脚本同时更新
-- **AND** 只更新一处会导致 goctl model 与实际库结构漂移
+- **THEN** 在 `sql/migrations/<db>/` 新增迁移文件（Up/Down 成对）并重新生成 model
+- **AND** 只改迁移不重新生成 model 会导致两者漂移
 
 ### Requirement: 生产部署拓扑
 

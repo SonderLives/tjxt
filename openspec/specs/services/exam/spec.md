@@ -104,7 +104,7 @@ exam 服务 SHALL 暴露以下题目业务关联接口：
 
 > **预留消息**：`PageReq` 在 proto 中已声明，但 `service Exam` 的 7 个方法**均未引用**（分页参数被内联进 `QuestionListReq` / `QuestionBizListReq`），属于预留消息。
 >
-> **实现状态**：RPC 层 7/7、API 层 7/7 logic 已全部实现并编译通过（2026-08-06 复核）；以下各规则为依据 `app/exam/rpc/exam.proto`、`sql/ddl/tj_exam*.sql`、`app/exam/api/exam.api` 契约推导，建议对照源码最终确认。
+> **实现状态**：RPC 层 7/7、API 层 7/7 logic 已全部实现并编译通过（2026-08-06 复核）；以下各规则为依据 `app/exam/rpc/exam.proto`、`sql/migrations/exam/00001_schema.sql`、`app/exam/api/exam.api` 契约推导，建议对照源码最终确认。
 
 消费方 SHALL 为 `exam-api` 自身 API 层（HTTP Handler → `examclient.Exam` RPC，7 个接口全部走自身 RPC）。
 
@@ -369,7 +369,7 @@ exam 服务 SHALL 暴露以下题目业务关联接口：
 
 ### Requirement: 数据模型与存储不变量
 
-exam 域 SHALL 使用 MySQL `tj_exam` 库，DDL 有两份文件：`sql/ddl/tj_exam.sql`（完整库结构，含 Seata 事务基础设施表）与 `sql/ddl/tj_exam_business.sql`（仅业务表，剔除 `undo_log`，供 goctl 生成 model），两者业务表结构完全一致（差异仅在 `undo_log`、注释详略与 Records 注释块）。model 由 `tj_exam_business.sql` 生成（`questiondetailmodel_gen.go` 中 `Answer` 字段注释为简写版，可判定），3 张业务表已 100% 生成 model 并在 `app/exam/rpc/internal/svc/servicecontext.go:12-14` 完成注入。数据表清单：
+exam 域 SHALL 使用 MySQL `tj_exam` 库，schema 由 goose 迁移 `sql/migrations/exam/00001_schema.sql` 管理（表集合与真实库一致，含 Seata AT 基础表 `undo_log`）。goctl 无法解析无主键的 `undo_log`（历史上由独立的 ddl 业务表变体文件承担生成源，该变体已退役），现 `make model` 生成时自动剥除 `undo_log`，3 张业务表已 100% 生成 model 并在 `app/exam/rpc/internal/svc/servicecontext.go:12-14` 完成注入，`undo_log` 无对应 model。数据表清单：
 
 | 表 | 职责 | 关键结构 |
 |----|------|---------|
@@ -378,7 +378,7 @@ exam 域 SHALL 使用 MySQL `tj_exam` 库，DDL 有两份文件：`sql/ddl/tj_ex
 | `question_biz` | 问题与业务关联表（多对多） | 唯一索引 `(biz_id, question_id)`；主键自增（AUTO_INCREMENT 起始 147，说明原始 Java 版已有历史数据）；`biz_id`/`question_id` 均可空 |
 | `undo_log` | Seata AT 事务回滚日志表（仅 `tj_exam.sql`） | 无主键，唯一索引 `(xid, branch_id)`；`utf8 / utf8_general_ci`、`ROW_FORMAT=COMPACT`（Seata 官方脚本原样保留） |
 
-> **范围说明**：exam 域数据模型实际仅含上述 4 张表；转换任务描述中提及的 `paper` / `paper_question` / `exam` / `answer_sheet` 等组卷/考试表在 data-model.md（源自 `sql/ddl/tj_exam.sql`、`sql/ddl/tj_exam_business.sql`）中**不存在**，本规格不虚构。
+> **范围说明**：exam 域数据模型实际仅含上述 4 张表；转换任务描述中提及的 `paper` / `paper_question` / `exam` / `answer_sheet` 等组卷/考试表在 data-model.md（源自 exam 域迁移 schema `sql/migrations/exam/00001_schema.sql`）中**不存在**，本规格不虚构。
 
 数据不变量（SHALL 满足）：
 
