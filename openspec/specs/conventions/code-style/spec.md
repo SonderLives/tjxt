@@ -28,7 +28,7 @@ Go 源码 SHALL 遵守以下基础规范，并在提交前执行 `make fmt`。
 
 ### Requirement: 错误处理
 
-错误 SHALL 统一用 `pkg/errorx` 包装后返回，禁止裸返回 error 或用 `fmt.Errorf` 包装标准库错误。
+错误 SHALL 统一用 `common/errorx` 包装后返回，禁止裸返回 error 或用 `fmt.Errorf` 包装标准库错误。
 
 ```go
 // ✅ 统一用 errorx 包装
@@ -87,10 +87,10 @@ return nil, fmt.Errorf("db error: %w", err)
 
 ### Requirement: 标准包布局
 
-服务目录 SHALL 保持 go-zero 生成的标准布局（13 个服务统一为顶层 `api/<svc>`、`rpc/<svc>` 两类模块目录）。
+服务目录 SHALL 保持 go-zero 生成的标准布局（13 个服务统一为顶层 `service/<svc>/api`、`service/<svc>/rpc` 两类模块目录）。
 
 ```
-api/<svc>/                      # HTTP API 服务（module: tjxt/api/<svc>）
+service/<svc>/api/                      # HTTP API 服务（module: tjxt/service/<svc>/api）
 ├── <svc>.api                  # API 定义（源头）
 ├── etc/<svc>-api.yaml         # API 配置
 ├── internal/
@@ -101,7 +101,7 @@ api/<svc>/                      # HTTP API 服务（module: tjxt/api/<svc>）
 │   └── types/                 # goctl 生成，请求响应结构体
 └── <svc>.go                   # main 入口
 
-rpc/<svc>/                      # RPC 服务（module: tjxt/rpc/<svc>）
+service/<svc>/rpc/                      # RPC 服务（module: tjxt/service/<svc>/rpc）
 ├── <svc>.proto                # Proto 定义（源头）
 ├── <svc>.go                   # main 入口
 ├── etc/<svc>.yaml             # RPC 配置
@@ -111,10 +111,10 @@ rpc/<svc>/                      # RPC 服务（module: tjxt/rpc/<svc>）
 └── pb/                        # 生成的 pb.go
 ```
 
-公共库 `pkg/` 约定：
+公共库 `common/` 约定：
 
 ```
-pkg/
+common/
 ├── auth/          # JWT 上下文工具
 ├── mq/            # RabbitMQ 生产者/消费者封装
 ├── response/      # 统一响应 R{Code,Msg,RequestId,Data}
@@ -127,8 +127,8 @@ pkg/
 #### Scenario: data 服务的配置路径
 
 - **WHEN** 定位 data 服务的配置与入口
-- **THEN** 使用 `api/data/etc/data-api.yaml`（data 的 RPC 层已折叠进 api/data/backend，`rpc/data/etc/data.yaml` 已随折叠删除）
-- **AND** 13 个服务布局完全同构：API 配置统一为 `api/<svc>/etc/`，保留 RPC 另有 `rpc/<svc>/etc/`（仅 user/course/learning/pay/promotion）
+- **THEN** 使用 `service/data/api/etc/data-api.yaml`（data 的 RPC 层已折叠进 service/data/api/backend，`service/data/rpc/etc/data.yaml` 已随折叠删除）
+- **AND** 13 个服务布局完全同构：API 配置统一为 `service/<svc>/api/etc/`，保留 RPC 另有 `service/<svc>/rpc/etc/`（仅 user/course/learning/pay/promotion）
 
 ### Requirement: Import 规则
 
@@ -155,13 +155,13 @@ import (
 禁止项：
 
 - 相对路径 import（`import "../logic"`）
-- 跨服务 import `internal`（`import "tjxt/service/user/api/internal/logic"`）
+- 跨服务 import `internal`（`import "tjxt/service/user/rpc/internal/logic"`）
 - 循环依赖
 
 #### Scenario: 跨服务复用能力
 
 - **WHEN** 服务 A 需要服务 B 的能力
-- **THEN** 通过 B 的 RPC client（`tjxt/rpc/<b>/client/<b>`）调用，或经 MQ 事件解耦
+- **THEN** 通过 B 的 RPC client（`tjxt/service/<svc>/rpc/client/<svc>`）调用，或经 MQ 事件解耦
 - **AND** import B 的 `internal` 包一律视为违规，Code Review 应拒绝
 
 ### Requirement: 测试与文件头约定

@@ -27,7 +27,7 @@
 
 ### Requirement: 服务 yaml 注入约定（勿删）
 
-每个服务 `api/<svc>/etc/*.yaml` 与 `rpc/<svc>/etc/*.yaml` SHALL 保留以下三段注入配置，禁止删除或改坏字段：
+每个服务 `service/<svc>/api/etc/*.yaml` 与 `service/<svc>/rpc/etc/*.yaml` SHALL 保留以下三段注入配置，禁止删除或改坏字段：
 
 ```yaml
 Log:
@@ -82,15 +82,15 @@ Telemetry:
 | 文件 | 作用 |
 |------|------|
 | `docker-compose.yml` | 起 jaeger / otel-collector / prometheus / loki 四个可观测容器 |
-| `deployments/otel-collector/config.yaml` | collector 全配置：3 receiver、2 processor、3 条管线（traces/metrics/logs） |
-| `deployments/prometheus/prometheus.yml` | Prometheus 仅抓 `otel-collector:8889` + 自身 |
-| `deployments/loki/loki-config.yaml` | Loki 单实例最小配置（filesystem + inmemory ring，`auth_enabled:false`） |
-| `api/**/etc/*.yaml` + `rpc/**/etc/*.yaml`（×26） | 各服务注入 `Telemetry` / `Prometheus` / `Log` 三段 |
+| `deploy/otel-collector/config.yaml` | collector 全配置：3 receiver、2 processor、3 条管线（traces/metrics/logs） |
+| `deploy/prometheus/prometheus.yml` | Prometheus 仅抓 `otel-collector:8889` + 自身 |
+| `deploy/loki/loki-config.yaml` | Loki 单实例最小配置（filesystem + inmemory ring，`auth_enabled:false`） |
+| `service/*/api/etc/*.yaml` + `service/*/rpc/etc/*.yaml`（×18） | 各服务注入 `Telemetry` / `Prometheus` / `Log` 三段 |
 
 #### Scenario: 重新生成骨架不丢配置
 
 - **WHEN** 开发者对某服务执行 `goctl api go` 或 `goctl rpc protoc` 重新生成骨架
-- **THEN** `deployments/` 下的 collector/Prometheus/Loki 配置与服务 yaml 中的三段注入配置均不受影响（goctl 只刷新 types/routes/pb/server）
+- **THEN** `deploy/` 下的 collector/Prometheus/Loki 配置与服务 yaml 中的三段注入配置均不受影响（goctl 只刷新 types/routes/pb/server）
 
 ### Requirement: 端口与起停
 

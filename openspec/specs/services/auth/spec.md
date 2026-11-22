@@ -4,7 +4,7 @@
 
 auth（认证授权）是认证域的基础微服务，职责为「RBAC 权限模型（角色 / 菜单 / 权限 / 角色-菜单、角色-权限、账户-角色绑定）+ JWT 令牌签发 + 登录记录审计」。HTTP API 层 `auth-api` 监听 `0.0.0.0:8802`，RPC 服务 `Auth` 监听 `0.0.0.0:8082`（gRPC），经 etcd 以 key `auth.rpc` 注册与发现。数据存储于 MySQL `tj_auth` 库（`role` / `menu` / `privilege` / `role_menu` / `role_privilege` / `account_role` / `login_record` 七张表），角色/菜单/权限数据由 Redis 缓存托管（node 单机模式）。登录链路上 `auth-api` 依赖 `user.rpc` 的 `LoginVerify` 核验用户凭证，核验通过后由自身 `Auth.SignToken` 签发 JWT；`learning-api` 推测使用 `authclient` 进行 token 校验。
 
-> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/auth`，`auth.rpc` :8082）已删除，RPC 层业务实现随迁 `api/auth/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `api/auth/auth.proto`，pb 类型由 `make pb`（buf generate）再生成到 `api/auth/backend/pb/`。下文涉及「RPC 服务 / rpc/auth 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/auth`，`auth.rpc` :8082）已删除，RPC 层业务实现随迁 `service/auth/api/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `service/auth/api/auth.proto`，pb 类型由 `make pb`（buf generate）再生成到 `service/auth/api/backend/pb/`。下文涉及「RPC 服务 / rpc/auth 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
 
 ## Requirements
 
@@ -21,7 +21,7 @@ auth 服务 SHALL 暴露以下登录与令牌管理接口：
 | POST | /accounts/logout | 退出登录 | - | R{data: R} |
 | GET | /accounts/refresh | 刷新token | - | R{data: R«string»} |
 
-统一约定（引用全局规范）：响应格式为 `pkg/response.R{Code,Msg,RequestId,Data any}`；分页为 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码见共享错误码表（`specs/shared/error-codes`）。
+统一约定（引用全局规范）：响应格式为 `common/response.R{Code,Msg,RequestId,Data any}`；分页为 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码见共享错误码表（`specs/shared/error-codes`）。
 
 #### Scenario: 登录并获取 token
 
@@ -118,7 +118,7 @@ auth 服务 SHALL 暴露以下角色管理接口：
 
 ### Requirement: RPC 服务契约（Auth 服务）
 
-`Auth` 服务 SHALL 作为身份认证与权限管理微服务经 etcd 服务发现注册（key: `auth.rpc`），监听 `0.0.0.0:8082`（gRPC），方法按以下六个域提供（proto 来源 `rpc/auth/auth.proto`）。
+`Auth` 服务 SHALL 作为身份认证与权限管理微服务经 etcd 服务发现注册（key: `auth.rpc`），监听 `0.0.0.0:8082`（gRPC），方法按以下六个域提供（proto 来源 `service/auth/rpc/auth.proto`）。
 
 **角色管理**：
 
@@ -194,7 +194,7 @@ auth 服务 SHALL 暴露以下角色管理接口：
 - **WHEN** 登录成功后异步调用 `SaveLoginRecord`
 - **THEN** 系统记录登录时间 / IP，插入失败不抛异常（规则见「登录记录规则」）
 
-> 注：auth 服务是认证域的基础设施，多数其他服务的 handler 中通过 middleware/jwt 使用 auth rpc 做鉴权，但具体 import 路径需看 `api/*/internal/middleware/jwt`；`learning-api` 的消费方式在源文件中为推测表述。
+> 注：auth 服务是认证域的基础设施，多数其他服务的 handler 中通过 middleware/jwt 使用 auth rpc 做鉴权，但具体 import 路径需看 `service/*/api/internal/middleware/jwt`；`learning-api` 的消费方式在源文件中为推测表述。
 
 ### Requirement: RBAC 角色管理规则
 
@@ -332,7 +332,7 @@ auth 服务 SHALL 暴露以下角色管理接口：
 
 ### Requirement: JWT 令牌签发规则
 
-令牌签发 SHALL 使用 `pkg/auth` 工具包的 `Sign` 方法签发 JWT，配置默认值如下：
+令牌签发 SHALL 使用 `common/auth` 工具包的 `Sign` 方法签发 JWT，配置默认值如下：
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
@@ -414,7 +414,7 @@ auth 服务 SHALL 将数据存储于 MySQL `tj_auth` 库（DDL 来源 `sql/ddl/t
 
 ### Requirement: 服务配置与端口
 
-auth 服务 SHALL 按以下默认配置部署（API：`api/auth/etc/auth-api.yaml`；RPC：`rpc/auth/etc/auth.yaml`）：
+auth 服务 SHALL 按以下默认配置部署（API：`service/auth/api/etc/auth-api.yaml`；RPC：`service/auth/rpc/etc/auth.yaml`）：
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|

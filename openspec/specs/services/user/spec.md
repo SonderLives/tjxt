@@ -21,7 +21,7 @@ user 服务 SHALL 暴露以下用户信息管理接口：
 | GET | /users/{id} | 根据id查询用户信息 | - | R{data: R«UserDTO»} |
 | PUT | /users/{id} | 更新用户信息 | UserDTO | R{data: R} |
 
-统一约定（引用全局规范）：响应格式为 `pkg/response.R{Code,Msg,RequestId,Data any}`；分页为 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码见共享错误码表（`specs/shared/error-codes`）。
+统一约定（引用全局规范）：响应格式为 `common/response.R{Code,Msg,RequestId,Data any}`；分页为 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码见共享错误码表（`specs/shared/error-codes`）。
 
 #### Scenario: 新增用户
 
@@ -109,7 +109,7 @@ user 服务 SHALL 暴露以下密码与状态管理接口：
 
 `UserPageRequest` 关键字段：`page_no`（< 1 归一化为 1）、`page_size`（缺省 10，上限 100）、`sort_by`（排序白名单：name / status / id，其它落回 create_time）、`is_asc`（true 升序，false 降序）、`name`（姓名模糊匹配 `d.name like %?%`）、`phone`（手机号模糊匹配 `u.cell_phone like %?%`）、`status`（负值表示不过滤）。响应 VO 独有字段：`StudentPageVO`（gender, course_amount）、`TeacherPageVO`（photo, job, intro, course_amount, exam_question_amount）、`StaffVO`（role_id, role_name）。
 
-消费方 SHALL 为 `user-api` 自身 API 层（`api/user/internal/svc/servicecontext.go` import `userclient "tjxt/service/user/rpc/client/user"`，用户管理全部 HTTP 接口最终走自身 RPC）与 `auth-api`（`api/auth/internal/svc/servicecontext.go` import 同一 client，登录接口 `api/auth/internal/logic/account/loginlogic.go:32` 调用 `LoginVerify` 核验凭证）。user 服务是身份域的基础设施，`user.rpc` 只被上述两个 API 服务在 `svc/servicecontext.go` 中显式装配。
+消费方 SHALL 为 `user-api` 自身 API 层（`service/user/api/internal/svc/servicecontext.go` import `userclient "tjxt/service/user/rpc/client/user"`，用户管理全部 HTTP 接口最终走自身 RPC）与 `auth-api`（`service/auth/api/internal/svc/servicecontext.go` import 同一 client，登录接口 `service/auth/api/internal/logic/account/loginlogic.go:32` 调用 `LoginVerify` 核验凭证）。user 服务是身份域的基础设施，`user.rpc` 只被上述两个 API 服务在 `svc/servicecontext.go` 中显式装配。
 
 #### Scenario: 用户登录核验
 
@@ -365,7 +365,7 @@ user 服务 SHALL 将用户数据存储于 MySQL `tj_user` 库（DDL 来源 `sql
 
 ### Requirement: 服务配置与端口
 
-user 服务 SHALL 按以下默认配置部署（API：`api/user/etc/user-api.yaml`；RPC：`rpc/user/etc/user.yaml`）：
+user 服务 SHALL 按以下默认配置部署（API：`service/user/api/etc/user-api.yaml`；RPC：`service/user/rpc/etc/user.yaml`）：
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
@@ -381,10 +381,10 @@ user 服务 SHALL 按以下默认配置部署（API：`api/user/etc/user-api.yam
 约束：
 
 - `parseTime=true` 是必需项：`UserWithDetail.CreateTime` 声明为 `time.Time`，需要驱动直接把 `datetime` 解析为时间类型
-- RPC 配置结构体（`rpc/user/internal/config/config.go`）内嵌 `zrpc.RpcServerConf`，外加 `DataSource` 与 `Cache`；RPC 层**不含 Jwt 配置**——令牌签发是 auth 服务的职责
-- API 配置结构体（`api/user/internal/config/config.go`）内嵌 `rest.RestConf`，`Auth` 为匿名结构体，`UserRpc` 为 `zrpc.RpcClientConf`
+- RPC 配置结构体（`service/user/rpc/internal/config/config.go`）内嵌 `zrpc.RpcServerConf`，外加 `DataSource` 与 `Cache`；RPC 层**不含 Jwt 配置**——令牌签发是 auth 服务的职责
+- API 配置结构体（`service/user/api/internal/config/config.go`）内嵌 `rest.RestConf`，`Auth` 为匿名结构体，`UserRpc` 为 `zrpc.RpcClientConf`
 - 缓存由 `svc.NewServiceContext` 一次性传给两个模型；`UserDetailModel` 缓存键由 goctl 按 `user_detail` 主键生成
-- `user.rpc` 作为被依赖方，在 `api/user/etc/user-api.yaml`（配置节 `UserRpc`）与 `api/auth/etc/auth-api.yaml`（配置节 `UserRpc`）中均声明为 key `user.rpc` 的客户端
+- `user.rpc` 作为被依赖方，在 `service/user/api/etc/user-api.yaml`（配置节 `UserRpc`）与 `service/auth/api/etc/auth-api.yaml`（配置节 `UserRpc`）中均声明为 key `user.rpc` 的客户端
 - 可观测性注入配置（**已注入勿删**，configs.md 未记录、以实际 yaml 为准）：`Log`、`Prometheus`、`Telemetry` 已注入 `user-api.yaml` 与 `user.yaml`，本规格不展开
 
 #### Scenario: API 层经 etcd 调用自身 RPC

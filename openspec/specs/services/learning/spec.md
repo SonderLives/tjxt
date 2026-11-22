@@ -21,9 +21,9 @@ learning-api SHALL 提供以下课表接口（均经 `LearningRpc` 转发）：
 
 补充约束：
 
-- 响应统一为 `pkg/response.R{Code,Msg,RequestId,Data any}`；分页约定 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码遵循共享错误码规范
+- 响应统一为 `common/response.R{Code,Msg,RequestId,Data any}`；分页约定 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码遵循共享错误码规范
 - 按 configs.md 记载，learning-api 全部路由声明 `@server (jwt: Auth)`（`Auth.AccessExpire` 7200 秒），`Auth.AccessSecret` 须与 auth.rpc 签发密钥一致（聚合文档 `docs/tjxt.openapi.json` 将上述端点认证列标注为「否」，以配置记载为准）
-- `LessonCount` 为公开统计，无需登录；其余接口经 `pkg/auth.UserIdFromCtx(l.ctx)` 从 JWT 取 `user_id`
+- `LessonCount` 为公开统计，无需登录；其余接口经 `common/auth.UserIdFromCtx(l.ctx)` 从 JWT 取 `user_id`
 
 > 已知缺口：`DELETE /lessons/{courseId}` 在聚合文档中列为「删除指定课程信息」，Service 与 Model 已实现 `RemoveLesson`（置 status=3），但 `learning.proto` 未定义对应 RPC 方法、`learning.api` 也未声明该 handler——能力已在下层就绪，上层未打通（需补 proto/api）。
 
@@ -185,7 +185,7 @@ learning-api SHALL 按聚合文档提供以下积分与签到接口：
 
 learning SHALL 在 Service 层（`internal/service/learning.go`）委托 Model 前完成参数校验，并做 `errorx` 错误映射；Logic 层负责身份提取：
 
-- Logic 层身份提取：用户相关接口经 `pkg/auth.UserIdFromCtx(l.ctx)` 从 JWT 取 `user_id`；内部事件接口 `GrantCourses` / `RevokeCourses` 的 `user_id` 取自请求体（来自 trade 内部 RPC，非 JWT）；`LessonCount` 为公开统计，无需登录
+- Logic 层身份提取：用户相关接口经 `common/auth.UserIdFromCtx(l.ctx)` 从 JWT 取 `user_id`；内部事件接口 `GrantCourses` / `RevokeCourses` 的 `user_id` 取自请求体（来自 trade 内部 RPC，非 JWT）；`LessonCount` 为公开统计，无需登录
 - Service 层参数校验：
 
 | 规则 | 触发条件 | 返回 |

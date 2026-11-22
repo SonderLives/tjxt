@@ -12,9 +12,9 @@ openspec/
 │   ├── architecture/       # 跨服务架构：service-topology（依赖拓扑/调用链/契约原则/部署视图）
 │   ├── conventions/       # 工程约定：goctl-codegen / api-contracts / code-style / git-workflow
 │   ├── shared/            # 跨服务共享契约
-│   │   ├── error-codes/   # pkg/errorx 统一错误码
+│   │   ├── error-codes/   # common/errorx 统一错误码
 │   │   ├── mq-events/     # RabbitMQ 事件总线契约
-│   │   └── pkg-contracts/ # pkg/ 公共库契约（auth/response/page/idgen/mq）
+│   │   └── pkg-contracts/ # common/ 公共库契约（auth/response/page/idgen/mq）
 │   └── infra/             # 基础设施规格
 │       ├── observability/ # otel-collector 三信号收口（trace/metrics/logs）
 │       ├── local-env/     # docker-compose 本地环境（8 容器 + 端口 + 健康检查）

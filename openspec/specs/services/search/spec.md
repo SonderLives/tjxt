@@ -4,7 +4,7 @@
 
 search（搜索推荐）定位为全文检索与课程推荐微服务（RPC 服务名 `Search`），但截至当前提交实际落地的职责仅为用户兴趣标签的存取。API 层 `search-api`（HTTP :8810）的 2 个 /interests 接口全部转发至自身 RPC `search.rpc`（gRPC :8090，etcd 服务发现 key `search.rpc`），proto 仅定义 `SaveInterests` / `GetInterests` 2 个兴趣方法。数据落在 MySQL `tj_search` 库的单表 `interests`（Redis 做主键缓存），未接入 Elasticsearch——全仓无 ES 依赖与配置，检索/推荐主职责（含 openapi 规划的 `GET /interests/{id}/courses` 课程 TOP10）均未落地，course → search 索引同步事件在 mq-events 中亦未定义。
 
-> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/search`，`search.rpc` :8090）已删除，RPC 层业务实现随迁 `api/search/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `api/search/search.proto`，pb 类型由 `make pb`（buf generate）再生成到 `api/search/backend/pb/`。**MQ 消费者归属 app/mq**：原挂在 RPC 进程内的 course.up/down ES 同步消费者已独立为 `app/mq/search-mq`（metrics :9110，复用 `api/search/backend/svc`，消费 `course.up/down` 写/删 ES 索引，启动时全量重建兜底）——search 现已接入 Elasticsearch（docker-compose 内置 ES 9.4.1），下文「未接入 ES / 无 MQ」的段落为折叠前形态记录。
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/search`，`search.rpc` :8090）已删除，RPC 层业务实现随迁 `service/search/api/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `service/search/api/search.proto`，pb 类型由 `make pb`（buf generate）再生成到 `service/search/api/backend/pb/`。**MQ 消费者归属 app/mq**：原挂在 RPC 进程内的 course.up/down ES 同步消费者已独立为 `app/mq/search-mq`（metrics :9110，复用 `service/search/api/backend/svc`，消费 `course.up/down` 写/删 ES 索引，启动时全量重建兜底）——search 现已接入 Elasticsearch（docker-compose 内置 ES 9.4.1），下文「未接入 ES / 无 MQ」的段落为折叠前形态记录。
 
 ## Requirements
 
@@ -17,7 +17,7 @@ search（搜索推荐）定位为全文检索与课程推荐微服务（RPC 服�
 | GET | /interests | 查询我的兴趣爱好 | R«List«CategoryBasicDTO»» |
 | POST | /interests | 新增兴趣爱好 | R |
 
-- 统一约定（引用全局规范）：响应格式 `pkg/response.R{Code,Msg,RequestId,Data any}`；分页 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码见共享错误码表（见 `openspec/specs/shared/error-codes`）
+- 统一约定（引用全局规范）：响应格式 `common/response.R{Code,Msg,RequestId,Data any}`；分页 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码见共享错误码表（见 `openspec/specs/shared/error-codes`）
 - openapi 聚合文档中三个接口认证列均标注「否」，但 `search.api` 实际为 `@server (jwt: Auth, group: interests)`，`routes.go` 内 `rest.WithJwt`——两个 /interests 接口均需登录
 
 > 注（与 search.api 的出入）：`search.api` 中保存兴趣用的是 **`PUT /interests`**（入参 `SaveInterestsReq` 仅含 `Interests` 字段），而非 openapi 记录的 `POST /interests`；openapi 侧 `GET /interests` 响应为 `List<CategoryBasicDTO>`（分类对象列表），`search.api` 侧为单个 `InterestsVO`（逗号串）。二者尚未对齐。
@@ -42,7 +42,7 @@ search（搜索推荐）定位为全文检索与课程推荐微服务（RPC 服�
 |------|------|------|--------|
 | GET | /interests/{id}/courses | 根据二级分类id查询课程TOP10 | R«List«CourseVO»» |
 
-> 已知缺口：`docs/tjxt.openapi.json` 记录了该接口，但 `api/search/search.api` 与 `rpc/search/search.proto` **均未定义**，属于设计已规划、代码未落地的部分；实现还需引入 course RPC 客户端（当前缺失）。
+> 已知缺口：`docs/tjxt.openapi.json` 记录了该接口，但 `service/search/api/search.api` 与 `service/search/rpc/search.proto` **均未定义**，属于设计已规划、代码未落地的部分；实现还需引入 course RPC 客户端（当前缺失）。
 
 #### Scenario: 按二级分类查课程 TOP10（未落地）
 
@@ -56,9 +56,9 @@ search 服务 SHALL 以 gRPC 服务名 `Search` 注册于 etcd（key `search.rpc
 
 | 消费方 | 调用方式 | 说明 |
 |--------|---------|------|
-| `search-api`（自身 API 层） | HTTP Handler → `searchclient.Search` RPC | `api/search/internal/svc/servicecontext.go` 注入 `SearchRpc`，2 个 HTTP 接口全部指向自身 RPC |
+| `search-api`（自身 API 层） | HTTP Handler → `searchclient.Search` RPC | `service/search/api/internal/svc/servicecontext.go` 注入 `SearchRpc`，2 个 HTTP 接口全部指向自身 RPC |
 
-> 已知缺口：全仓 Grep `rpc/search/search` / `searchclient` / `SearchRpc`，除 `api/search/`、`rpc/search/` 自身外**无其它服务引用**；`specs/architecture/service-topology` 中标注的 `search-rpc --> AuthRPC` 依赖在代码中不存在——`rpc/search/internal/config/config.go` 未定义任何 RPC 客户端配置项。
+> 已知缺口：全仓 Grep `service/search/rpc/search` / `searchclient` / `SearchRpc`，除 `service/search/api/`、`service/search/rpc/` 自身外**无其它服务引用**；`specs/architecture/service-topology` 中标注的 `search-rpc --> AuthRPC` 依赖在代码中不存在——`service/search/rpc/internal/config/config.go` 未定义任何 RPC 客户端配置项。
 
 #### Scenario: search-api handler 转发
 
@@ -150,7 +150,7 @@ search 服务的两个 /interests 接口 SHALL 均要求登录且 userId 只能�
 
 - 两个接口均需登录：`search.api` 中 `@server (jwt: Auth, group: interests)`，`routes.go` 内 `rest.WithJwt`，无匿名接口
 - userId 只能来自 JWT：`search.api` 的 `SaveInterestsReq` **只有 `Interests` 一个字段**、无 id，请求体无法指定他人 id，从设计上杜绝越权写
-- RPC 层无鉴权：`rpc/search/internal/config/config.go` 无 JWT 配置，RPC 信任调用方传入的 `id`，仅限集群内访问
+- RPC 层无鉴权：`service/search/rpc/internal/config/config.go` 无 JWT 配置，RPC 信任调用方传入的 `id`，仅限集群内访问
 
 接口鉴权清单：
 
@@ -230,7 +230,7 @@ search 服务 SHALL 将数据持久化于 MySQL `tj_search` 库（当前仅 1 �
 |----|------|---------|
 | `interests` | 用户兴趣表，保存感兴趣的二级分类 id | `id`（bigint，主键即用户 id）、`interests`（varchar(255)，逗号分隔二级分类 id，可空）、`create_time`（自动填充）/ `update_time`（自动更新） |
 
-- Model 在 `rpc/search/internal/svc/servicecontext.go` 中通过 `sqlx.NewMysql(c.DataSource)` + `c.Cache` 注入，走带缓存的 `sqlc.CachedConn`
+- Model 在 `service/search/rpc/internal/svc/servicecontext.go` 中通过 `sqlx.NewMysql(c.DataSource)` + `c.Cache` 注入，走带缓存的 `sqlc.CachedConn`
 - 缓存 key 前缀（`interestsmodel_gen.go` 中定义）：`Interests` → `cache:interests:id:`
 - 关系（跨库无外键）：`interests (1) ─── (1) user`（id 即 user 域的用户 id）；`interests` 字段内的二级分类 id 串逻辑指向 course 域的分类表（跨库、跨服务，无外键、无 RPC 调用）
 - `tj_search` 库中只有一张表，库内无任何表间关系
@@ -268,7 +268,7 @@ search 服务的存储层 SHALL 满足以下不变量：
 
 ### Requirement: 服务配置与依赖
 
-search 服务 SHALL 按以下配置运行（`api/search/etc/search-api.yaml`、`rpc/search/etc/search.yaml`）：
+search 服务 SHALL 按以下配置运行（`service/search/api/etc/search-api.yaml`、`service/search/rpc/etc/search.yaml`）：
 
 | 服务 | 配置项 | 默认值 |
 |------|--------|--------|
@@ -285,7 +285,7 @@ search 服务 SHALL 按以下配置运行（`api/search/etc/search-api.yaml`、`
 - JWT：search 只在 API 层校验不签发，`Auth.AccessSecret` 必须与 auth 服务的 `Jwt.AccessSecret` 保持一致，否则 `/interests` 两个接口全部 401；`Auth.AccessExpire` 仅作为配置项被反序列化，代码内无签发逻辑引用；生产环境必须修改默认值 `change-me-in-production`
 - RPC config 结构体为 `zrpc.RpcServerConf` + `DataSource string` + `Cache cache.CacheConf`；未配置 JWT 段，也未配置任何 RPC 客户端——RPC 层不鉴权、不外调
 
-> 已知缺口（缺失的外部依赖配置）：Elasticsearch 无任何配置项（`config.go` 无 ES 字段、`go.mod` 无 ES 客户端依赖），服务当前不具备任何全文检索能力，实际只是 `interests` 单表的 CRUD 外壳；course RPC 客户端缺失，`GET /interests/{id}/courses` 无法实现；MQ / Kafka 缺失，无法消费 course 域事件做索引同步。引入 ES 时需同步改动：`search.yaml`（新增 ES 段）、`rpc/search/internal/config/config.go`（新增字段）、`servicecontext.go`（注入 client）、`rpc/search/go.mod`（新增依赖）。
+> 已知缺口（缺失的外部依赖配置）：Elasticsearch 无任何配置项（`config.go` 无 ES 字段、`go.mod` 无 ES 客户端依赖），服务当前不具备任何全文检索能力，实际只是 `interests` 单表的 CRUD 外壳；course RPC 客户端缺失，`GET /interests/{id}/courses` 无法实现；MQ / Kafka 缺失，无法消费 course 域事件做索引同步。引入 ES 时需同步改动：`search.yaml`（新增 ES 段）、`service/search/rpc/internal/config/config.go`（新增字段）、`servicecontext.go`（注入 client）、`service/search/rpc/go.mod`（新增依赖）。
 >
 > 可观测性注入配置（Telemetry / Prometheus / Log 三段）：两份 yaml 中已注入勿删（约定见 `openspec/specs/infra/observability`）。
 
