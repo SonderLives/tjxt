@@ -6,7 +6,10 @@ services:
     ports: ["3306:3306"]
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./sql/migration:/docker-entrypoint-initdb.d:ro
+      # 第三方基建库（gogs/nacos/seata/xxl_job，自带 CREATE DATABASE）+ 业务库建库引导；
+      # 业务库表结构与种子数据由 goose 管理：容器起来后执行 make migrate-up。
+      - ./sql/thirdparty:/docker-entrypoint-initdb.d:ro
+      - ./sql/bootstrap.sql:/docker-entrypoint-initdb.d/00-bootstrap.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD:-0000}"]
       interval: 10s
