@@ -188,7 +188,7 @@ Client → media-api → media-rpc (获取上传签名)
 - 可观测性：OpenTelemetry Collector 作为 trace/metrics/logs 统一入口；Jaeger（链路）/ Prometheus + Grafana（指标）/ Loki + Grafana（日志）
 - 本地形态：上述生产拓扑在本地退化为 `docker-compose` 的 8 容器（MySQL / Redis / RabbitMQ / etcd / Jaeger / otel-collector / Prometheus / Loki），Go 服务在宿主机直跑
 
-> 已知缺口：仓库当前仅有 `docker-compose.yml` 与 `deploy/` 下的 collector / prometheus / loki 配置，**尚无 K8s 编排清单**；`Auth.AccessSecret` 等敏感值仍以明文写在 `etc/*.yaml`（开发默认 `change-me-in-production`），上生产前须改为 Secret 注入。
+> 已知缺口：仓库当前仅有 `docker-compose.yml` 与 `deployments/` 下的 collector / prometheus / loki 配置，**尚无 K8s 编排清单**；`Auth.AccessSecret` 等敏感值仍以明文写在 `etc/*.yaml`（开发默认 `change-me-in-production`），上生产前须改为 Secret 注入。
 
 #### Scenario: 从本地切换到生产
 

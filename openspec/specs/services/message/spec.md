@@ -112,9 +112,9 @@ message（消息通知）是站内信与通知微服务（gRPC 服务名 `Messag
 
 | 消费方 | 调用方式 | 说明 |
 |--------|---------|------|
-| `message-api`（自身 API 层） | HTTP Handler → `messageclient.Message` RPC（`apps/message/api/internal/svc/servicecontext.go` 注入 `MessageRpc`） | 18 个 HTTP 接口全部指向自身 RPC |
+| `message-api`（自身 API 层） | HTTP Handler → `messageclient.Message` RPC（`api/message/internal/svc/servicecontext.go` 注入 `MessageRpc`） | 18 个 HTTP 接口全部指向自身 RPC |
 
-> 已知缺口（跨域通知链路未落地）：全仓 Grep `apps/message/rpc/message` / `messageclient` / `MessageRpc`，除 `apps/message/` 自身外无其它服务引用。`specs/shared/mq-events` 与 `00-architecture/service-topology.md` 中描述的 pay-rpc / trade-rpc / learning-rpc / promotion-rpc → message-rpc 通知链路，目前在代码中尚无对应 import 或 MQ 消费者实现——即 message 并未消费任何其它域事件（订单、课程学习等业务事件触发通知）来驱动 `SendNotice`，该写入口当前仅由契约定义。
+> 已知缺口（跨域通知链路未落地）：全仓 Grep `rpc/message/message` / `messageclient` / `MessageRpc`，除 `api/message/`、`rpc/message/` 自身外无其它服务引用。`specs/shared/mq-events` 与 `00-architecture/service-topology.md` 中描述的 pay-rpc / trade-rpc / learning-rpc / promotion-rpc → message-rpc 通知链路，目前在代码中尚无对应 import 或 MQ 消费者实现——即 message 并未消费任何其它域事件（订单、课程学习等业务事件触发通知）来驱动 `SendNotice`，该写入口当前仅由契约定义。
 
 #### Scenario: message-api handler 转发
 
@@ -348,7 +348,7 @@ message（消息通知）是站内信与通知微服务（gRPC 服务名 `Messag
 
 message 服务的 API 层 SHALL 为纯转发层：
 
-- API 全部转发 RPC：`apps/message/api/internal/svc/servicecontext.go` 注入 `MessageRpc`，API 层不直连数据库，仅做 DTO 转换
+- API 全部转发 RPC：`api/message/internal/svc/servicecontext.go` 注入 `MessageRpc`，API 层不直连数据库，仅做 DTO 转换
 - 全部接口需登录：`message.api` 六个 `@server` 块均声明 `jwt: Auth`，对应 `routes.go` 六处 `rest.WithJwt(serverCtx.Config.Auth.AccessSecret)`，无匿名接口
 - API 比 RPC 少 1 个方法：HTTP 18 个 vs RPC 19 个，`SendNotice` 仅暴露为 RPC，不对外提供 HTTP 入口
 - 分页参数类型不一致：api `PageReq{PageNo,PageSize int64}` vs proto `PageReq{pageNo,pageSize int32}`，API → RPC 转换时需做 int64 → int32 收窄
@@ -392,7 +392,7 @@ Model 层与缓存：
 | `PublicNotice` | `public_notice` | `cache:publicNotice:id:` | 无（空壳） |
 | （缺失） | `notice_task_target` | - | 未生成 Model，复合主键不受 goctl 支持，需手写 SQL 访问 |
 
-> 已知缺口（模型层）：以 data-model.md 为准——6 个自定义 Model 文件（`apps/message/rpc/internal/model/`）当前均为 goctl 生成的空壳，可用方法仅为 `Insert` / `FindOne`（带缓存）/ `Update` / `Delete` 四个基础方法；实现 RPC 分页/列表能力前需补写 `FindPage`（notice_template / notice_task / message_template / public_notice）、`FindPageByUserId`（user_inbox）、`FindAll`（sms_third_platform，按 `priority` 升序）以及 `notice_task_target` 的手写访问层。加注：business-rules.md v1.2（2026-08-06 复核）称 37 个 logic 文件（RPC 19 + API 18）已全部实现且 `go build` 通过，与上述「列表方法尚未定义」的 v1.0 表述存在冲突，以 data-model.md 表述为准、建议对照源码复核。
+> 已知缺口（模型层）：以 data-model.md 为准——6 个自定义 Model 文件（`rpc/message/internal/model/`）当前均为 goctl 生成的空壳，可用方法仅为 `Insert` / `FindOne`（带缓存）/ `Update` / `Delete` 四个基础方法；实现 RPC 分页/列表能力前需补写 `FindPage`（notice_template / notice_task / message_template / public_notice）、`FindPageByUserId`（user_inbox）、`FindAll`（sms_third_platform，按 `priority` 升序）以及 `notice_task_target` 的手写访问层。加注：business-rules.md v1.2（2026-08-06 复核）称 37 个 logic 文件（RPC 19 + API 18）已全部实现且 `go build` 通过，与上述「列表方法尚未定义」的 v1.0 表述存在冲突，以 data-model.md 表述为准、建议对照源码复核。
 >
 > 已知缺口：`docs/tjxt.openapi.json` 未收录 message 服务任何路径，无法作为交叉参照。
 
@@ -433,7 +433,7 @@ message 服务的存储层 SHALL 满足以下不变量：
 
 ### Requirement: 服务配置与依赖
 
-message 服务 SHALL 按以下配置运行（`apps/message/api/etc/message-api.yaml`、`apps/message/rpc/etc/message.yaml`）：
+message 服务 SHALL 按以下配置运行（`api/message/etc/message-api.yaml`、`rpc/message/etc/message.yaml`）：
 
 | 服务 | 配置项 | 默认值 |
 |------|--------|--------|

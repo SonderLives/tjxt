@@ -2,7 +2,7 @@
 
 ## Purpose
 
-统一 tjxt 全部 HTTP 接口（`apps/*/api/*.api` 及其生成的 handler）的响应封装、分页、鉴权、错误码、路由与参数绑定规则，使所有服务的对外 API 表现一致：同一套 `pkg/response.R` 信封、同一套分页结构、同一套 `pkg/xerr` 错误码分段、同一套 RESTful 路由与 `/api/v1` 前缀。本规格是 API 层代码生成与 Code Review 的判定依据。
+统一 tjxt 全部 HTTP 接口（`api/*/*.api` 及其生成的 handler）的响应封装、分页、鉴权、错误码、路由与参数绑定规则，使所有服务的对外 API 表现一致：同一套 `pkg/response.R` 信封、同一套分页结构、同一套 `pkg/xerr` 错误码分段、同一套 RESTful 路由与 `/api/v1` 前缀。本规格是 API 层代码生成与 Code Review 的判定依据。
 
 ## Requirements
 

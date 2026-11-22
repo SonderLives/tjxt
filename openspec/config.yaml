@@ -37,7 +37,7 @@ context: |
   - 只手写：internal/logic/*.go、internal/model/*model.go（Custom 扩展）、业务扩展文件（consts.go/vars.go）
   - 禁止手写：handler、types、routes、pb、server、config 骨架；禁止改 *_gen.go
   - 标准流程：DDL(sql/ddl/tj_<domain>.sql) → goctl model（-cache）→ proto → goctl rpc protoc --client=true → .api → goctl api go → 手写 Logic
-  - 目录命名 gozero 风格（小驼峰无下划线）；module path：tjxt/apps/<svc>/api 与 tjxt/apps/<svc>/rpc；跨服务依赖用 require+replace 本地相对路径，伪版本 v0.0.0-00010101000000-000000000000
+  - 目录命名 gozero 风格（小驼峰无下划线）；module path：tjxt/api/<svc> 与 tjxt/rpc/<svc>；跨服务依赖用 require+replace 本地相对路径，伪版本 v0.0.0-00010101000000-000000000000
 
   ## 代码风格
   - 错误处理统一 xerr.NewErrCode(...).WithError(err)，禁止裸返回 error / fmt.Errorf 包装
@@ -46,7 +46,7 @@ context: |
   - 提交前 make fmt；Git 流程（分支/Conventional Commits/PR 模板/发布）见 specs/conventions/git-workflow
 
   ## 可观测性（勿删配置）
-  - 每个服务 apps/<svc>/{api,rpc}/etc/*.yaml 已注入 Telemetry{Endpoint:127.0.0.1:4318,otlphttp} / Prometheus{Port 唯一,/metrics} / Log{Mode:file,Encoding:json,Path:logs/<svc>} 三段，禁止删除或改坏
+  - 每个服务 api/<svc>/etc/*.yaml 与 rpc/<svc>/etc/*.yaml 已注入 Telemetry{Endpoint:127.0.0.1:4318,otlphttp} / Prometheus{Port 唯一,/metrics} / Log{Mode:file,Encoding:json,Path:logs/<svc>} 三段，禁止删除或改坏
   - Log.Path 为相对路径，服务必须从仓库根启动，否则日志采集不到
   - Prometheus 只抓 otel-collector:8889；go-zero 无 OTLP metrics/logs exporter，故 metrics 走 scrape 代理、logs 走 filelog
 

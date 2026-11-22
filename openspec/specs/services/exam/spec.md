@@ -8,7 +8,7 @@ exam（考试题库）是考试与题库管理微服务，提供题目（题干/
 
 ### Requirement: 管理端内容管理接口（笔记 / 互动问题 / 回答评论）
 
-> **状态说明**：下表来自原始 Java 版聚合文档 `docs/tjxt.openapi.json`（api-spec.md，最后同步 2026-08-05）。go-zero 侧 `apps/exam/api/exam.api` 仅实现 7 个题目/业务关联接口；`/admin/notes`、`/admin/questions`、`/admin/replies` 管理端接口在 go-zero 侧**未实现**。源表中「认证：否」为 Java 原始版标注，与 go-zero 侧 `jwt: Auth` 声明不一致，以 `.api` 为准（见「鉴权」Requirement）。源文件中该域无组卷/考试/阅卷分组接口，本规格按实际功能域分组。
+> **状态说明**：下表来自原始 Java 版聚合文档 `docs/tjxt.openapi.json`（api-spec.md，最后同步 2026-08-05）。go-zero 侧 `api/exam/exam.api` 仅实现 7 个题目/业务关联接口；`/admin/notes`、`/admin/questions`、`/admin/replies` 管理端接口在 go-zero 侧**未实现**。源表中「认证：否」为 Java 原始版标注，与 go-zero 侧 `jwt: Auth` 声明不一致，以 `.api` 为准（见「鉴权」Requirement）。源文件中该域无组卷/考试/阅卷分组接口，本规格按实际功能域分组。
 
 exam 服务 SHALL 暴露以下管理端内容管理接口：
 
@@ -102,13 +102,13 @@ exam 服务 SHALL 暴露以下题目业务关联接口：
 
 > **预留消息**：`PageReq` 在 proto 中已声明，但 `service Exam` 的 7 个方法**均未引用**（分页参数被内联进 `QuestionListReq` / `QuestionBizListReq`），属于预留消息。
 >
-> **实现状态**：RPC 层 7/7、API 层 7/7 logic 已全部实现并编译通过（2026-08-06 复核）；以下各规则为依据 `apps/exam/rpc/exam.proto`、`sql/ddl/tj_exam*.sql`、`apps/exam/api/exam.api` 契约推导，建议对照源码最终确认。
+> **实现状态**：RPC 层 7/7、API 层 7/7 logic 已全部实现并编译通过（2026-08-06 复核）；以下各规则为依据 `rpc/exam/exam.proto`、`sql/ddl/tj_exam*.sql`、`api/exam/exam.api` 契约推导，建议对照源码最终确认。
 
 消费方 SHALL 为 `exam-api` 自身 API 层（HTTP Handler → `examclient.Exam` RPC，7 个接口全部走自身 RPC）。
 
 > **跨服务消费现状**：经检索全部 13 个服务的 `servicecontext.go`，**当前无任何其他服务 import `examclient`**。尚未接线的逻辑消费方：
 >
-> - `course` 服务：`apps/course/rpc/course.proto:48` 定义 `CourseSubjectsGet(IdRequest) returns (CataSubjectInfoList)`（章节/小节的题目）；`question_biz.biz_id` 注释明确写「例如小节id」；但 course 侧未 import `examclient`，`exam-api` 侧也未持有 `CourseRpc`，跨域调用未建立。
+> - `course` 服务：`rpc/course/course.proto:48` 定义 `CourseSubjectsGet(IdRequest) returns (CataSubjectInfoList)`（章节/小节的题目）；`question_biz.biz_id` 注释明确写「例如小节id」；但 course 侧未 import `examclient`，`exam-api` 侧也未持有 `CourseRpc`，跨域调用未建立。
 > - `learning` 服务：学员答题会驱动 `question.answer_times` / `correct_times` 累加；无任何接线证据，纯语义推导。
 
 #### Scenario: API 层经 etcd 调用自身 RPC
@@ -344,7 +344,7 @@ exam 服务 SHALL 暴露以下题目业务关联接口：
 
 ### Requirement: 鉴权
 
-全部 7 个 HTTP 接口 SHALL 要求携带有效 JWT（`apps/exam/api/exam.api` 中两个 service 块均声明 `jwt: Auth`）：
+全部 7 个 HTTP 接口 SHALL 要求携带有效 JWT（`api/exam/exam.api` 中两个 service 块均声明 `jwt: Auth`）：
 
 | 路由组 | group | 鉴权 |
 |--------|-------|------|
@@ -367,7 +367,7 @@ exam 服务 SHALL 暴露以下题目业务关联接口：
 
 ### Requirement: 数据模型与存储不变量
 
-exam 域 SHALL 使用 MySQL `tj_exam` 库，DDL 有两份文件：`sql/ddl/tj_exam.sql`（完整库结构，含 Seata 事务基础设施表）与 `sql/ddl/tj_exam_business.sql`（仅业务表，剔除 `undo_log`，供 goctl 生成 model），两者业务表结构完全一致（差异仅在 `undo_log`、注释详略与 Records 注释块）。model 由 `tj_exam_business.sql` 生成（`questiondetailmodel_gen.go` 中 `Answer` 字段注释为简写版，可判定），3 张业务表已 100% 生成 model 并在 `apps/exam/rpc/internal/svc/servicecontext.go:12-14` 完成注入。数据表清单：
+exam 域 SHALL 使用 MySQL `tj_exam` 库，DDL 有两份文件：`sql/ddl/tj_exam.sql`（完整库结构，含 Seata 事务基础设施表）与 `sql/ddl/tj_exam_business.sql`（仅业务表，剔除 `undo_log`，供 goctl 生成 model），两者业务表结构完全一致（差异仅在 `undo_log`、注释详略与 Records 注释块）。model 由 `tj_exam_business.sql` 生成（`questiondetailmodel_gen.go` 中 `Answer` 字段注释为简写版，可判定），3 张业务表已 100% 生成 model 并在 `rpc/exam/internal/svc/servicecontext.go:12-14` 完成注入。数据表清单：
 
 | 表 | 职责 | 关键结构 |
 |----|------|---------|
@@ -385,7 +385,7 @@ exam 域 SHALL 使用 MySQL `tj_exam` 库，DDL 有两份文件：`sql/ddl/tj_ex
 - `question_biz.biz_id` 跨域引用业务对象 ID（如 course 域小节 id），**无数据库外键**，靠应用层维护一致性。
 - `question` 表 DDL 中除主键外未定义任何二级索引，`ListQuestions` 的多条件过滤将全表扫描。
 - `question.creater` / `updater` 默认值为 `1`（非其他域的 `0`）；与 auth / media 域不同，exam 域无逻辑删除列、`dep_id` 可空。
-- `undo_log` 不生成 model（Seata 框架表，由 Seata 客户端框架直接读写，**预期行为非缺陷**）；项目当前未接入 Seata（`apps/exam/` 下无任何 Seata 依赖与配置），`undo_log` 实际处于**闲置状态**。
+- `undo_log` 不生成 model（Seata 框架表，由 Seata 客户端框架直接读写，**预期行为非缺陷**）；项目当前未接入 Seata（`api/exam/`、`rpc/exam/` 下无任何 Seata 依赖与配置），`undo_log` 实际处于**闲置状态**。
 
 Go 结构体映射关键点：
 
@@ -411,7 +411,7 @@ Go 结构体映射关键点：
 
 exam 服务 SHALL 按以下配置运行。
 
-API 服务配置（`apps/exam/api/etc/exam-api.yaml`）：
+API 服务配置（`api/exam/etc/exam-api.yaml`）：
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
@@ -423,7 +423,7 @@ API 服务配置（`apps/exam/api/etc/exam-api.yaml`）：
 | `ExamRpc.Etcd.Hosts[0]` | `127.0.0.1:2379` | etcd 地址 |
 | `ExamRpc.Etcd.Key` | `exam.rpc` | exam RPC 服务发现 key |
 
-RPC 服务配置（`apps/exam/rpc/etc/exam.yaml`）：
+RPC 服务配置（`rpc/exam/etc/exam.yaml`）：
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
@@ -440,9 +440,9 @@ RPC 服务配置（`apps/exam/rpc/etc/exam.yaml`）：
 - 缓存：`Cache` 传入三个 model 构造函数（`servicecontext.go:21-23`），由 goctl 的 `sqlc.CachedConn` 托管主键缓存；三个 model 共用同一 `sqlx.NewMysql(c.DataSource)` 连接与同一份 `Cache` 配置。
 - 可观测性注入配置（**已注入勿删**，configs.md 未记录、以实际 yaml 为准）：`Log`（Mode: file，Encoding: json，Level: info，路径 `logs/exam-api` 与 `logs/exam-rpc`）；`Prometheus`（exam-api `0.0.0.0:9205`、exam.rpc `0.0.0.0:9105`，Path `/metrics`）；`Telemetry`（Name 对应各服务，Endpoint `127.0.0.1:4318`，Sampler `1.0`，Batcher `otlphttp`）。
 
-> **配置缺口 1（无分布式事务/Seata 配置）**：`tj_exam.sql` 定义了 Seata AT 模式 `undo_log` 表，但 `exam.yaml` 无任何 Seata / TC 地址配置，`config.go` 仅 `RpcServerConf` / `DataSource` / `Cache`，`apps/exam/` 全目录检索 `undo_log` / `seata` **零命中** —— `undo_log` 闲置。`SaveQuestion` / `DeleteQuestion` 的多表操作用 go-zero 本地事务（`sqlx.Transact`）即可；若后续需与 course 域联动（挂题同时更新课程目录）则需补齐分布式事务配置。
+> **配置缺口 1（无分布式事务/Seata 配置）**：`tj_exam.sql` 定义了 Seata AT 模式 `undo_log` 表，但 `exam.yaml` 无任何 Seata / TC 地址配置，`config.go` 仅 `RpcServerConf` / `DataSource` / `Cache`，`api/exam/`、`rpc/exam/` 全目录检索 `undo_log` / `seata` **零命中** —— `undo_log` 闲置。`SaveQuestion` / `DeleteQuestion` 的多表操作用 go-zero 本地事务（`sqlx.Transact`）即可；若后续需与 course 域联动（挂题同时更新课程目录）则需补齐分布式事务配置。
 >
-> **配置缺口 2（无跨服务 RPC 客户端配置）**：`exam-api` 配置仅 `ExamRpc` 一个客户端，`exam.rpc` 配置无任何 RpcClient —— `question_biz.biz_id` 语义上指向 course 域小节 ID，但 exam **无法校验该 ID 是否真实存在**（无 `CourseRpc`）；反向 `apps/course/api/internal/svc/servicecontext.go` 未 import `examclient`，course 侧 `CourseSubjectsGet` 也无法回调 exam 取题。两域间 RPC 通道尚未建立。
+> **配置缺口 2（无跨服务 RPC 客户端配置）**：`exam-api` 配置仅 `ExamRpc` 一个客户端，`exam.rpc` 配置无任何 RpcClient —— `question_biz.biz_id` 语义上指向 course 域小节 ID，但 exam **无法校验该 ID 是否真实存在**（无 `CourseRpc`）；反向 `api/course/internal/svc/servicecontext.go` 未 import `examclient`，course 侧 `CourseSubjectsGet` 也无法回调 exam 取题。两域间 RPC 通道尚未建立。
 >
 > **配置缺口 3（无分页默认值配置）**：`QuestionListReq.PageNo` / `PageSize` 与 `QuestionBizListReq.PageNo` / `PageSize` 均标注 `optional`，且 yaml 中无分页默认值配置项 —— 客户端不传时为零值，logic 层必须硬编码兜底（如 `pageNo=1, pageSize=20`），否则分页查询会退化为 `LIMIT 0`。
 >

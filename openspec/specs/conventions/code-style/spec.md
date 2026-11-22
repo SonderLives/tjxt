@@ -87,27 +87,28 @@ return nil, fmt.Errorf("db error: %w", err)
 
 ### Requirement: 标准包布局
 
-服务目录 SHALL 保持 go-zero 生成的标准布局（13 个服务统一为 `apps/<svc>/{api,rpc}` 两层结构）。
+服务目录 SHALL 保持 go-zero 生成的标准布局（13 个服务统一为顶层 `api/<svc>`、`rpc/<svc>` 两类模块目录）。
 
 ```
-apps/<svc>/
-├── api/
-│   ├── <svc>.api              # API 定义（源头）
-│   ├── etc/<svc>-api.yaml     # API 配置
-│   ├── internal/
-│   │   ├── config/            # goctl 生成，不手改
-│   │   ├── handler/           # goctl 生成；handler 只做参数绑定 + result.Write
-│   │   ├── logic/             # ★ 手写业务逻辑核心
-│   │   ├── svc/               # goctl 生成，手改注入依赖
-│   │   └── types/             # goctl 生成，请求响应结构体
-│   └── <svc>.go               # main 入口
-└── rpc/
-    ├── <svc>.proto            # Proto 定义（源头）
-    ├── etc/<svc>.yaml         # RPC 配置
-    ├── internal/
-    │   ├── config/、logic/、model/、server/、svc/
-    ├── <svc>.go               # RPC client 对外暴露（goctl 1.10 命名）
-    └── pb/                    # 生成的 pb.go
+api/<svc>/                      # HTTP API 服务（module: tjxt/api/<svc>）
+├── <svc>.api                  # API 定义（源头）
+├── etc/<svc>-api.yaml         # API 配置
+├── internal/
+│   ├── config/                # goctl 生成，不手改
+│   ├── handler/               # goctl 生成；handler 只做参数绑定 + result.Write
+│   ├── logic/                 # ★ 手写业务逻辑核心
+│   ├── svc/                   # goctl 生成，手改注入依赖
+│   └── types/                 # goctl 生成，请求响应结构体
+└── <svc>.go                   # main 入口
+
+rpc/<svc>/                      # RPC 服务（module: tjxt/rpc/<svc>）
+├── <svc>.proto                # Proto 定义（源头）
+├── <svc>.go                   # main 入口
+├── etc/<svc>.yaml             # RPC 配置
+├── internal/
+│   ├── config/、logic/、model/、server/、svc/
+├── client/<svc>/              # RPC client 对外暴露
+└── pb/                        # 生成的 pb.go
 ```
 
 公共库 `pkg/` 约定：
@@ -126,8 +127,8 @@ pkg/
 #### Scenario: data 服务的配置路径
 
 - **WHEN** 定位 data 服务的配置与入口
-- **THEN** 使用 `apps/data/api/etc/data-api.yaml` 与 `apps/data/rpc/etc/data.yaml`
-- **AND** 13 个服务布局完全同构，均为 `apps/<svc>/{api,rpc}/etc/`
+- **THEN** 使用 `api/data/etc/data-api.yaml` 与 `rpc/data/etc/data.yaml`
+- **AND** 13 个服务布局完全同构，均为 `api/<svc>/etc/` 与 `rpc/<svc>/etc/`
 
 ### Requirement: Import 规则
 
@@ -145,7 +146,7 @@ import (
 )
 
 import (
-    "tjxt/apps/auth/rpc/auth"   // RPC client
+    "tjxt/rpc/auth/auth"   // RPC client
     "tjxt/pkg/response"
     "tjxt/pkg/xerr"
 )
@@ -154,13 +155,13 @@ import (
 禁止项：
 
 - 相对路径 import（`import "../logic"`）
-- 跨服务 import `internal`（`import "tjxt/apps/user/internal/logic"`）
+- 跨服务 import `internal`（`import "tjxt/api/user/internal/logic"`）
 - 循环依赖
 
 #### Scenario: 跨服务复用能力
 
 - **WHEN** 服务 A 需要服务 B 的能力
-- **THEN** 通过 B 的 RPC client（`tjxt/apps/<b>/rpc/<b>`）调用，或经 MQ 事件解耦
+- **THEN** 通过 B 的 RPC client（`tjxt/rpc/<b>/client/<b>`）调用，或经 MQ 事件解耦
 - **AND** import B 的 `internal` 包一律视为违规，Code Review 应拒绝
 
 ### Requirement: 测试与文件头约定
