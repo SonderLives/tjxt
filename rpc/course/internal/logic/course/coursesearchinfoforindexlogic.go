@@ -2,10 +2,13 @@ package courselogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/timex"
+	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +34,7 @@ func (l *CourseSearchInfoForIndexLogic) CourseSearchInfoForIndex(in *pb.IdReques
 	}
 	c, err := l.svcCtx.CourseModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("课程不存在")
 		}
 		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程失败")
@@ -56,8 +59,8 @@ func (l *CourseSearchInfoForIndexLogic) CourseSearchInfoForIndex(in *pb.IdReques
 		CategoryIdLv1: c.FirstCateId,
 		CategoryIdLv2: c.SecondCateId,
 		CategoryIdLv3: c.ThirdCateId,
-		CreateTime:    formatTime(c.CreateTime),
-		PublishTime:   formatNullTime(c.PublishTime),
+		CreateTime:    timex.Format(c.CreateTime),
+		PublishTime:   timex.FormatNullTime(c.PublishTime),
 		Duration:      formatNullInt64(c.MediaDuration),
 	}, nil
 }

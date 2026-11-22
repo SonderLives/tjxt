@@ -3,6 +3,7 @@ package courselogic
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"tjxt/pkg/errorx"
@@ -45,7 +46,7 @@ func (l *CourseUpShelfLogic) CourseUpShelf(in *pb.IdRequest) (*pb.Empty, error) 
 func publishCourse(ctx context.Context, svcCtx *svc.ServiceContext, id int64) error {
 	draft, err := svcCtx.CourseDraftModel.FindOne(ctx, id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return errorx.NotFound("课程草稿不存在")
 		}
 		return errorx.Wrap(err, errorx.CodeInternal, "查询课程草稿失败")
@@ -56,7 +57,7 @@ func publishCourse(ctx context.Context, svcCtx *svc.ServiceContext, id int64) er
 	switch {
 	case err == nil:
 		// 已发布过：累加发布次数，保留原始创建人
-	case isNotFound(err):
+	case errors.Is(err, model.ErrNotFound):
 		old = nil
 	default:
 		return errorx.Wrap(err, errorx.CodeInternal, "查询课程失败")
@@ -165,7 +166,7 @@ func buildPublishedContent(ctx context.Context, svcCtx *svc.ServiceContext, id i
 		if !draft.CreateTime.IsZero() {
 			content.CreateTime = draft.CreateTime
 		}
-	case !isNotFound(err):
+	case !errors.Is(err, model.ErrNotFound):
 		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程内容草稿失败")
 	}
 	return content, nil

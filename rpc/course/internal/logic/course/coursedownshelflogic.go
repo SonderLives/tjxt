@@ -2,10 +2,12 @@ package courselogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -36,7 +38,7 @@ func (l *CourseDownShelfLogic) CourseDownShelf(in *pb.IdRequest) (*pb.Empty, err
 func downCourse(ctx context.Context, svcCtx *svc.ServiceContext, id int64) error {
 	course, err := svcCtx.CourseModel.FindOne(ctx, id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return errorx.NotFound("课程不存在")
 		}
 		return errorx.Wrap(err, errorx.CodeInternal, "查询课程失败")

@@ -3,12 +3,14 @@ package courselogic
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -38,7 +40,7 @@ func (l *CourseBaseInfoSaveLogic) CourseBaseInfoSave(in *pb.CourseBaseInfoSaveRe
 
 	var id int64
 	if in.Id == 0 {
-		id = nextID()
+		id = idgen.NextID()
 		draft := &model.CourseDraft{
 			Id:                id,
 			Name:              in.Name,
@@ -63,7 +65,7 @@ func (l *CourseBaseInfoSaveLogic) CourseBaseInfoSave(in *pb.CourseBaseInfoSaveRe
 		id = in.Id
 		draft, err := l.svcCtx.CourseDraftModel.FindOne(l.ctx, id)
 		if err != nil {
-			if isNotFound(err) {
+			if errors.Is(err, model.ErrNotFound) {
 				return nil, errorx.NotFound("课程不存在")
 			}
 			return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程草稿失败")

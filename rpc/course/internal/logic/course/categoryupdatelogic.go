@@ -2,10 +2,12 @@ package courselogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +30,7 @@ func NewCategoryUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ca
 func (l *CategoryUpdateLogic) CategoryUpdate(in *pb.CategoryUpdateRequest) (*pb.Empty, error) {
 	c, err := l.svcCtx.CategoryModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("分类不存在")
 		}
 		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询分类失败")
