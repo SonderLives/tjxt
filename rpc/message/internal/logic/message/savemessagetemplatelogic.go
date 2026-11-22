@@ -3,10 +3,11 @@ package messagelogic
 import (
 	"context"
 
+	"tjxt/pkg/auth"
+	"tjxt/pkg/errorx"
 	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -51,7 +52,10 @@ func (l *SaveMessageTemplateLogic) SaveMessageTemplate(in *pb.MessageTemplateSav
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询通知模板失败")
 	}
 
-	operator := userIdFromCtx(l.ctx)
+	operator, err := auth.UserIdFromIncomingMD(l.ctx)
+	if err != nil {
+		return nil, err
+	}
 	if in.Id == 0 {
 		data := &model.MessageTemplate{
 			Id:                nextID(),

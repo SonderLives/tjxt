@@ -3,9 +3,10 @@ package messagelogic
 import (
 	"context"
 
+	"tjxt/pkg/auth"
+	"tjxt/pkg/errorx"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,7 +27,10 @@ func NewMarkInboxReadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Mar
 
 // 站内信 标记已读（校验归属当前用户）
 func (l *MarkInboxReadLogic) MarkInboxRead(in *pb.IdReq) (*pb.Empty, error) {
-	userId := userIdFromCtx(l.ctx)
+	userId, err := auth.UserIdFromIncomingMD(l.ctx)
+	if err != nil {
+		return nil, err
+	}
 	data, err := l.svcCtx.UserInboxModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
