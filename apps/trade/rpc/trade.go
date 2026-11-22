@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"tjxt/apps/trade/rpc/internal/config"
-	"tjxt/apps/trade/rpc/internal/server"
+	tradeserver "tjxt/apps/trade/rpc/internal/server/trade"
 	"tjxt/apps/trade/rpc/internal/svc"
 	"tjxt/apps/trade/rpc/pb"
 
@@ -28,7 +28,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		pb.RegisterTradeServer(grpcServer, server.NewTradeServer(ctx))
+		pb.RegisterTradeServer(grpcServer, tradeserver.NewTradeServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

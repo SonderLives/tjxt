@@ -4,7 +4,7 @@ package logic
 
 import (
 	"tjxt/apps/exam/api/internal/types"
-	examclient "tjxt/apps/exam/rpc/exam"
+	examclient "tjxt/apps/exam/rpc/client/exam"
 )
 
 // ToQuestionVO 将 RPC 返回的题目 VO 转换为 API 响应 VO

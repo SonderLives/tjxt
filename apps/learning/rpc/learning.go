@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"tjxt/apps/learning/rpc/internal/config"
-	"tjxt/apps/learning/rpc/internal/server"
+	learningserver "tjxt/apps/learning/rpc/internal/server/learning"
 	"tjxt/apps/learning/rpc/internal/svc"
 	"tjxt/apps/learning/rpc/pb"
 
@@ -28,7 +28,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		pb.RegisterLearningServer(grpcServer, server.NewLearningServer(ctx))
+		pb.RegisterLearningServer(grpcServer, learningserver.NewLearningServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

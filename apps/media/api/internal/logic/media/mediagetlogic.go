@@ -8,7 +8,7 @@ import (
 
 	"tjxt/apps/media/api/internal/svc"
 	"tjxt/apps/media/api/internal/types"
-	mediaclient "tjxt/apps/media/rpc/media"
+	mediaclient "tjxt/apps/media/rpc/client/media"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"

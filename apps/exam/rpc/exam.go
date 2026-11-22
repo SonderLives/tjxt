@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"tjxt/apps/exam/rpc/internal/config"
-	"tjxt/apps/exam/rpc/internal/server"
+	examserver "tjxt/apps/exam/rpc/internal/server/exam"
 	"tjxt/apps/exam/rpc/internal/svc"
 	"tjxt/apps/exam/rpc/pb"
 
@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		pb.RegisterExamServer(grpcServer, server.NewExamServer(ctx))
+		pb.RegisterExamServer(grpcServer, examserver.NewExamServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

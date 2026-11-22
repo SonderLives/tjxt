@@ -2,7 +2,7 @@ package svc
 
 import (
 	"tjxt/apps/message/api/internal/config"
-	messageclient "tjxt/apps/message/rpc/message"
+	messageclient "tjxt/apps/message/rpc/client/message"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )

@@ -11,7 +11,7 @@ import (
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	pb "tjxt/apps/promotion/rpc/promotion"
+	pb "tjxt/apps/promotion/rpc/client/promotion"
 )
 
 type UserCouponPageLogic struct {

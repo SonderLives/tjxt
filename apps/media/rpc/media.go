@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"tjxt/apps/media/rpc/internal/config"
-	"tjxt/apps/media/rpc/internal/server"
+	mediaserver "tjxt/apps/media/rpc/internal/server/media"
 	"tjxt/apps/media/rpc/internal/svc"
 	"tjxt/apps/media/rpc/pb"
 
@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		pb.RegisterMediaServer(grpcServer, server.NewMediaServer(ctx))
+		pb.RegisterMediaServer(grpcServer, mediaserver.NewMediaServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

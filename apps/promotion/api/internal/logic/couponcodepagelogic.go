@@ -10,7 +10,7 @@ import (
 	"tjxt/apps/promotion/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	pb "tjxt/apps/promotion/rpc/promotion"
+	pb "tjxt/apps/promotion/rpc/client/promotion"
 )
 
 type CouponCodePageLogic struct {

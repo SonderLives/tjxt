@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"tjxt/apps/exam/api/internal/config"
-	examclient "tjxt/apps/exam/rpc/exam"
+	examclient "tjxt/apps/exam/rpc/client/exam"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/xerr"
 

@@ -5,7 +5,7 @@ package svc
 
 import (
 	"tjxt/apps/trade/api/internal/config"
-	tradeclient "tjxt/apps/trade/rpc/trade"
+	tradeclient "tjxt/apps/trade/rpc/client/trade"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )

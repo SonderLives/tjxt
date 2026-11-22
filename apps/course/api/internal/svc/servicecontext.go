@@ -5,8 +5,8 @@ package svc
 
 import (
 	"tjxt/apps/course/api/internal/config"
-	courseclient "tjxt/apps/course/rpc/course"
-	learningclient "tjxt/apps/learning/rpc/learning"
+	courseclient "tjxt/apps/course/rpc/client/course"
+	learningclient "tjxt/apps/learning/rpc/client/learning"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )
