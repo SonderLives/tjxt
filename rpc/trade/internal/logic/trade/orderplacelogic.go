@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"time"
 
 	promotionclient "tjxt/rpc/promotion/client/promotion"
 	"tjxt/rpc/trade/internal/model"
@@ -12,6 +11,7 @@ import (
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -74,7 +74,7 @@ func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderRe
 	}
 
 	order := &model.Order{
-		Id:             nextID(),
+		Id:             idgen.NextID(),
 		UserId:         userId,
 		TotalAmount:    total,
 		RealAmount:     total - discountAmount,
@@ -99,7 +99,7 @@ func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderRe
 			realPay = 0
 		}
 		details = append(details, &model.OrderDetail{
-			Id:             nextID(),
+			Id:             idgen.NextID(),
 			OrderId:        order.Id,
 			UserId:         userId,
 			CourseId:       id,
@@ -136,6 +136,6 @@ func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderRe
 		OrderId:    order.Id,
 		PayAmount:  order.RealAmount,
 		Status:     int32(OrderStatusPending),
-		PayOutTime: now().Add(15 * time.Minute).Unix(),
+		PayOutTime: now().Add(OrderPayTimeout).Unix(),
 	}, nil
 }

@@ -7,6 +7,8 @@ import (
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/errorx"
+	"tjxt/pkg/page"
+	"tjxt/pkg/timex"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -63,14 +65,14 @@ func (l *OrderDetailPageQueryLogic) OrderDetailPageQuery(in *pb.OrderDetailPageR
 			RefundStatus:     int32(refundStatus),
 			RefundStatusDesc: refundStatusDesc(refundStatus),
 			PayChannel:       d.PayChannel,
-			CreateTime:       formatTime(d.CreateTime),
-			FinishTime:       formatNullTime(d.CourseExpireTime),
+			CreateTime:       timex.Format(d.CreateTime),
+			FinishTime:       timex.FormatNullTime(d.CourseExpireTime),
 		})
 	}
 
 	return &pb.OrderDetailPageReply{
 		Total: total,
-		Pages: calcPages(total, in.PageSize),
+		Pages: page.CalcPages(total, in.PageSize),
 		List:  list,
 	}, nil
 }

@@ -9,6 +9,7 @@ import (
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -52,7 +53,7 @@ func (l *CartAddLogic) CartAdd(in *pb.CartAddRequest) (*pb.Empty, error) {
 	}
 
 	if _, err = l.svcCtx.CartModel.Insert(l.ctx, &model.Cart{
-		Id:         nextID(),
+		Id:         idgen.NextID(),
 		UserId:     userId,
 		CourseId:   in.CourseId,
 		CourseName: c.Name,

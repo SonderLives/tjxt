@@ -10,6 +10,7 @@ import (
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -47,7 +48,7 @@ func (l *RefundApplyCreateLogic) RefundApplyCreate(in *pb.RefundApplyFormRequest
 	}
 
 	ra := &model.RefundApply{
-		Id:            nextID(),
+		Id:            idgen.NextID(),
 		UserId:        userId,
 		OrderId:       detail.OrderId,
 		OrderDetailId: in.OrderDetailId,
