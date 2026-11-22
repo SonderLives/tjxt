@@ -1,21 +1,27 @@
-# buf workspace 配置（v2）：仓库根统一管理 13 个 rpc/<svc> 的 proto。
-# 职责边界：buf 只承担 proto 治理（lint + breaking 门禁），
-# pb / zrpc 代码生成仍由 goctl 负责（make rpc），buf 不接管生成链路。
+# buf workspace 配置（v2）：仓库根统一管理全部 proto 治理。
+# 模块分两类：
+#   1. 保留 RPC 服务（5 个）：rpc/<svc>，pb / zrpc 代码生成仍走 goctl（make rpc）。
+#   2. 折叠服务（8 个）：RPC 进程壳已删除，proto 随迁 api/<svc>/<svc>.proto（模块根），
+#      pb 类型由 buf generate 生成到 api/<svc>/backend/pb（make pb，模板见 buf.gen.yaml）。
+# 职责边界：buf 承担 lint + breaking 门禁与折叠服务的 pb 类型生成；
+# 保留服务的 pb / zrpc 生成仍由 goctl 负责，buf 不接管生成链路。
 version: v2
 modules:
-  - path: rpc/auth
+  # 保留 RPC 服务（5 个）
+  - path: rpc/user
   - path: rpc/course
-  - path: rpc/data
-  - path: rpc/exam
   - path: rpc/learning
-  - path: rpc/media
-  - path: rpc/message
   - path: rpc/pay
   - path: rpc/promotion
-  - path: rpc/remark
-  - path: rpc/search
-  - path: rpc/trade
-  - path: rpc/user
+  # 折叠服务（8 个，proto 在模块根）
+  - path: api/auth
+  - path: api/exam
+  - path: api/media
+  - path: api/message
+  - path: api/remark
+  - path: api/search
+  - path: api/trade
+  - path: api/data
 lint:
   # 从官方 STANDARD 类别起步（1.75.0 中 DEFAULT 已废弃并更名为 STANDARD）。
   use:
