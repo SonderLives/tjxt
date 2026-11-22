@@ -6,9 +6,10 @@ package menu
 import (
 	"context"
 
+	backendlogic "tjxt/api/auth/backend/logic"
+	authpb "tjxt/api/auth/backend/pb"
 	"tjxt/api/auth/internal/svc"
 	"tjxt/api/auth/internal/types"
-	authclient "tjxt/rpc/auth/client/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +30,7 @@ func NewDeleteMenuLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delete
 
 // DeleteMenu 删除菜单（软删），并清理其下权限与角色-菜单分配。
 func (l *DeleteMenuLogic) DeleteMenu(req *types.IdPathReq) (resp *types.OkVO, err error) {
-	_, err = l.svcCtx.AuthRpc.DeleteMenu(l.ctx, &authclient.IdReq{Id: req.Id})
+	_, err = backendlogic.NewDeleteMenuLogic(l.ctx, l.svcCtx.Backend).DeleteMenu(&authpb.IdReq{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}

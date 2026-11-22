@@ -6,9 +6,10 @@ package assign
 import (
 	"context"
 
+	backendlogic "tjxt/api/auth/backend/logic"
+	authpb "tjxt/api/auth/backend/pb"
 	"tjxt/api/auth/internal/svc"
 	"tjxt/api/auth/internal/types"
-	authclient "tjxt/rpc/auth/client/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +30,7 @@ func NewSaveRolePrivilegesLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 // SaveRolePrivileges 全量替换角色下的权限分配；路径 :id 为权威角色标识。
 func (l *SaveRolePrivilegesLogic) SaveRolePrivileges(req *types.RolePrivilegeReq) (resp *types.OkVO, err error) {
-	_, err = l.svcCtx.AuthRpc.SaveRolePrivileges(l.ctx, &authclient.RolePrivilegeReq{
+	_, err = backendlogic.NewSaveRolePrivilegesLogic(l.ctx, l.svcCtx.Backend).SaveRolePrivileges(&authpb.RolePrivilegeReq{
 		RoleId:       req.Id,
 		PrivilegeIds: req.PrivilegeIds,
 	})

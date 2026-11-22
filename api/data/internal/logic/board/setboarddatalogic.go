@@ -6,9 +6,10 @@ package board
 import (
 	"context"
 
+	backendlogic "tjxt/api/data/backend/logic"
+	dataclient "tjxt/api/data/backend/pb"
 	"tjxt/api/data/internal/svc"
 	"tjxt/api/data/internal/types"
-	dataclient "tjxt/rpc/data/client/data"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewSetBoardDataLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SetB
 }
 
 func (l *SetBoardDataLogic) SetBoardData(req *types.BoardDataSetReq) (resp *types.OkVO, err error) {
-	rpcResp, err := l.svcCtx.DataRpc.SetBoardData(l.ctx, &dataclient.BoardDataSetReq{
+	rpcResp, err := backendlogic.NewSetBoardDataLogic(l.ctx, l.svcCtx.Backend).SetBoardData(&dataclient.BoardDataSetReq{
 		Version: int32(req.Version),
 		Type:    int32(req.Type),
 		Data:    req.Data,

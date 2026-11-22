@@ -6,9 +6,10 @@ package privilege
 import (
 	"context"
 
+	backendlogic "tjxt/api/auth/backend/logic"
+	authpb "tjxt/api/auth/backend/pb"
 	"tjxt/api/auth/internal/svc"
 	"tjxt/api/auth/internal/types"
-	authclient "tjxt/rpc/auth/client/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +30,7 @@ func NewDeletePrivilegeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *D
 
 // DeletePrivilege 删除权限（软删），并清理角色-权限分配。
 func (l *DeletePrivilegeLogic) DeletePrivilege(req *types.IdPathReq) (resp *types.OkVO, err error) {
-	_, err = l.svcCtx.AuthRpc.DeletePrivilege(l.ctx, &authclient.IdReq{Id: req.Id})
+	_, err = backendlogic.NewDeletePrivilegeLogic(l.ctx, l.svcCtx.Backend).DeletePrivilege(&authpb.IdReq{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}

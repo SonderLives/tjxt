@@ -6,9 +6,10 @@ package role
 import (
 	"context"
 
+	backendlogic "tjxt/api/auth/backend/logic"
+	authpb "tjxt/api/auth/backend/pb"
 	"tjxt/api/auth/internal/svc"
 	"tjxt/api/auth/internal/types"
-	authclient "tjxt/rpc/auth/client/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +30,7 @@ func NewSaveRoleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SaveRole
 
 // SaveRole 新增或修改角色，返回新建或更新目标的 id。
 func (l *SaveRoleLogic) SaveRole(req *types.RoleSaveReq) (resp *types.IdVO, err error) {
-	reply, err := l.svcCtx.AuthRpc.SaveRole(l.ctx, &authclient.RoleSaveReq{
+	reply, err := backendlogic.NewSaveRoleLogic(l.ctx, l.svcCtx.Backend).SaveRole(&authpb.RoleSaveReq{
 		Id:   req.Id,
 		Code: req.Code,
 		Name: req.Name,

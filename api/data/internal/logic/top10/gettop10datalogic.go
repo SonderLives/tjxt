@@ -6,9 +6,10 @@ package top10
 import (
 	"context"
 
+	backendlogic "tjxt/api/data/backend/logic"
+	dataclient "tjxt/api/data/backend/pb"
 	"tjxt/api/data/internal/svc"
 	"tjxt/api/data/internal/types"
-	dataclient "tjxt/rpc/data/client/data"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewGetTop10DataLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetT
 }
 
 func (l *GetTop10DataLogic) GetTop10Data() (resp *types.Top10DataVO, err error) {
-	rpcResp, err := l.svcCtx.DataRpc.GetTop10Data(l.ctx, &dataclient.Empty{})
+	rpcResp, err := backendlogic.NewGetTop10DataLogic(l.ctx, l.svcCtx.Backend).GetTop10Data(&dataclient.Empty{})
 	if err != nil {
 		return nil, err
 	}

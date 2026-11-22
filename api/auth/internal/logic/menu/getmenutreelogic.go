@@ -6,10 +6,10 @@ package menu
 import (
 	"context"
 
+	backendlogic "tjxt/api/auth/backend/logic"
+	authpb "tjxt/api/auth/backend/pb"
 	"tjxt/api/auth/internal/svc"
 	"tjxt/api/auth/internal/types"
-	authclient "tjxt/rpc/auth/client/auth"
-	"tjxt/rpc/auth/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,14 +30,14 @@ func NewGetMenuTreeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetMe
 
 // GetMenuTree 获取完整菜单树（含子节点）。
 func (l *GetMenuTreeLogic) GetMenuTree() (resp *types.MenuTreeVO, err error) {
-	reply, err := l.svcCtx.AuthRpc.GetMenuTree(l.ctx, &authclient.Empty{})
+	reply, err := backendlogic.NewGetMenuTreeLogic(l.ctx, l.svcCtx.Backend).GetMenuTree(&authpb.Empty{})
 	if err != nil {
 		return nil, err
 	}
 	return &types.MenuTreeVO{List: toMenuVOList(reply.List)}, nil
 }
 
-func toMenuVOList(in []*pb.MenuVO) []types.MenuVO {
+func toMenuVOList(in []*authpb.MenuVO) []types.MenuVO {
 	out := make([]types.MenuVO, 0, len(in))
 	for _, v := range in {
 		out = append(out, toMenuVO(v))
@@ -45,7 +45,7 @@ func toMenuVOList(in []*pb.MenuVO) []types.MenuVO {
 	return out
 }
 
-func toMenuVO(v *pb.MenuVO) types.MenuVO {
+func toMenuVO(v *authpb.MenuVO) types.MenuVO {
 	children := make([]types.MenuVO, 0, len(v.Children))
 	for _, c := range v.Children {
 		children = append(children, toMenuVO(c))

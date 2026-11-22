@@ -24,8 +24,9 @@ Auth:
   AccessSecret: "${TJXT_JWT_SECRET|change-me-in-production}"
   AccessExpire: 7200
 
-DataRpc:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: data.rpc
+# ===== data 后端业务配置（随原 rpc/data 配置合并）=====
+
+# 大屏数据（board/top10/today）Redis 缓存
+Redis:
+  Host: 127.0.0.1:6379
+  Type: node

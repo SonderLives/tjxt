@@ -6,9 +6,10 @@ package today
 import (
 	"context"
 
+	backendlogic "tjxt/api/data/backend/logic"
+	dataclient "tjxt/api/data/backend/pb"
 	"tjxt/api/data/internal/svc"
 	"tjxt/api/data/internal/types"
-	dataclient "tjxt/rpc/data/client/data"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewGetTodayDataLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetT
 }
 
 func (l *GetTodayDataLogic) GetTodayData() (resp *types.TodayDataVO, err error) {
-	rpcResp, err := l.svcCtx.DataRpc.GetTodayData(l.ctx, &dataclient.Empty{})
+	rpcResp, err := backendlogic.NewGetTodayDataLogic(l.ctx, l.svcCtx.Backend).GetTodayData(&dataclient.Empty{})
 	if err != nil {
 		return nil, err
 	}
