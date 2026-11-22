@@ -139,8 +139,8 @@ SQL 脚本 SHALL 按用途分放两个目录，改表时同步更新：
 
 | 陷阱 | 规避方式 |
 |------|---------|
-| Makefile 服务清单不全 | `SERVICES` 只列 11 个，缺 `promotion`/`remark`，需手工启动 |
-| `data` 服务目录多套一层 | 路径为 `apps/data/api/data/`、`apps/data/rpc/data/`，模块数与其余服务一致，仅路径更深 |
+| Makefile 服务清单曾有缺口 | `SERVICES` 曾只列 11 个（缺 `promotion`/`remark`），现已是全量 13 个，新增服务须同步维护 `SERVICES`/`API_DIRS`/`RPC_DIRS` |
+| `data` 服务目录曾有特例 | 旧布局多套一层（`apps/data/{api,rpc}/data/`），现已扁平化为标准 `apps/data/{api,rpc}`，与其他服务一致 |
 | Windows 下 `rm` 被沙箱拦截 | 清空目录准备重生成时 `rm -rf` 可能静默失败，需确认删除结果 |
 | 统一响应易写错 | handler 必须用 `result.Write(w, r, data, err)`，不要用 goctl 生成的 Result 类型 |
 | JWT 中间件 | 在 `.api` 中用 `@server jwt: Auth` 声明，userId 通过 `auth.UserIdFromCtx(l.ctx)` 获取 |

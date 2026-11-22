@@ -87,7 +87,7 @@ return nil, fmt.Errorf("db error: %w", err)
 
 ### Requirement: 标准包布局
 
-服务目录 SHALL 保持 go-zero 生成的标准布局（data 服务多嵌套一级）。
+服务目录 SHALL 保持 go-zero 生成的标准布局（13 个服务统一为 `apps/<svc>/{api,rpc}` 两层结构）。
 
 ```
 apps/<svc>/
@@ -123,11 +123,11 @@ pkg/
 └── xerr/          # 统一错误码定义
 ```
 
-#### Scenario: data 服务的路径差异
+#### Scenario: data 服务的配置路径
 
 - **WHEN** 定位 data 服务的配置与入口
-- **THEN** 使用 `apps/data/api/data/etc/data-api.yaml` 与 `apps/data/rpc/data/etc/data.yaml`
-- **AND** 其余 12 个服务为 `apps/<svc>/{api,rpc}/etc/`，data 仅路径更深一级，模块结构同构
+- **THEN** 使用 `apps/data/api/etc/data-api.yaml` 与 `apps/data/rpc/etc/data.yaml`
+- **AND** 13 个服务布局完全同构，均为 `apps/<svc>/{api,rpc}/etc/`
 
 ### Requirement: Import 规则
 

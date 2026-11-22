@@ -3,6 +3,9 @@
 GOCTL := goctl
 GO    := go
 
+# goctl 自定义模板目录（api/rpc 生成统一走该模板，保证生成产物稳定）
+GOCTL_TPL_HOME := tools/goctl-templates
+
 # Windows 下强制用 cmd 作为 recipe shell。
 # 否则 PATH 里有 sh.exe（如 Git Bash）时 make 会改用 sh，把 PS 片段里的 $$jobs、$$_
 # 当 sh 变量展开，打碎所有 powershell 目标（build/api/rpc/test/lint/verify/tidy/fmt/clean）。
@@ -12,16 +15,15 @@ SHELL := cmd.exe
 endif
 
 # 所有 API 服务的启动目录（go run 在这个目录里执行）
-# data 是嵌套结构：api/data 才是服务根
-API_DIRS := apps/auth/api apps/course/api apps/data/api/data apps/exam/api apps/learning/api apps/media/api apps/message/api apps/pay/api apps/promotion/api apps/remark/api apps/search/api apps/trade/api apps/user/api
+API_DIRS := apps/auth/api apps/course/api apps/data/api apps/exam/api apps/learning/api apps/media/api apps/message/api apps/pay/api apps/promotion/api apps/remark/api apps/search/api apps/trade/api apps/user/api
 
 # 所有 RPC 服务的启动目录
-RPC_DIRS := apps/auth/rpc apps/course/rpc apps/data/rpc/data apps/exam/rpc apps/learning/rpc apps/media/rpc apps/message/rpc apps/pay/rpc apps/promotion/rpc apps/remark/rpc apps/search/rpc apps/trade/rpc apps/user/rpc
+RPC_DIRS := apps/auth/rpc apps/course/rpc apps/data/rpc apps/exam/rpc apps/learning/rpc apps/media/rpc apps/message/rpc apps/pay/rpc apps/promotion/rpc apps/remark/rpc apps/search/rpc apps/trade/rpc apps/user/rpc
 
 # 服务名（用于二进制文件命名、run 目标解析）
 SERVICES := auth course data exam learning media message pay promotion remark search trade user
 
-.PHONY: help init generate api rpc model build test fmt lint ci clean \
+.PHONY: help init generate api rpc model check-gen build test fmt lint ci clean \
         docker-up docker-down docker-logs verify sync tidy \
         run-all $(SERVICES:%=run-%) $(SERVICES:%=run-%-rpc)
 
@@ -37,13 +39,12 @@ init: ## go work sync 并 tidy 所有模块
 # ---------- 代码生成 ----------
 
 # goctl api go：在 .api 所在目录下生成，输出目录与 .api 同级
-#   一般服务：apps/<svc>/api/<svc>.api -> apps/<svc>/api
-#   data   ：apps/data/api/data.api   -> apps/data/api/data
+#   所有服务：apps/<svc>/api/<svc>.api -> apps/<svc>/api
 api: ## 根据 .api 重新生成 handler/logic/types（覆盖生成产物，logic 手改注意备份）
 	@powershell -NoProfile -Command "$$jobs = @( \
 	  @{ api='apps/auth/api/auth.api';       dir='apps/auth/api' }, \
 	  @{ api='apps/course/api/course.api';   dir='apps/course/api' }, \
-	  @{ api='apps/data/api/data.api';       dir='apps/data/api/data' }, \
+	  @{ api='apps/data/api/data.api';       dir='apps/data/api' }, \
 	  @{ api='apps/exam/api/exam.api';       dir='apps/exam/api' }, \
 	  @{ api='apps/learning/api/learning.api'; dir='apps/learning/api' }, \
 	  @{ api='apps/media/api/media.api';     dir='apps/media/api' }, \
@@ -54,23 +55,27 @@ api: ## 根据 .api 重新生成 handler/logic/types（覆盖生成产物，logi
 	  @{ api='apps/search/api/search.api';   dir='apps/search/api' }, \
 	  @{ api='apps/trade/api/trade.api';     dir='apps/trade/api' }, \
 	  @{ api='apps/user/api/user.api';       dir='apps/user/api' } ); \
-	  $$jobs | ForEach-Object { Write-Host ('  api  -> {0}' -f $$_.dir); & $(GOCTL) api go -api $$_.api -dir $$_.dir -style gozero; if ($$LASTEXITCODE -ne 0) { exit 1 } }"
+	  $$jobs | ForEach-Object { Write-Host ('  api  -> {0}' -f $$_.dir); & $(GOCTL) api go -api $$_.api -dir $$_.dir -style gozero -home $(GOCTL_TPL_HOME); if ($$LASTEXITCODE -ne 0) { exit 1 } }"
 
 # goctl rpc protoc：在 .proto 所在目录下执行
 rpc: ## 根据 .proto 重新生成 pb/server/client/logic
 	@powershell -NoProfile -Command "$$jobs = @( \
-	  'apps/auth/rpc/auth.proto', 'apps/course/rpc/course.proto', 'apps/data/rpc/data/data.proto', \
+	  'apps/auth/rpc/auth.proto', 'apps/course/rpc/course.proto', 'apps/data/rpc/data.proto', \
 	  'apps/exam/rpc/exam.proto', 'apps/learning/rpc/learning.proto', 'apps/media/rpc/media.proto', \
 	  'apps/message/rpc/message.proto', 'apps/pay/rpc/pay.proto', 'apps/promotion/rpc/promotion.proto', \
 	  'apps/remark/rpc/remark.proto', 'apps/search/rpc/search.proto', \
 	  'apps/trade/rpc/trade.proto', 'apps/user/rpc/user.proto' ); \
-	  $$jobs | ForEach-Object { $$d = Split-Path $$_ -Parent; $$f = Split-Path $$_ -Leaf; Write-Host ('  rpc  -> {0}' -f $$d); Push-Location $$d; & $(GOCTL) rpc protoc $$f --go_out=. --go-grpc_out=. --zrpc_out=. --client=true -m; $$code=$$LASTEXITCODE; Pop-Location; if ($$code -ne 0) { exit 1 } }"
+	  $$jobs | ForEach-Object { $$d = Split-Path $$_ -Parent; $$f = Split-Path $$_ -Leaf; Write-Host ('  rpc  -> {0}' -f $$d); Push-Location $$d; & $(GOCTL) rpc protoc $$f --go_out=. --go-grpc_out=. --zrpc_out=. --client=true -m --home $(GOCTL_TPL_HOME); $$code=$$LASTEXITCODE; Pop-Location; if ($$code -ne 0) { exit 1 } }"
 
 # 从 DDL 生成 model（--cache 走 Redis）
 model: ## 根据 sql/ddl/*.sql 生成 model（输出到 ./model/<db>/）
 	@powershell -NoProfile -Command "Get-ChildItem sql/ddl/*.sql | ForEach-Object { $$db = $$_.BaseName -replace '^tj_',''; Write-Host ('  model -> model/{0}  from {1}' -f $$db, $$_.Name); & $(GOCTL) model mysql ddl -src $$_.FullName -dir ('./model/{0}' -f $$db) -c -style gozero; if ($$LASTEXITCODE -ne 0) { exit 1 } }"
 
 generate: api rpc ## 一键重新生成 api + rpc
+
+check-gen: ## 重生成 API 并校验与仓库零漂移（契约一致性守卫）
+	$(MAKE) api
+	git diff --exit-code -- apps
 
 # ---------- 构建 / 测试 ----------
 
@@ -79,7 +84,7 @@ build: ## 构建全部 26 个可执行文件到 bin/
 	  $$jobs = @( \
 	    @{d='apps/auth/api';       n='auth-api'},       @{d='apps/auth/rpc';       n='auth-rpc'}, \
 	    @{d='apps/course/api';     n='course-api'},     @{d='apps/course/rpc';     n='course-rpc'}, \
-	    @{d='apps/data/api/data';  n='data-api'},       @{d='apps/data/rpc/data';  n='data-rpc'}, \
+	    @{d='apps/data/api';       n='data-api'},       @{d='apps/data/rpc';       n='data-rpc'}, \
 	    @{d='apps/exam/api';       n='exam-api'},       @{d='apps/exam/rpc';       n='exam-rpc'}, \
 	    @{d='apps/learning/api';   n='learning-api'},   @{d='apps/learning/rpc';   n='learning-rpc'}, \
 	    @{d='apps/media/api';      n='media-api'},      @{d='apps/media/rpc';      n='media-rpc'}, \
@@ -127,7 +132,7 @@ docker-logs: ## 跟踪依赖容器日志
 verify: ## 校验所有服务的 .api/.proto 与 internal/ 目录是否齐全
 	@powershell -NoProfile -Command "$$miss = 0; \
 	  @('apps/auth/api/auth.api','apps/course/api/course.api','apps/data/api/data.api','apps/exam/api/exam.api','apps/learning/api/learning.api','apps/media/api/media.api','apps/message/api/message.api','apps/pay/api/pay.api','apps/promotion/api/promotion.api','apps/remark/api/remark.api','apps/search/api/search.api','apps/trade/api/trade.api','apps/user/api/user.api') | ForEach-Object { if (-not (Test-Path $$_)) { Write-Host ('missing api: {0}' -f $$_) -ForegroundColor Red; $$miss++ } }; \
-	  @('apps/auth/rpc/auth.proto','apps/course/rpc/course.proto','apps/data/rpc/data/data.proto','apps/exam/rpc/exam.proto','apps/learning/rpc/learning.proto','apps/media/rpc/media.proto','apps/message/rpc/message.proto','apps/pay/rpc/pay.proto','apps/promotion/rpc/promotion.proto','apps/remark/rpc/remark.proto','apps/search/rpc/search.proto','apps/trade/rpc/trade.proto','apps/user/rpc/user.proto') | ForEach-Object { if (-not (Test-Path $$_)) { Write-Host ('missing proto: {0}' -f $$_) -ForegroundColor Red; $$miss++ } }; \
+	  @('apps/auth/rpc/auth.proto','apps/course/rpc/course.proto','apps/data/rpc/data.proto','apps/exam/rpc/exam.proto','apps/learning/rpc/learning.proto','apps/media/rpc/media.proto','apps/message/rpc/message.proto','apps/pay/rpc/pay.proto','apps/promotion/rpc/promotion.proto','apps/remark/rpc/remark.proto','apps/search/rpc/search.proto','apps/trade/rpc/trade.proto','apps/user/rpc/user.proto') | ForEach-Object { if (-not (Test-Path $$_)) { Write-Host ('missing proto: {0}' -f $$_) -ForegroundColor Red; $$miss++ } }; \
 	  @('$(API_DIRS)' -split ' ' + '$(RPC_DIRS)' -split ' ') | ForEach-Object { if (-not (Test-Path ('{0}/internal' -f $$_))) { Write-Host ('missing internal: {0}' -f $$_) -ForegroundColor Red; $$miss++ } }; \
 	  if ($$miss -gt 0) { exit 1 } else { Write-Host 'structure ok' -ForegroundColor Green }"
 
@@ -141,11 +146,10 @@ tidy: ## 对所有 go.mod 执行 go mod tidy
 
 # 模板：make run-<svc>        -> 启动 <svc>-api
 #        make run-<svc>-rpc   -> 启动 <svc>-rpc
-# data 目录是 apps/data/api/data 和 apps/data/rpc/data，yaml 名固定
 
 run-auth: ; $(GO) run ./apps/auth/api -f apps/auth/api/etc/auth-api.yaml
 run-course: ; $(GO) run ./apps/course/api -f apps/course/api/etc/course-api.yaml
-run-data: ; $(GO) run ./apps/data/api/data -f apps/data/api/data/etc/data-api.yaml
+run-data: ; $(GO) run ./apps/data/api -f apps/data/api/etc/data-api.yaml
 run-exam: ; $(GO) run ./apps/exam/api -f apps/exam/api/etc/exam-api.yaml
 run-learning: ; $(GO) run ./apps/learning/api -f apps/learning/api/etc/learning-api.yaml
 run-media: ; $(GO) run ./apps/media/api -f apps/media/api/etc/media-api.yaml
@@ -159,7 +163,7 @@ run-user: ; $(GO) run ./apps/user/api -f apps/user/api/etc/user-api.yaml
 
 run-auth-rpc: ; $(GO) run ./apps/auth/rpc -f apps/auth/rpc/etc/auth.yaml
 run-course-rpc: ; $(GO) run ./apps/course/rpc -f apps/course/rpc/etc/course.yaml
-run-data-rpc: ; $(GO) run ./apps/data/rpc/data -f apps/data/rpc/data/etc/data.yaml
+run-data-rpc: ; $(GO) run ./apps/data/rpc -f apps/data/rpc/etc/data.yaml
 run-exam-rpc: ; $(GO) run ./apps/exam/rpc -f apps/exam/rpc/etc/exam.yaml
 run-learning-rpc: ; $(GO) run ./apps/learning/rpc -f apps/learning/rpc/etc/learning.yaml
 run-media-rpc: ; $(GO) run ./apps/media/rpc -f apps/media/rpc/etc/media.yaml
