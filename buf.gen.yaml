@@ -1,6 +1,6 @@
 # buf generate 模板：仅为 8 个折叠服务再生成 pb 类型（不含 gRPC 服务桩）。
-# 用法：cd service/<svc>/api && buf generate --template ../../../buf.gen.yaml
-# 输出落点由各 proto 的 go_package（./backend/pb）锚定，配合 out=. 写入 service/<svc>/api/backend/pb/。
+# 用法：cd app/<svc>/api && buf generate --template ../../../buf.gen.yaml
+# 输出落点由各 proto 的 go_package（./backend/pb）锚定，配合 out=. 写入 app/<svc>/api/backend/pb/。
 # 折叠服务只保留 pb 类型（请求/响应结构体），RPC 进程壳已删除，故不配 grpc 插件。
 version: v2
 plugins:
