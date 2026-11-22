@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package trade;
 
-option go_package = "./pb";
+option go_package = "./backend/pb";
 
 // ============================================================
 // Trade RPC：覆盖 cart / order / order_detail / refund_apply
