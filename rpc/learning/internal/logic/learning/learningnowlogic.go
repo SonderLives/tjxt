@@ -27,7 +27,7 @@ func NewLearningNowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Learn
 
 // 当前正在学习的课程（最近学习过的一条）
 func (l *LearningNowLogic) LearningNow(in *pb.Empty) (*pb.LearningLessonVO, error) {
-	userID, err := auth.UserIdFromCtx(l.ctx)
+	userID, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
 		return nil, err
 	}

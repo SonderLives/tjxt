@@ -1,22 +1,13 @@
 package learninglogic
 
 import (
-	"context"
 	"database/sql"
 
 	"tjxt/rpc/learning/internal/model"
 	"tjxt/rpc/learning/pb"
-	"tjxt/pkg/auth"
 )
 
 const timeLayout = "2006-01-02 15:04:05"
-
-func lessonRequestUserID(ctx context.Context, requestUserID int64) (int64, error) {
-	if requestUserID > 0 {
-		return requestUserID, nil
-	}
-	return auth.UserIdFromCtx(ctx)
-}
 
 // 学习状态 / 计划状态 对外枚举字符串
 const (

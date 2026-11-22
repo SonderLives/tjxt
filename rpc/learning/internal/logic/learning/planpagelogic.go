@@ -27,7 +27,7 @@ func NewPlanPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PlanPage
 
 // 我的学习计划分页
 func (l *PlanPageLogic) PlanPage(in *pb.LessonPageRequest) (*pb.PlanPageReply, error) {
-	userID, err := auth.UserIdFromCtx(l.ctx)
+	userID, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
 		return nil, err
 	}

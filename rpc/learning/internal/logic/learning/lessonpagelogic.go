@@ -27,7 +27,7 @@ func NewLessonPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Lesson
 
 // 我的课表分页
 func (l *LessonPageLogic) LessonPage(in *pb.LessonPageRequest) (*pb.LessonPageReply, error) {
-	userID, err := auth.UserIdFromCtx(l.ctx)
+	userID, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
 		return nil, err
 	}

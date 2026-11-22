@@ -27,7 +27,7 @@ func NewLearningRecordCommitLogic(ctx context.Context, svcCtx *svc.ServiceContex
 
 // 提交学习记录（更新 lesson 的 latest_section/learn_time/learned_sections）
 func (l *LearningRecordCommitLogic) LearningRecordCommit(in *pb.LearningRecordCommitRequest) (*pb.Empty, error) {
-	userID, err := auth.UserIdFromCtx(l.ctx)
+	userID, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
 		return nil, err
 	}
