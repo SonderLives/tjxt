@@ -38,7 +38,7 @@ func (l *MockPayLogic) MockPay(req *types.MockPayReq) (resp *types.Result, err e
 	}
 	userId, err := auth.UserIdFromCtx(l.ctx)
 	if err != nil {
-		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
+		return nil, err
 	}
 	if req.BizOrderNo <= 0 {
 		return nil, errorx.BadRequestf("bizOrderNo 非法")
@@ -55,9 +55,9 @@ func (l *MockPayLogic) MockPay(req *types.MockPayReq) (resp *types.Result, err e
 		return nil, errorx.Forbidden("无权操作该订单")
 	}
 	switch payOrder.Status {
-	case 3: // 已支付：幂等成功
+	case PayOrderStatusSuccess: // 已支付：幂等成功
 		return &types.Result{Code: 200, Msg: "OK"}, nil
-	case 2: // 已关闭
+	case PayOrderStatusClosed: // 已关闭
 		return nil, errorx.Conflict("支付单已关闭，无法支付")
 	}
 

@@ -2,10 +2,12 @@ package paylogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/rpc/pay/internal/model"
 	"tjxt/rpc/pay/internal/svc"
 	"tjxt/rpc/pay/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +31,7 @@ func (l *AddPayChannelLogic) AddPayChannel(in *pb.PayChannelRequest) (*pb.PayCha
 	}
 	if _, err := l.svcCtx.PayChannelModel.FindByCode(l.ctx, in.ChannelCode); err == nil {
 		return nil, errorx.Conflict("渠道编码已存在")
-	} else if !isNotFound(err) {
+	} else if !errors.Is(err, model.ErrNotFound) {
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询渠道编码失败")
 	}
 
