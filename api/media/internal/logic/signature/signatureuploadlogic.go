@@ -6,9 +6,10 @@ package signature
 import (
 	"context"
 
+	backendlogic "tjxt/api/media/backend/logic"
+	mediaclient "tjxt/api/media/backend/pb"
 	"tjxt/api/media/internal/svc"
 	"tjxt/api/media/internal/types"
-	mediaclient "tjxt/rpc/media/client/media"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -32,7 +33,7 @@ func (l *SignatureUploadLogic) SignatureUpload(req *types.SignatureReq) (resp *t
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	rpcResp, err := l.svcCtx.MediaRpc.SignatureUpload(l.ctx, &mediaclient.SignatureRequest{
+	rpcResp, err := backendlogic.NewSignatureUploadLogic(l.ctx, l.svcCtx.Backend).SignatureUpload(&mediaclient.SignatureRequest{
 		MediaId:   req.MediaId,
 		FileName:  req.FileName,
 		MediaType: req.MediaType,

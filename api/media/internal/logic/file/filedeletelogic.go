@@ -6,9 +6,10 @@ package file
 import (
 	"context"
 
+	backendlogic "tjxt/api/media/backend/logic"
+	mediaclient "tjxt/api/media/backend/pb"
 	"tjxt/api/media/internal/svc"
 	"tjxt/api/media/internal/types"
-	mediaclient "tjxt/rpc/media/client/media"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -32,7 +33,7 @@ func (l *FileDeleteLogic) FileDelete(req *types.FileIdPathReq) (resp *types.OkVO
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	if _, err := l.svcCtx.MediaRpc.FileDelete(l.ctx, &mediaclient.FileIdRequest{Id: req.Id}); err != nil {
+	if _, err := backendlogic.NewFileDeleteLogic(l.ctx, l.svcCtx.Backend).FileDelete(&mediaclient.FileIdRequest{Id: req.Id}); err != nil {
 		return nil, err
 	}
 	return &types.OkVO{Success: true}, nil

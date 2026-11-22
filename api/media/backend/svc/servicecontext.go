@@ -6,9 +6,9 @@ package svc
 import (
 	"context"
 
-	"tjxt/rpc/media/internal/config"
-	"tjxt/rpc/media/internal/model"
-	"tjxt/rpc/media/internal/store"
+	"tjxt/api/media/backend/config"
+	"tjxt/api/media/backend/model"
+	"tjxt/api/media/backend/store"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"

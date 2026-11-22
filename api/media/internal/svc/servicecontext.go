@@ -5,21 +5,21 @@ package svc
 
 import (
 	"tjxt/api/media/internal/config"
-	mediaclient "tjxt/rpc/media/client/media"
 
-	"github.com/zeromicro/go-zero/zrpc"
+	backendsvc "tjxt/api/media/backend/svc"
 )
 
 type ServiceContext struct {
 	Config config.Config
 
-	// MediaRpc 媒资服务的 RPC 客户端
-	MediaRpc mediaclient.Media
+	// Backend media 后端服务上下文（模型 + 对象存储客户端），
+	// api logic 直调 backend 包，不再走 media RPC
+	Backend *backendsvc.ServiceContext
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:   c,
-		MediaRpc: mediaclient.NewMedia(zrpc.MustNewClient(c.MediaRpc)),
+		Config:  c,
+		Backend: backendsvc.NewServiceContext(c.Config),
 	}
 }

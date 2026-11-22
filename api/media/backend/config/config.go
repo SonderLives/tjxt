@@ -1,15 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
+// Package config media 后端业务配置（随原 rpc/media 业务层随迁），
+// 进程壳配置（RpcServerConf/RestConf）由宿主进程自行承载。
 package config
 
 import (
 	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type Config struct {
-	zrpc.RpcServerConf
 	DataSource string
 	Cache      cache.CacheConf
 

@@ -6,9 +6,10 @@ package media
 import (
 	"context"
 
+	backendlogic "tjxt/api/media/backend/logic"
+	mediaclient "tjxt/api/media/backend/pb"
 	"tjxt/api/media/internal/svc"
 	"tjxt/api/media/internal/types"
-	mediaclient "tjxt/rpc/media/client/media"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -32,7 +33,7 @@ func (l *MediaGetLogic) MediaGet(req *types.MediaIdPathReq) (resp *types.MediaVO
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	rpcResp, err := l.svcCtx.MediaRpc.MediaGet(l.ctx, &mediaclient.MediaIdRequest{MediaId: req.Id})
+	rpcResp, err := backendlogic.NewMediaGetLogic(l.ctx, l.svcCtx.Backend).MediaGet(&mediaclient.MediaIdRequest{MediaId: req.Id})
 	if err != nil {
 		return nil, err
 	}
