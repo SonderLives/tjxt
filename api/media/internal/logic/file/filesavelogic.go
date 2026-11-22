@@ -6,9 +6,10 @@ package file
 import (
 	"context"
 
+	backendlogic "tjxt/api/media/backend/logic"
+	mediaclient "tjxt/api/media/backend/pb"
 	"tjxt/api/media/internal/svc"
 	"tjxt/api/media/internal/types"
-	mediaclient "tjxt/rpc/media/client/media"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -32,7 +33,7 @@ func (l *FileSaveLogic) FileSave(req *types.FileSaveReq) (resp *types.FileIdVO, 
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	rpcResp, err := l.svcCtx.MediaRpc.FileSave(l.ctx, &mediaclient.FileSaveRequest{
+	rpcResp, err := backendlogic.NewFileSaveLogic(l.ctx, l.svcCtx.Backend).FileSave(&mediaclient.FileSaveRequest{
 		Filename: req.Filename,
 		Key:      req.Key,
 		Size:     req.Size,

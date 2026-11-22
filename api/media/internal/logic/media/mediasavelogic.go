@@ -6,9 +6,10 @@ package media
 import (
 	"context"
 
+	backendlogic "tjxt/api/media/backend/logic"
+	mediaclient "tjxt/api/media/backend/pb"
 	"tjxt/api/media/internal/svc"
 	"tjxt/api/media/internal/types"
-	mediaclient "tjxt/rpc/media/client/media"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -33,7 +34,7 @@ func (l *MediaSaveLogic) MediaSave(req *types.MediaSaveReq) (resp *types.MediaId
 		return nil, err
 	}
 	// RPC 协议暂无用户字段，此处仅校验登录态
-	rpcResp, err := l.svcCtx.MediaRpc.MediaSave(l.ctx, &mediaclient.MediaSaveRequest{
+	rpcResp, err := backendlogic.NewMediaSaveLogic(l.ctx, l.svcCtx.Backend).MediaSave(&mediaclient.MediaSaveRequest{
 		Id:       req.Id,
 		Filename: req.Filename,
 		Duration: req.Duration,

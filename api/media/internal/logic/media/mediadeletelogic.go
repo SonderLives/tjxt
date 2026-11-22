@@ -6,9 +6,10 @@ package media
 import (
 	"context"
 
+	backendlogic "tjxt/api/media/backend/logic"
+	mediaclient "tjxt/api/media/backend/pb"
 	"tjxt/api/media/internal/svc"
 	"tjxt/api/media/internal/types"
-	mediaclient "tjxt/rpc/media/client/media"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -32,7 +33,7 @@ func (l *MediaDeleteLogic) MediaDelete(req *types.MediaIdPathReq) (resp *types.O
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	if _, err := l.svcCtx.MediaRpc.MediaDelete(l.ctx, &mediaclient.MediaIdRequest{MediaId: req.Id}); err != nil {
+	if _, err := backendlogic.NewMediaDeleteLogic(l.ctx, l.svcCtx.Backend).MediaDelete(&mediaclient.MediaIdRequest{MediaId: req.Id}); err != nil {
 		return nil, err
 	}
 	return &types.OkVO{Success: true}, nil

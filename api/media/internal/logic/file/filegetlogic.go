@@ -6,9 +6,10 @@ package file
 import (
 	"context"
 
+	backendlogic "tjxt/api/media/backend/logic"
+	mediaclient "tjxt/api/media/backend/pb"
 	"tjxt/api/media/internal/svc"
 	"tjxt/api/media/internal/types"
-	mediaclient "tjxt/rpc/media/client/media"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -32,7 +33,7 @@ func (l *FileGetLogic) FileGet(req *types.FileIdPathReq) (resp *types.FileVO, er
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	rpcResp, err := l.svcCtx.MediaRpc.FileGet(l.ctx, &mediaclient.FileIdRequest{Id: req.Id})
+	rpcResp, err := backendlogic.NewFileGetLogic(l.ctx, l.svcCtx.Backend).FileGet(&mediaclient.FileIdRequest{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}

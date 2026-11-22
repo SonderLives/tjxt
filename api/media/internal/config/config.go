@@ -5,7 +5,8 @@ package config
 
 import (
 	"github.com/zeromicro/go-zero/rest"
-	"github.com/zeromicro/go-zero/zrpc"
+
+	backendconfig "tjxt/api/media/backend/config"
 )
 
 type Config struct {
@@ -15,6 +16,8 @@ type Config struct {
 		AccessExpire int64
 	}
 
-	// MediaRpc 媒资 RPC 客户端配置（通过 etcd 服务发现）
-	MediaRpc zrpc.RpcClientConf
+	// media 后端业务配置（内联展开：DataSource/Cache/MinIO 对象存储），
+	// 与原 rpc/media 配置合并。MinIO（S3 兼容：RustFS/MinIO/COS/OSS）为
+	// backend 特有键，与 api 侧 Auth.AccessSecret（JWT 校验）命名避让、互不覆盖。
+	backendconfig.Config
 }
