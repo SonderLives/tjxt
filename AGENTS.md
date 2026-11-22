@@ -57,29 +57,55 @@
 
 #### 2.1 推荐结构
 ``` bash
-project/
-├── api/                  # HTTP API 服务
-│   ├── gateway/
-│   └── user/
-├── rpc/                  # RPC 服务
+tjxt/
+├── service/
+│   │
 │   ├── user/
+│   │   ├── api/                 # 用户 HTTP API
+│   │   └── rpc/                 # 用户 RPC 服务
+│   │
 │   ├── course/
-│   └── trade/
-├── app/                  # 独立后台应用
-│   ├── mq/
-│   ├── cron/
-│   └── job/
-├── pkg/                  # 可跨业务复用的通用能力
-├── deployments/          # Docker、Kubernetes 等部署文件
-├── scripts/              # 开发、构建、运维脚本
-├── docs/                 # 架构、设计和使用文档
+│   │   ├── api/                 # 课程 HTTP API
+│   │   └── rpc/                 # 课程 RPC 服务
+│   │
+│   ├── trade/
+│   │   ├── api/                 # 交易 HTTP API
+│   │   └── rpc/                 # 交易 RPC 服务
+│   │
+│   └── learning/
+│       └── rpc/                 # 学习 RPC 服务
+│
+├── app/
+│   ├── mq/                      # 消息队列消费者
+│   ├── cron/                    # 定时任务
+│   └── job/                     # 后台任务
+│
+├── common/                      # 公共组件
+│   ├── auth/
+│   ├── cache/
+│   ├── constants/
+│   ├── errors/
+│   ├── jwt/
+│   ├── logger/
+│   ├── middleware/
+│   ├── response/
+│   └── utils/
+│
+├── deploy/                      # 部署配置
+│   ├── docker/
+│   └── k8s/
+│
+├── docs/
+├── scripts/
+├── buf.yaml
 ├── Makefile
 ├── go.mod
+├── go.sum
 └── AGENTS.md
 ```
-这是推荐结构，不要求所有项目机械照搬。应以当前仓库实际结构和 goctl
+这是推荐结构，不要求所有项目机械照搬。应以当前仓库实际结构和 goctl生成结构为准。
 
-生成结构为准。
+官方目录最佳实践：https://go-zero.dev/zh-cn/concepts/project-structure/?utm_source=chatgpt.com
 
 ## 二、命名规范
 
