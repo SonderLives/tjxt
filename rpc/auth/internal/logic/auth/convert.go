@@ -3,14 +3,11 @@ package authlogic
 import (
 	"database/sql"
 	"sort"
-	"time"
 
+	"tjxt/pkg/timex"
 	"tjxt/rpc/auth/internal/model"
 	"tjxt/rpc/auth/pb"
 )
-
-// timeLayout 对外输出的时间格式，与其他微服务保持一致。
-const timeLayout = "2006-01-02 15:04:05"
 
 // fixedRoleType 固定角色类型：不允许删除或修改 code。
 const fixedRoleType int64 = 0
@@ -29,22 +26,6 @@ func int64Val(v sql.NullInt64) int64 {
 		return v.Int64
 	}
 	return 0
-}
-
-// timeStr 格式化时间，零值返回空串。
-func timeStr(t time.Time) string {
-	if t.IsZero() {
-		return ""
-	}
-	return t.Format(timeLayout)
-}
-
-// nullTimeStr 格式化可空时间，无效或零值返回空串。
-func nullTimeStr(t sql.NullTime) string {
-	if !t.Valid {
-		return ""
-	}
-	return timeStr(t.Time)
 }
 
 // boolToInt 将布尔转为数据库中的 tinyint 表示。
@@ -70,7 +51,7 @@ func toRoleVO(r *model.Role) *pb.RoleVO {
 		Code:       r.Code,
 		Name:       r.Name,
 		Type:       int32(r.Type),
-		CreateTime: timeStr(r.CreateTime),
+		CreateTime: timex.Format(r.CreateTime),
 	}
 }
 
@@ -98,8 +79,8 @@ func toLoginRecordVO(r *model.LoginRecord) *pb.LoginRecordVO {
 		Id:         r.Id,
 		UserId:     r.UserId,
 		CellPhone:  strVal(r.CellPhone),
-		LoginTime:  timeStr(r.LoginTime),
-		LogoutTime: nullTimeStr(r.LogoutTime),
+		LoginTime:  timex.Format(r.LoginTime),
+		LogoutTime: timex.FormatNullTime(r.LogoutTime),
 		Duration:   r.Duration,
 		Ipv4:       r.Ipv4,
 	}

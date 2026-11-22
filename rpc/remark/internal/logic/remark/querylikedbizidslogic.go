@@ -3,6 +3,7 @@ package remarklogic
 import (
 	"context"
 
+	"tjxt/pkg/errorx"
 	"tjxt/rpc/remark/internal/svc"
 	"tjxt/rpc/remark/pb"
 
@@ -26,7 +27,7 @@ func NewQueryLikedBizIdsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 func (l *QueryLikedBizIdsLogic) QueryLikedBizIds(in *pb.LikedReq) (*pb.LikedResp, error) {
 	ids, err := l.svcCtx.LikeRecordModel.FindLikedBizIds(l.ctx, in.UserId, in.BizType, in.BizIds)
 	if err != nil {
-		return nil, err
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询点赞状态失败")
 	}
 	return &pb.LikedResp{LikedBizIds: ids}, nil
 }

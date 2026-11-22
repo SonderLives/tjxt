@@ -3,6 +3,7 @@ package userlogic
 import (
 	"database/sql"
 
+	"tjxt/pkg/timex"
 	"tjxt/rpc/user/internal/model"
 	"tjxt/rpc/user/pb"
 )
@@ -96,7 +97,7 @@ func toUserDetailVO(u *model.User, d *model.UserDetail) *pb.UserDetailVO {
 		out.District = strVal(d.District)
 		out.Intro = strVal(d.Intro)
 	}
-	out.CreateTime = u.CreateTime.Format("2006-01-02 15:04:05")
+	out.CreateTime = timex.Format(u.CreateTime)
 	return out
 }
 
@@ -110,7 +111,7 @@ func toStudentPageVO(v *model.UserWithDetail) *pb.StudentPageVO {
 		Gender:       int32(v.Gender),
 		Status:       int32(v.Status),
 		CourseAmount: v.CourseAmount,
-		CreateTime:   v.CreateTime.Format("2006-01-02 15:04:05"),
+		CreateTime:   timex.Format(v.CreateTime),
 	}
 }
 
@@ -128,7 +129,7 @@ func toTeacherPageVO(v *model.UserWithDetail) *pb.TeacherPageVO {
 		Intro:        strVal(v.Intro),
 		Status:       int32(v.Status),
 		CourseAmount: v.CourseAmount,
-		CreateTime:   v.CreateTime.Format("2006-01-02 15:04:05"),
+		CreateTime:   timex.Format(v.CreateTime),
 	}
 }
 
@@ -142,7 +143,7 @@ func toStaffVO(v *model.UserWithDetail) *pb.StaffVO {
 		Icon:       strVal(v.Icon),
 		Status:     int32(v.Status),
 		RoleId:     v.RoleId,
-		CreateTime: v.CreateTime.Format("2006-01-02 15:04:05"),
+		CreateTime: timex.Format(v.CreateTime),
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"tjxt/pkg/errorx"
 	"tjxt/rpc/user/internal/model"
 	"tjxt/rpc/user/internal/svc"
 	"tjxt/rpc/user/pb"
@@ -11,12 +12,6 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"golang.org/x/crypto/bcrypt"
-)
-
-var (
-	ErrUserNotFound  = errors.New("user not found")
-	ErrBadCredential = errors.New("bad credential")
-	ErrUserDisabled  = errors.New("user disabled")
 )
 
 type LoginVerifyLogic struct {
@@ -35,6 +30,12 @@ func NewLoginVerifyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Login
 
 // LoginVerify 仅做身份核验（找用户 + 比对密码 + 状态检查）。
 // 角色归属由 auth 服务通过 account_role 自查；此处不签发任何令牌。
+//
+// 失败语义统一走 pkg/errorx 业务错误，保证跨 gRPC 传输后调用方
+// （api/auth 登录链路）仍能还原为 401/403 而非 500：
+//   - 未提供账号标识             -> 400 请求参数错误
+//   - 账号不存在 / 密码错误     -> 401 未认证
+//   - 账号被禁用（status != 1） -> 403 无权限
 func (l *LoginVerifyLogic) LoginVerify(in *pb.LoginVerifyRequest) (*pb.LoginVerifyResponse, error) {
 	var user *model.User
 	var err error
@@ -44,19 +45,19 @@ func (l *LoginVerifyLogic) LoginVerify(in *pb.LoginVerifyRequest) (*pb.LoginVeri
 	} else if in.Username != "" {
 		user, err = l.svcCtx.UserModel.FindOneByUsername(l.ctx, in.Username)
 	} else {
-		return nil, ErrUserNotFound
+		return nil, errorx.BadRequestf("手机号与用户名不能均为空")
 	}
 	if err != nil {
 		if errors.Is(err, sqlc.ErrNotFound) {
-			return nil, ErrUserNotFound
+			return nil, errorx.Unauthorized("账号不存在")
 		}
-		return nil, err
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询用户失败")
 	}
 	if user.Status != 1 {
-		return nil, ErrUserDisabled
+		return nil, errorx.Forbidden("账号已被禁用")
 	}
 	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(in.Password)) != nil {
-		return nil, ErrBadCredential
+		return nil, errorx.Unauthorized("用户名或密码错误")
 	}
 	return &pb.LoginVerifyResponse{
 		UserId:    user.Id,
