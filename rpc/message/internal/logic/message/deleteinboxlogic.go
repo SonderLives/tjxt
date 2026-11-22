@@ -2,9 +2,11 @@ package messagelogic
 
 import (
 	"context"
+	"errors"
 
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
+	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
 
@@ -33,7 +35,7 @@ func (l *DeleteInboxLogic) DeleteInbox(in *pb.IdReq) (*pb.Empty, error) {
 	}
 	data, err := l.svcCtx.UserInboxModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("站内信不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询站内信失败")

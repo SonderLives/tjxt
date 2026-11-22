@@ -3,10 +3,11 @@ package messagelogic
 import (
 	"context"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/page"
+	"tjxt/pkg/timex"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/page"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -46,8 +47,8 @@ func (l *ListPublicNoticesLogic) ListPublicNotices(in *pb.PageReq) (*pb.PublicNo
 			Title:      item.Title,
 			Content:    item.Content,
 			Type:       int32(item.Type),
-			PushTime:   formatTime(item.PushTime),
-			ExpireTime: formatTime(item.ExpireTime),
+			PushTime:   timex.Format(item.PushTime),
+			ExpireTime: timex.Format(item.ExpireTime),
 		})
 	}
 	return resp, nil

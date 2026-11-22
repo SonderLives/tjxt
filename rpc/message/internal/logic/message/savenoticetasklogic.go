@@ -3,9 +3,12 @@ package messagelogic
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
+	"tjxt/pkg/timex"
 	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
@@ -35,17 +38,17 @@ func (l *SaveNoticeTaskLogic) SaveNoticeTask(in *pb.NoticeTaskSaveReq) (*pb.IdRe
 
 	// 校验通知模板存在
 	if _, err := l.svcCtx.NoticeTemplateModel.FindOne(l.ctx, in.TemplateId); err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.BadRequestf("通知模板不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询通知模板失败")
 	}
 
-	pushTime, err := parseDateTime(in.PushTime)
+	pushTime, err := timex.ParseNullTime(in.PushTime)
 	if err != nil {
 		return nil, errorx.BadRequestf("pushTime 格式非法")
 	}
-	expireTime, err := parseDateTime(in.ExpireTime)
+	expireTime, err := timex.ParseNullTime(in.ExpireTime)
 	if err != nil {
 		return nil, errorx.BadRequestf("expireTime 格式非法")
 	}
@@ -68,7 +71,7 @@ func (l *SaveNoticeTaskLogic) SaveNoticeTask(in *pb.NoticeTaskSaveReq) (*pb.IdRe
 
 	if in.Id == 0 {
 		data := &model.NoticeTask{
-			Id:         nextID(),
+			Id:         idgen.NextID(),
 			TemplateId: in.TemplateId,
 			Name:       in.Name,
 			Partial:    partial,
@@ -88,7 +91,7 @@ func (l *SaveNoticeTaskLogic) SaveNoticeTask(in *pb.NoticeTaskSaveReq) (*pb.IdRe
 
 	old, err := l.svcCtx.NoticeTaskModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("通知任务不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询通知任务失败")

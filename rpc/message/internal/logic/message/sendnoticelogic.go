@@ -4,10 +4,12 @@ import (
 	"context"
 	"time"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
+	"tjxt/pkg/timex"
 	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -38,7 +40,7 @@ func (l *SendNoticeLogic) SendNotice(in *pb.SendNoticeReq) (*pb.IdReply, error) 
 	now := time.Now()
 	expireTime := now.AddDate(0, 0, 30)
 	if in.ExpireTime != "" {
-		t, err := parseDateTime(in.ExpireTime)
+		t, err := timex.ParseNullTime(in.ExpireTime)
 		if err != nil {
 			return nil, errorx.BadRequestf("expireTime 格式非法")
 		}
@@ -46,7 +48,7 @@ func (l *SendNoticeLogic) SendNotice(in *pb.SendNoticeReq) (*pb.IdReply, error) 
 	}
 
 	data := &model.UserInbox{
-		Id:         nextID(),
+		Id:         idgen.NextID(),
 		UserId:     in.UserId,
 		Type:       int64(in.Type),
 		Title:      in.Title,
