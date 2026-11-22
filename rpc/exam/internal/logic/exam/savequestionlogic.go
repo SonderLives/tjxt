@@ -45,10 +45,11 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 		return nil, errorx.BadRequestf("分值必须大于0")
 	}
 
-	// 获取登录用户，作为创建人/更新人（上游 API 通过 metadata 透传）
+	// 获取登录用户，作为创建人/更新人（上游 API 通过 metadata 透传）。
+	// 取不到说明请求未携带登录态，直接拒绝，不再静默伪造审计字段。
 	userId, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
-		userId = 1
+		return nil, err
 	}
 	options := sql.NullString{String: in.Options, Valid: in.Options != ""}
 
