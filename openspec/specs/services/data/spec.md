@@ -4,7 +4,7 @@
 
 data（统计大屏）微服务面向运营统计大屏提供三组展示数据的读写能力：看板图表数据（ECharts 结构）、今日实时指标（访问量 / 订单金额 / 订单数 / 新增学员数）与 Top10 课程榜单（热门榜 / 热销榜）。HTTP 服务 `data-api` 监听 8811，RPC 服务 `data.rpc` 监听 `0.0.0.0:8091`（gRPC），经 etcd（`127.0.0.1:2379`，key `data.rpc`）注册与发现。本服务无独立数据库：无 MySQL、无 Redis、无 model 层，目标存储为 Redis（设计意图，推导，当前未落地）；与其他服务的关系上，代码中仅有 data-api 自身消费 `data.rpc`（6 个 HTTP 接口与 6 个 RPC 方法一一对应转发），无任何上游 RPC 调用或 MQ 消费者——上游统计来源（trade 域订单统计、user 域新增学员、网关访问量统计）按设计意图经离线任务 / MQ 回填 `Set*` 系列 RPC，wiki 拓扑标注的 `data-rpc --> AuthRPC` 依赖在代码中不存在。12 个 logic（RPC 6 + API 6）按 business-rules v1.2 复核均已实现并编译通过。
 
-> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/data`，`data.rpc` :8091）已删除，RPC 层业务实现（含 Redis 看板/榜单读写）随迁 `service/data/api/backend`（config/logic/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `service/data/api/data.proto`，pb 类型由 `make pb`（buf generate）再生成到 `service/data/api/backend/pb/`。下文涉及「RPC 服务 / rpc/data 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/data`，`data.rpc` :8091）已删除，RPC 层业务实现（含 Redis 看板/榜单读写）随迁 `app/data/api/backend`（config/logic/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `app/data/api/data.proto`，pb 类型由 `make pb`（buf generate）再生成到 `app/data/api/backend/pb/`。下文涉及「RPC 服务 / rpc/data 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
 
 ## Requirements
 
@@ -19,7 +19,7 @@ data-api SHALL 提供看板图表数据的获取与设置接口：
 
 补充约束：
 
-- 响应统一为 `common/response.R{Code,Msg,RequestId,Data any}`；错误码遵循共享错误码规范
+- 响应统一为 `pkg/response.R{Code,Msg,RequestId,Data any}`；错误码遵循共享错误码规范
 - 两接口在聚合文档 `docs/tjxt.openapi.json` 中认证列均标注「否」（全服务无鉴权，见「接口鉴权状态」）
 - 核心规则（📋 设计意图，契约推导）：服务端直接吐出 ECharts 可用的图表结构，前端不做二次组装
 
@@ -101,9 +101,9 @@ data-api SHALL 提供热门榜与热销榜数据的获取与设置接口：
 - `GetTodayData` 入参为 `Empty`，无任何日期 / 维度参数——「今日」由服务端自行判定
 - 三个 `Set*` 请求均带 `int32 version`，三个 `Get*` 均不带——读侧固定取「当前版本」
 
-消费关系：当前仅 `data-api` 自身消费该 RPC（HTTP Handler → `dataclient.Data`，`servicecontext.go` 注入 `DataRpc`，import 路径 `tjxt/app/data/rpc/client/data`）；全仓 Grep 除 `service/data/api/` 自身外无其它服务引用。`specs/architecture/service-topology` 中标注的 `data-rpc --> AuthRPC` 依赖在代码中不存在（`service/data/rpc/internal/config/config.go` 只有 `zrpc.RpcServerConf`，无任何客户端配置）。
+消费关系：当前仅 `data-api` 自身消费该 RPC（HTTP Handler → `dataclient.Data`，`servicecontext.go` 注入 `DataRpc`，import 路径 `tjxt/app/data/rpc/client/data`）；全仓 Grep 除 `app/data/api/` 自身外无其它服务引用。`specs/architecture/service-topology` 中标注的 `data-rpc --> AuthRPC` 依赖在代码中不存在（`app/data/rpc/internal/config/config.go` 只有 `zrpc.RpcServerConf`，无任何客户端配置）。
 
-> 注：data 与 auth/user/search/remark/learning 一样，把 RPC 客户端生成到 `client/<svc>/` 子目录（`goctl rpc protoc --client=true -m` 布局），import 路径为 `tjxt/app/data/rpc/client/data`；其余服务（course/exam/media/message/pay/promotion/trade）为 `service/<svc>/rpc/<svc>/` 包装目录布局。
+> 注：data 与 auth/user/search/remark/learning 一样，把 RPC 客户端生成到 `client/<svc>/` 子目录（`goctl rpc protoc --client=true -m` 布局），import 路径为 `tjxt/app/data/rpc/client/data`；其余服务（course/exam/media/message/pay/promotion/trade）为 `app/<svc>/rpc/<svc>/` 包装目录布局。
 
 #### Scenario: 大屏轮询刷新链路
 
@@ -186,8 +186,8 @@ Top10 数据 SHALL 遵循以下规则（📋 设计意图，契约推导）：
 
 data SHALL 保持「全仓唯一一个 HTTP 接口完全不鉴权」的现状，并按以下规则约束后续演进（📋 设计意图，契约推导）：
 
-- 无 JWT 保护：`service/data/api/data.api` 三个 `@server` 块只声明 `group`，未声明 `jwt: Auth`（对照 message / search 的 `@server (jwt: Auth, group: xxx)`）
-- 路由未挂中间件：`service/data/api/internal/handler/routes.go` 三处 `server.AddRoutes` 均无 `rest.WithJwt(...)`
+- 无 JWT 保护：`app/data/api/data.api` 三个 `@server` 块只声明 `group`，未声明 `jwt: Auth`（对照 message / search 的 `@server (jwt: Auth, group: xxx)`）
+- 路由未挂中间件：`app/data/api/internal/handler/routes.go` 三处 `server.AddRoutes` 均无 `rest.WithJwt(...)`
 - 配置里却有 Auth 段：`data-api.yaml` 有 `Auth.AccessSecret` / `Auth.AccessExpire`，config.go 有对应字段——配置已备好但代码从未使用（悬空项）
 - 写接口同样无保护：三个 `PUT /data/*/set` 均无鉴权，任何人可覆盖大屏数据，属安全缺口
 
@@ -208,7 +208,7 @@ data SHALL 保持「全仓唯一一个 HTTP 接口完全不鉴权」的现状，
 
 data-api SHALL 仅做 DTO 转换并全部转发 RPC，遵循以下规则（📋 设计意图，契约推导）：
 
-- API 全部转发 RPC：`service/data/api/internal/svc/servicecontext.go` 注入 `DataRpc`，API 层无存储访问
+- API 全部转发 RPC：`app/data/api/internal/svc/servicecontext.go` 注入 `DataRpc`，API 层无存储访问
 - 接口数一一对应：HTTP 6 个 ↔ RPC 6 个，data 是唯一一个 API 与 RPC 方法数完全相等的服务（message 18/19、search 2/2）
 - 类型基本同构：api 的 `EchartsVO` / `AxisVO` / `SerierVO` / `TodayDataVO` / `Top10DataVO` 与 proto 同名同构，转换为逐字段直映射
 - 整型宽度差异：api 用 `int`（平台相关），proto 用 `int32`，转换时需显式收窄
@@ -230,9 +230,9 @@ data-api SHALL 仅做 DTO 转换并全部转发 RPC，遵循以下规则（📋 
 data 服务 SHALL 不依赖任何持久化组件（无 MySQL / 无 Redis / 无 model 层），以「上游统计回填 → 大屏快照读写」的聚合模式提供数据存取：
 
 - 无关系型表：`sql/ddl/` 下 14 个文件中无 `tj_data.sql`（其余 12 个服务均有对应 DDL）
-- 无 MySQL 连接：`service/data/rpc/etc/data.yaml` 全文仅 `Name` / `ListenOn` / `Etcd` 三段，无 `DataSource`
+- 无 MySQL 连接：`app/data/rpc/etc/data.yaml` 全文仅 `Name` / `ListenOn` / `Etcd` 三段，无 `DataSource`
 - 无 Redis 连接：`data.yaml` 无 `Cache` / `Redis` 段（`00-architecture/overview.md` 服务表中 data 的「数据库」列亦为 `-`）
-- 无 model 层：`service/data/rpc/internal/` 下只有 `config` / `logic` / `server` / `svc`，无 model 目录；`ServiceContext` 仅有 `Config` 一个字段
+- 无 model 层：`app/data/rpc/internal/` 下只有 `config` / `logic` / `server` / `svc`，无 model 目录；`ServiceContext` 仅有 `Config` 一个字段
 - 结论（data-model.md 原文）：截至当前提交，data 服务没有接入任何持久化组件，6 个 RPC 方法与 6 个 HTTP 接口全部是 goctl 占位实现，返回零值
   - 注（源冲突）：business-rules.md v1.2（2026-08-06 复核，go build 全模块通过）将 12 个 logic 状态校正为「已实现」；「无持久化组件 / 无 DDL」为两篇一致的事实，实现状态以较新复核为准
 
@@ -296,7 +296,7 @@ data SHALL 按以下配置部署运行：
 #### Scenario: 构建 data 模块
 
 - **WHEN** 在 go.work 下构建 data 服务
-- **THEN** 引用的真实模块为 `./service/data/api`（module `tjxt/app/data/api`）；RPC 壳 `./rpc/data`（module `tjxt/app/data/rpc`）已随 RPC 折叠删除，不再出现在 go.work
+- **THEN** 引用的真实模块为 `./app/data/api`（module `tjxt/app/data/api`）；RPC 壳 `./rpc/data`（module `tjxt/app/data/rpc`）已随 RPC 折叠删除，不再出现在 go.work
 
 #### Scenario: JWT 密钥占位
 

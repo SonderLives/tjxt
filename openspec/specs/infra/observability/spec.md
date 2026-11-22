@@ -27,7 +27,7 @@
 
 ### Requirement: 服务 yaml 注入约定（勿删）
 
-每个服务 `service/<svc>/api/etc/*.yaml` 与 `service/<svc>/rpc/etc/*.yaml` SHALL 保留以下三段注入配置，禁止删除或改坏字段：
+每个服务 `app/<svc>/api/etc/*.yaml` 与 `app/<svc>/rpc/etc/*.yaml` SHALL 保留以下三段注入配置，禁止删除或改坏字段：
 
 ```yaml
 Log:
@@ -85,7 +85,7 @@ Telemetry:
 | `deploy/otel-collector/config.yaml` | collector 全配置：3 receiver、2 processor、3 条管线（traces/metrics/logs） |
 | `deploy/prometheus/prometheus.yml` | Prometheus 仅抓 `otel-collector:8889` + 自身 |
 | `deploy/loki/loki-config.yaml` | Loki 单实例最小配置（filesystem + inmemory ring，`auth_enabled:false`） |
-| `service/*/api/etc/*.yaml` + `service/*/rpc/etc/*.yaml`（×18） | 各服务注入 `Telemetry` / `Prometheus` / `Log` 三段 |
+| `app/*/api/etc/*.yaml` + `app/*/rpc/etc/*.yaml`（×18） | 各服务注入 `Telemetry` / `Prometheus` / `Log` 三段 |
 
 #### Scenario: 重新生成骨架不丢配置
 

@@ -4,7 +4,7 @@
 
 message（消息通知）是站内信与通知微服务（gRPC 服务名 `Message`，etcd key `message.rpc`，监听 `0.0.0.0:8087`），管理通知模板、通知任务、第三方短信模板与短信平台、用户收件箱（站内信）、全站公告五类实体。API 层 `message-api`（HTTP :8807）为纯转发层，18 个接口全部转发到自身 RPC（19 个方法，`SendNotice` 仅暴露为 RPC）；数据落在 MySQL `tj_message` 库的 7 张表（无数据库外键），Redis 缓存主键查询，etcd（`127.0.0.1:2379`）服务注册与发现。当前除自身 API 层外无其它服务消费 `message.rpc`——架构文档所述 pay/trade/learning/promotion → message 的通知链路在代码中尚无实现（见「RPC 服务契约与服务发现」）。
 
-> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/message`，`message.rpc` :8087）已删除，RPC 层业务实现随迁 `service/message/api/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `service/message/api/message.proto`，pb 类型由 `make pb`（buf generate）再生成到 `service/message/api/backend/pb/`。下文涉及「RPC 服务 / rpc/message 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/message`，`message.rpc` :8087）已删除，RPC 层业务实现随迁 `app/message/api/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `app/message/api/message.proto`，pb 类型由 `make pb`（buf generate）再生成到 `app/message/api/backend/pb/`。下文涉及「RPC 服务 / rpc/message 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
 
 ## Requirements
 
@@ -20,7 +20,7 @@ message（消息通知）是站内信与通知微服务（gRPC 服务名 `Messag
 
 - `InboxListReq`：`PageNo`/`PageSize`/`Type` 均为 optional；HTTP 侧无 `userId` 字段，由 API 层从 JWT 提取当前用户后填入 RPC `InboxPageReq.userId`
 - 列表项 `UserInboxVO`：`Id, UserId, Type, Title, Content, IsRead, Publisher, PushTime, ExpireTime`；`isRead`（是否已读）与 `pushTime`（推送时间）由服务端写入
-- 响应统一为 `common/response.R{Code,Msg,RequestId,Data any}`；错误码遵循共享错误码表（见 `openspec/specs/shared/error-codes`）
+- 响应统一为 `pkg/response.R{Code,Msg,RequestId,Data any}`；错误码遵循共享错误码表（见 `openspec/specs/shared/error-codes`）
 
 #### Scenario: 查询收件箱并处理单条消息
 
@@ -114,9 +114,9 @@ message（消息通知）是站内信与通知微服务（gRPC 服务名 `Messag
 
 | 消费方 | 调用方式 | 说明 |
 |--------|---------|------|
-| `message-api`（自身 API 层） | HTTP Handler → `messageclient.Message` RPC（`service/message/api/internal/svc/servicecontext.go` 注入 `MessageRpc`） | 18 个 HTTP 接口全部指向自身 RPC |
+| `message-api`（自身 API 层） | HTTP Handler → `messageclient.Message` RPC（`app/message/api/internal/svc/servicecontext.go` 注入 `MessageRpc`） | 18 个 HTTP 接口全部指向自身 RPC |
 
-> 已知缺口（跨域通知链路未落地）：全仓 Grep `service/message/rpc/message` / `messageclient` / `MessageRpc`，除 `service/message/api/`、`service/message/rpc/` 自身外无其它服务引用。`specs/shared/mq-events` 与 `00-architecture/service-topology.md` 中描述的 pay-rpc / trade-rpc / learning-rpc / promotion-rpc → message-rpc 通知链路，目前在代码中尚无对应 import 或 MQ 消费者实现——即 message 并未消费任何其它域事件（订单、课程学习等业务事件触发通知）来驱动 `SendNotice`，该写入口当前仅由契约定义。
+> 已知缺口（跨域通知链路未落地）：全仓 Grep `app/message/rpc/message` / `messageclient` / `MessageRpc`，除 `app/message/api/`、`app/message/rpc/` 自身外无其它服务引用。`specs/shared/mq-events` 与 `00-architecture/service-topology.md` 中描述的 pay-rpc / trade-rpc / learning-rpc / promotion-rpc → message-rpc 通知链路，目前在代码中尚无对应 import 或 MQ 消费者实现——即 message 并未消费任何其它域事件（订单、课程学习等业务事件触发通知）来驱动 `SendNotice`，该写入口当前仅由契约定义。
 
 #### Scenario: message-api handler 转发
 
@@ -350,7 +350,7 @@ message（消息通知）是站内信与通知微服务（gRPC 服务名 `Messag
 
 message 服务的 API 层 SHALL 为纯转发层：
 
-- API 全部转发 RPC：`service/message/api/internal/svc/servicecontext.go` 注入 `MessageRpc`，API 层不直连数据库，仅做 DTO 转换
+- API 全部转发 RPC：`app/message/api/internal/svc/servicecontext.go` 注入 `MessageRpc`，API 层不直连数据库，仅做 DTO 转换
 - 全部接口需登录：`message.api` 六个 `@server` 块均声明 `jwt: Auth`，对应 `routes.go` 六处 `rest.WithJwt(serverCtx.Config.Auth.AccessSecret)`，无匿名接口
 - API 比 RPC 少 1 个方法：HTTP 18 个 vs RPC 19 个，`SendNotice` 仅暴露为 RPC，不对外提供 HTTP 入口
 - 分页参数类型不一致：api `PageReq{PageNo,PageSize int64}` vs proto `PageReq{pageNo,pageSize int32}`，API → RPC 转换时需做 int64 → int32 收窄
@@ -394,7 +394,7 @@ Model 层与缓存：
 | `PublicNotice` | `public_notice` | `cache:publicNotice:id:` | 无（空壳） |
 | （缺失） | `notice_task_target` | - | 未生成 Model，复合主键不受 goctl 支持，需手写 SQL 访问 |
 
-> 已知缺口（模型层）：以 data-model.md 为准——6 个自定义 Model 文件（`service/message/rpc/internal/model/`）当前均为 goctl 生成的空壳，可用方法仅为 `Insert` / `FindOne`（带缓存）/ `Update` / `Delete` 四个基础方法；实现 RPC 分页/列表能力前需补写 `FindPage`（notice_template / notice_task / message_template / public_notice）、`FindPageByUserId`（user_inbox）、`FindAll`（sms_third_platform，按 `priority` 升序）以及 `notice_task_target` 的手写访问层。加注：business-rules.md v1.2（2026-08-06 复核）称 37 个 logic 文件（RPC 19 + API 18）已全部实现且 `go build` 通过，与上述「列表方法尚未定义」的 v1.0 表述存在冲突，以 data-model.md 表述为准、建议对照源码复核。
+> 已知缺口（模型层）：以 data-model.md 为准——6 个自定义 Model 文件（`app/message/rpc/internal/model/`）当前均为 goctl 生成的空壳，可用方法仅为 `Insert` / `FindOne`（带缓存）/ `Update` / `Delete` 四个基础方法；实现 RPC 分页/列表能力前需补写 `FindPage`（notice_template / notice_task / message_template / public_notice）、`FindPageByUserId`（user_inbox）、`FindAll`（sms_third_platform，按 `priority` 升序）以及 `notice_task_target` 的手写访问层。加注：business-rules.md v1.2（2026-08-06 复核）称 37 个 logic 文件（RPC 19 + API 18）已全部实现且 `go build` 通过，与上述「列表方法尚未定义」的 v1.0 表述存在冲突，以 data-model.md 表述为准、建议对照源码复核。
 >
 > 已知缺口：`docs/tjxt.openapi.json` 未收录 message 服务任何路径，无法作为交叉参照。
 
@@ -435,7 +435,7 @@ message 服务的存储层 SHALL 满足以下不变量：
 
 ### Requirement: 服务配置与依赖
 
-message 服务 SHALL 按以下配置运行（`service/message/api/etc/message-api.yaml`、`service/message/rpc/etc/message.yaml`）：
+message 服务 SHALL 按以下配置运行（`app/message/api/etc/message-api.yaml`、`app/message/rpc/etc/message.yaml`）：
 
 | 服务 | 配置项 | 默认值 |
 |------|--------|--------|

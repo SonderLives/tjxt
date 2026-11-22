@@ -2,16 +2,16 @@
 
 ## Purpose
 
-统一 tjxt 全部 HTTP 接口（`service/*/api/*.api` 及其生成的 handler）的响应封装、分页、鉴权、错误码、路由与参数绑定规则，使所有服务的对外 API 表现一致：同一套 `common/response.R` 信封、同一套分页结构、同一套 `common/errorx` 错误码分段、同一套 RESTful 路由与 `/api/v1` 前缀。本规格是 API 层代码生成与 Code Review 的判定依据。
+统一 tjxt 全部 HTTP 接口（`app/*/api/*.api` 及其生成的 handler）的响应封装、分页、鉴权、错误码、路由与参数绑定规则，使所有服务的对外 API 表现一致：同一套 `pkg/response.R` 信封、同一套分页结构、同一套 `pkg/errorx` 错误码分段、同一套 RESTful 路由与 `/api/v1` 前缀。本规格是 API 层代码生成与 Code Review 的判定依据。
 
 ## Requirements
 
 ### Requirement: 统一响应封装
 
-所有 HTTP 接口 SHALL 返回 `common/response.R` 结构，且 handler 必须通过 `result.Write(w, r, data, err)` 输出。
+所有 HTTP 接口 SHALL 返回 `pkg/response.R` 结构，且 handler 必须通过 `result.Write(w, r, data, err)` 输出。
 
 ```go
-// common/response/json.go
+// pkg/response/json.go
 type R struct {
     Code      int    `json:"code"`       // 0=成功，非0=失败（见 specs/shared/error-codes）
     Msg       string `json:"msg"`
@@ -37,7 +37,7 @@ type R struct {
 
 ### Requirement: 统一分页契约
 
-分页请求 SHALL 使用 `common/page.PageRequest`，响应 SHALL 使用 `common/page.PageResponse[T]`。
+分页请求 SHALL 使用 `pkg/page.PageRequest`，响应 SHALL 使用 `pkg/page.PageResponse[T]`。
 
 ```go
 type PageRequest struct {
@@ -76,7 +76,7 @@ type PageReq {
 
 ### Requirement: 认证与身份获取
 
-JWT 鉴权 SHALL 在 `.api` 的 `@server` 指令中声明，身份 SHALL 通过 `common/auth` 从 context 取得。
+JWT 鉴权 SHALL 在 `.api` 的 `@server` 指令中声明，身份 SHALL 通过 `pkg/auth` 从 context 取得。
 
 - 声明：`@server(jwt: Auth)`，生成代码在 `routes.go` 中以 `rest.WithJwt(serverCtx.Config.Auth.AccessSecret)` 包裹路由
 - 取身份：`userId := auth.GetUserId(ctx)`（int64）、`role := auth.GetRole(ctx)`（string）；API 层亦用 `auth.UserIdFromCtx(l.ctx)`
@@ -97,7 +97,7 @@ JWT 鉴权 SHALL 在 `.api` 的 `@server` 指令中声明，身份 SHALL 通过 
 
 ### Requirement: 错误码分段
 
-错误码 SHALL 统一定义在 `common/errorx` 并按域分段，段间不重叠；业务错误一律以 `errorx.NewErrCode(...)` 返回。
+错误码 SHALL 统一定义在 `pkg/errorx` 并按域分段，段间不重叠；业务错误一律以 `errorx.NewErrCode(...)` 返回。
 
 | 分类 | 范围 | 说明 |
 |------|------|------|
