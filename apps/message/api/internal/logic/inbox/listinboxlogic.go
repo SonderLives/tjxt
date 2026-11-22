@@ -8,7 +8,7 @@ import (
 
 	"tjxt/apps/message/api/internal/svc"
 	"tjxt/apps/message/api/internal/types"
-	messageclient "tjxt/apps/message/rpc/message"
+	messageclient "tjxt/apps/message/rpc/client/message"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"

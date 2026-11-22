@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"tjxt/apps/message/rpc/internal/config"
-	"tjxt/apps/message/rpc/internal/server"
+	messageserver "tjxt/apps/message/rpc/internal/server/message"
 	"tjxt/apps/message/rpc/internal/svc"
 	"tjxt/apps/message/rpc/pb"
 
@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		pb.RegisterMessageServer(grpcServer, server.NewMessageServer(ctx))
+		pb.RegisterMessageServer(grpcServer, messageserver.NewMessageServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
