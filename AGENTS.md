@@ -104,7 +104,6 @@ tjxt/
 ```
 这是推荐结构，不要求所有项目机械照搬。应以当前仓库实际结构和 goctl生成结构为准。
 
-官方目录最佳实践：https://go-zero.dev/zh-cn/concepts/project-structure/?utm_source=chatgpt.com
 
 ## 二、命名规范
 
