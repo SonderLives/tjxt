@@ -1,4 +1,4 @@
-package logic
+package medialogic
 
 import (
 	"context"
