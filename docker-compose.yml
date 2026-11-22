@@ -30,9 +30,9 @@ services:
               "--initial-cluster", "default=http://0.0.0.0:2380"]
     ports: ["2379:2379"]
   # Elasticsearch 全文检索后端，search 服务硬依赖（索引/检索）。
-  # 单节点 + 关闭安全认证，与 api/search/etc/search-api.yaml（Addresses: 127.0.0.1:9200，无用户名密码）对齐；
+  # 单节点 + 关闭安全认证，与 service/search/api/etc/search-api.yaml（Addresses: 127.0.0.1:9200，无用户名密码）对齐；
   # 分词用 ES 内置 cjk（二元分词），无需装插件。启动自检/建索引由 search 服务的 initES/ensureCourseIndex 完成
-  # （search 的 RPC 层已折叠进 api/search/backend；ES 同步消费者独立为 app/mq/search-mq，同样读 9200）。
+  # （search 的 RPC 层已折叠进 service/search/api/backend；ES 同步消费者独立为 app/mq/search-mq，同样读 9200）。
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.4.1
     environment:
@@ -49,7 +49,7 @@ services:
       retries: 20
       start_period: 60s
   # RustFS 对象存储（S3 兼容协议），media 服务的上传/播放签名后端。
-  # 控制台 http://localhost:9001（rustfsadmin/rustfsadmin）；换 COS/OSS 只改 api/media/etc/media-api.yaml 凭证。
+  # 控制台 http://localhost:9001（rustfsadmin/rustfsadmin）；换 COS/OSS 只改 service/media/api/etc/media-api.yaml 凭证。
   rustfs:
     image: rustfs/rustfs:latest
     environment:
@@ -66,7 +66,7 @@ services:
       interval: 15s
       timeout: 5s
       retries: 10
-    #    ^ RustFS 为 S3 兼容实现，客户端统一用 S3 SDK（见 api/media/backend/store）
+    #    ^ RustFS 为 S3 兼容实现，客户端统一用 S3 SDK（见 service/media/api/backend/store）
 
   # Jaeger 链路追踪后端（UI + OTLP 接收）。
   # 现在 span 由 otel-collector 转发进来（collector → jaeger:4318，走 docker 内网），
@@ -95,7 +95,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"   # 让 collector 能抓到宿主机上的 Go 服务
     volumes:
-      - ./deployments/otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml:ro
+      - ./deploy/otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml:ro
       - ./logs:/var/log/tjxt:ro                # 各 Go 服务写出的 JSON 日志（filelog 采集源）
     depends_on:
       - jaeger
@@ -109,7 +109,7 @@ services:
     ports:
       - "3100:3100"   # Loki HTTP API / 接收推送
     volumes:
-      - ./deployments/loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - ./deploy/loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
 
   # Prometheus 性能监控。抓取各 Go 服务的 /metrics。
   # 各服务在宿主机本地运行（非容器），metrics 端口见各 etc yaml 的 Prometheus.Port；
@@ -121,7 +121,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - ./deployments/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     depends_on:
       - jaeger
 

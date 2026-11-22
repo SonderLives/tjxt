@@ -4,7 +4,7 @@
 
 remark（评论点赞）是评论互动域的点赞微服务（RPC 服务名 `Remark`），以 `bizType + bizId` 多态泛化承载回复、笔记、问答等各业务对象的点赞关系，`bizType` 不做枚举校验、不感知具体业务表，点赞能力可被任意新业务复用。API 层 `remark-api`（HTTP :8813）为纯透传层，2 个 handler 全部转发到自身 RPC `remark.rpc`（gRPC :8093，etcd 服务发现 key `remark.rpc`）。数据落在 MySQL `tj_remark` 库唯一的 `like_record` 表（无逻辑删除字段，软取消语义），Redis 缓存主键与唯一索引查询，etcd `127.0.0.1:2379` 服务注册与发现；`remark.rpc` 不依赖任何其他服务的 RPC。
 
-> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/remark`，`remark.rpc` :8093）已删除，RPC 层业务实现随迁 `api/remark/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `api/remark/remark.proto`，pb 类型由 `make pb`（buf generate）再生成到 `api/remark/backend/pb/`。下文涉及「RPC 服务 / rpc/remark 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/remark`，`remark.rpc` :8093）已删除，RPC 层业务实现随迁 `service/remark/api/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `service/remark/api/remark.proto`，pb 类型由 `make pb`（buf generate）再生成到 `service/remark/api/backend/pb/`。下文涉及「RPC 服务 / rpc/remark 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
 
 ## Requirements
 
@@ -26,7 +26,7 @@ remark（评论点赞）是评论互动域的点赞微服务（RPC 服务名 `Re
 | `LikeListReq`（query） | `bizType` string（业务类型）、`bizIds` []string（业务 id 列表，服务端逐个 `strconv.ParseInt` 转换，非法或 `<= 0` 的直接丢弃） |
 | `LikeListResp` | `likedBizIds` []int64（入参 `bizIds` 中当前用户已点赞 liked=1 的子集） |
 
-- 响应统一为 `pkg/response.R{Code,Msg,RequestId,Data any}`；错误码遵循共享错误码表（见 `openspec/specs/shared/error-codes`）
+- 响应统一为 `common/response.R{Code,Msg,RequestId,Data any}`；错误码遵循共享错误码表（见 `openspec/specs/shared/error-codes`）
 - 全局分页约定为 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`（remark 当前两个接口未用到分页）
 
 #### Scenario: 点赞或取消点赞
@@ -84,7 +84,7 @@ remark 服务 SHALL 以 gRPC 服务名 `Remark` 注册于 etcd，为评论互动
 
 | 消费方 | 调用方式 | 说明 |
 |--------|---------|------|
-| `remark-api`（自身 API 层） | `api/remark/internal/svc/servicecontext.go` 中 `remarkclient "tjxt/rpc/remark/client/remark"` → `RemarkRpc` | 两个 HTTP handler（/likes、/likes/list）均透传到本 RPC |
+| `remark-api`（自身 API 层） | `service/remark/api/internal/svc/servicecontext.go` 中 `remarkclient "tjxt/service/remark/rpc/client/remark"` → `RemarkRpc` | 两个 HTTP handler（/likes、/likes/list）均透传到本 RPC |
 
 > 注：截至当前版本，仅 remark-api 在 `servicecontext.go` 中注入 `remarkclient`。其他服务如 learning 的笔记/问答列表若需回填「我是否点赞」，可复用 `QueryLikedBizIds`，但目前尚未接入。
 >

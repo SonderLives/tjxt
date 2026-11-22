@@ -2,7 +2,7 @@
 
 ## Purpose
 
-定义全系统统一的业务错误码体系（`pkg/errorx`），所有服务的 logic 层统一返回错误码、由响应层统一映射 HTTP Status，保证错误语义跨服务一致。
+定义全系统统一的业务错误码体系（`common/errorx`），所有服务的 logic 层统一返回错误码、由响应层统一映射 HTTP Status，保证错误语义跨服务一致。
 
 ## Requirements
 
@@ -43,22 +43,22 @@
 
 | 领域 | 范围 | 文件 |
 |------|------|------|
-| 认证授权 | 101000-101999 | `pkg/errorx/auth.go` |
-| 课程管理 | 102000-102999 | `pkg/errorx/course.go` |
-| 交易订单 | 103000-103999 | `pkg/errorx/trade.go` |
-| 学习中心 | 104000-104999 | `pkg/errorx/learning.go` |
-| 支付网关 | 105000-105999 | `pkg/errorx/pay.go` |
-| 媒体文件 | 106000-106999 | `pkg/errorx/media.go` |
-| 营销优惠 | 107000-107999 | `pkg/errorx/promotion.go` |
-| 消息通知 | 108000-108999 | `pkg/errorx/message.go` |
-| 考试中心 | 109000-109999 | `pkg/errorx/exam.go` |
-| 搜索推荐 | 110000-110999 | `pkg/errorx/search.go` |
-| 用户中心 | 111000-111999 | `pkg/errorx/user.go` |
+| 认证授权 | 101000-101999 | `common/errorx/auth.go` |
+| 课程管理 | 102000-102999 | `common/errorx/course.go` |
+| 交易订单 | 103000-103999 | `common/errorx/trade.go` |
+| 学习中心 | 104000-104999 | `common/errorx/learning.go` |
+| 支付网关 | 105000-105999 | `common/errorx/pay.go` |
+| 媒体文件 | 106000-106999 | `common/errorx/media.go` |
+| 营销优惠 | 107000-107999 | `common/errorx/promotion.go` |
+| 消息通知 | 108000-108999 | `common/errorx/message.go` |
+| 考试中心 | 109000-109999 | `common/errorx/exam.go` |
+| 搜索推荐 | 110000-110999 | `common/errorx/search.go` |
+| 用户中心 | 111000-111999 | `common/errorx/user.go` |
 
 #### Scenario: 新增领域错误码
 
 - **WHEN** 开发者需要为某领域新增错误码
-- **THEN** 必须在对应领域文件（如 `pkg/errorx/course.go`）中添加常量，且不越出该领域分段、不与其他分段重叠
+- **THEN** 必须在对应领域文件（如 `common/errorx/course.go`）中添加常量，且不越出该领域分段、不与其他分段重叠
 
 ### Requirement: 错误码使用方式
 

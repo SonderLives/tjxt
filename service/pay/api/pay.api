@@ -1,0 +1,202 @@
+syntax = "v1"
+
+// 统一响应（对应 tjxt/common/response R 结构）
+type Result {
+	Code      int64       `json:"code"`
+	Msg       string      `json:"msg"`
+	RequestId string      `json:"requestId,omitempty"`
+	Data      interface{} `json:"data,omitempty"`
+}
+
+// 统一分页请求
+type PageRequest {
+	PageNo   int64 `form:"pageNo,optional"`
+	PageSize int64 `form:"pageSize,optional"`
+}
+
+// ============ 支付渠道 ============
+type PayChannelAddReq {
+	Name            string `json:"name"`
+	ChannelCode     string `json:"channelCode"`
+	ChannelPriority int64  `json:"channelPriority"`
+	ChannelIcon     string `json:"channelIcon,optional"`
+}
+
+type PayChannelUpdateReq {
+	Id              int64  `json:"id"`
+	Name            string `json:"name,optional"`
+	ChannelPriority int64  `json:"channelPriority,optional"`
+	ChannelIcon     string `json:"channelIcon,optional"`
+}
+
+type PayChannelStatusReq {
+	Id     int64 `json:"id"`
+	Status int64 `json:"status"` // 1 启用 2 停用
+}
+
+type PayChannelPageReq {
+	PageRequest
+	Name        string `form:"name,optional"`
+	ChannelCode string `form:"channelCode,optional"`
+	Status      int64  `form:"status,optional"`
+}
+
+type PayChannelCodeReq {
+	ChannelCode string `path:"code"`
+}
+
+// ============ 支付单 ============
+type ApplyPayOrderReq {
+	BizOrderNo     int64  `json:"bizOrderNo"`
+	Amount         int64  `json:"amount"` // 单位：分
+	PayChannelCode string `json:"payChannelCode"`
+	PayType        int64  `json:"payType,optional"` // 1 h5, 2 mini, 3 mp, 4 native
+	ExpandJson     string `json:"expandJson,optional"`
+	NotifyUrl      string `json:"notifyUrl,optional"`
+	PayOverSeconds int64  `json:"payOverSeconds,optional"` // 默认 30 分钟
+}
+
+type QueryPayResultReq {
+	BizOrderNo int64 `form:"bizOrderNo"`
+}
+
+type PayOrderNoReq {
+	PayOrderNo int64 `path:"payOrderNo"`
+}
+
+// ============ 退款 ============
+type ApplyRefundReq {
+	BizOrderNo       int64 `json:"bizOrderNo"`
+	BizRefundOrderNo int64 `json:"bizRefundOrderNo"` // 业务侧退款单号（子订单号）
+	RefundAmount     int64 `json:"refundAmount"`
+}
+
+type QueryRefundResultReq {
+	BizRefundOrderNo int64 `form:"bizRefundOrderNo"`
+}
+
+// ============ 回调（生产供支付网关调用，HMAC-SHA256 签名校验） ============
+// 注意：可选字段必须用 go-zero 的 optional 标记，omitempty 会被当作必填校验
+type NotifyPaySuccessReq {
+	PayOrderNo int64  `json:"payOrderNo"`
+	ResultCode string `json:"resultCode,optional"`
+	ResultMsg  string `json:"resultMsg,optional"`
+	QrCodeUrl  string `json:"qrCodeUrl,optional"`
+	// sign = hex(hmac_sha256(PayNotifySecret, "payOrderNo=<PayOrderNo>"))
+	Sign string `json:"sign"`
+}
+
+// ============ 模拟支付网关（demo 用，登录用户本人确认支付自己的订单） ============
+type MockPayReq {
+	BizOrderNo int64 `json:"bizOrderNo"`
+}
+
+type NotifyPayFailedReq {
+	PayOrderNo int64  `json:"payOrderNo"`
+	ResultCode string `json:"resultCode,optional"`
+	ResultMsg  string `json:"resultMsg,optional"`
+	// sign = hex(hmac_sha256(PayNotifySecret, "payOrderNo=<PayOrderNo>"))
+	Sign string `json:"sign"`
+}
+
+type NotifyRefundSuccessReq {
+	RefundOrderNo int64  `json:"refundOrderNo"`
+	ResultCode    string `json:"resultCode,optional"`
+	ResultMsg     string `json:"resultMsg,optional"`
+	RefundChannel string `json:"refundChannel,optional"`
+	// sign = hex(hmac_sha256(PayNotifySecret, "refundOrderNo=<RefundOrderNo>"))
+	Sign string `json:"sign"`
+}
+
+type NotifyRefundFailedReq {
+	RefundOrderNo int64  `json:"refundOrderNo"`
+	ResultCode    string `json:"resultCode,optional"`
+	ResultMsg     string `json:"resultMsg,optional"`
+	// sign = hex(hmac_sha256(PayNotifySecret, "refundOrderNo=<RefundOrderNo>"))
+	Sign string `json:"sign"`
+}
+
+// ============ 业务侧（需登录） ============
+@server (
+	jwt: Auth
+)
+service pay-api {
+	// 支付渠道：列出可用渠道
+	@handler ListPayChannelsHandler
+	get /pay/channels returns (Result)
+
+	// 支付单：创建并返回二维码
+	@handler ApplyPayOrderHandler
+	post /pay/orders (ApplyPayOrderReq) returns (Result)
+
+	// 查询支付结果（前端轮询）
+	@handler QueryPayResultHandler
+	get /pay/orders/result (QueryPayResultReq) returns (Result)
+
+	// 业务端主动关单
+	@handler ClosePayOrderHandler
+	put /pay/orders/:payOrderNo/close (PayOrderNoReq) returns (Result)
+
+	// 按业务订单号查支付单详情
+	@handler QueryPayOrderHandler
+	get /pay/orders (QueryPayResultReq) returns (Result)
+
+	// 退款申请
+	@handler ApplyRefundHandler
+	post /pay/refunds (ApplyRefundReq) returns (Result)
+
+	// 退款结果查询
+	@handler QueryRefundResultHandler
+	get /pay/refunds/result (QueryRefundResultReq) returns (Result)
+}
+
+// ============ 后台管理（jwt + 后续可加权限） ============
+@server (
+	jwt:    Auth
+	prefix: /pay-admin
+)
+service pay-api {
+	@handler AddPayChannelHandler
+	post /channels (PayChannelAddReq) returns (Result)
+
+	@handler UpdatePayChannelHandler
+	put /channels (PayChannelUpdateReq) returns (Result)
+
+	@handler UpdatePayChannelStatusHandler
+	put /channels/status (PayChannelStatusReq) returns (Result)
+
+	@handler PagePayChannelsHandler
+	get /channels/page (PayChannelPageReq) returns (Result)
+
+	@handler GetPayChannelByCodeHandler
+	get /channels/code/:code (PayChannelCodeReq) returns (Result)
+}
+
+// ============ 内部/回调（pay-success 带 HMAC 签名校验，退款回调暂为内部模拟） ============
+@server (
+	prefix: /pay-notify
+)
+service pay-api {
+	@handler NotifyPaySuccessHandler
+	post /pay-success (NotifyPaySuccessReq) returns (Result)
+
+	@handler NotifyPayFailedHandler
+	post /pay-failed (NotifyPayFailedReq) returns (Result)
+
+	@handler NotifyRefundSuccessHandler
+	post /refund-success (NotifyRefundSuccessReq) returns (Result)
+
+	@handler NotifyRefundFailedHandler
+	post /refund-failed (NotifyRefundFailedReq) returns (Result)
+}
+
+// ============ 模拟支付网关（demo：JWT + 属主校验，代替真实渠道回调） ============
+@server (
+	jwt:    Auth
+	prefix: /pay-notify
+)
+service pay-api {
+	@handler MockPayHandler
+	post /mock-pay (MockPayReq) returns (Result)
+}
+

@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/zeromicro/go-zero/core/service"
 
-	backendconfig "tjxt/api/search/backend/config"
+	backendconfig "tjxt/service/search/api/backend/config"
 )
 
 // Config search-mq 消费者进程配置：进程壳（Name/Log/Prometheus/Telemetry）

@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 {{if .HasRequest}}	"github.com/zeromicro/go-zero/rest/httpx"
-{{end}}	"tjxt/pkg/response"
+{{end}}	"tjxt/common/response"
 	{{.ImportPackages}}
 )
 

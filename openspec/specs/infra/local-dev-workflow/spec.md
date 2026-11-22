@@ -64,8 +64,8 @@ go install github.com/zeromicro/go-zero/tools/goctl@latest
 
 工作区 SHALL 先 `make init`（`go work sync` + 逐模块 `go mod tidy`），再按「先 RPC 后 API（及 MQ 消费者）」的顺序启动服务。
 
-- `go.work` 聚合 22 个 `use` 条目（13 api + 5 保留 rpc + 2 mq 消费者 + `pkg` + 根模块）
-- 每个服务 `api/`、保留服务 `rpc/` 与 `app/mq/*/` 各有独立 `go.mod`；公共库经 `replace tjxt/pkg => ../../../pkg` 引用
+- `go.work` 聚合 22 个 `use` 条目（13 api + 5 保留 rpc + 2 mq 消费者 + `common` + 根模块）
+- 每个服务 `service/<svc>/api/`、保留服务 `service/<svc>/rpc/` 与 `app/mq/*/` 各有独立 `go.mod`；公共库经 `replace tjxt/common => ../../../common` 引用
 - 启动命令：`make run-<svc>`（API）、`make run-<svc>-rpc`（仅 5 个保留 RPC）、`make run-trade-mq` / `make run-search-mq`（MQ 消费者）、`make run-all`（全部 API）/ `make run-all-rpc`（5 个保留 RPC + 2 个 MQ 消费者）
 - 端口已统一分配且唯一：API 8801-8813、保留 RPC 8081/8083/8084/8088/8092、metrics：API 9201-9213、保留 RPC 9101/9103/9104/9108/9112、search-mq 9110
 
@@ -88,10 +88,10 @@ go install github.com/zeromicro/go-zero/tools/goctl@latest
 | `make init` | `go work sync` + 逐模块 `go mod tidy` |
 | `make api` | 按 `.api` 全量重生成 handler/types/routes（13 个服务） |
 | `make rpc` | 按 `.proto` 全量重生成 pb/server/client（仅 5 个保留 RPC 服务，goctl） |
-| `make pb` | buf generate 重生成 8 个折叠服务的 pb 类型到 `api/<svc>/backend/pb/` |
+| `make pb` | buf generate 重生成 8 个折叠服务的 pb 类型到 `service/<svc>/api/backend/pb/` |
 | `make model` | 按 `sql/ddl/*.sql` 生成带缓存的 model |
 | `make generate` | `api + rpc + pb` 一键生成 |
-| `make check-gen` | 重生成 api + pb 后 `git diff --exit-code -- api`（api types 与 pb 类型双守卫） |
+| `make check-gen` | 重生成 api + pb 后 `git diff --exit-code -- service`（api types 与 pb 类型双守卫） |
 | `make build` | 构建全部 20 个二进制（13 api + 5 rpc + 2 mq）到 `bin/` |
 | `make fmt` | 全模块 `go fmt ./...` |
 | `make lint` | golangci-lint 逐模块检查 |
@@ -103,15 +103,15 @@ go install github.com/zeromicro/go-zero/tools/goctl@latest
 单模块快速校验（api / rpc 各有独立 go.mod，需分别进入）：
 
 ```bash
-cd api/<svc> && go mod tidy && go build ./... && go vet ./...
-cd rpc/<svc> && go mod tidy && go build ./... && go vet ./...
+cd service/<svc>/api && go mod tidy && go build ./... && go vet ./...
+cd service/<svc>/rpc && go mod tidy && go build ./... && go vet ./...
 ```
 
 #### Scenario: 改动契约后的最小闭环
 
 - **WHEN** 修改 `.api` / `.proto` 后需要回归
 - **THEN** 依次执行 `make api` 或 `make rpc`、`make build`、`make verify`
-- **AND** 单模块问题可进入 `api/<svc>` 或 `rpc/<svc>` 单独 `go build ./... && go vet ./...` 定位
+- **AND** 单模块问题可进入 `service/<svc>/api` 或 `service/<svc>/rpc` 单独 `go build ./... && go vet ./...` 定位
 
 ### Requirement: 数据库目录约定
 
@@ -137,7 +137,7 @@ SQL 脚本 SHALL 按用途分放两个目录，改表时同步更新：
 | 陷阱 | 规避方式 |
 |------|---------|
 | Makefile 服务清单曾有缺口 | `SERVICES` 曾只列 11 个（缺 `promotion`/`remark`），现已是全量 13 个；折叠后新增服务须同步维护 `SERVICES`/`API_DIRS`/`RPC_DIRS`/`FOLDED_SVCS`/`MQ_DIRS` |
-| `data` 服务目录曾有特例 | 旧布局多套一层（服务目录下再套服务名目录），现已扁平化为顶层标准布局 `api/data`（rpc/data 已折叠删除），与其他服务一致 |
+| `data` 服务目录曾有特例 | 旧布局多套一层（服务目录下再套服务名目录），现已扁平化为标准布局 `service/data/api`（目录迁移前为 `api/data`，rpc/data 已折叠删除），与其他服务一致 |
 | Windows 下 `rm` 被沙箱拦截 | 清空目录准备重生成时 `rm -rf` 可能静默失败，需确认删除结果 |
 | 统一响应易写错 | handler 必须用 `result.Write(w, r, data, err)`，不要用 goctl 生成的 Result 类型 |
 | JWT 中间件 | 在 `.api` 中用 `@server jwt: Auth` 声明，userId 通过 `auth.UserIdFromCtx(l.ctx)` 获取 |

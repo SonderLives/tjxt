@@ -4,7 +4,7 @@
 
 trade（交易订单）微服务覆盖购物车、订单（预下单 / 下单 / 免费课报名 / 取消 / 删除 / 查询）、订单明细与退款申请审批流，并承载迁移自 pay 服务的支付渠道 / 支付 / 退款业务能力（经 `pay.rpc` 代理，本服务不落地支付流水）。HTTP 服务 `trade-api` 监听 8809，RPC 服务 `trade.rpc` 监听 8089（gRPC），经 etcd（`127.0.0.1:2379`，key `trade.rpc`）注册与发现；数据库为 MySQL `tj_trade` 库（cart / order / order_detail / refund_apply / undo_log 共 5 张表）。下游依赖 `pay.rpc`（已装配）以及 course / promotion（课程快照取价与优惠券试算，设计意图依赖，RPC 客户端配置当前未接线）；作为生产者向 RabbitMQ `order.exchange` 发布 `order.pay` / `order.refund` 交易域事件供 learning 消费开通 / 撤销课程（生产端配置就绪，当前代码无发布调用）。73 个 logic（RPC 37 + API 36）均为真实实现，两层 `go build` 编译通过，全仓无 goctl 占位 stub。
 
-> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/trade`，`trade.rpc` :8089）已删除，RPC 层业务实现随迁 `api/trade/backend`（config/logic/model/pb/svc，身份改读 JWT ctx claim），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `api/trade/trade.proto`，pb 类型由 `make pb`（buf generate）再生成到 `api/trade/backend/pb/`。**MQ 消费者归属 app/mq**：支付回写消费者已独立为 `app/mq/trade-mq`（无 metrics 端点；消费 `pay.success` 回写订单已支付并发布 `order.pay`），`order.refund` 由 api/trade backend（退款审批通过）发布，均由 learning.rpc 消费——下文「trade 只生产不消费 / 无发布调用」的段落为折叠前形态记录。
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/trade`，`trade.rpc` :8089）已删除，RPC 层业务实现随迁 `service/trade/api/backend`（config/logic/model/pb/svc，身份改读 JWT ctx claim），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `service/trade/api/trade.proto`，pb 类型由 `make pb`（buf generate）再生成到 `service/trade/api/backend/pb/`。**MQ 消费者归属 app/mq**：支付回写消费者已独立为 `app/mq/trade-mq`（无 metrics 端点；消费 `pay.success` 回写订单已支付并发布 `order.pay`），`order.refund` 由 service/trade/api backend（退款审批通过）发布，均由 learning.rpc 消费——下文「trade 只生产不消费 / 无发布调用」的段落为折叠前形态记录。
 
 ## Requirements
 
@@ -21,7 +21,7 @@ trade-api SHALL 提供以下购物车维护接口（全部经 `TradeRpc` 转发�
 
 补充约束：
 
-- 响应统一为 `pkg/response.R{Code,Msg,RequestId,Data any}`；分页约定 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码遵循共享错误码规范（trade 域 103000-103999）
+- 响应统一为 `common/response.R{Code,Msg,RequestId,Data any}`；分页约定 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码遵循共享错误码规范（trade 域 103000-103999）
 - 按 configs.md 记载，trade-api 全部路由声明 `@server (jwt: Auth)`，`Auth.AccessSecret` 须与 auth.rpc 签发密钥一致（聚合文档 `docs/tjxt.openapi.json` 将上述端点认证列标注为「否」，以配置记载为准）
 - 聚合文档仅收录 12 个 cart/order 端点；trade-api 实际实现 36 个 API logic，支付发起 / 支付渠道管理 / 退款申请审批等 HTTP 转发逻辑的路由未收录于聚合文档
 

@@ -1,0 +1,20 @@
+// Code scaffolded by goctl. Safe to edit.
+// goctl 1.10.1
+
+package top10
+
+import (
+	"net/http"
+
+	"tjxt/service/data/api/internal/logic/top10"
+	"tjxt/service/data/api/internal/svc"
+	"tjxt/common/response"
+)
+
+func GetTop10DataHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		l := top10.NewGetTop10DataLogic(r.Context(), svcCtx)
+		resp, err := l.GetTop10Data()
+		response.Write(w, r, resp, err)
+	}
+}

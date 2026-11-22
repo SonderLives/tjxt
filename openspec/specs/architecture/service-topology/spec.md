@@ -4,7 +4,7 @@
 
 定义 tjxt 13 个微服务之间的依赖关系、三条核心跨服务调用链、服务间契约原则，以及跨服务数据访问与数据域边界规则。本规格是判断「某服务是否有权调用另一服务」与「跨域数据应如何取得」的权威依据：任何跨服务取数必须走目标服务的 RPC 或事件，严禁直连他库、直连 `internal` 包。同时给出生产部署拓扑视图（K8s），作为本地 `docker-compose` 环境的上位形态。
 
-**进程拓扑（RPC 折叠后）**：全仓 20 个进程 = 13 个 API 服务 + 5 个保留 RPC 服务（user/course/learning/pay/promotion，仅它们存在跨服务调用方）+ 2 个 MQ 消费者（app/mq/trade-mq、app/mq/search-mq）。auth/exam/media/message/remark/search/trade/data 8 个服务的 RPC 进程壳已删除，业务实现随迁各自 `api/<svc>/backend`，进程内直调、不再注册 etcd RPC 端点。
+**进程拓扑（RPC 折叠后）**：全仓 20 个进程 = 13 个 API 服务 + 5 个保留 RPC 服务（user/course/learning/pay/promotion，仅它们存在跨服务调用方）+ 2 个 MQ 消费者（app/mq/trade-mq、app/mq/search-mq）。auth/exam/media/message/remark/search/trade/data 8 个服务的 RPC 进程壳已删除，业务实现随迁各自 `service/<svc>/api/backend`，进程内直调、不再注册 etcd RPC 端点。
 
 ## Requirements
 
@@ -28,9 +28,9 @@ graph TD
     LearningAPI --> LearningRPC[learning-rpc:8084]
     LearningAPI --> CourseRPC
     PayAPI --> PayRPC[pay-rpc:8088]
-    TradeAPI --> TradeBackend[trade backend<br/>api/trade/backend 已折叠]
+    TradeAPI --> TradeBackend[trade backend<br/>service/trade/api/backend 已折叠]
     TradeBackend --> PayRPC
-    MediaAPI --> MediaBackend[media backend<br/>api/media/backend 已折叠]
+    MediaAPI --> MediaBackend[media backend<br/>service/media/api/backend 已折叠]
 
     PayRPC --> PayMQ[trade-mq 消费 pay.success<br/>回写订单并发布 order.pay]
     TradeMQ[trade-mq] --> LearningRPC
@@ -41,21 +41,21 @@ graph TD
 >
 > 源冲突说明 2：上图源自设计意图，**多数 API→auth-rpc 的边并未实际接线**——各服务普遍通过自身 yaml 的 `Auth.AccessSecret` + go-zero JWT 中间件本地校验。仅表中 ✅ 项可视为真实链路。
 >
-> 折叠说明：auth/exam/media/message/remark/search/trade/data 的 RPC 层已折叠进 `api/<svc>/backend`，原 `xxx-rpc` 节点不复存在；trade/search 原挂在 RPC 进程的 MQ 消费职责由 `app/mq/trade-mq`、`app/mq/search-mq` 承接。
+> 折叠说明：auth/exam/media/message/remark/search/trade/data 的 RPC 层已折叠进 `service/<svc>/api/backend`，原 `xxx-rpc` 节点不复存在；trade/search 原挂在 RPC 进程的 MQ 消费职责由 `app/mq/trade-mq`、`app/mq/search-mq` 承接。
 
 **实际接线状态**（以 `ServiceContext` 中 client 是否实例化、logic 是否调用为准）：
 
 | 调用方 | 被调方 | 状态 | 说明 |
 |--------|--------|------|------|
 | auth-api | user.rpc | ✅ 已接线 | 登录时调 `LoginVerify` 核验凭证 |
-| trade backend（api/trade/backend） | pay.rpc | ✅ 已接线 | 支付/退款经 pay 代理 |
+| trade backend（service/trade/api/backend） | pay.rpc | ✅ 已接线 | 支付/退款经 pay 代理 |
 | search-mq（app/mq/search-mq） | course.rpc | ✅ 已接线 | 课程索引数据源（course.up 回源/全量重建） |
 | learning-api | course.rpc | ✅ 已接线 | 校验课程有效性 |
 | course-rpc | user.rpc | ❌ 未接线 | 教师姓名/头像留空 |
 | course-rpc | learning.rpc | ❌ 未接线 | `lesson_id` 填 0 |
 | course-rpc | media / exam 业务 | ❌ 未接线 | 媒资/题目存在性校验缺失（media/exam 已折叠，跨域校验需走事件或 HTTP） |
 | trade backend | promotion.rpc | ❌ 未接线 | 优惠未接入，实付金额未扣减 |
-| exam backend（api/exam/backend） | course.rpc | ❌ 未接线 | 图中为设计意图 |
+| exam backend（service/exam/api/backend） | course.rpc | ❌ 未接线 | 图中为设计意图 |
 | data-api | course / trade / learning | ❌ 未接线 | data 当前无上游 RPC 客户端配置，数据为回填/快照 |
 | 各服务 | auth（token 校验） | ⚠️ 多数未接线 | 改用本地 JWT 中间件校验（auth RPC 层已折叠） |
 | pay-rpc | 真实支付网关 | ⚠️ 占位 | demo 回调 URL，非真实渠道 |
@@ -108,14 +108,14 @@ Client → media-api → media backend (获取上传签名，RPC 层已折叠)
 #### Scenario: 下单支付
 
 - **WHEN** 客户端提交下单请求
-- **THEN** trade-api 调本地 trade backend（`api/trade/backend`）创建订单，再经 pay-rpc 发起支付；支付回调后 pay-rpc 发布 `pay.success`，由 app/mq/trade-mq 消费回写订单并发布 `order.pay`
+- **THEN** trade-api 调本地 trade backend（`service/trade/api/backend`）创建订单，再经 pay-rpc 发起支付；支付回调后 pay-rpc 发布 `pay.success`，由 app/mq/trade-mq 消费回写订单并发布 `order.pay`
 - **AND** 优惠券试算（promotion-rpc）当前未打通（trade backend 未接线 promotion）；课程解锁由 learning.rpc 消费 `order.pay` 事件完成
 
 #### Scenario: 学习进度记录
 
 - **WHEN** 客户端上报学习进度
 - **THEN** learning-api 调 learning-rpc 记录，并经 course-rpc 校验课程有效性
-- **AND** 进度提醒/证书发放依赖 message 服务（RPC 层已折叠为 api/message/backend），当前未接线
+- **AND** 进度提醒/证书发放依赖 message 服务（RPC 层已折叠为 service/message/api/backend），当前未接线
 
 ### Requirement: 服务间契约原则
 
@@ -147,7 +147,7 @@ Client → media-api → media backend (获取上传签名，RPC 层已折叠)
 |------|----------|----------|
 | trade 需要课程价格 | 调用 course-rpc `GetCourse` | 直接查 `tj_course.course` |
 | learning 需要用户信息 | 调用 user-rpc `GetUserById` | 直接查 `tj_user.user` |
-| data 大屏需要交易汇总 | 调用 trade 侧能力（trade RPC 层已折叠，经事件或 api/trade HTTP） | 直接查 `tj_trade.order` |
+| data 大屏需要交易汇总 | 调用 trade 侧能力（trade RPC 层已折叠，经事件或 service/trade/api HTTP） | 直接查 `tj_trade.order` |
 | promotion 校验用户身份 | 调用本地 JWT 校验（auth RPC 层已折叠） | 共享 JWT secret 跨服务扩散解析 |
 
 #### Scenario: 大屏聚合取数
@@ -159,7 +159,7 @@ Client → media-api → media backend (获取上传签名，RPC 层已折叠)
 #### Scenario: 需要校验 JWT 的服务
 
 - **WHEN** 某服务需要确认请求者身份
-- **THEN** 使用 go-zero JWT 中间件本地校验（签发能力已折叠进 api/auth/backend）
+- **THEN** 使用 go-zero JWT 中间件本地校验（签发能力已折叠进 service/auth/api/backend）
 - **AND** 禁止通过共享 `AccessSecret` 之外的渠道扩散解析逻辑（密钥轮换需统一管理）
 
 ### Requirement: 数据域边界与 SQL 版本管理
@@ -186,7 +186,7 @@ Client → media-api → media backend (获取上传签名，RPC 层已折叠)
 - 可观测性：OpenTelemetry Collector 作为 trace/metrics/logs 统一入口；Jaeger（链路）/ Prometheus + Grafana（指标）/ Loki + Grafana（日志）
 - 本地形态：上述生产拓扑在本地退化为 `docker-compose` 的 8 容器（MySQL / Redis / RabbitMQ / etcd / Jaeger / otel-collector / Prometheus / Loki），Go 服务在宿主机直跑
 
-> 已知缺口：仓库当前仅有 `docker-compose.yml` 与 `deployments/` 下的 collector / prometheus / loki 配置，**尚无 K8s 编排清单**；`Auth.AccessSecret` 等敏感值仍以明文写在 `etc/*.yaml`（开发默认 `change-me-in-production`），上生产前须改为 Secret 注入。
+> 已知缺口：仓库当前仅有 `docker-compose.yml` 与 `deploy/` 下的 collector / prometheus / loki 配置，**尚无 K8s 编排清单**；`Auth.AccessSecret` 等敏感值仍以明文写在 `etc/*.yaml`（开发默认 `change-me-in-production`），上生产前须改为 Secret 注入。
 
 #### Scenario: 从本地切换到生产
 
