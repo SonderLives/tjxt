@@ -6,10 +6,10 @@ package top10
 import (
 	"context"
 
+	backendlogic "tjxt/api/data/backend/logic"
+	dataclient "tjxt/api/data/backend/pb"
 	"tjxt/api/data/internal/svc"
 	"tjxt/api/data/internal/types"
-	dataclient "tjxt/rpc/data/client/data"
-	"tjxt/rpc/data/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,16 +29,16 @@ func NewSetTop10DataLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SetT
 }
 
 func (l *SetTop10DataLogic) SetTop10Data(req *types.Top10DataSetReq) (resp *types.OkVO, err error) {
-	data := make([]*pb.Top10DataSetUnit, 0, len(req.Data))
+	data := make([]*dataclient.Top10DataSetUnit, 0, len(req.Data))
 	for _, u := range req.Data {
-		data = append(data, &pb.Top10DataSetUnit{
+		data = append(data, &dataclient.Top10DataSetUnit{
 			Category:    u.Category,
 			Name:        u.Name,
 			NewStuNum:   int32(u.NewStuNum),
 			OrderAmount: u.OrderAmount,
 		})
 	}
-	rpcResp, err := l.svcCtx.DataRpc.SetTop10Data(l.ctx, &dataclient.Top10DataSetReq{
+	rpcResp, err := backendlogic.NewSetTop10DataLogic(l.ctx, l.svcCtx.Backend).SetTop10Data(&dataclient.Top10DataSetReq{
 		Version: int32(req.Version),
 		Data:    data,
 	})

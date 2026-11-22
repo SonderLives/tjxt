@@ -6,9 +6,10 @@ package board
 import (
 	"context"
 
+	backendlogic "tjxt/api/data/backend/logic"
+	dataclient "tjxt/api/data/backend/pb"
 	"tjxt/api/data/internal/svc"
 	"tjxt/api/data/internal/types"
-	dataclient "tjxt/rpc/data/client/data"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,7 +33,7 @@ func (l *GetBoardDataLogic) GetBoardData(req *types.BoardDataReq) (resp *types.E
 	for _, t := range req.Types {
 		typesArr = append(typesArr, int32(t))
 	}
-	rpcResp, err := l.svcCtx.DataRpc.GetBoardData(l.ctx, &dataclient.BoardDataReq{Types: typesArr})
+	rpcResp, err := backendlogic.NewGetBoardDataLogic(l.ctx, l.svcCtx.Backend).GetBoardData(&dataclient.BoardDataReq{Types: typesArr})
 	if err != nil {
 		return nil, err
 	}

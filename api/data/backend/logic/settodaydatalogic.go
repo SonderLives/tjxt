@@ -4,8 +4,8 @@ import (
 	"context"
 	"strconv"
 
-	"tjxt/rpc/data/internal/svc"
-	"tjxt/rpc/data/pb"
+	"tjxt/api/data/backend/pb"
+	"tjxt/api/data/backend/svc"
 	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"

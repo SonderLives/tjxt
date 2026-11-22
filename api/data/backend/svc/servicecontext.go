@@ -1,7 +1,7 @@
 package svc
 
 import (
-	"tjxt/rpc/data/internal/config"
+	"tjxt/api/data/backend/config"
 
 	"github.com/zeromicro/go-zero/core/stores/redis"
 )
@@ -14,6 +14,6 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
-		Rds:    redis.MustNewRedis(c.Redis.RedisConf),
+		Rds:    redis.MustNewRedis(c.Redis),
 	}
 }

@@ -18,7 +18,6 @@ use (
 	./app/mq/search-mq
 	./pkg
 	./rpc/course
-	./rpc/data
 	./rpc/exam
 	./rpc/learning
 	./rpc/media
