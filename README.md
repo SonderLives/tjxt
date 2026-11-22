@@ -81,17 +81,6 @@ tjxt/
             │   ├── server/        # gRPC 服务注册
             │   └── svc/           # 服务上下文 (DB/Redis/缓存)
             └── pb/                # 生成的 pb.go / _grpc.pb.go
-    └── data/                # 嵌套模块 (goctl -m multiple)
-        ├── api/data/
-        │   ├── data.go
-        │   ├── etc/data-api.yaml
-        │   └── internal/...
-        └── rpc/data/
-            ├── data.proto
-            ├── data.go
-            ├── client/data/
-            ├── etc/data.yaml
-            └── internal/...
 ```
 
 
@@ -166,9 +155,8 @@ make run-user-rpc      # 启动 user-rpc
 #    或手动（同样要在仓库根执行）：
 go run ./apps/user/api -f apps/user/api/etc/user-api.yaml
 go run ./apps/user/rpc -f apps/user/rpc/etc/user.yaml
-# data 是嵌套结构，多一层目录：
-go run ./apps/data/api/data -f apps/data/api/data/etc/data-api.yaml
-go run ./apps/data/rpc/data -f apps/data/rpc/data/etc/data.yaml
+go run ./apps/data/api -f apps/data/api/etc/data-api.yaml
+go run ./apps/data/rpc -f apps/data/rpc/etc/data.yaml
 ```
 
 **一键启动全部服务**（后台独立窗口，日志写入 `logs/<svc>/`）：
@@ -219,10 +207,11 @@ make run-all-rpc   # 启动所有 RPC
 **Makefile 快捷方式**:
 
 ```bash
-make gen-api  svc=user              # 只重生成 API
-make gen-rpc  svc=user              # 只重生成 RPC (proto 必须先改)
-make gen-model svc=user db=tj_user table=user
-make generate                       # api + rpc 全量重生成
+make api            # 根据 .api 重生成所有 API 代码
+make rpc            # 根据 .proto 重生成所有 RPC 代码
+make model          # 根据 sql/ddl/*.sql 生成 model（输出到 ./model/<db>/）
+make generate       # api + rpc 全量重生成
+make check-gen      # 重生成 API 并校验与仓库零漂移（契约一致性守卫）
 ```
 
 
@@ -231,20 +220,22 @@ make generate                       # api + rpc 全量重生成
 
 ```bash
 make help            # 全部命令
-make verify          # 环境体检
+make init            # go work sync 并 tidy 所有模块
+make verify          # 校验结构：所有服务的 .api/.proto 与 internal/ 目录是否齐全
 make build           # 编译所有服务（26 个二进制到 bin/）
 make test            # 各模块 go test
-make lint            # golangci-lint
-make fmt             # gofumpt 格式化
+make lint            # golangci-lint 逐模块检查
+make fmt             # go fmt 所有模块
+make ci              # 一条龙门禁：verify + lint + test + build
 make clean           # 删除 bin/ 与各服务下遗留 exe
-make run-<svc>          # 前台跑单个 API（如 make run-user）
-make run-<svc>-rpc      # 前台跑单个 RPC（如 make run-user-rpc）
-make run-all            # 后台并行启动所有 API（各开独立窗口）
-make run-all-rpc        # 后台并行启动所有 RPC
-make docker-up          # 拉起 docker-compose 全部容器（含可观测性栈）
-make docker-logs        # 跟踪容器日志
-make info            # 打印服务→端口映射
-make d2u             # Windows 行尾修复 (CRLF→LF)
+make check-gen       # 重生成 API 并校验与仓库零漂移（契约一致性守卫）
+make run-<svc>       # 前台跑单个 API（如 make run-user）
+make run-<svc>-rpc   # 前台跑单个 RPC（如 make run-user-rpc）
+make run-all         # 后台并行启动所有 API（各开独立窗口）
+make run-all-rpc     # 后台并行启动所有 RPC
+make docker-up       # 拉起 docker-compose 全部容器（含可观测性栈）
+make docker-down     # 停止并移除容器
+make docker-logs     # 跟踪容器日志
 ```
 
 
@@ -307,6 +298,8 @@ go ctx.MQClient.Start(context.Background())
 | `pkg/mq`          | RabbitMQ 事件总线：confirm 发布、泛型消费者（手动 ack、失败 Nack 重回队列）、交换机/路由键常量                        |
 | `pkg/utils/idgen` | 雪花算法 `NextID()`                                                                      |
 | `pkg/utils/page`  | 分页参数归一化                                                                              |
+| `pkg/utils/timex` | 统一时间格式化 Layout/Format/Parse                                                          |
+| `pkg/confenv`     | 配置环境变量占位解析（`${VAR}` / `${VAR|default}`）                                              |
 
 
 **使用方式** (在任意服务 `go.mod` 引入):
@@ -361,7 +354,7 @@ replace tjxt/pkg => ../../pkg
 | **骨架**       | ✅ 13 服务 api+rpc 全部 goctl 生成完毕，`go build ./...` 逐模块编译通过                                                          |
 | **Logic 业务** | ✅ 394/394 logic 全部实现（API 193 + RPC 201），全库 0 处 TODO/panic 占位                                                    |
 | **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `result.Write`、xerr 错误码已在各 svc 接入                                                |
-| **包名规范**     | ✅ 模块路径统一 `tjxt/apps/<svc>` (data 为 `tjxt/apps/data/{api,rpc}/data`)                                             |
+| **包名规范**     | ✅ 模块路径统一 `tjxt/apps/<svc>` (API 为 `tjxt/apps/<svc>/api`，RPC 为 `tjxt/apps/<svc>/rpc`)                             |
 | **事件总线**     | ✅ 三段链路全部接线：course→search 上下架同步 ES；pay→trade 支付成功回写订单（条件更新+幂等）；trade→learning 支付加课/退款撤课                          |
 | **数据库**      | ✅ DDL + goctl model（带缓存）已生成，自定义 Model 已扩展                                                                       |
 | **跨域 RPC**   | ⚠️ 已接线 trade→{course,pay}、search→course、learning→course；其余（如 course→user/learning、trade→promotion、pay→真实网关）尚未接线 |

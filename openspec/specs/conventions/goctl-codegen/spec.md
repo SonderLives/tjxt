@@ -202,7 +202,7 @@ func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User
 
 - **WHEN** yaml 中新增配置项但服务未读取到
 - **THEN** 对照 `internal/config/config.go` 的 struct tag 核对字段名与层级
-- **AND** 确认该 yaml 位于服务实际加载的 `etc/` 路径（data 服务为 `apps/data/api/data/etc/`、`apps/data/rpc/data/etc/`）
+- **AND** 确认该 yaml 位于服务实际加载的 `etc/` 路径（统一为 `apps/<svc>/{api,rpc}/etc/`）
 
 ### Requirement: 可观测性配置保护
 

@@ -1,4 +1,5 @@
-﻿CREATE DATABASE IF NOT EXISTS `xxl_job` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+﻿-- 本文件含教学演示基线数据（演示账号/演示配置），仅限本地开发与教学，禁止用于生产。
+CREATE DATABASE IF NOT EXISTS `xxl_job` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `xxl_job`;
 
 /*
