@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"tjxt/pkg/auth"
+	"tjxt/pkg/page"
 
 	"tjxt/rpc/learning/internal/svc"
 	"tjxt/rpc/learning/pb"
@@ -43,7 +44,7 @@ func (l *PlanPageLogic) PlanPage(in *pb.LessonPageRequest) (*pb.PlanPageReply, e
 	}
 	return &pb.PlanPageReply{
 		Total:         total,
-		Pages:         calcPages(total, in.PageSize),
+		Pages:         page.CalcPages(total, in.PageSize),
 		WeekTotalPlan: int32(weekTotalPlan),
 		// WeekFinished / WeekPoints 暂无独立数据源，留 0
 		List: vos,

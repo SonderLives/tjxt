@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"tjxt/pkg/auth"
+	"tjxt/pkg/page"
 
 	"tjxt/rpc/learning/internal/svc"
 	"tjxt/rpc/learning/pb"
@@ -41,7 +42,7 @@ func (l *LessonPageLogic) LessonPage(in *pb.LessonPageRequest) (*pb.LessonPageRe
 	}
 	return &pb.LessonPageReply{
 		Total: total,
-		Pages: calcPages(total, in.PageSize),
+		Pages: page.CalcPages(total, in.PageSize),
 		List:  vos,
 	}, nil
 }
