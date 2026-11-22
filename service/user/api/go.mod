@@ -1,11 +1,11 @@
-module tjxt/api/user
+module tjxt/service/user/api
 
 go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
-	tjxt/rpc/user v0.0.0-00010101000000-000000000000
-	tjxt/pkg v0.0.0-00010101000000-000000000000
+	tjxt/service/user/rpc v0.0.0-00010101000000-000000000000
+	tjxt/common v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -101,6 +101,6 @@ require (
 )
 
 replace (
-	tjxt/rpc/user => ../../rpc/user
-	tjxt/pkg => ../../pkg
+	tjxt/service/user/rpc => ../../../service/user/rpc
+	tjxt/common => ../../../common
 )

@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"time"
 
-	"tjxt/api/auth/backend/model"
-	"tjxt/api/auth/backend/pb"
-	"tjxt/api/auth/backend/svc"
-	"tjxt/pkg/errorx"
+	"tjxt/service/auth/api/backend/model"
+	"tjxt/service/auth/api/backend/pb"
+	"tjxt/service/auth/api/backend/svc"
+	"tjxt/common/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

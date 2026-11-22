@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/api/trade/internal/logic"
-	"tjxt/api/trade/internal/svc"
-	"tjxt/api/trade/internal/types"
-	"tjxt/pkg/response"
+	"tjxt/service/trade/api/internal/logic"
+	"tjxt/service/trade/api/internal/svc"
+	"tjxt/service/trade/api/internal/types"
+	"tjxt/common/response"
 )
 
 func PayResultQueryHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

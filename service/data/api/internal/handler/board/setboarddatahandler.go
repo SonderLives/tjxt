@@ -6,10 +6,10 @@ package board
 import (
 	"net/http"
 
-	"tjxt/api/data/internal/logic/board"
-	"tjxt/api/data/internal/svc"
-	"tjxt/api/data/internal/types"
-	"tjxt/pkg/response"
+	"tjxt/service/data/api/internal/logic/board"
+	"tjxt/service/data/api/internal/svc"
+	"tjxt/service/data/api/internal/types"
+	"tjxt/common/response"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )

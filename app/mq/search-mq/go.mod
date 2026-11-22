@@ -4,8 +4,8 @@ go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
-	tjxt/api/search v0.0.0-00010101000000-000000000000
-	tjxt/pkg v0.0.0-00010101000000-000000000000
+	tjxt/common v0.0.0-00010101000000-000000000000
+	tjxt/service/search/api v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -38,6 +38,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.19.2 // indirect
+	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -55,6 +56,7 @@ require (
 	github.com/rabbitmq/amqp091-go v1.13.0 // indirect
 	github.com/redis/go-redis/v9 v9.21.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/titanous/json5 v1.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.21 // indirect
@@ -102,11 +104,11 @@ require (
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
-	tjxt/rpc/course v0.0.0-00010101000000-000000000000 // indirect
+	tjxt/service/course/rpc v0.0.0-00010101000000-000000000000 // indirect
 )
 
 replace (
-	tjxt/api/search => ../../../api/search
-	tjxt/pkg => ../../../pkg
-	tjxt/rpc/course => ../../../rpc/course
+	tjxt/common => ../../../common
+	tjxt/service/course/rpc => ../../../service/course/rpc
+	tjxt/service/search/api => ../../../service/search/api
 )

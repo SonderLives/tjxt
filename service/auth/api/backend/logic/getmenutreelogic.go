@@ -3,8 +3,8 @@ package authlogic
 import (
 	"context"
 
-	"tjxt/api/auth/backend/pb"
-	"tjxt/api/auth/backend/svc"
+	"tjxt/service/auth/api/backend/pb"
+	"tjxt/service/auth/api/backend/svc"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

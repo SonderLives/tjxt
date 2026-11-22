@@ -4,8 +4,8 @@
 package svc
 
 import (
-	"tjxt/api/user/internal/config"
-	userclient "tjxt/rpc/user/client/user"
+	"tjxt/service/user/api/internal/config"
+	userclient "tjxt/service/user/rpc/client/user"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )

@@ -3,8 +3,8 @@ package courselogic
 import (
 	"context"
 
-	"tjxt/rpc/course/internal/svc"
-	"tjxt/rpc/course/pb"
+	"tjxt/service/course/rpc/internal/svc"
+	"tjxt/service/course/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

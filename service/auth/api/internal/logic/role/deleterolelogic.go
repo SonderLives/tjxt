@@ -6,10 +6,10 @@ package role
 import (
 	"context"
 
-	backendlogic "tjxt/api/auth/backend/logic"
-	authpb "tjxt/api/auth/backend/pb"
-	"tjxt/api/auth/internal/svc"
-	"tjxt/api/auth/internal/types"
+	backendlogic "tjxt/service/auth/api/backend/logic"
+	authpb "tjxt/service/auth/api/backend/pb"
+	"tjxt/service/auth/api/internal/svc"
+	"tjxt/service/auth/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

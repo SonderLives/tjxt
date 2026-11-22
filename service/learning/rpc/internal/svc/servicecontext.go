@@ -3,10 +3,10 @@ package svc
 import (
 	"fmt"
 
-	"tjxt/rpc/learning/internal/config"
-	"tjxt/rpc/learning/internal/model"
-	"tjxt/rpc/learning/internal/service"
-	"tjxt/pkg/mq"
+	"tjxt/service/learning/rpc/internal/config"
+	"tjxt/service/learning/rpc/internal/model"
+	"tjxt/service/learning/rpc/internal/service"
+	"tjxt/common/mq"
 
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )

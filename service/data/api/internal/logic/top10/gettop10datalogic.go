@@ -6,10 +6,10 @@ package top10
 import (
 	"context"
 
-	backendlogic "tjxt/api/data/backend/logic"
-	dataclient "tjxt/api/data/backend/pb"
-	"tjxt/api/data/internal/svc"
-	"tjxt/api/data/internal/types"
+	backendlogic "tjxt/service/data/api/backend/logic"
+	dataclient "tjxt/service/data/api/backend/pb"
+	"tjxt/service/data/api/internal/svc"
+	"tjxt/service/data/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

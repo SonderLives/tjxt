@@ -6,7 +6,7 @@ package handler
 import (
 	"net/http"
 
-	"tjxt/api/course/internal/svc"
+	"tjxt/service/course/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

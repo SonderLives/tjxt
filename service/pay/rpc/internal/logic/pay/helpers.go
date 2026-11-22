@@ -3,9 +3,9 @@ package paylogic
 import (
 	"database/sql"
 
-	"tjxt/pkg/page"
-	"tjxt/rpc/pay/internal/model"
-	"tjxt/rpc/pay/pb"
+	"tjxt/common/page"
+	"tjxt/service/pay/rpc/internal/model"
+	"tjxt/service/pay/rpc/pb"
 )
 
 // formatNullString 取 sql.NullString 有效值，无效返回空串。

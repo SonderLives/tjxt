@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/api/search/internal/logic/recommend"
-	"tjxt/api/search/internal/svc"
-	"tjxt/api/search/internal/types"
-	"tjxt/pkg/response"
+	"tjxt/service/search/api/internal/logic/recommend"
+	"tjxt/service/search/api/internal/svc"
+	"tjxt/service/search/api/internal/types"
+	"tjxt/common/response"
 )
 
 func GetTopCoursesByCategoryHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

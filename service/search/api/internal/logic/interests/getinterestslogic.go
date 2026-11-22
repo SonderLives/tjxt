@@ -6,11 +6,11 @@ package interests
 import (
 	"context"
 
-	backendlogic "tjxt/api/search/backend/logic"
-	backendpb "tjxt/api/search/backend/pb"
-	"tjxt/api/search/internal/svc"
-	"tjxt/api/search/internal/types"
-	"tjxt/pkg/auth"
+	backendlogic "tjxt/service/search/api/backend/logic"
+	backendpb "tjxt/service/search/api/backend/pb"
+	"tjxt/service/search/api/internal/svc"
+	"tjxt/service/search/api/internal/types"
+	"tjxt/common/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

@@ -1,4 +1,4 @@
-module tjxt/pkg
+module tjxt/common
 
 go 1.26.2
 

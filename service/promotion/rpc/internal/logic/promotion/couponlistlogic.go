@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"tjxt/rpc/promotion/internal/svc"
-	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/errorx"
+	"tjxt/service/promotion/rpc/internal/svc"
+	"tjxt/service/promotion/rpc/pb"
+	"tjxt/common/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

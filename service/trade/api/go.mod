@@ -1,14 +1,14 @@
-module tjxt/api/trade
+module tjxt/service/trade/api
 
 go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
 	google.golang.org/protobuf v1.36.11
-	tjxt/pkg v0.0.0-00010101000000-000000000000
-	tjxt/rpc/course v0.0.0-00010101000000-000000000000
-	tjxt/rpc/pay v0.0.0-00010101000000-000000000000
-	tjxt/rpc/promotion v0.0.0-00010101000000-000000000000
+	tjxt/common v0.0.0-00010101000000-000000000000
+	tjxt/service/course/rpc v0.0.0-00010101000000-000000000000
+	tjxt/service/pay/rpc v0.0.0-00010101000000-000000000000
+	tjxt/service/promotion/rpc v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -106,8 +106,8 @@ require (
 )
 
 replace (
-	tjxt/pkg => ../../pkg
-	tjxt/rpc/course => ../../rpc/course
-	tjxt/rpc/pay => ../../rpc/pay
-	tjxt/rpc/promotion => ../../rpc/promotion
+	tjxt/common => ../../../common
+	tjxt/service/course/rpc => ../../../service/course/rpc
+	tjxt/service/pay/rpc => ../../../service/pay/rpc
+	tjxt/service/promotion/rpc => ../../../service/promotion/rpc
 )

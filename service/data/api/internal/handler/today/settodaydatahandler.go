@@ -6,10 +6,10 @@ package today
 import (
 	"net/http"
 
-	"tjxt/api/data/internal/logic/today"
-	"tjxt/api/data/internal/svc"
-	"tjxt/api/data/internal/types"
-	"tjxt/pkg/response"
+	"tjxt/service/data/api/internal/logic/today"
+	"tjxt/service/data/api/internal/svc"
+	"tjxt/service/data/api/internal/types"
+	"tjxt/common/response"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )

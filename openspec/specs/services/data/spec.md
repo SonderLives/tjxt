@@ -101,9 +101,9 @@ data-api SHALL 提供热门榜与热销榜数据的获取与设置接口：
 - `GetTodayData` 入参为 `Empty`，无任何日期 / 维度参数——「今日」由服务端自行判定
 - 三个 `Set*` 请求均带 `int32 version`，三个 `Get*` 均不带——读侧固定取「当前版本」
 
-消费关系：当前仅 `data-api` 自身消费该 RPC（HTTP Handler → `dataclient.Data`，`servicecontext.go` 注入 `DataRpc`，import 路径 `tjxt/rpc/data/client/data`）；全仓 Grep 除 `api/data/`、`rpc/data/` 自身外无其它服务引用。`specs/architecture/service-topology` 中标注的 `data-rpc --> AuthRPC` 依赖在代码中不存在（`rpc/data/internal/config/config.go` 只有 `zrpc.RpcServerConf`，无任何客户端配置）。
+消费关系：当前仅 `data-api` 自身消费该 RPC（HTTP Handler → `dataclient.Data`，`servicecontext.go` 注入 `DataRpc`，import 路径 `tjxt/service/data/rpc/client/data`）；全仓 Grep 除 `api/data/`、`rpc/data/` 自身外无其它服务引用。`specs/architecture/service-topology` 中标注的 `data-rpc --> AuthRPC` 依赖在代码中不存在（`rpc/data/internal/config/config.go` 只有 `zrpc.RpcServerConf`，无任何客户端配置）。
 
-> 注：data 与 auth/user/search/remark/learning 一样，把 RPC 客户端生成到 `client/<svc>/` 子目录（`goctl rpc protoc --client=true -m` 布局），import 路径为 `tjxt/rpc/data/client/data`；其余服务（course/exam/media/message/pay/promotion/trade）为 `rpc/<svc>/<svc>/` 包装目录布局。
+> 注：data 与 auth/user/search/remark/learning 一样，把 RPC 客户端生成到 `client/<svc>/` 子目录（`goctl rpc protoc --client=true -m` 布局），import 路径为 `tjxt/service/data/rpc/client/data`；其余服务（course/exam/media/message/pay/promotion/trade）为 `rpc/<svc>/<svc>/` 包装目录布局。
 
 #### Scenario: 大屏轮询刷新链路
 
@@ -296,7 +296,7 @@ data SHALL 按以下配置部署运行：
 #### Scenario: 构建 data 模块
 
 - **WHEN** 在 go.work 下构建 data 服务
-- **THEN** 引用的真实模块为 `./api/data`（module `tjxt/api/data`）与 `./rpc/data`（module `tjxt/rpc/data`），与其余 12 个服务的两层布局一致
+- **THEN** 引用的真实模块为 `./api/data`（module `tjxt/service/data/api`）与 `./rpc/data`（module `tjxt/service/data/rpc`），与其余 12 个服务的两层布局一致
 
 #### Scenario: JWT 密钥占位
 

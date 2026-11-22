@@ -7,12 +7,12 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/api/trade/internal/config"
-	"tjxt/api/trade/internal/handler"
-	"tjxt/api/trade/internal/svc"
+	"tjxt/service/trade/api/internal/config"
+	"tjxt/service/trade/api/internal/handler"
+	"tjxt/service/trade/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
-	"tjxt/pkg/confenv"
+	"tjxt/common/confenv"
 )
 
 var configFile = flag.String("f", "etc/trade-api.yaml", "the config file")

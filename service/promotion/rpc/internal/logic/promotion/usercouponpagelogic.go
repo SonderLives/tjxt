@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
-	"tjxt/pkg/errorx"
-	"tjxt/pkg/page"
-	"tjxt/pkg/timex"
-	"tjxt/rpc/promotion/internal/model"
-	"tjxt/rpc/promotion/internal/svc"
-	"tjxt/rpc/promotion/pb"
+	"tjxt/common/errorx"
+	"tjxt/common/page"
+	"tjxt/common/timex"
+	"tjxt/service/promotion/rpc/internal/model"
+	"tjxt/service/promotion/rpc/internal/svc"
+	"tjxt/service/promotion/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

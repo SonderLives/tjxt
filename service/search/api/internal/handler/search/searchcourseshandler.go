@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/api/search/internal/logic/search"
-	"tjxt/api/search/internal/svc"
-	"tjxt/api/search/internal/types"
-	"tjxt/pkg/response"
+	"tjxt/service/search/api/internal/logic/search"
+	"tjxt/service/search/api/internal/svc"
+	"tjxt/service/search/api/internal/types"
+	"tjxt/common/response"
 )
 
 func SearchCoursesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

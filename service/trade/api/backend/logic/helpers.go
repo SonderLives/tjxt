@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	courseclient "tjxt/rpc/course/client/course"
-	"tjxt/api/trade/backend/svc"
+	courseclient "tjxt/service/course/rpc/client/course"
+	"tjxt/service/trade/api/backend/svc"
 )
 
 // ===================== 工具函数 =====================

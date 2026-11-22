@@ -5,17 +5,17 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/rpc/learning/internal/config"
-	learningserver "tjxt/rpc/learning/internal/server/learning"
-	"tjxt/rpc/learning/internal/svc"
-	"tjxt/rpc/learning/pb"
+	"tjxt/service/learning/rpc/internal/config"
+	learningserver "tjxt/service/learning/rpc/internal/server/learning"
+	"tjxt/service/learning/rpc/internal/svc"
+	"tjxt/service/learning/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"tjxt/pkg/confenv"
+	"tjxt/common/confenv"
 )
 
 var configFile = flag.String("f", "etc/learning.yaml", "the config file")

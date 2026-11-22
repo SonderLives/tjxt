@@ -3,8 +3,8 @@ package logic
 import (
 	"strconv"
 
-	"tjxt/api/promotion/internal/types"
-	pb "tjxt/rpc/promotion/client/promotion"
+	"tjxt/service/promotion/api/internal/types"
+	pb "tjxt/service/promotion/rpc/client/promotion"
 )
 
 // toPageRequest 将 API 层分页请求转换为 RPC 分页结构。

@@ -6,9 +6,9 @@ package handler
 import (
 	"net/http"
 
-	"tjxt/api/promotion/internal/logic"
-	"tjxt/api/promotion/internal/svc"
-	"tjxt/pkg/response"
+	"tjxt/service/promotion/api/internal/logic"
+	"tjxt/service/promotion/api/internal/svc"
+	"tjxt/common/response"
 )
 
 func CouponListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

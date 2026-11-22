@@ -8,10 +8,10 @@ import (
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 
-	"tjxt/api/media/internal/logic/media"
-	"tjxt/api/media/internal/svc"
-	"tjxt/api/media/internal/types"
-	"tjxt/pkg/response"
+	"tjxt/service/media/api/internal/logic/media"
+	"tjxt/service/media/api/internal/svc"
+	"tjxt/service/media/api/internal/types"
+	"tjxt/common/response"
 )
 
 func MediaListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

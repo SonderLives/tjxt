@@ -7,12 +7,12 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/api/promotion/internal/config"
-	"tjxt/api/promotion/internal/handler"
-	"tjxt/api/promotion/internal/svc"
+	"tjxt/service/promotion/api/internal/config"
+	"tjxt/service/promotion/api/internal/handler"
+	"tjxt/service/promotion/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
-	"tjxt/pkg/confenv"
+	"tjxt/common/confenv"
 )
 
 var configFile = flag.String("f", "etc/promotion-api.yaml", "the config file")

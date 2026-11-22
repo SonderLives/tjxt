@@ -6,8 +6,8 @@ package handler
 import (
 	"net/http"
 
-	like "tjxt/api/remark/internal/handler/like"
-	"tjxt/api/remark/internal/svc"
+	like "tjxt/service/remark/api/internal/handler/like"
+	"tjxt/service/remark/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

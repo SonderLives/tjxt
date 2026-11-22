@@ -6,9 +6,9 @@ package smsplatform
 import (
 	"net/http"
 
-	"tjxt/api/message/internal/logic/smsplatform"
-	"tjxt/api/message/internal/svc"
-	"tjxt/pkg/response"
+	"tjxt/service/message/api/internal/logic/smsplatform"
+	"tjxt/service/message/api/internal/svc"
+	"tjxt/common/response"
 )
 
 func ListSmsPlatformsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

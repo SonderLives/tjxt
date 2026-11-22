@@ -6,10 +6,10 @@ package search
 import (
 	"context"
 
-	backendlogic "tjxt/api/search/backend/logic"
-	searchpb "tjxt/api/search/backend/pb"
-	"tjxt/api/search/internal/svc"
-	"tjxt/api/search/internal/types"
+	backendlogic "tjxt/service/search/api/backend/logic"
+	searchpb "tjxt/service/search/api/backend/pb"
+	"tjxt/service/search/api/internal/svc"
+	"tjxt/service/search/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

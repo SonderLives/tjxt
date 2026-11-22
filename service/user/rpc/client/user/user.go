@@ -7,7 +7,7 @@ package user
 import (
 	"context"
 
-	"tjxt/rpc/user/pb"
+	"tjxt/service/user/rpc/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

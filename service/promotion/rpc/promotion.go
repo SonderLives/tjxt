@@ -4,16 +4,16 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/rpc/promotion/internal/config"
-	promotionserver "tjxt/rpc/promotion/internal/server/promotion"
-	"tjxt/rpc/promotion/internal/svc"
-	"tjxt/rpc/promotion/pb"
+	"tjxt/service/promotion/rpc/internal/config"
+	promotionserver "tjxt/service/promotion/rpc/internal/server/promotion"
+	"tjxt/service/promotion/rpc/internal/svc"
+	"tjxt/service/promotion/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"tjxt/pkg/confenv"
+	"tjxt/common/confenv"
 )
 
 var configFile = flag.String("f", "etc/promotion.yaml", "the config file")

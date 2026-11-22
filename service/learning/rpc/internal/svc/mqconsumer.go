@@ -3,8 +3,8 @@ package svc
 import (
 	"context"
 
-	"tjxt/pkg/mq"
-	"tjxt/pkg/mq/event"
+	"tjxt/common/mq"
+	"tjxt/common/mq/event"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

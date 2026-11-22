@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"tjxt/pkg/errorx"
-	"tjxt/pkg/timex"
+	"tjxt/common/errorx"
+	"tjxt/common/timex"
 )
 
 // sqlNow 返回当前时间的 sql.NullTime。

@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"tjxt/pkg/errorx"
-	"tjxt/pkg/timex"
-	"tjxt/rpc/course/internal/model"
-	"tjxt/rpc/course/internal/svc"
-	"tjxt/rpc/course/pb"
+	"tjxt/common/errorx"
+	"tjxt/common/timex"
+	"tjxt/service/course/rpc/internal/model"
+	"tjxt/service/course/rpc/internal/svc"
+	"tjxt/service/course/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

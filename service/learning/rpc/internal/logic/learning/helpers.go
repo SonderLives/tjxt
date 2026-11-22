@@ -3,7 +3,7 @@ package learninglogic
 import (
 	"context"
 
-	"tjxt/pkg/auth"
+	"tjxt/common/auth"
 )
 
 // lessonRequestUserID 解析本次请求的学习者 id：

@@ -3,12 +3,12 @@ package like
 import (
 	"context"
 
-	backendlogic "tjxt/api/remark/backend/logic"
-	"tjxt/api/remark/backend/pb"
-	"tjxt/pkg/auth"
+	backendlogic "tjxt/service/remark/api/backend/logic"
+	"tjxt/service/remark/api/backend/pb"
+	"tjxt/common/auth"
 
-	"tjxt/api/remark/internal/svc"
-	"tjxt/api/remark/internal/types"
+	"tjxt/service/remark/api/internal/svc"
+	"tjxt/service/remark/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

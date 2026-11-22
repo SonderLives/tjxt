@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"strings"
 
-	"tjxt/pkg/errorx"
-	"tjxt/pkg/timex"
-	"tjxt/rpc/promotion/internal/model"
-	"tjxt/rpc/promotion/pb"
+	"tjxt/common/errorx"
+	"tjxt/common/timex"
+	"tjxt/service/promotion/rpc/internal/model"
+	"tjxt/service/promotion/rpc/pb"
 )
 
 // toCouponDetailVO 券管理端详情 VO。

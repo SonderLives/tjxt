@@ -3,9 +3,9 @@ package medialogic
 import (
 	"context"
 
-	"tjxt/api/media/backend/pb"
-	"tjxt/api/media/backend/svc"
-	"tjxt/pkg/errorx"
+	"tjxt/service/media/api/backend/pb"
+	"tjxt/service/media/api/backend/svc"
+	"tjxt/common/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

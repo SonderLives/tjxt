@@ -1,9 +1,9 @@
 package svc
 
 import (
-	"tjxt/api/remark/internal/config"
+	"tjxt/service/remark/api/internal/config"
 
-	backendsvc "tjxt/api/remark/backend/svc"
+	backendsvc "tjxt/service/remark/api/backend/svc"
 )
 
 type ServiceContext struct {

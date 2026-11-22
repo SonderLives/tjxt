@@ -6,9 +6,9 @@ package top10
 import (
 	"net/http"
 
-	"tjxt/api/data/internal/logic/top10"
-	"tjxt/api/data/internal/svc"
-	"tjxt/pkg/response"
+	"tjxt/service/data/api/internal/logic/top10"
+	"tjxt/service/data/api/internal/svc"
+	"tjxt/common/response"
 )
 
 func GetTop10DataHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

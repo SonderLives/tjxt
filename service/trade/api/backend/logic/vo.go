@@ -3,9 +3,9 @@ package tradelogic
 import (
 	"database/sql"
 
-	"tjxt/api/trade/backend/model"
-	"tjxt/api/trade/backend/pb"
-	"tjxt/pkg/timex"
+	"tjxt/service/trade/api/backend/model"
+	"tjxt/service/trade/api/backend/pb"
+	"tjxt/common/timex"
 )
 
 // ===================== VO 构建 =====================

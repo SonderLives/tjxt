@@ -146,16 +146,16 @@ import (
 )
 
 import (
-    "tjxt/rpc/user/user"   // RPC client（示例用保留 RPC 服务；折叠服务的 client 已随折叠移除）
-    "tjxt/pkg/response"
-    "tjxt/pkg/errorx"
+    "tjxt/service/user/rpc/user"   // RPC client（示例用保留 RPC 服务；折叠服务的 client 已随折叠移除）
+    "tjxt/common/response"
+    "tjxt/common/errorx"
 )
 ```
 
 禁止项：
 
 - 相对路径 import（`import "../logic"`）
-- 跨服务 import `internal`（`import "tjxt/api/user/internal/logic"`）
+- 跨服务 import `internal`（`import "tjxt/service/user/api/internal/logic"`）
 - 循环依赖
 
 #### Scenario: 跨服务复用能力

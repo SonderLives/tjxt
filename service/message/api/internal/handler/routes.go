@@ -6,13 +6,13 @@ package handler
 import (
 	"net/http"
 
-	inbox "tjxt/api/message/internal/handler/inbox"
-	messagetemplate "tjxt/api/message/internal/handler/messagetemplate"
-	notice "tjxt/api/message/internal/handler/notice"
-	noticetask "tjxt/api/message/internal/handler/noticetask"
-	noticetemplate "tjxt/api/message/internal/handler/noticetemplate"
-	smsplatform "tjxt/api/message/internal/handler/smsplatform"
-	"tjxt/api/message/internal/svc"
+	inbox "tjxt/service/message/api/internal/handler/inbox"
+	messagetemplate "tjxt/service/message/api/internal/handler/messagetemplate"
+	notice "tjxt/service/message/api/internal/handler/notice"
+	noticetask "tjxt/service/message/api/internal/handler/noticetask"
+	noticetemplate "tjxt/service/message/api/internal/handler/noticetemplate"
+	smsplatform "tjxt/service/message/api/internal/handler/smsplatform"
+	"tjxt/service/message/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

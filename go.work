@@ -2,25 +2,25 @@ go 1.26.2
 
 use (
 	.
-	./api/auth
-	./api/course
-	./api/data
-	./api/exam
-	./api/learning
-	./api/media
-	./api/message
-	./api/pay
-	./api/promotion
-	./api/remark
-	./api/search
-	./api/trade
-	./api/user
 	./app/mq/search-mq
 	./app/mq/trade-mq
-	./pkg
-	./rpc/course
-	./rpc/learning
-	./rpc/pay
-	./rpc/promotion
-	./rpc/user
+	./common
+	./service/auth/api
+	./service/course/api
+	./service/course/rpc
+	./service/data/api
+	./service/exam/api
+	./service/learning/api
+	./service/learning/rpc
+	./service/media/api
+	./service/message/api
+	./service/pay/api
+	./service/pay/rpc
+	./service/promotion/api
+	./service/promotion/rpc
+	./service/remark/api
+	./service/search/api
+	./service/trade/api
+	./service/user/api
+	./service/user/rpc
 )

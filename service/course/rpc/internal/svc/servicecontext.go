@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"tjxt/pkg/mq"
-	"tjxt/pkg/mq/event"
-	"tjxt/rpc/course/internal/config"
-	"tjxt/rpc/course/internal/model"
-	userclient "tjxt/rpc/user/client/user"
+	"tjxt/common/mq"
+	"tjxt/common/mq/event"
+	"tjxt/service/course/rpc/internal/config"
+	"tjxt/service/course/rpc/internal/model"
+	userclient "tjxt/service/user/rpc/client/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"tjxt/rpc/promotion/internal/model"
-	"tjxt/rpc/promotion/pb"
+	"tjxt/service/promotion/rpc/internal/model"
+	"tjxt/service/promotion/rpc/pb"
 )
 
 // maxCombineCoupons 参与组合运算的最大券数量。

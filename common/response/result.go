@@ -7,7 +7,7 @@ package response
 import (
 	"net/http"
 
-	"tjxt/pkg/errorx"
+	"tjxt/common/errorx"
 
 	"github.com/zeromicro/go-zero/core/trace"
 )

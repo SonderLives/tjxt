@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"strings"
 
-	"tjxt/pkg/errorx"
+	"tjxt/common/errorx"
 )
 
 // codeAlphabet 兑换码字符集，剔除易混淆的 0/O/1/I。

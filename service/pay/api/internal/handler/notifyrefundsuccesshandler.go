@@ -8,10 +8,10 @@ import (
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 
-	"tjxt/api/pay/internal/logic"
-	"tjxt/api/pay/internal/svc"
-	"tjxt/api/pay/internal/types"
-	"tjxt/pkg/response"
+	"tjxt/service/pay/api/internal/logic"
+	"tjxt/service/pay/api/internal/svc"
+	"tjxt/service/pay/api/internal/types"
+	"tjxt/common/response"
 )
 
 func NotifyRefundSuccessHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 
-	"tjxt/api/media/backend/model"
-	"tjxt/api/media/backend/pb"
-	"tjxt/api/media/backend/svc"
-	"tjxt/pkg/errorx"
-	"tjxt/pkg/idgen"
+	"tjxt/service/media/api/backend/model"
+	"tjxt/service/media/api/backend/pb"
+	"tjxt/service/media/api/backend/svc"
+	"tjxt/common/errorx"
+	"tjxt/common/idgen"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

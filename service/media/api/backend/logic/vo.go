@@ -3,10 +3,10 @@ package medialogic
 import (
 	"strconv"
 
-	"tjxt/api/media/backend/model"
-	"tjxt/api/media/backend/pb"
-	"tjxt/api/media/backend/store"
-	"tjxt/pkg/timex"
+	"tjxt/service/media/api/backend/model"
+	"tjxt/service/media/api/backend/pb"
+	"tjxt/service/media/api/backend/store"
+	"tjxt/common/timex"
 )
 
 // toMediaVO 媒资模型转 RPC VO

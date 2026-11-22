@@ -5,11 +5,11 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/api/search/backend/svc"
+	"tjxt/service/search/api/backend/svc"
 	"tjxt/app/mq/search-mq/internal/config"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"tjxt/pkg/confenv"
+	"tjxt/common/confenv"
 )
 
 var configFile = flag.String("f", "etc/search-mq.yaml", "the config file")

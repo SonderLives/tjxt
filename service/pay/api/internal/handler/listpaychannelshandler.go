@@ -6,9 +6,9 @@ package handler
 import (
 	"net/http"
 
-	"tjxt/api/pay/internal/logic"
-	"tjxt/api/pay/internal/svc"
-	"tjxt/pkg/response"
+	"tjxt/service/pay/api/internal/logic"
+	"tjxt/service/pay/api/internal/svc"
+	"tjxt/common/response"
 )
 
 func ListPayChannelsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

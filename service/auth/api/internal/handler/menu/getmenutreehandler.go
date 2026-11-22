@@ -6,9 +6,9 @@ package menu
 import (
 	"net/http"
 
-	"tjxt/api/auth/internal/logic/menu"
-	"tjxt/api/auth/internal/svc"
-	"tjxt/pkg/response"
+	"tjxt/service/auth/api/internal/logic/menu"
+	"tjxt/service/auth/api/internal/svc"
+	"tjxt/common/response"
 )
 
 func GetMenuTreeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

@@ -4,7 +4,7 @@
 package config
 
 import (
-	"tjxt/api/trade/backend/config"
+	"tjxt/service/trade/api/backend/config"
 
 	"github.com/zeromicro/go-zero/rest"
 )

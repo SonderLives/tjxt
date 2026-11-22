@@ -6,10 +6,10 @@ package logic
 import (
 	"context"
 
-	backendlogic "tjxt/api/trade/backend/logic"
-	"tjxt/api/trade/backend/pb"
-	"tjxt/api/trade/internal/svc"
-	"tjxt/api/trade/internal/types"
+	backendlogic "tjxt/service/trade/api/backend/logic"
+	"tjxt/service/trade/api/backend/pb"
+	"tjxt/service/trade/api/internal/svc"
+	"tjxt/service/trade/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

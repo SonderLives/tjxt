@@ -65,7 +65,7 @@ go install github.com/zeromicro/go-zero/tools/goctl@latest
 工作区 SHALL 先 `make init`（`go work sync` + 逐模块 `go mod tidy`），再按「先 RPC 后 API（及 MQ 消费者）」的顺序启动服务。
 
 - `go.work` 聚合 22 个 `use` 条目（13 api + 5 保留 rpc + 2 mq 消费者 + `pkg` + 根模块）
-- 每个服务 `api/`、保留服务 `rpc/` 与 `app/mq/*/` 各有独立 `go.mod`；公共库经 `replace tjxt/pkg => ../../../pkg` 引用
+- 每个服务 `api/`、保留服务 `rpc/` 与 `app/mq/*/` 各有独立 `go.mod`；公共库经 `replace tjxt/common => ../../../pkg` 引用
 - 启动命令：`make run-<svc>`（API）、`make run-<svc>-rpc`（仅 5 个保留 RPC）、`make run-trade-mq` / `make run-search-mq`（MQ 消费者）、`make run-all`（全部 API）/ `make run-all-rpc`（5 个保留 RPC + 2 个 MQ 消费者）
 - 端口已统一分配且唯一：API 8801-8813、保留 RPC 8081/8083/8084/8088/8092、metrics：API 9201-9213、保留 RPC 9101/9103/9104/9108/9112、search-mq 9110
 

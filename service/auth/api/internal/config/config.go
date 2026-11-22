@@ -4,7 +4,7 @@ import (
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
 
-	backendconfig "tjxt/api/auth/backend/config"
+	backendconfig "tjxt/service/auth/api/backend/config"
 )
 
 type Config struct {

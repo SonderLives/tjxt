@@ -4,16 +4,16 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/rpc/course/internal/config"
-	courseserver "tjxt/rpc/course/internal/server/course"
-	"tjxt/rpc/course/internal/svc"
-	"tjxt/rpc/course/pb"
+	"tjxt/service/course/rpc/internal/config"
+	courseserver "tjxt/service/course/rpc/internal/server/course"
+	"tjxt/service/course/rpc/internal/svc"
+	"tjxt/service/course/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"tjxt/pkg/confenv"
+	"tjxt/common/confenv"
 )
 
 var configFile = flag.String("f", "etc/course.yaml", "the config file")

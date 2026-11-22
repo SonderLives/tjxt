@@ -1,9 +1,9 @@
 package paylogic
 
 import (
-	"tjxt/pkg/timex"
-	"tjxt/rpc/pay/internal/model"
-	"tjxt/rpc/pay/pb"
+	"tjxt/common/timex"
+	"tjxt/service/pay/rpc/internal/model"
+	"tjxt/service/pay/rpc/pb"
 )
 
 func toPayChannelResp(m *model.PayChannel) *pb.PayChannelResponse {

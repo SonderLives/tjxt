@@ -6,11 +6,11 @@ package signature
 import (
 	"context"
 
-	backendlogic "tjxt/api/media/backend/logic"
-	mediaclient "tjxt/api/media/backend/pb"
-	"tjxt/api/media/internal/svc"
-	"tjxt/api/media/internal/types"
-	"tjxt/pkg/auth"
+	backendlogic "tjxt/service/media/api/backend/logic"
+	mediaclient "tjxt/service/media/api/backend/pb"
+	"tjxt/service/media/api/internal/svc"
+	"tjxt/service/media/api/internal/types"
+	"tjxt/common/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

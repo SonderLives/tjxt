@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/api/remark/internal/logic/like"
-	"tjxt/api/remark/internal/svc"
-	"tjxt/api/remark/internal/types"
-	"tjxt/pkg/response"
+	"tjxt/service/remark/api/internal/logic/like"
+	"tjxt/service/remark/api/internal/svc"
+	"tjxt/service/remark/api/internal/types"
+	"tjxt/common/response"
 )
 
 func ListLikedHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

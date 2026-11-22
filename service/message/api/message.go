@@ -7,12 +7,12 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/api/message/internal/config"
-	"tjxt/api/message/internal/handler"
-	"tjxt/api/message/internal/svc"
+	"tjxt/service/message/api/internal/config"
+	"tjxt/service/message/api/internal/handler"
+	"tjxt/service/message/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
-	"tjxt/pkg/confenv"
+	"tjxt/common/confenv"
 )
 
 var configFile = flag.String("f", "etc/message-api.yaml", "the config file")

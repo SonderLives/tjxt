@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"tjxt/api/message/backend/model"
-	"tjxt/api/message/backend/pb"
-	"tjxt/api/message/backend/svc"
-	"tjxt/pkg/errorx"
+	"tjxt/service/message/api/backend/model"
+	"tjxt/service/message/api/backend/pb"
+	"tjxt/service/message/api/backend/svc"
+	"tjxt/common/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"tjxt/rpc/user/internal/model"
-	"tjxt/rpc/user/internal/svc"
-	"tjxt/rpc/user/pb"
-	"tjxt/pkg/errorx"
+	"tjxt/service/user/rpc/internal/model"
+	"tjxt/service/user/rpc/internal/svc"
+	"tjxt/service/user/rpc/pb"
+	"tjxt/common/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"golang.org/x/crypto/bcrypt"

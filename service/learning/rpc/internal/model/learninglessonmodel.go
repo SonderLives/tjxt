@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"tjxt/pkg/idgen"
+	"tjxt/common/idgen"
 
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"

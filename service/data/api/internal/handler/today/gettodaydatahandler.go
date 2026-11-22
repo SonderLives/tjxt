@@ -6,9 +6,9 @@ package today
 import (
 	"net/http"
 
-	"tjxt/api/data/internal/logic/today"
-	"tjxt/api/data/internal/svc"
-	"tjxt/pkg/response"
+	"tjxt/service/data/api/internal/logic/today"
+	"tjxt/service/data/api/internal/svc"
+	"tjxt/common/response"
 )
 
 func GetTodayDataHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

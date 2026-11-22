@@ -1,11 +1,11 @@
-module tjxt/api/remark
+module tjxt/service/remark/api
 
 go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
 	google.golang.org/protobuf v1.36.11
-	tjxt/pkg v0.0.0-00010101000000-000000000000
+	tjxt/common v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -23,6 +23,7 @@ require (
 	github.com/grafana/pyroscope-go/godeltaprof v0.1.10 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
 	github.com/klauspost/compress v1.19.2 // indirect
+	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
@@ -58,4 +59,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace tjxt/pkg => ../../pkg
+replace tjxt/common => ../../../common

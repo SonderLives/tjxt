@@ -1,4 +1,4 @@
-module tjxt/api/media
+module tjxt/service/media/api
 
 go 1.26.2
 
@@ -6,7 +6,7 @@ require (
 	github.com/minio/minio-go/v7 v7.3.0
 	github.com/zeromicro/go-zero v1.10.3
 	google.golang.org/protobuf v1.36.11
-	tjxt/pkg v0.0.0-00010101000000-000000000000
+	tjxt/common v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -71,4 +71,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace tjxt/pkg => ../../pkg
+replace tjxt/common => ../../../common

@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/rpc/promotion/internal/logic/promotion"
-	"tjxt/rpc/promotion/internal/svc"
-	"tjxt/rpc/promotion/pb"
+	"tjxt/service/promotion/rpc/internal/logic/promotion"
+	"tjxt/service/promotion/rpc/internal/svc"
+	"tjxt/service/promotion/rpc/pb"
 )
 
 type PromotionServer struct {

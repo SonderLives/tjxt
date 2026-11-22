@@ -7,12 +7,12 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/api/search/internal/config"
-	"tjxt/api/search/internal/handler"
-	"tjxt/api/search/internal/svc"
+	"tjxt/service/search/api/internal/config"
+	"tjxt/service/search/api/internal/handler"
+	"tjxt/service/search/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
-	"tjxt/pkg/confenv"
+	"tjxt/common/confenv"
 )
 
 var configFile = flag.String("f", "etc/search-api.yaml", "the config file")

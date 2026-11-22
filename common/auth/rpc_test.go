@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"tjxt/pkg/errorx"
+	"tjxt/common/errorx"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"

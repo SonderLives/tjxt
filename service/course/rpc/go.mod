@@ -1,4 +1,4 @@
-module tjxt/rpc/course
+module tjxt/service/course/rpc
 
 go 1.26.2
 
@@ -6,7 +6,7 @@ require (
 	github.com/zeromicro/go-zero v1.10.3
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.11
-	tjxt/pkg v0.0.0-00010101000000-000000000000
+	tjxt/common v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -99,9 +99,9 @@ require (
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
-	tjxt/rpc/user v0.0.0-00010101000000-000000000000
+	tjxt/service/user/rpc v0.0.0-00010101000000-000000000000
 )
 
-replace tjxt/pkg => ../../pkg
+replace tjxt/common => ../../../common
 
-replace tjxt/rpc/user => ../../rpc/user
+replace tjxt/service/user/rpc => ../../user/rpc

@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"errors"
 
-	"tjxt/api/trade/backend/model"
-	"tjxt/api/trade/backend/svc"
-	"tjxt/api/trade/backend/pb"
-	"tjxt/pkg/errorx"
+	"tjxt/service/trade/api/backend/model"
+	"tjxt/service/trade/api/backend/svc"
+	"tjxt/service/trade/api/backend/pb"
+	"tjxt/common/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

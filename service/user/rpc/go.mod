@@ -1,4 +1,4 @@
-module tjxt/rpc/user
+module tjxt/service/user/rpc
 
 go 1.26.2
 
@@ -7,7 +7,7 @@ require (
 	golang.org/x/crypto v0.55.0
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.11
-	tjxt/pkg v0.0.0-00010101000000-000000000000
+	tjxt/common v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -103,4 +103,4 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
-replace tjxt/pkg => ../../pkg
+replace tjxt/common => ../../../common

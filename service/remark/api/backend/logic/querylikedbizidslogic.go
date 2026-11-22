@@ -3,9 +3,9 @@ package remarklogic
 import (
 	"context"
 
-	"tjxt/api/remark/backend/pb"
-	"tjxt/api/remark/backend/svc"
-	"tjxt/pkg/errorx"
+	"tjxt/service/remark/api/backend/pb"
+	"tjxt/service/remark/api/backend/svc"
+	"tjxt/common/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

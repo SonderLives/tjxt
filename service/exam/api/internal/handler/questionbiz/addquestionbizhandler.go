@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/api/exam/internal/logic/questionbiz"
-	"tjxt/api/exam/internal/svc"
-	"tjxt/api/exam/internal/types"
-	"tjxt/pkg/response"
+	"tjxt/service/exam/api/internal/logic/questionbiz"
+	"tjxt/service/exam/api/internal/svc"
+	"tjxt/service/exam/api/internal/types"
+	"tjxt/common/response"
 )
 
 func AddQuestionBizHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

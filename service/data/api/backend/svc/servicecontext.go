@@ -1,7 +1,7 @@
 package svc
 
 import (
-	"tjxt/api/data/backend/config"
+	"tjxt/service/data/api/backend/config"
 
 	"github.com/zeromicro/go-zero/core/stores/redis"
 )

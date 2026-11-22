@@ -84,7 +84,7 @@ remark 服务 SHALL 以 gRPC 服务名 `Remark` 注册于 etcd，为评论互动
 
 | 消费方 | 调用方式 | 说明 |
 |--------|---------|------|
-| `remark-api`（自身 API 层） | `api/remark/internal/svc/servicecontext.go` 中 `remarkclient "tjxt/rpc/remark/client/remark"` → `RemarkRpc` | 两个 HTTP handler（/likes、/likes/list）均透传到本 RPC |
+| `remark-api`（自身 API 层） | `api/remark/internal/svc/servicecontext.go` 中 `remarkclient "tjxt/service/remark/rpc/client/remark"` → `RemarkRpc` | 两个 HTTP handler（/likes、/likes/list）均透传到本 RPC |
 
 > 注：截至当前版本，仅 remark-api 在 `servicecontext.go` 中注入 `remarkclient`。其他服务如 learning 的笔记/问答列表若需回填「我是否点赞」，可复用 `QueryLikedBizIds`，但目前尚未接入。
 >

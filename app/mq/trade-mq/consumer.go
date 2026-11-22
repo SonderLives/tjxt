@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"tjxt/api/trade/backend/model"
-	backendsvc "tjxt/api/trade/backend/svc"
-	"tjxt/pkg/mq"
-	"tjxt/pkg/mq/event"
+	"tjxt/service/trade/api/backend/model"
+	backendsvc "tjxt/service/trade/api/backend/svc"
+	"tjxt/common/mq"
+	"tjxt/common/mq/event"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

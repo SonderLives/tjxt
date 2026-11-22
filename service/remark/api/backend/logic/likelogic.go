@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"tjxt/api/remark/backend/model"
-	"tjxt/api/remark/backend/pb"
-	"tjxt/api/remark/backend/svc"
-	"tjxt/pkg/errorx"
+	"tjxt/service/remark/api/backend/model"
+	"tjxt/service/remark/api/backend/pb"
+	"tjxt/service/remark/api/backend/svc"
+	"tjxt/common/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlc"

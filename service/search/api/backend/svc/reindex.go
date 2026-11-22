@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	courseclient "tjxt/rpc/course/client/course"
-	"tjxt/pkg/errorx"
+	courseclient "tjxt/service/course/rpc/client/course"
+	"tjxt/common/errorx"
 
 	"github.com/elastic/go-elasticsearch/v9/esutil"
 	"github.com/zeromicro/go-zero/core/logx"

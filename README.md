@@ -53,7 +53,7 @@ tjxt/
 ├── docker-compose.yml       # MySQL/Redis/RabbitMQ/etcd/ES/RustFS + 可观测性栈（Jaeger/otel-collector/Prometheus/Loki）一键启动
 ├── tools/
 │   └── goctl-templates/     # goctl 自定义模板（api/rpc 生成统一走该目录，handler 统一 result.Write）
-├── pkg/                     # 公共代码库 (module: tjxt/pkg)
+├── pkg/                     # 公共代码库 (module: tjxt/common)
 │   ├── auth/                # JWT 签发/校验、Claims 定义
 │   ├── mq/                  # RabbitMQ 事件总线 (生产者/消费者/事件定义)
 │   ├── response/            # 统一响应 R{code,msg,requestId,data} + 分页
@@ -414,8 +414,8 @@ ctx.MQClient.Start(context.Background())
 **使用方式** (在任意服务 `go.mod` 引入):
 
 ```go
-require tjxt/pkg v0.0.0
-replace tjxt/pkg => ../../pkg
+require tjxt/common v0.0.0
+replace tjxt/common => ../../pkg
 ```
 
 

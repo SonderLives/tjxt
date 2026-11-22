@@ -3,11 +3,11 @@ package messagelogic
 import (
 	"context"
 
-	"tjxt/api/message/backend/pb"
-	"tjxt/api/message/backend/svc"
-	"tjxt/pkg/errorx"
-	"tjxt/pkg/page"
-	"tjxt/pkg/timex"
+	"tjxt/service/message/api/backend/pb"
+	"tjxt/service/message/api/backend/svc"
+	"tjxt/common/errorx"
+	"tjxt/common/page"
+	"tjxt/common/timex"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

@@ -1,9 +1,9 @@
 package svc
 
 import (
-	"tjxt/api/search/internal/config"
+	"tjxt/service/search/api/internal/config"
 
-	backendsvc "tjxt/api/search/backend/svc"
+	backendsvc "tjxt/service/search/api/backend/svc"
 )
 
 type ServiceContext struct {

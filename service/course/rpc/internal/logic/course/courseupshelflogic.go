@@ -6,10 +6,10 @@ import (
 	"errors"
 	"time"
 
-	"tjxt/pkg/errorx"
-	"tjxt/rpc/course/internal/model"
-	"tjxt/rpc/course/internal/svc"
-	"tjxt/rpc/course/pb"
+	"tjxt/common/errorx"
+	"tjxt/service/course/rpc/internal/model"
+	"tjxt/service/course/rpc/internal/svc"
+	"tjxt/service/course/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"

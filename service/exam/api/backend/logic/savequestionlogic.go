@@ -6,12 +6,12 @@ import (
 	"errors"
 	"strings"
 
-	"tjxt/api/exam/backend/model"
-	"tjxt/api/exam/backend/pb"
-	"tjxt/api/exam/backend/svc"
-	"tjxt/pkg/auth"
-	"tjxt/pkg/errorx"
-	"tjxt/pkg/idgen"
+	"tjxt/service/exam/api/backend/model"
+	"tjxt/service/exam/api/backend/pb"
+	"tjxt/service/exam/api/backend/svc"
+	"tjxt/common/auth"
+	"tjxt/common/errorx"
+	"tjxt/common/idgen"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

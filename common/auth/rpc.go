@@ -4,7 +4,7 @@ import (
 	"context"
 	"strconv"
 
-	"tjxt/pkg/errorx"
+	"tjxt/common/errorx"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"

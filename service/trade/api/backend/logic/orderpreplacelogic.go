@@ -4,11 +4,11 @@ import (
 	"context"
 	"strings"
 
-	promotionclient "tjxt/rpc/promotion/client/promotion"
-	"tjxt/api/trade/backend/svc"
-	"tjxt/api/trade/backend/pb"
-	"tjxt/pkg/auth"
-	"tjxt/pkg/errorx"
+	promotionclient "tjxt/service/promotion/rpc/client/promotion"
+	"tjxt/service/trade/api/backend/svc"
+	"tjxt/service/trade/api/backend/pb"
+	"tjxt/common/auth"
+	"tjxt/common/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

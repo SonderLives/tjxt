@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/api/user/internal/logic/student"
-	"tjxt/api/user/internal/svc"
-	"tjxt/api/user/internal/types"
-	"tjxt/pkg/response"
+	"tjxt/service/user/api/internal/logic/student"
+	"tjxt/service/user/api/internal/svc"
+	"tjxt/service/user/api/internal/types"
+	"tjxt/common/response"
 )
 
 func RegisterStudentHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

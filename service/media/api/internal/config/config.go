@@ -6,7 +6,7 @@ package config
 import (
 	"github.com/zeromicro/go-zero/rest"
 
-	backendconfig "tjxt/api/media/backend/config"
+	backendconfig "tjxt/service/media/api/backend/config"
 )
 
 type Config struct {

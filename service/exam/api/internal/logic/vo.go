@@ -3,8 +3,8 @@
 package logic
 
 import (
-	"tjxt/api/exam/backend/pb"
-	"tjxt/api/exam/internal/types"
+	"tjxt/service/exam/api/backend/pb"
+	"tjxt/service/exam/api/internal/types"
 )
 
 // ToQuestionVO 将 backend 返回的题目 VO 转换为 API 响应 VO

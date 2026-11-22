@@ -4,8 +4,8 @@
 package svc
 
 import (
-	"tjxt/api/promotion/internal/config"
-	promotionclient "tjxt/rpc/promotion/client/promotion"
+	"tjxt/service/promotion/api/internal/config"
+	promotionclient "tjxt/service/promotion/rpc/client/promotion"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )

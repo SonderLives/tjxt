@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/api/message/internal/logic/noticetemplate"
-	"tjxt/api/message/internal/svc"
-	"tjxt/api/message/internal/types"
-	"tjxt/pkg/response"
+	"tjxt/service/message/api/internal/logic/noticetemplate"
+	"tjxt/service/message/api/internal/svc"
+	"tjxt/service/message/api/internal/types"
+	"tjxt/common/response"
 )
 
 func DeleteNoticeTemplateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
