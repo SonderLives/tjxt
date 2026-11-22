@@ -6,10 +6,11 @@ package questionbiz
 import (
 	"context"
 
+	backendlogic "tjxt/api/exam/backend/logic"
+	"tjxt/api/exam/backend/pb"
 	"tjxt/api/exam/internal/logic"
 	"tjxt/api/exam/internal/svc"
 	"tjxt/api/exam/internal/types"
-	examclient "tjxt/rpc/exam/client/exam"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -33,7 +34,7 @@ func (l *GetQuestionsByBizLogic) GetQuestionsByBiz(req *types.QuestionBizListReq
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	rpcResp, err := l.svcCtx.ExamRpc.GetQuestionsByBiz(l.ctx, &examclient.QuestionBizListReq{
+	rpcResp, err := backendlogic.NewGetQuestionsByBizLogic(l.ctx, l.svcCtx.Backend).GetQuestionsByBiz(&pb.QuestionBizListReq{
 		BizId:    req.BizId,
 		PageNo:   int32(req.PageNo),
 		PageSize: int32(req.PageSize),

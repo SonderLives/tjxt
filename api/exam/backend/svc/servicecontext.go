@@ -1,8 +1,8 @@
 package svc
 
 import (
-	"tjxt/rpc/exam/internal/config"
-	"tjxt/rpc/exam/internal/model"
+	"tjxt/api/exam/backend/config"
+	"tjxt/api/exam/backend/model"
 
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )

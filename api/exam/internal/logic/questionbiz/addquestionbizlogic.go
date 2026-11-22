@@ -6,9 +6,10 @@ package questionbiz
 import (
 	"context"
 
+	backendlogic "tjxt/api/exam/backend/logic"
+	"tjxt/api/exam/backend/pb"
 	"tjxt/api/exam/internal/svc"
 	"tjxt/api/exam/internal/types"
-	examclient "tjxt/rpc/exam/client/exam"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -32,7 +33,7 @@ func (l *AddQuestionBizLogic) AddQuestionBiz(req *types.QuestionBizReq) (resp *t
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	rpcResp, err := l.svcCtx.ExamRpc.AddQuestionBiz(l.ctx, &examclient.QuestionBizReq{
+	rpcResp, err := backendlogic.NewAddQuestionBizLogic(l.ctx, l.svcCtx.Backend).AddQuestionBiz(&pb.QuestionBizReq{
 		BizId:      req.BizId,
 		QuestionId: req.QuestionId,
 	})

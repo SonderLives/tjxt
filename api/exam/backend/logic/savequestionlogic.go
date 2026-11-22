@@ -6,12 +6,12 @@ import (
 	"errors"
 	"strings"
 
+	"tjxt/api/exam/backend/model"
+	"tjxt/api/exam/backend/pb"
+	"tjxt/api/exam/backend/svc"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/errorx"
 	"tjxt/pkg/idgen"
-	"tjxt/rpc/exam/internal/model"
-	"tjxt/rpc/exam/internal/svc"
-	"tjxt/rpc/exam/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -46,9 +46,9 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 		return nil, errorx.BadRequestf("分值必须大于0")
 	}
 
-	// 获取登录用户，作为创建人/更新人（上游 API 通过 metadata 透传）。
-	// 取不到说明请求未携带登录态，直接拒绝，不再静默伪造审计字段。
-	userId, err := auth.UserIdFromIncomingMD(l.ctx)
+	// 获取登录用户，作为创建人/更新人（api 进程内直调，登录态经 jwt 中间件
+	// 写入 ctx；取不到说明请求未携带登录态，直接拒绝，不再静默伪造审计字段）。
+	userId, err := auth.UserIdFromCtx(l.ctx)
 	if err != nil {
 		return nil, err
 	}

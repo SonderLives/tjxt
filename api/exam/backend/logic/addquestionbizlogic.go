@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"errors"
 
+	"tjxt/api/exam/backend/model"
+	"tjxt/api/exam/backend/pb"
+	"tjxt/api/exam/backend/svc"
 	"tjxt/pkg/errorx"
-	"tjxt/rpc/exam/internal/model"
-	"tjxt/rpc/exam/internal/svc"
-	"tjxt/rpc/exam/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

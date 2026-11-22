@@ -6,10 +6,11 @@ package question
 import (
 	"context"
 
+	backendlogic "tjxt/api/exam/backend/logic"
+	"tjxt/api/exam/backend/pb"
 	"tjxt/api/exam/internal/logic"
 	"tjxt/api/exam/internal/svc"
 	"tjxt/api/exam/internal/types"
-	examclient "tjxt/rpc/exam/client/exam"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -33,7 +34,7 @@ func (l *ListQuestionsLogic) ListQuestions(req *types.QuestionListReq) (resp *ty
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	rpcResp, err := l.svcCtx.ExamRpc.ListQuestions(l.ctx, &examclient.QuestionListReq{
+	rpcResp, err := backendlogic.NewListQuestionsLogic(l.ctx, l.svcCtx.Backend).ListQuestions(&pb.QuestionListReq{
 		PageNo:     int32(req.PageNo),
 		PageSize:   int32(req.PageSize),
 		Name:       req.Name,

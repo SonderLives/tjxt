@@ -6,9 +6,10 @@ package question
 import (
 	"context"
 
+	backendlogic "tjxt/api/exam/backend/logic"
+	"tjxt/api/exam/backend/pb"
 	"tjxt/api/exam/internal/svc"
 	"tjxt/api/exam/internal/types"
-	examclient "tjxt/rpc/exam/client/exam"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -32,7 +33,7 @@ func (l *DeleteQuestionLogic) DeleteQuestion(req *types.IdPathReq) (resp *types.
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	if _, err := l.svcCtx.ExamRpc.DeleteQuestion(l.ctx, &examclient.IdReq{Id: req.Id}); err != nil {
+	if _, err := backendlogic.NewDeleteQuestionLogic(l.ctx, l.svcCtx.Backend).DeleteQuestion(&pb.IdReq{Id: req.Id}); err != nil {
 		return nil, err
 	}
 	return &types.OkVO{Success: true}, nil

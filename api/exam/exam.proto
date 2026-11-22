@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package exam;
 
-option go_package = "./pb";
+option go_package = "./backend/pb";
 
 // 空消息
 message Empty {}
