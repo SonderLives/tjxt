@@ -5,11 +5,12 @@ import (
 	"database/sql"
 	"strings"
 
+	"tjxt/pkg/auth"
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 	"tjxt/rpc/exam/internal/model"
 	"tjxt/rpc/exam/internal/svc"
 	"tjxt/rpc/exam/pb"
-	"tjxt/pkg/idgen"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -45,8 +46,8 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 	}
 
 	// 获取登录用户，作为创建人/更新人（上游 API 通过 metadata 透传）
-	userId := userIdFromCtx(l.ctx)
-	if userId <= 0 {
+	userId, err := auth.UserIdFromIncomingMD(l.ctx)
+	if err != nil {
 		userId = 1
 	}
 	options := sql.NullString{String: in.Options, Valid: in.Options != ""}

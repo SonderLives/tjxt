@@ -3,13 +3,10 @@ package examlogic
 import (
 	"context"
 	"database/sql"
-	"strconv"
 	"time"
 
 	"tjxt/rpc/exam/internal/model"
 	"tjxt/rpc/exam/pb"
-
-	"google.golang.org/grpc/metadata"
 )
 
 // 题目类型
@@ -28,29 +25,9 @@ const (
 	QuestionDifficultyHard   = 3 // 困难
 )
 
-// metadataKeyUserID 上游 API 通过 gRPC metadata 透传的当前登录用户 id
-const metadataKeyUserID = "user_id"
-
 // isNotFound 判断错误是否是数据不存在
 func isNotFound(err error) bool {
 	return err == sql.ErrNoRows || err == model.ErrNotFound
-}
-
-// userIdFromCtx 从 gRPC 入站 metadata 中读取上游透传的登录用户 id
-func userIdFromCtx(ctx context.Context) int64 {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return 0
-	}
-	vals := md.Get(metadataKeyUserID)
-	if len(vals) == 0 {
-		return 0
-	}
-	id, err := strconv.ParseInt(vals[0], 10, 64)
-	if err != nil {
-		return 0
-	}
-	return id
 }
 
 // formatTime 时间统一格式化为 yyyy-MM-dd HH:mm:ss
