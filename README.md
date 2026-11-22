@@ -55,32 +55,33 @@ tjxt/
 ├── sql/
 │   ├── ddl/                 # goctl model 生成用的纯 DDL (按库分文件)
 │   └── migration/           # 完整迁移脚本 (含索引/外键/初始数据)
-├── docs/
-│   └── tjxt.openapi.json    # OpenAPI 3.0 规范文档
-└── apps/
-    └── <svc>/               # 13 个业务服务（auth/course/data/exam/learning/media/message/pay/promotion/remark/search/trade/user）
+├── docs/                    # 架构/设计/历史文档
+├── deployments/             # 观测栈配置 (otel-collector / prometheus / loki)
+├── api/
+│   └── <svc>/               # 13 个 HTTP API 服务模块（module: tjxt/api/<svc>，auth/course/data/exam/learning/media/message/pay/promotion/remark/search/trade/user）
+│       ├── go.mod
+│       ├── <svc>.api          # goctl API 定义 (路由/请求/响应)
+│       ├── <svc>.go           # main 入口
+│       ├── etc/<svc>-api.yaml # API 配置
+│       └── internal/
+│           ├── config/        # 配置加载
+│           ├── handler/       # HTTP 处理器 (goctl 生成)
+│           ├── logic/         # 业务逻辑 (仅手写这里)
+│           ├── svc/           # 服务上下文 (RPC 客户端等)
+│           └── types/         # 请求/响应结构体 (goctl 生成)
+└── rpc/
+    └── <svc>/               # 13 个 RPC 服务模块（module: tjxt/rpc/<svc>）
         ├── go.mod
-        ├── api/
-        │   ├── <svc>.api          # goctl API 定义 (路由/请求/响应)
-        │   ├── <svc>.go           # main 入口
-        │   ├── etc/<svc>-api.yaml # API 配置
-        │   └── internal/
-        │       ├── config/        # 配置加载
-        │       ├── handler/       # HTTP 处理器 (goctl 生成)
-        │       ├── logic/         # 业务逻辑 (仅手写这里)
-        │       ├── svc/           # 服务上下文 (RPC 客户端等)
-        │       └── types/         # 请求/响应结构体 (goctl 生成)
-        └── rpc/
-            ├── <svc>.proto        # gRPC 服务定义
-            ├── <svc>.go           # main 入口
-            ├── etc/<svc>.yaml     # RPC 配置
-            ├── internal/
-            │   ├── config/
-            │   ├── logic/         # RPC 业务逻辑 (仅手写这里)
-            │   ├── model/         # sqlx Model (goctl 生成 + 扩展)
-            │   ├── server/        # gRPC 服务注册
-            │   └── svc/           # 服务上下文 (DB/Redis/缓存)
-            └── pb/                # 生成的 pb.go / _grpc.pb.go
+        ├── <svc>.proto        # gRPC 服务定义
+        ├── <svc>.go           # main 入口
+        ├── etc/<svc>.yaml     # RPC 配置
+        ├── internal/
+        │   ├── config/
+        │   ├── logic/         # RPC 业务逻辑 (仅手写这里)
+        │   ├── model/         # sqlx Model (goctl 生成 + 扩展)
+        │   ├── server/        # gRPC 服务注册
+        │   └── svc/           # 服务上下文 (DB/Redis/缓存)
+        └── pb/                # 生成的 pb.go / _grpc.pb.go
 ```
 
 
@@ -105,7 +106,7 @@ tjxt/
 | **remark**    | 8813   | 127.0.0.1:8093 | `remark.rpc`    | tj_remark    | 评价/评论、评分、回复           |
 
 
-> 📌 各服务 API/RPC 端口已在 `apps/*/api/etc/*.yaml` 与 `apps/*/rpc/etc/*.yaml` 中唯一分配，可同时启动（media-api 8806、promotion-api 8812、course.rpc 8083、trade.rpc 8089、message.rpc 8087、promotion.rpc 8092）。
+> 📌 各服务 API/RPC 端口已在 `api/*/etc/*.yaml` 与 `rpc/*/etc/*.yaml` 中唯一分配，可同时启动（media-api 8806、promotion-api 8812、course.rpc 8083、trade.rpc 8089、message.rpc 8087、promotion.rpc 8092）。
 
 
 
@@ -149,14 +150,14 @@ make verify
 make build
 
 # 4. 启动单个服务（务必从仓库根执行，日志落到 logs/<svc>/）
-#    推荐用 Makefile 目标（已改为从仓库根 go run ./apps/...，CWD=仓库根）：
+#    推荐用 Makefile 目标（已改为从仓库根 go run ./api/... ./rpc/...，CWD=仓库根）：
 make run-user          # 启动 user-api
 make run-user-rpc      # 启动 user-rpc
 #    或手动（同样要在仓库根执行）：
-go run ./apps/user/api -f apps/user/api/etc/user-api.yaml
-go run ./apps/user/rpc -f apps/user/rpc/etc/user.yaml
-go run ./apps/data/api -f apps/data/api/etc/data-api.yaml
-go run ./apps/data/rpc -f apps/data/rpc/etc/data.yaml
+go run ./api/user -f api/user/etc/user-api.yaml
+go run ./rpc/user -f rpc/user/etc/user.yaml
+go run ./api/data -f api/data/etc/data-api.yaml
+go run ./rpc/data -f rpc/data/etc/data.yaml
 ```
 
 **一键启动全部服务**（后台独立窗口，日志写入 `logs/<svc>/`）：
@@ -197,10 +198,10 @@ make run-all-rpc   # 启动所有 RPC
 | 场景                     | 命令                                                                                                                                |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | 新建 API 骨架              | `goctl api new <svc>`                                                                                                             |
-| 修改 `.api` 后重生成         | `goctl api go -api apps/<svc>/api/<svc>.api -dir apps/<svc>/api --home <tpl>`                                                     |
+| 修改 `.api` 后重生成         | `goctl api go -api api/<svc>/<svc>.api -dir api/<svc> --home <tpl>`                                                     |
 | 新建 RPC 骨架              | `goctl rpc new <svc>`                                                                                                             |
-| 修改 `.proto` 后重生成       | `cd apps/<svc>/rpc && goctl rpc protoc <svc>.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m`                                    |
-| 数据库 Model (带 Redis 缓存) | `goctl model mysql datasource -url="root:0000@tcp(127.0.0.1:3306)/tj_<svc>" -table="<tbl>" -dir apps/<svc>/rpc/internal/model -c` |
+| 修改 `.proto` 后重生成       | `cd rpc/<svc> && goctl rpc protoc <svc>.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m`                                    |
+| 数据库 Model (带 Redis 缓存) | `goctl model mysql datasource -url="root:0000@tcp(127.0.0.1:3306)/tj_<svc>" -table="<tbl>" -dir rpc/<svc>/internal/model -c` |
 | Model 需加自定义方法          | 在 `internal/model/<tbl>model.go` 里写扩展 (`_gen.go` 由 goctl 管理)                                                                      |
 
 
@@ -256,19 +257,19 @@ make docker-logs     # 跟踪容器日志
 | `order.exchange` | `order.refund` | `OrderRefundEvent` | trade.rpc 退款成功    | learning.rpc（队列 `learning.lesson.refund.queue`，撤销课程） | ✅ 已接线 |
 
 
-> 支付链路（demo）：`POST /pay-notify/pay-success` 需要 HMAC 签名——`sign = hex(hmac_sha256(PayNotifySecret, "payOrderNo=<payOrderNo>"))`，密钥在 `apps/pay/api/etc/pay-api.yaml` 的 `PayNotifySecret`；本地演示用 `POST /pay-notify/mock-pay`（JWT 鉴权 + 支付单属主校验），二者最终都走 `NotifyPaySuccess` RPC，条件更新 + 幂等。
+> 支付链路（demo）：`POST /pay-notify/pay-success` 需要 HMAC 签名——`sign = hex(hmac_sha256(PayNotifySecret, "payOrderNo=<payOrderNo>"))`，密钥在 `api/pay/etc/pay-api.yaml` 的 `PayNotifySecret`；本地演示用 `POST /pay-notify/mock-pay`（JWT 鉴权 + 支付单属主校验），二者最终都走 `NotifyPaySuccess` RPC，条件更新 + 幂等。
 >
 > Java 版的 `mq:course:cate:change`、`mq:media:*`、`mq:exam:record`、`mq:data:today` 等事件 Go 版尚未实现，需要时按上表模式在 `pkg/mq` 扩展常量与消息体。
 >
 > 事件发布均为 best-effort：发布失败仅告警、不回滚业务操作；消费侧以幂等（条件更新 / ON DUPLICATE KEY）兜底重复投递。索引一致性由 search 启动全量重建 + 手动 `ReindexCourses` RPC 兜底。
 
-**发布示例**（course.rpc 实际用法，见 `apps/course/rpc/internal/svc/servicecontext.go`）:
+**发布示例**（course.rpc 实际用法，见 `rpc/course/internal/svc/servicecontext.go`）:
 
 ```go
 svcCtx.Producer.Publish(ctx, mq.ExchangeCourse, mq.RoutingKeyCourseUp, event.CourseEvent{CourseID: id})
 ```
 
-**订阅示例**（search.rpc 实际用法，见 `apps/search/rpc/internal/svc/servicecontext.go`）:
+**订阅示例**（search.rpc 实际用法，见 `rpc/search/internal/svc/servicecontext.go`）:
 
 ```go
 client := mq.NewClient(dsn)
@@ -281,7 +282,7 @@ mq.Register(client, mq.Binding{
     return nil
 })
 
-// main 里以 goroutine 阻塞启动，失败仅告警（apps/search/rpc/search.go）
+// main 里以 goroutine 阻塞启动，失败仅告警（rpc/search/search.go）
 go ctx.MQClient.Start(context.Background())
 ```
 
@@ -354,7 +355,7 @@ replace tjxt/pkg => ../../pkg
 | **骨架**       | ✅ 13 服务 api+rpc 全部 goctl 生成完毕，`go build ./...` 逐模块编译通过                                                          |
 | **Logic 业务** | ✅ 394/394 logic 全部实现（API 193 + RPC 201），全库 0 处 TODO/panic 占位                                                    |
 | **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `result.Write`、xerr 错误码已在各 svc 接入                                                |
-| **包名规范**     | ✅ 模块路径统一 `tjxt/apps/<svc>` (API 为 `tjxt/apps/<svc>/api`，RPC 为 `tjxt/apps/<svc>/rpc`)                             |
+| **包名规范**     | ✅ 模块路径统一 `tjxt/api/<svc>` / `tjxt/rpc/<svc>`                             |
 | **事件总线**     | ✅ 三段链路全部接线：course→search 上下架同步 ES；pay→trade 支付成功回写订单（条件更新+幂等）；trade→learning 支付加课/退款撤课                          |
 | **数据库**      | ✅ DDL + goctl model（带缓存）已生成，自定义 Model 已扩展                                                                       |
 | **跨域 RPC**   | ⚠️ 已接线 trade→{course,pay}、search→course、learning→course；其余（如 course→user/learning、trade→promotion、pay→真实网关）尚未接线 |

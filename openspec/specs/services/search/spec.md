@@ -40,7 +40,7 @@ search（搜索推荐）定位为全文检索与课程推荐微服务（RPC 服�
 |------|------|------|--------|
 | GET | /interests/{id}/courses | 根据二级分类id查询课程TOP10 | R«List«CourseVO»» |
 
-> 已知缺口：`docs/tjxt.openapi.json` 记录了该接口，但 `apps/search/api/search.api` 与 `apps/search/rpc/search.proto` **均未定义**，属于设计已规划、代码未落地的部分；实现还需引入 course RPC 客户端（当前缺失）。
+> 已知缺口：`docs/tjxt.openapi.json` 记录了该接口，但 `api/search/search.api` 与 `rpc/search/search.proto` **均未定义**，属于设计已规划、代码未落地的部分；实现还需引入 course RPC 客户端（当前缺失）。
 
 #### Scenario: 按二级分类查课程 TOP10（未落地）
 
@@ -54,9 +54,9 @@ search 服务 SHALL 以 gRPC 服务名 `Search` 注册于 etcd（key `search.rpc
 
 | 消费方 | 调用方式 | 说明 |
 |--------|---------|------|
-| `search-api`（自身 API 层） | HTTP Handler → `searchclient.Search` RPC | `apps/search/api/internal/svc/servicecontext.go` 注入 `SearchRpc`，2 个 HTTP 接口全部指向自身 RPC |
+| `search-api`（自身 API 层） | HTTP Handler → `searchclient.Search` RPC | `api/search/internal/svc/servicecontext.go` 注入 `SearchRpc`，2 个 HTTP 接口全部指向自身 RPC |
 
-> 已知缺口：全仓 Grep `apps/search/rpc/search` / `searchclient` / `SearchRpc`，除 `apps/search/` 自身外**无其它服务引用**；`specs/architecture/service-topology` 中标注的 `search-rpc --> AuthRPC` 依赖在代码中不存在——`apps/search/rpc/internal/config/config.go` 未定义任何 RPC 客户端配置项。
+> 已知缺口：全仓 Grep `rpc/search/search` / `searchclient` / `SearchRpc`，除 `api/search/`、`rpc/search/` 自身外**无其它服务引用**；`specs/architecture/service-topology` 中标注的 `search-rpc --> AuthRPC` 依赖在代码中不存在——`rpc/search/internal/config/config.go` 未定义任何 RPC 客户端配置项。
 
 #### Scenario: search-api handler 转发
 
@@ -148,7 +148,7 @@ search 服务的两个 /interests 接口 SHALL 均要求登录且 userId 只能�
 
 - 两个接口均需登录：`search.api` 中 `@server (jwt: Auth, group: interests)`，`routes.go` 内 `rest.WithJwt`，无匿名接口
 - userId 只能来自 JWT：`search.api` 的 `SaveInterestsReq` **只有 `Interests` 一个字段**、无 id，请求体无法指定他人 id，从设计上杜绝越权写
-- RPC 层无鉴权：`apps/search/rpc/internal/config/config.go` 无 JWT 配置，RPC 信任调用方传入的 `id`，仅限集群内访问
+- RPC 层无鉴权：`rpc/search/internal/config/config.go` 无 JWT 配置，RPC 信任调用方传入的 `id`，仅限集群内访问
 
 接口鉴权清单：
 
@@ -228,7 +228,7 @@ search 服务 SHALL 将数据持久化于 MySQL `tj_search` 库（当前仅 1 �
 |----|------|---------|
 | `interests` | 用户兴趣表，保存感兴趣的二级分类 id | `id`（bigint，主键即用户 id）、`interests`（varchar(255)，逗号分隔二级分类 id，可空）、`create_time`（自动填充）/ `update_time`（自动更新） |
 
-- Model 在 `apps/search/rpc/internal/svc/servicecontext.go` 中通过 `sqlx.NewMysql(c.DataSource)` + `c.Cache` 注入，走带缓存的 `sqlc.CachedConn`
+- Model 在 `rpc/search/internal/svc/servicecontext.go` 中通过 `sqlx.NewMysql(c.DataSource)` + `c.Cache` 注入，走带缓存的 `sqlc.CachedConn`
 - 缓存 key 前缀（`interestsmodel_gen.go` 中定义）：`Interests` → `cache:interests:id:`
 - 关系（跨库无外键）：`interests (1) ─── (1) user`（id 即 user 域的用户 id）；`interests` 字段内的二级分类 id 串逻辑指向 course 域的分类表（跨库、跨服务，无外键、无 RPC 调用）
 - `tj_search` 库中只有一张表，库内无任何表间关系
@@ -266,7 +266,7 @@ search 服务的存储层 SHALL 满足以下不变量：
 
 ### Requirement: 服务配置与依赖
 
-search 服务 SHALL 按以下配置运行（`apps/search/api/etc/search-api.yaml`、`apps/search/rpc/etc/search.yaml`）：
+search 服务 SHALL 按以下配置运行（`api/search/etc/search-api.yaml`、`rpc/search/etc/search.yaml`）：
 
 | 服务 | 配置项 | 默认值 |
 |------|--------|--------|
@@ -283,7 +283,7 @@ search 服务 SHALL 按以下配置运行（`apps/search/api/etc/search-api.yaml
 - JWT：search 只在 API 层校验不签发，`Auth.AccessSecret` 必须与 auth 服务的 `Jwt.AccessSecret` 保持一致，否则 `/interests` 两个接口全部 401；`Auth.AccessExpire` 仅作为配置项被反序列化，代码内无签发逻辑引用；生产环境必须修改默认值 `change-me-in-production`
 - RPC config 结构体为 `zrpc.RpcServerConf` + `DataSource string` + `Cache cache.CacheConf`；未配置 JWT 段，也未配置任何 RPC 客户端——RPC 层不鉴权、不外调
 
-> 已知缺口（缺失的外部依赖配置）：Elasticsearch 无任何配置项（`config.go` 无 ES 字段、`go.mod` 无 ES 客户端依赖），服务当前不具备任何全文检索能力，实际只是 `interests` 单表的 CRUD 外壳；course RPC 客户端缺失，`GET /interests/{id}/courses` 无法实现；MQ / Kafka 缺失，无法消费 course 域事件做索引同步。引入 ES 时需同步改动：`search.yaml`（新增 ES 段）、`apps/search/rpc/internal/config/config.go`（新增字段）、`servicecontext.go`（注入 client）、`apps/search/go.mod`（新增依赖）。
+> 已知缺口（缺失的外部依赖配置）：Elasticsearch 无任何配置项（`config.go` 无 ES 字段、`go.mod` 无 ES 客户端依赖），服务当前不具备任何全文检索能力，实际只是 `interests` 单表的 CRUD 外壳；course RPC 客户端缺失，`GET /interests/{id}/courses` 无法实现；MQ / Kafka 缺失，无法消费 course 域事件做索引同步。引入 ES 时需同步改动：`search.yaml`（新增 ES 段）、`rpc/search/internal/config/config.go`（新增字段）、`servicecontext.go`（注入 client）、`rpc/search/go.mod`（新增依赖）。
 >
 > 可观测性注入配置（Telemetry / Prometheus / Log 三段）：两份 yaml 中已注入勿删（约定见 `openspec/specs/infra/observability`）。
 

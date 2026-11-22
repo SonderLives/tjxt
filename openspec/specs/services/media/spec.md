@@ -87,7 +87,7 @@ media 服务 SHALL 暴露以下签名授权接口：
 
 ### Requirement: 媒资管理 RPC 契约
 
-media 服务 SHALL 以 gRPC 服务名 `Media` 注册于 etcd（key: `media.rpc`），提供以下媒资管理方法（`apps/media/rpc/media.proto`）：
+media 服务 SHALL 以 gRPC 服务名 `Media` 注册于 etcd（key: `media.rpc`），提供以下媒资管理方法（`rpc/media/media.proto`）：
 
 | 方法名 | 请求 Message | 响应 Message | 说明 |
 |--------|-------------|-------------|------|
@@ -164,7 +164,7 @@ media 服务的 RPC 层 SHALL 提供以下文件管理方法：
 
 media 服务的消费关系与跨域引用计数 SHALL 满足：
 
-**已接线消费方**：`media-api`（自身 API 层）——`apps/media/api/internal/svc/servicecontext.go` 中 import `mediaclient "tjxt/apps/media/rpc/media"`，所有媒资/文件/签名 HTTP 接口最终走自身 RPC（HTTP Handler → `mediaclient.Media` RPC，经 etcd key `media.rpc` 发现）。
+**已接线消费方**：`media-api`（自身 API 层）——`api/media/internal/svc/servicecontext.go` 中 import `mediaclient "tjxt/rpc/media/media"`，所有媒资/文件/签名 HTTP 接口最终走自身 RPC（HTTP Handler → `mediaclient.Media` RPC，经 etcd key `media.rpc` 发现）。
 
 **跨域引用计数规则**（设计意图，契约推导）：
 
@@ -172,7 +172,7 @@ media 服务的消费关系与跨域引用计数 SHALL 满足：
 - 被引用的媒资不可删除：`quote_num > 0` 时 `MediaDelete` 应拒绝（与 `file.status=3` 语义一致）
 - 绑定动作在 course 侧：`Course.CourseMediaSave` 写入 `media_id`，文件 `status` 应流转为 3（已使用）
 
-> 已知缺口（未接线）：course 与 media 之间是双向逻辑依赖——`apps/course/api/internal/svc/servicecontext.go` **未** import `mediaclient`，`apps/course/api/etc/*.yaml` 亦无 `MediaRpc` 配置项；`apps/media/*/internal/svc/servicecontext.go` 也未持有 `CourseRpc`。跨服务调用尚未接线，两侧目前均以本地字段/占位方式表达（course 侧 `course.proto:52` 定义 `CourseMediaSave`、`course.proto:36` 定义 `CourseMediaUseInfo` 回传 `media_id` → `quote_num`，`sql/ddl/tj_course.sql:91,123` 两处 `media_id` 列）。
+> 已知缺口（未接线）：course 与 media 之间是双向逻辑依赖——`api/course/internal/svc/servicecontext.go` **未** import `mediaclient`，`api/course/etc/*.yaml` 亦无 `MediaRpc` 配置项；`api/media`、`rpc/media` 的 internal/svc/servicecontext.go 也未持有 `CourseRpc`。跨服务调用尚未接线，两侧目前均以本地字段/占位方式表达（course 侧 `course.proto:52` 定义 `CourseMediaSave`、`course.proto:36` 定义 `CourseMediaUseInfo` 回传 `media_id` → `quote_num`，`sql/ddl/tj_course.sql:91,123` 两处 `media_id` 列）。
 
 #### Scenario: 媒资列表回填引用计数（设计意图）
 
@@ -289,7 +289,7 @@ media 服务的消费关系与跨域引用计数 SHALL 满足：
 - 上传签名不需要 mediaId：`SignatureRequest.mediaId` 在上传场景可为 0
 - 平台适配：需按 `file.platform`（1-腾讯 / 2-阿里）选择不同签名算法
 
-> 已知缺口（配置阻塞项）：`apps/media/rpc/internal/config/config.go` 仅有 `RpcServerConf` / `DataSource` / `Cache` 三项，**没有任何对象存储的 AppId / SecretId / SecretKey / Bucket / Region / 上传路径配置**，`apps/media/rpc/etc/media.yaml` 中亦无对应条目；当前对象存储为 mock（`mockBaseURL` 指向 `http://127.0.0.1:9000`）。建议补齐的配置结构见「服务配置与端口」。
+> 已知缺口（配置阻塞项）：`rpc/media/internal/config/config.go` 仅有 `RpcServerConf` / `DataSource` / `Cache` 三项，**没有任何对象存储的 AppId / SecretId / SecretKey / Bucket / Region / 上传路径配置**，`rpc/media/etc/media.yaml` 中亦无对应条目；当前对象存储为 mock（`mockBaseURL` 指向 `http://127.0.0.1:9000`）。建议补齐的配置结构见「服务配置与端口」。
 
 #### Scenario: 客户端直传视频全链路（设计意图）
 
@@ -344,7 +344,7 @@ media 服务的数据层 SHALL 基于 MySQL `tj_media` 库的两张表，并通�
 
 ### Requirement: 服务配置与端口
 
-media 服务 SHALL 按以下默认配置部署（API：`apps/media/api/etc/media-api.yaml`；RPC：`apps/media/rpc/etc/media.yaml`）：
+media 服务 SHALL 按以下默认配置部署（API：`api/media/etc/media-api.yaml`；RPC：`rpc/media/etc/media.yaml`）：
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|

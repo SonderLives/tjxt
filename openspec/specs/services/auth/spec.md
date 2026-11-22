@@ -116,7 +116,7 @@ auth 服务 SHALL 暴露以下角色管理接口：
 
 ### Requirement: RPC 服务契约（Auth 服务）
 
-`Auth` 服务 SHALL 作为身份认证与权限管理微服务经 etcd 服务发现注册（key: `auth.rpc`），监听 `0.0.0.0:8082`（gRPC），方法按以下六个域提供（proto 来源 `apps/auth/rpc/auth.proto`）。
+`Auth` 服务 SHALL 作为身份认证与权限管理微服务经 etcd 服务发现注册（key: `auth.rpc`），监听 `0.0.0.0:8082`（gRPC），方法按以下六个域提供（proto 来源 `rpc/auth/auth.proto`）。
 
 **角色管理**：
 
@@ -192,7 +192,7 @@ auth 服务 SHALL 暴露以下角色管理接口：
 - **WHEN** 登录成功后异步调用 `SaveLoginRecord`
 - **THEN** 系统记录登录时间 / IP，插入失败不抛异常（规则见「登录记录规则」）
 
-> 注：auth 服务是认证域的基础设施，多数其他服务的 handler 中通过 middleware/jwt 使用 auth rpc 做鉴权，但具体 import 路径需看 `apps/*/api/internal/middleware/jwt`；`learning-api` 的消费方式在源文件中为推测表述。
+> 注：auth 服务是认证域的基础设施，多数其他服务的 handler 中通过 middleware/jwt 使用 auth rpc 做鉴权，但具体 import 路径需看 `api/*/internal/middleware/jwt`；`learning-api` 的消费方式在源文件中为推测表述。
 
 ### Requirement: RBAC 角色管理规则
 
@@ -412,7 +412,7 @@ auth 服务 SHALL 将数据存储于 MySQL `tj_auth` 库（DDL 来源 `sql/ddl/t
 
 ### Requirement: 服务配置与端口
 
-auth 服务 SHALL 按以下默认配置部署（API：`apps/auth/api/etc/auth-api.yaml`；RPC：`apps/auth/rpc/etc/auth.yaml`）：
+auth 服务 SHALL 按以下默认配置部署（API：`api/auth/etc/auth-api.yaml`；RPC：`rpc/auth/etc/auth.yaml`）：
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|

@@ -70,7 +70,7 @@ go install github.com/zeromicro/go-zero/tools/goctl@latest
 
 > 源冲突说明：wiki `05-development/quickstart.md` v1.2 仍称「media-api 与 pay-api 同占 8808」。实测 26 份 `etc/*.yaml` 端口已重排为 `media-api 8806` / `pay-api 8808`，API 端口 8801-8813 全局唯一，无冲突，可同时启动。
 
-> 已知缺口：`Makefile` 的 `SERVICES` 变量仅列出 11 个服务，**缺 `promotion` 与 `remark`**，这两个服务无法用 `make run-*` 启动，需手工 `cd apps/<svc>/api && go run . -f etc/<svc>-api.yaml`。
+> 已知缺口：`Makefile` 的 `SERVICES` 变量仅列出 11 个服务，**缺 `promotion` 与 `remark`**，这两个服务无法用 `make run-*` 启动，需手工 `cd api/<svc> && go run . -f etc/<svc>-api.yaml`。
 
 #### Scenario: 冷启动全套服务
 
@@ -106,15 +106,15 @@ go install github.com/zeromicro/go-zero/tools/goctl@latest
 单模块快速校验（api / rpc 各有独立 go.mod，需分别进入）：
 
 ```bash
-cd apps/<svc>/api && go mod tidy && go build ./... && go vet ./...
-cd apps/<svc>/rpc && go mod tidy && go build ./... && go vet ./...
+cd api/<svc> && go mod tidy && go build ./... && go vet ./...
+cd rpc/<svc> && go mod tidy && go build ./... && go vet ./...
 ```
 
 #### Scenario: 改动契约后的最小闭环
 
 - **WHEN** 修改 `.api` / `.proto` 后需要回归
 - **THEN** 依次执行 `make api` 或 `make rpc`、`make build`、`make verify`
-- **AND** 单模块问题可进入 `apps/<svc>/{api,rpc}` 单独 `go build ./... && go vet ./...` 定位
+- **AND** 单模块问题可进入 `api/<svc>` 或 `rpc/<svc>` 单独 `go build ./... && go vet ./...` 定位
 
 ### Requirement: 数据库目录约定
 
@@ -140,7 +140,7 @@ SQL 脚本 SHALL 按用途分放两个目录，改表时同步更新：
 | 陷阱 | 规避方式 |
 |------|---------|
 | Makefile 服务清单曾有缺口 | `SERVICES` 曾只列 11 个（缺 `promotion`/`remark`），现已是全量 13 个，新增服务须同步维护 `SERVICES`/`API_DIRS`/`RPC_DIRS` |
-| `data` 服务目录曾有特例 | 旧布局多套一层（`apps/data/{api,rpc}/data/`），现已扁平化为标准 `apps/data/{api,rpc}`，与其他服务一致 |
+| `data` 服务目录曾有特例 | 旧布局多套一层（服务目录下再套服务名目录），现已扁平化为顶层标准布局 `api/data`、`rpc/data`，与其他服务一致 |
 | Windows 下 `rm` 被沙箱拦截 | 清空目录准备重生成时 `rm -rf` 可能静默失败，需确认删除结果 |
 | 统一响应易写错 | handler 必须用 `result.Write(w, r, data, err)`，不要用 goctl 生成的 Result 类型 |
 | JWT 中间件 | 在 `.api` 中用 `@server jwt: Auth` 声明，userId 通过 `auth.UserIdFromCtx(l.ctx)` 获取 |

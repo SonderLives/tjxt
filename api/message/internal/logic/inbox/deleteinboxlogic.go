@@ -1,0 +1,39 @@
+// Code scaffolded by goctl. Safe to edit.
+// goctl 1.10.1
+
+package inbox
+
+import (
+	"context"
+
+	"tjxt/api/message/internal/svc"
+	"tjxt/api/message/internal/types"
+	messageclient "tjxt/rpc/message/client/message"
+
+	"github.com/zeromicro/go-zero/core/logx"
+)
+
+type DeleteInboxLogic struct {
+	logx.Logger
+	ctx    context.Context
+	svcCtx *svc.ServiceContext
+}
+
+func NewDeleteInboxLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteInboxLogic {
+	return &DeleteInboxLogic{
+		Logger: logx.WithContext(ctx),
+		ctx:    ctx,
+		svcCtx: svcCtx,
+	}
+}
+
+func (l *DeleteInboxLogic) DeleteInbox(req *types.IdPathReq) (resp *types.OkVO, err error) {
+	ctx, err := ctxWithUserId(l.ctx)
+	if err != nil {
+		return nil, err
+	}
+	if _, err := l.svcCtx.MessageRpc.DeleteInbox(ctx, &messageclient.IdReq{Id: req.Id}); err != nil {
+		return nil, err
+	}
+	return &types.OkVO{Success: true}, nil
+}

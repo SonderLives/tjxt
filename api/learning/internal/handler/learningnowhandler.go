@@ -1,0 +1,21 @@
+// Code scaffolded by goctl. Safe to edit.
+// goctl 1.10.1
+
+package handler
+
+import (
+	"net/http"
+
+	"tjxt/api/learning/internal/logic"
+	"tjxt/api/learning/internal/svc"
+	"tjxt/pkg/response"
+)
+
+func LearningNowHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		l := logic.NewLearningNowLogic(r.Context(), svcCtx)
+		resp, err := l.LearningNow()
+		response.Write(w, r, resp, err)
+	}
+}

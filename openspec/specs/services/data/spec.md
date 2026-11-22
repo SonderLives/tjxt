@@ -99,9 +99,9 @@ data-api SHALL 提供热门榜与热销榜数据的获取与设置接口：
 - `GetTodayData` 入参为 `Empty`，无任何日期 / 维度参数——「今日」由服务端自行判定
 - 三个 `Set*` 请求均带 `int32 version`，三个 `Get*` 均不带——读侧固定取「当前版本」
 
-消费关系：当前仅 `data-api` 自身消费该 RPC（HTTP Handler → `dataclient.Data`，`servicecontext.go` 注入 `DataRpc`，import 路径 `tjxt/apps/data/rpc/client/data`）；全仓 Grep 除 `apps/data/` 自身外无其它服务引用。`specs/architecture/service-topology` 中标注的 `data-rpc --> AuthRPC` 依赖在代码中不存在（`apps/data/rpc/internal/config/config.go` 只有 `zrpc.RpcServerConf`，无任何客户端配置）。
+消费关系：当前仅 `data-api` 自身消费该 RPC（HTTP Handler → `dataclient.Data`，`servicecontext.go` 注入 `DataRpc`，import 路径 `tjxt/rpc/data/client/data`）；全仓 Grep 除 `api/data/`、`rpc/data/` 自身外无其它服务引用。`specs/architecture/service-topology` 中标注的 `data-rpc --> AuthRPC` 依赖在代码中不存在（`rpc/data/internal/config/config.go` 只有 `zrpc.RpcServerConf`，无任何客户端配置）。
 
-> 注：data 与 auth/user/search/remark/learning 一样，把 RPC 客户端生成到 `client/<svc>/` 子目录（`goctl rpc protoc --client=true -m` 布局），import 路径为 `tjxt/apps/data/rpc/client/data`；其余服务（course/exam/media/message/pay/promotion/trade）为 `apps/<svc>/rpc/<svc>/` 包装目录布局。
+> 注：data 与 auth/user/search/remark/learning 一样，把 RPC 客户端生成到 `client/<svc>/` 子目录（`goctl rpc protoc --client=true -m` 布局），import 路径为 `tjxt/rpc/data/client/data`；其余服务（course/exam/media/message/pay/promotion/trade）为 `rpc/<svc>/<svc>/` 包装目录布局。
 
 #### Scenario: 大屏轮询刷新链路
 
@@ -184,8 +184,8 @@ Top10 数据 SHALL 遵循以下规则（📋 设计意图，契约推导）：
 
 data SHALL 保持「全仓唯一一个 HTTP 接口完全不鉴权」的现状，并按以下规则约束后续演进（📋 设计意图，契约推导）：
 
-- 无 JWT 保护：`apps/data/api/data.api` 三个 `@server` 块只声明 `group`，未声明 `jwt: Auth`（对照 message / search 的 `@server (jwt: Auth, group: xxx)`）
-- 路由未挂中间件：`apps/data/api/internal/handler/routes.go` 三处 `server.AddRoutes` 均无 `rest.WithJwt(...)`
+- 无 JWT 保护：`api/data/data.api` 三个 `@server` 块只声明 `group`，未声明 `jwt: Auth`（对照 message / search 的 `@server (jwt: Auth, group: xxx)`）
+- 路由未挂中间件：`api/data/internal/handler/routes.go` 三处 `server.AddRoutes` 均无 `rest.WithJwt(...)`
 - 配置里却有 Auth 段：`data-api.yaml` 有 `Auth.AccessSecret` / `Auth.AccessExpire`，config.go 有对应字段——配置已备好但代码从未使用（悬空项）
 - 写接口同样无保护：三个 `PUT /data/*/set` 均无鉴权，任何人可覆盖大屏数据，属安全缺口
 
@@ -206,7 +206,7 @@ data SHALL 保持「全仓唯一一个 HTTP 接口完全不鉴权」的现状，
 
 data-api SHALL 仅做 DTO 转换并全部转发 RPC，遵循以下规则（📋 设计意图，契约推导）：
 
-- API 全部转发 RPC：`apps/data/api/internal/svc/servicecontext.go` 注入 `DataRpc`，API 层无存储访问
+- API 全部转发 RPC：`api/data/internal/svc/servicecontext.go` 注入 `DataRpc`，API 层无存储访问
 - 接口数一一对应：HTTP 6 个 ↔ RPC 6 个，data 是唯一一个 API 与 RPC 方法数完全相等的服务（message 18/19、search 2/2）
 - 类型基本同构：api 的 `EchartsVO` / `AxisVO` / `SerierVO` / `TodayDataVO` / `Top10DataVO` 与 proto 同名同构，转换为逐字段直映射
 - 整型宽度差异：api 用 `int`（平台相关），proto 用 `int32`，转换时需显式收窄
@@ -228,9 +228,9 @@ data-api SHALL 仅做 DTO 转换并全部转发 RPC，遵循以下规则（📋 
 data 服务 SHALL 不依赖任何持久化组件（无 MySQL / 无 Redis / 无 model 层），以「上游统计回填 → 大屏快照读写」的聚合模式提供数据存取：
 
 - 无关系型表：`sql/ddl/` 下 14 个文件中无 `tj_data.sql`（其余 12 个服务均有对应 DDL）
-- 无 MySQL 连接：`apps/data/rpc/etc/data.yaml` 全文仅 `Name` / `ListenOn` / `Etcd` 三段，无 `DataSource`
+- 无 MySQL 连接：`rpc/data/etc/data.yaml` 全文仅 `Name` / `ListenOn` / `Etcd` 三段，无 `DataSource`
 - 无 Redis 连接：`data.yaml` 无 `Cache` / `Redis` 段（`00-architecture/overview.md` 服务表中 data 的「数据库」列亦为 `-`）
-- 无 model 层：`apps/data/rpc/internal/` 下只有 `config` / `logic` / `server` / `svc`，无 model 目录；`ServiceContext` 仅有 `Config` 一个字段
+- 无 model 层：`rpc/data/internal/` 下只有 `config` / `logic` / `server` / `svc`，无 model 目录；`ServiceContext` 仅有 `Config` 一个字段
 - 结论（data-model.md 原文）：截至当前提交，data 服务没有接入任何持久化组件，6 个 RPC 方法与 6 个 HTTP 接口全部是 goctl 占位实现，返回零值
   - 注（源冲突）：business-rules.md v1.2（2026-08-06 复核，go build 全模块通过）将 12 个 logic 状态校正为「已实现」；「无持久化组件 / 无 DDL」为两篇一致的事实，实现状态以较新复核为准
 
@@ -279,7 +279,7 @@ data SHALL 按以下配置部署运行：
 | DataSource / Cache | 无——`data.yaml` 缺失这两段（与「不使用关系型表、不依赖 Model」一致，但意味着目前 RPC 没有可落地的数据源） |
 | Telemetry / Prometheus / Log | 可观测性注入配置已注入勿删（统一约定见 `specs/infra/observability/spec.md`） |
 
-已知结构性缺口（configs.md ⚠️ 逐条如实记录；原「目录多套一层」「三份 go.mod」两项已随 apps/data 扁平化修复）：
+已知结构性缺口（configs.md ⚠️ 逐条如实记录；原「目录多套一层」「三份 go.mod」两项已随 data 目录扁平化修复）：
 
 1. 无 DDL：`sql/ddl/` 下存在 `tj_message.sql` / `tj_message_model.sql` / `tj_search.sql`，但没有 `tj_data.sql`
 2. 配置缺 DataSource / Cache：`data.yaml` 仅有 Name / ListenOn / Etcd 三段，RPC 暂无可用数据源配置
@@ -294,7 +294,7 @@ data SHALL 按以下配置部署运行：
 #### Scenario: 构建 data 模块
 
 - **WHEN** 在 go.work 下构建 data 服务
-- **THEN** 引用的真实模块为 `./apps/data/api`（module `tjxt/apps/data/api`）与 `./apps/data/rpc`（module `tjxt/apps/data/rpc`），与其余 12 个服务的两层布局一致
+- **THEN** 引用的真实模块为 `./api/data`（module `tjxt/api/data`）与 `./rpc/data`（module `tjxt/rpc/data`），与其余 12 个服务的两层布局一致
 
 #### Scenario: JWT 密钥占位
 

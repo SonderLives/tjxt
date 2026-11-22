@@ -39,9 +39,9 @@
 1. 设计 DB 表结构
 2. 写入 sql/ddl/tj_<domain>.sql（纯 DDL）
 3. goctl model 生成 Model 层
-4. 设计 apps/<svc>/rpc/<svc>.proto
+4. 设计 rpc/<svc>/<svc>.proto
 5. goctl rpc 生成 RPC 骨架（pb/server/client/logic/svc/config）
-6. 设计 apps/<svc>/api/<svc>.api
+6. 设计 api/<svc>/<svc>.api
 7. goctl api 生成 API 骨架（handler/logic/types/routes）
 8. 手写 Logic 实现业务
 9. 构建测试（go build / go vet / go test）
@@ -55,10 +55,10 @@
 
 ### Requirement: goctl API 生成
 
-API 骨架 SHALL 由以下命令产出（工作目录为 `apps/<svc>/api`）：
+API 骨架 SHALL 由以下命令产出（工作目录为 `api/<svc>`）：
 
 ```bash
-cd apps/<svc>/api
+cd api/<svc>
 goctl api go --api <svc>.api --dir . --style gozero
 ```
 
@@ -85,10 +85,10 @@ goctl api go --api <svc>.api --dir . --style gozero
 
 ### Requirement: goctl RPC 生成
 
-RPC 骨架 SHALL 由以下命令产出（工作目录为 `apps/<svc>/rpc`）：
+RPC 骨架 SHALL 由以下命令产出（工作目录为 `rpc/<svc>`）：
 
 ```bash
-cd apps/<svc>/rpc
+cd rpc/<svc>
 goctl rpc protoc <svc>.proto \
   --go_out=. --go-grpc_out=. --zrpc_out=. \
   --style gozero --client=true
@@ -112,7 +112,7 @@ goctl rpc protoc <svc>.proto \
 #### Scenario: 缺少 RPC client
 
 - **WHEN** 其他服务需要调用本服务
-- **THEN** 本服务生成时必须带 `--client=true`，产出 `apps/<svc>/rpc/<svc>/<svc>.go`
+- **THEN** 本服务生成时必须带 `--client=true`，产出 `rpc/<svc>/<svc>/<svc>.go`
 - **AND** 调用方通过 `go.mod` 的 `require` + 本地相对路径 `replace` 引入，禁止 import 对方 `internal` 包
 
 ### Requirement: goctl Model 生成与扩展
@@ -122,7 +122,7 @@ Model 层 SHALL 由 DDL 生成，并只允许在 Custom Model 中扩展：
 ```bash
 goctl model mysql ddl \
   -src sql/ddl/tj_<domain>.sql \
-  -dir apps/<svc>/rpc/internal/model \
+  -dir rpc/<svc>/internal/model \
   -cache --style gozero
 ```
 
@@ -137,7 +137,7 @@ goctl model mysql ddl \
 扩展模式示例：
 
 ```go
-// apps/auth/rpc/internal/model/usermodel.go（手写，可编辑）
+// rpc/auth/internal/model/usermodel.go（手写，可编辑）
 type UserModel interface {
     UserModelGen // 嵌入生成的接口
     FindByPhone(ctx context.Context, phone string) (*User, error)
@@ -169,10 +169,10 @@ func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User
 
 | 项目 | 规范 | 示例 |
 |------|------|------|
-| 模块路径 | `module tjxt/apps/<svc>/api`、`module tjxt/apps/<svc>/rpc` | `module tjxt/apps/auth/api` |
-| 依赖组织 | api 与 rpc 各自独立 `go.mod` | `apps/<svc>/api/go.mod`、`apps/<svc>/rpc/go.mod` |
+| 模块路径 | `module tjxt/api/<svc>`、`module tjxt/rpc/<svc>` | `module tjxt/api/auth` |
+| 依赖组织 | api 与 rpc 各自独立 `go.mod` | `api/<svc>/go.mod`、`rpc/<svc>/go.mod` |
 | 公共库引用 | 各模块 `replace tjxt/pkg => ../../../pkg`（data 服务四级 `../../../../pkg`） | — |
-| 跨服务依赖 | 调用方 `go.mod` 中 `require` + 本地相对路径 `replace`，伪版本 `v0.0.0-00010101000000-000000000000` | `tjxt/apps/course/rpc => ../../course/rpc` |
+| 跨服务依赖 | 调用方 `go.mod` 中 `require` + 本地相对路径 `replace`，伪版本 `v0.0.0-00010101000000-000000000000` | `tjxt/rpc/course => ../../course/rpc` |
 | 目录命名 | gozero 风格（小驼峰，无下划线） | `internal/logic`、`userCoupon` |
 | 文件命名 | 小驼峰 | `userCouponLogic.go`、`couponModel.go` |
 | 包名 | 与目录名一致 | `package logic` |
@@ -182,7 +182,7 @@ func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User
 #### Scenario: 新增服务的模块落位
 
 - **WHEN** 新建服务 `<svc>`
-- **THEN** 建立 `apps/<svc>/api` 与 `apps/<svc>/rpc` 两个 go.mod，并在 `go.work` 中 `use`
+- **THEN** 建立 `api/<svc>` 与 `rpc/<svc>` 两个 go.mod，并在 `go.work` 中 `use`
 - **AND** 公共库与跨服务依赖一律通过 `replace` 指向本地相对路径，不发布到远端
 
 ### Requirement: 常见错误与规避
@@ -202,11 +202,11 @@ func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User
 
 - **WHEN** yaml 中新增配置项但服务未读取到
 - **THEN** 对照 `internal/config/config.go` 的 struct tag 核对字段名与层级
-- **AND** 确认该 yaml 位于服务实际加载的 `etc/` 路径（统一为 `apps/<svc>/{api,rpc}/etc/`）
+- **AND** 确认该 yaml 位于服务实际加载的 `etc/` 路径（统一为 `api/<svc>/etc/` 与 `rpc/<svc>/etc/`）
 
 ### Requirement: 可观测性配置保护
 
-每个服务 `apps/<svc>/{api,rpc}/etc/*.yaml` 中已注入的三段配置 SHALL 被视为不可删除、不可改坏：
+每个服务 `api/<svc>/etc/*.yaml` 与 `rpc/<svc>/etc/*.yaml` 中已注入的三段配置 SHALL 被视为不可删除、不可改坏：
 
 ```yaml
 Telemetry:                 # 链路追踪：go-zero 自动 StartAgent，推 OTLP 到 127.0.0.1:4318
