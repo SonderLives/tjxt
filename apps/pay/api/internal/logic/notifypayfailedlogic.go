@@ -9,7 +9,7 @@ import (
 
 	"tjxt/apps/pay/api/internal/svc"
 	"tjxt/apps/pay/api/internal/types"
-	payclient "tjxt/apps/pay/rpc/pay"
+	payclient "tjxt/apps/pay/rpc/client/pay"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

@@ -1,4 +1,4 @@
-package logic
+package paylogic
 
 import (
 	"context"
@@ -10,18 +10,18 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-// NotifyRefundFailedLogic 第三方退款失败回调
-type NotifyRefundFailedLogic struct {
+// NotifyRefundSuccessLogic 第三方退款成功回调
+type NotifyRefundSuccessLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
 }
 
-func NewNotifyRefundFailedLogic(ctx context.Context, svcCtx *svc.ServiceContext) *NotifyRefundFailedLogic {
-	return &NotifyRefundFailedLogic{ctx: ctx, svcCtx: svcCtx, Logger: logx.WithContext(ctx)}
+func NewNotifyRefundSuccessLogic(ctx context.Context, svcCtx *svc.ServiceContext) *NotifyRefundSuccessLogic {
+	return &NotifyRefundSuccessLogic{ctx: ctx, svcCtx: svcCtx, Logger: logx.WithContext(ctx)}
 }
 
-func (l *NotifyRefundFailedLogic) NotifyRefundFailed(in *pb.NotifyRefundFailedRequest) (*pb.EmptyResponse, error) {
+func (l *NotifyRefundSuccessLogic) NotifyRefundSuccess(in *pb.NotifyRefundSuccessRequest) (*pb.EmptyResponse, error) {
 	if in.RefundOrderNo <= 0 {
 		return nil, xerr.BadRequestf("refund_order_no 非法")
 	}
@@ -34,11 +34,12 @@ func (l *NotifyRefundFailedLogic) NotifyRefundFailed(in *pb.NotifyRefundFailedRe
 	}
 	switch m.Status {
 	case RefundStatusSuccess:
-		return nil, xerr.Conflict("退款单已成功，不能改为失败")
-	case RefundStatusFailed:
 		return &pb.EmptyResponse{}, nil
+	case RefundStatusFailed:
+		return nil, xerr.Conflict("退款单已标记失败，不允许改为成功")
+	case RefundStatusInit, RefundStatusProcessing:
 	}
-	if err := l.svcCtx.RefundOrderModel.MarkToFailed(l.ctx, m.Id, in.ResultCode, in.ResultMsg); err != nil {
+	if err := l.svcCtx.RefundOrderModel.MarkToSuccess(l.ctx, m.Id, in.ResultCode, in.ResultMsg, in.RefundChannel); err != nil {
 		return nil, xerr.Wrapf(err, xerr.CodeInternal, "更新退款状态失败")
 	}
 	return &pb.EmptyResponse{}, nil

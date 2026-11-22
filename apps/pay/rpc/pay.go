@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"tjxt/apps/pay/rpc/internal/config"
-	"tjxt/apps/pay/rpc/internal/server"
+	payserver "tjxt/apps/pay/rpc/internal/server/pay"
 	"tjxt/apps/pay/rpc/internal/svc"
 	"tjxt/apps/pay/rpc/pb"
 
@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		pb.RegisterPayServer(grpcServer, server.NewPayServer(ctx))
+		pb.RegisterPayServer(grpcServer, payserver.NewPayServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

@@ -1,4 +1,4 @@
-package logic
+package paylogic
 
 import (
 	"context"
