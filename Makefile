@@ -25,6 +25,7 @@ SERVICES := auth course data exam learning media message pay promotion remark se
 
 .PHONY: help init generate api rpc model check-gen build test fmt lint ci clean \
         docker-up docker-down docker-logs verify sync tidy \
+        buf-lint buf-breaking \
         run-all $(SERVICES:%=run-%) $(SERVICES:%=run-%-rpc)
 
 help: ## 显示帮助
@@ -135,6 +136,19 @@ verify: ## 校验所有服务的 .api/.proto 与 internal/ 目录是否齐全
 	  @('rpc/auth/auth.proto','rpc/course/course.proto','rpc/data/data.proto','rpc/exam/exam.proto','rpc/learning/learning.proto','rpc/media/media.proto','rpc/message/message.proto','rpc/pay/pay.proto','rpc/promotion/promotion.proto','rpc/remark/remark.proto','rpc/search/search.proto','rpc/trade/trade.proto','rpc/user/user.proto') | ForEach-Object { if (-not (Test-Path $$_)) { Write-Host ('missing proto: {0}' -f $$_) -ForegroundColor Red; $$miss++ } }; \
 	  @('$(API_DIRS)' -split ' ' + '$(RPC_DIRS)' -split ' ') | ForEach-Object { if (-not (Test-Path ('{0}/internal' -f $$_))) { Write-Host ('missing internal: {0}' -f $$_) -ForegroundColor Red; $$miss++ } }; \
 	  if ($$miss -gt 0) { exit 1 } else { Write-Host 'structure ok' -ForegroundColor Green }"
+
+# ---------- proto 治理（buf） ----------
+# buf 只做 proto lint 与 breaking 门禁；pb/zrpc 生成仍走 make rpc（goctl）。
+# 配置见仓库根 buf.yaml（v2 workspace，13 个 rpc/<svc> 模块）。
+
+buf-lint: ## buf lint 检查 13 个 rpc proto（规则与豁免见 buf.yaml）
+	buf lint
+
+# breaking 对比 master（本 worktree 场景直接读本地 .git）；
+# master 尚无 buf.yaml，需用 --against-config 复用同一 workspace 配置，
+# 否则 against 侧会被当成单一模块（13 vs 1 报错）。
+buf-breaking: ## buf breaking 破坏性变更门禁（对比 master）
+	buf breaking --against ".git#branch=master" --against-config buf.yaml
 
 sync: ## go work sync
 	$(GO) work sync

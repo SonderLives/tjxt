@@ -11,7 +11,24 @@ jobs:
   gate:
     runs-on: ubuntu-latest
     steps:
+      # buf breaking 需要对比 master，必须拉全量历史（浅克隆下 master 引用不可达）
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # ---------- proto 治理门禁（buf）----------
+      # buf 只做 lint + breaking 校验；pb/zrpc 生成仍由 goctl 负责，不在 CI 中生成。
+      - uses: bufbuild/buf-setup-action@v1.50.0
+        with:
+          version: v1.75.0
+
+      - name: Buf lint
+        run: buf lint
+
+      - name: Buf breaking (against master)
+        run: buf breaking --against '.git#branch=master' --against-config buf.yaml
+
+      # ---------- go 门禁（与本地 make ci 同口径）----------
 
       - uses: actions/setup-go@v7
         with:
