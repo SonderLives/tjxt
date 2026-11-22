@@ -1,3 +1,5 @@
+// Package config search 后端业务配置（随原 rpc/search 业务层随迁），
+// 进程壳配置（RpcServerConf/RestConf/ServiceConf）由宿主进程自行承载。
 package config
 
 import (
@@ -6,7 +8,6 @@ import (
 )
 
 type Config struct {
-	zrpc.RpcServerConf
 	DataSource string
 	Cache      cache.CacheConf
 
