@@ -6,7 +6,6 @@ require (
 	github.com/elastic/go-elasticsearch/v9 v9.4.1
 	github.com/zeromicro/go-zero v1.10.3
 	tjxt/rpc/course v0.0.0-00010101000000-000000000000
-	tjxt/rpc/search v0.0.0-00010101000000-000000000000
 	tjxt/pkg v0.0.0-00010101000000-000000000000
 )
 
@@ -103,7 +102,6 @@ require (
 )
 
 replace (
-	tjxt/rpc/search => ../../rpc/search
 	tjxt/rpc/course => ../../rpc/course
 	tjxt/pkg => ../../pkg
 )

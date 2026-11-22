@@ -15,6 +15,7 @@ use (
 	./api/search
 	./api/trade
 	./api/user
+	./app/mq/search-mq
 	./pkg
 	./rpc/auth
 	./rpc/course
@@ -26,7 +27,6 @@ use (
 	./rpc/pay
 	./rpc/promotion
 	./rpc/remark
-	./rpc/search
 	./rpc/trade
 	./rpc/user
 )
