@@ -3,10 +3,11 @@ package courselogic
 import (
 	"context"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/timex"
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -64,8 +65,8 @@ func (l *CourseSearchIndexInfoListLogic) CourseSearchIndexInfoList(in *pb.Course
 			CategoryIdLv1: c.FirstCateId,
 			CategoryIdLv2: c.SecondCateId,
 			CategoryIdLv3: c.ThirdCateId,
-			CreateTime:    formatTime(c.CreateTime),
-			PublishTime:   formatNullTime(c.PublishTime),
+			CreateTime:    timex.Format(c.CreateTime),
+			PublishTime:   timex.FormatNullTime(c.PublishTime),
 			Duration:      formatNullInt64(c.MediaDuration),
 		})
 	}

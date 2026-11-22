@@ -3,10 +3,11 @@ package courselogic
 import (
 	"context"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +28,7 @@ func NewCourseGeneratorLogic(ctx context.Context, svcCtx *svc.ServiceContext) *C
 
 // CourseGenerator 预生成一条空课程草稿，返回课程 id 供后续分步保存使用。
 func (l *CourseGeneratorLogic) CourseGenerator(in *pb.Empty) (*pb.IdResponse, error) {
-	id := nextID()
+	id := idgen.NextID()
 	draft := &model.CourseDraft{
 		Id:        id,
 		Status:    CourseStatusPending,

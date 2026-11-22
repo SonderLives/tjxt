@@ -9,7 +9,6 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,7 +31,7 @@ func NewCourseSearchInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 func (l *CourseSearchInfoLogic) CourseSearchInfo(req *types.IdPathReq) (resp *types.CourseSearchIndexVO, err error) {
 	info, gerr := l.svcCtx.CourseRpc.CourseSearchInfoForIndex(l.ctx, &pb.IdRequest{Id: req.Id})
 	if gerr != nil {
-		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "查询课程搜索信息失败")
+		return nil, gerr
 	}
 	return &types.CourseSearchIndexVO{
 		Id:            info.Id,

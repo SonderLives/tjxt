@@ -3,10 +3,11 @@ package courselogic
 import (
 	"context"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/timex"
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -54,7 +55,7 @@ func (l *CourseSimpleInfoListLogic) CourseSimpleInfoList(in *pb.CourseSimpleInfo
 			SectionNum:      formatNullInt64(c.SectionNum),
 			Status:          int32(c.Status),
 			ValidDuration:   c.ValidDuration,
-			PurchaseEndTime: formatTime(c.PurchaseEndTime),
+			PurchaseEndTime: timex.Format(c.PurchaseEndTime),
 			FirstCateId:     c.FirstCateId,
 			SecondCateId:    c.SecondCateId,
 			ThirdCateId:     c.ThirdCateId,

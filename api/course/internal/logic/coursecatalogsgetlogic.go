@@ -8,10 +8,9 @@ import (
 
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
+	"tjxt/pkg/auth"
 	"tjxt/rpc/course/pb"
 	learningpb "tjxt/rpc/learning/pb"
-	"tjxt/pkg/auth"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -38,7 +37,7 @@ func (l *CourseCatalogsGetLogic) CourseCatalogsGet(req *types.IdPathReq) (resp *
 	}
 	view, gerr := l.svcCtx.CourseRpc.CourseCatalogsGet(l.ctx, &pb.IdRequest{Id: req.Id})
 	if gerr != nil {
-		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "查询课程目录失败")
+		return nil, gerr
 	}
 	lesson, lessonErr := l.svcCtx.LearningRpc.LessonGet(l.ctx, &learningpb.LessonRequest{CourseId: req.Id, UserId: userID})
 	if lessonErr == nil && lesson != nil {

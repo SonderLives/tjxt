@@ -2,10 +2,12 @@ package courselogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -34,7 +36,7 @@ func NewCourseCheckUpShelfLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 func (l *CourseCheckUpShelfLogic) CourseCheckUpShelf(in *pb.IdRequest) (*pb.Empty, error) {
 	draft, err := l.svcCtx.CourseDraftModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("课程草稿不存在")
 		}
 		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程草稿失败")

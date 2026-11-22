@@ -9,7 +9,6 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,7 +31,7 @@ func NewCourseCheckUpShelfLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 func (l *CourseCheckUpShelfLogic) CourseCheckUpShelf(req *types.IdPathReq) (resp *types.NameExistVO, err error) {
 	_, err = l.svcCtx.CourseRpc.CourseCheckUpShelf(l.ctx, &pb.IdRequest{Id: req.Id})
 	if err != nil {
-		return nil, errorx.Wrap(err, errorx.CodeInternal, "校验课程上架条件失败")
+		return nil, err
 	}
 	return &types.NameExistVO{Existed: false}, nil
 }

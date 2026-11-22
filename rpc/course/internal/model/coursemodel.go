@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -34,6 +35,8 @@ type (
 		ListByThirdCateIds(ctx context.Context, ids []int64) ([]*Course, error)
 		FindByNameLike(ctx context.Context, name string) ([]*Course, error)
 		CountByThirdCateId(ctx context.Context, thirdCateId int64) (int64, error)
+		InsertTx(ctx context.Context, session sqlx.Session, data *Course) (sql.Result, error)
+		UpdateTx(ctx context.Context, session sqlx.Session, data *Course) error
 	}
 	customCourseModel struct {
 		*defaultCourseModel
@@ -154,4 +157,36 @@ func (m *customCourseModel) CountByThirdCateId(ctx context.Context, thirdCateId 
 		return 0, err
 	}
 	return total, nil
+}
+
+// InsertTx 事务内插入课程行：SQL 与缓存键失效语义同 Insert（生成模型），写入走传入的事务会话，
+// 供跨模型事务（如课程上架发布）复用。
+func (m *customCourseModel) InsertTx(ctx context.Context, session sqlx.Session, data *Course) (sql.Result, error) {
+	cc := m.WithSession(session)
+	courseIdKey := fmt.Sprintf("%s%v", cacheCourseIdPrefix, data.Id)
+	return cc.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		query := fmt.Sprintf("insert into %s (%s) values %s", m.table, courseRowsExpectAutoSet, rowPlaceholders(insertColumns(courseRowsExpectAutoSet)))
+		return conn.ExecCtx(ctx, query,
+			data.Id, data.Name, data.CourseType, data.CoverUrl, data.FirstCateId, data.SecondCateId,
+			data.ThirdCateId, data.Free, data.Price, data.TemplateType, data.TemplateUrl, data.Status,
+			data.PurchaseStartTime, data.PurchaseEndTime, data.Step, data.Score, data.MediaDuration,
+			data.ValidDuration, data.SectionNum, data.DepId, data.PublishTimes, data.PublishTime,
+			data.Creater, data.Updater, data.Deleted)
+	}, courseIdKey)
+}
+
+// UpdateTx 事务内更新课程行：SQL 与缓存键失效语义同 Update（生成模型），写入走传入的事务会话，
+// 供跨模型事务（如课程上架发布）复用。
+func (m *customCourseModel) UpdateTx(ctx context.Context, session sqlx.Session, data *Course) error {
+	cc := m.WithSession(session)
+	courseIdKey := fmt.Sprintf("%s%v", cacheCourseIdPrefix, data.Id)
+	_, err := cc.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, courseRowsWithPlaceHolder)
+		return conn.ExecCtx(ctx, query,
+			data.Name, data.CourseType, data.CoverUrl, data.FirstCateId, data.SecondCateId, data.ThirdCateId,
+			data.Free, data.Price, data.TemplateType, data.TemplateUrl, data.Status, data.PurchaseStartTime,
+			data.PurchaseEndTime, data.Step, data.Score, data.MediaDuration, data.ValidDuration, data.SectionNum,
+			data.DepId, data.PublishTimes, data.PublishTime, data.Creater, data.Updater, data.Deleted, data.Id)
+	}, courseIdKey)
+	return err
 }

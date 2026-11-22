@@ -6,7 +6,6 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -33,7 +32,7 @@ func (l *CategoryUpdateLogic) CategoryUpdate(req *types.CategoryUpdateReq) (resp
 		Index: int32(req.Index),
 	})
 	if err != nil {
-		return nil, errorx.Wrap(err, errorx.CodeInternal, "更新分类失败")
+		return nil, err
 	}
 	return &types.NameExistVO{Existed: false}, nil
 }

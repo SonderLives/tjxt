@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"tjxt/pkg/mq"
+	"tjxt/pkg/mq/event"
 	"tjxt/rpc/course/internal/config"
 	"tjxt/rpc/course/internal/model"
 	userclient "tjxt/rpc/user/client/user"
-	"tjxt/pkg/mq"
-	"tjxt/pkg/mq/event"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -17,6 +17,10 @@ import (
 
 type ServiceContext struct {
 	Config config.Config
+
+	// DB 原始连接：跨模型事务（如课程上架发布的四表原子写入）用它开事务，
+	// 各模型自身读写仍走对应 XxxModel。
+	DB sqlx.SqlConn
 
 	CategoryModel               model.CategoryModel
 	CourseModel                 model.CourseModel
@@ -44,6 +48,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	conn := sqlx.NewMysql(c.DataSource)
 	svcCtx := &ServiceContext{
 		Config:                      c,
+		DB:                          conn,
 		CategoryModel:               model.NewCategoryModel(conn, c.Cache),
 		CourseModel:                 model.NewCourseModel(conn, c.Cache),
 		CourseDraftModel:            model.NewCourseDraftModel(conn, c.Cache),

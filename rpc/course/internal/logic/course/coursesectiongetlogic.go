@@ -2,10 +2,12 @@ package courselogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +33,7 @@ func (l *CourseSectionGetLogic) CourseSectionGet(in *pb.IdRequest) (*pb.CourseSe
 	}
 	c, err := l.svcCtx.CourseCatalogueModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("小节不存在")
 		}
 		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询小节失败")

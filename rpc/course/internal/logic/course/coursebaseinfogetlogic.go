@@ -2,12 +2,15 @@ package courselogic
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/timex"
+	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -34,7 +37,7 @@ func (l *CourseBaseInfoGetLogic) CourseBaseInfoGet(in *pb.IdRequest) (*pb.Course
 	}
 	d, err := l.svcCtx.CourseDraftModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("课程不存在")
 		}
 		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程草稿失败")
@@ -47,8 +50,8 @@ func (l *CourseBaseInfoGetLogic) CourseBaseInfoGet(in *pb.IdRequest) (*pb.Course
 		Free:              int32(d.Free),
 		CoverUrl:          d.CoverUrl,
 		ValidDuration:     d.ValidDuration,
-		PurchaseStartTime: formatNullTime(d.PurchaseStartTime),
-		PurchaseEndTime:   formatTime(d.PurchaseEndTime),
+		PurchaseStartTime: timex.FormatNullTime(d.PurchaseStartTime),
+		PurchaseEndTime:   timex.Format(d.PurchaseEndTime),
 		FirstCateId:       d.FirstCateId,
 		SecondCateId:      d.SecondCateId,
 		ThirdCateId:       d.ThirdCateId,
@@ -56,8 +59,8 @@ func (l *CourseBaseInfoGetLogic) CourseBaseInfoGet(in *pb.IdRequest) (*pb.Course
 		Step:              int32(d.Step),
 		Score:             d.Score,
 		CanUpdate:         d.CanUpdate == 1,
-		CreateTime:        formatTime(d.CreateTime),
-		UpdateTime:        formatTime(d.UpdateTime),
+		CreateTime:        timex.Format(d.CreateTime),
+		UpdateTime:        timex.Format(d.UpdateTime),
 		// 报名数/学习人数/实付金额/退款数、创建人与更新人姓名来自其他服务，course 库无对应数据
 		EnrollNum:     0,
 		StudyNum:      0,
@@ -72,7 +75,7 @@ func (l *CourseBaseInfoGetLogic) CourseBaseInfoGet(in *pb.IdRequest) (*pb.Course
 
 	// 课程内容（介绍/详情/适用人群）
 	content, cerr := l.svcCtx.CourseContentDraftModel.FindOne(l.ctx, d.Id)
-	if cerr != nil && !isNotFound(cerr) {
+	if cerr != nil && !errors.Is(cerr, model.ErrNotFound) {
 		return nil, errorx.Wrap(cerr, errorx.CodeInternal, "查询课程内容失败")
 	}
 	if content != nil {

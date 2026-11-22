@@ -9,7 +9,6 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -45,7 +44,7 @@ func (l *CourseBaseInfoSaveLogic) CourseBaseInfoSave(req *types.CourseBaseInfoSa
 		PurchaseEndTime:   req.PurchaseEndTime,
 	})
 	if gerr != nil {
-		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "保存课程基础信息失败")
+		return nil, gerr
 	}
 	return &types.CourseSaveVO{Id: res.Id}, nil
 }

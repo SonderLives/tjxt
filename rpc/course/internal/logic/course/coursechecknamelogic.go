@@ -2,10 +2,12 @@ package courselogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +33,7 @@ func (l *CourseCheckNameLogic) CourseCheckName(in *pb.CourseCheckNameRequest) (*
 	}
 	_, err := l.svcCtx.CourseDraftModel.FindByNameExceptId(l.ctx, in.Name, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return &pb.NameExistReply{Existed: false}, nil
 		}
 		return nil, errorx.Wrap(err, errorx.CodeInternal, "校验课程名称失败")

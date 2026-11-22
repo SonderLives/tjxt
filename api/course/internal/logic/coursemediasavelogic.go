@@ -9,7 +9,6 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -45,7 +44,7 @@ func (l *CourseMediaSaveLogic) CourseMediaSave(req *types.CourseMediaSaveReq) (r
 		Medias:   medias,
 	})
 	if err != nil {
-		return nil, errorx.Wrap(err, errorx.CodeInternal, "保存课程媒资失败")
+		return nil, err
 	}
 	return &types.NameExistVO{Existed: false}, nil
 }

@@ -2,11 +2,13 @@ package courselogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -65,7 +67,7 @@ func (l *CourseCatalogueSaveLogic) saveCataNodes(courseId, parentId int64, nodes
 			}
 		}
 		// 草稿表 id 为雪花 ID（非自增），需自行生成后再作为子节点的 parent
-		id := nextID()
+		id := idgen.NextID()
 		data := &model.CourseCatalogueDraft{
 			Id:                id,
 			Name:              n.Name,
@@ -94,7 +96,7 @@ func (l *CourseCatalogueSaveLogic) advanceStep(courseId, step int64) error {
 	}
 	draft, err := l.svcCtx.CourseDraftModel.FindOne(l.ctx, courseId)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return errorx.NotFound("课程草稿不存在")
 		}
 		return errorx.Wrap(err, errorx.CodeInternal, "查询课程草稿失败")

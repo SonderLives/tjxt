@@ -3,11 +3,12 @@ package courselogic
 import (
 	"context"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/page"
+	"tjxt/pkg/timex"
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/page"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -76,9 +77,9 @@ func (l *CoursePageQueryLogic) buildItems(list []*model.Course) []*pb.CoursePage
 			Sold:          0, // 销量来自 trade 服务，course 库无对应列
 			SectionNum:    formatNullInt64(c.SectionNum),
 			MediaDuration: formatNullInt64(c.MediaDuration),
-			PublishTime:   formatNullTime(c.PublishTime),
-			CreateTime:    formatTime(c.CreateTime),
-			UpdateTime:    formatTime(c.UpdateTime),
+			PublishTime:   timex.FormatNullTime(c.PublishTime),
+			CreateTime:    timex.Format(c.CreateTime),
+			UpdateTime:    timex.Format(c.UpdateTime),
 		}
 		if cate := cateMap[c.FirstCateId]; cate != nil {
 			item.FirstCateName = cate.Name

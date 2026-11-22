@@ -9,7 +9,6 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,7 +31,7 @@ func NewCourseBaseInfoGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 func (l *CourseBaseInfoGetLogic) CourseBaseInfoGet(req *types.CourseBaseInfoGetReq) (resp *types.CourseBaseInfoVO, err error) {
 	info, gerr := l.svcCtx.CourseRpc.CourseBaseInfoGet(l.ctx, &pb.IdRequest{Id: req.Id})
 	if gerr != nil {
-		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "查询课程基础信息失败")
+		return nil, gerr
 	}
 	return &types.CourseBaseInfoVO{
 		Id:                info.Id,
