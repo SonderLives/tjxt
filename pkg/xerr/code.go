@@ -4,7 +4,10 @@
 // handler 层通过 response.Write 将错误渲染为统一的 R 响应结构。
 package xerr
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // Code 业务错误码。
 // 采用与 HTTP 语义对齐的整数码段，避免客户端再做一层映射；
@@ -194,6 +197,30 @@ func HttpStatus(err error) int {
 	default:
 		return 500
 	}
+}
+
+// IsNotFound 判断 err 是否为业务"资源不存在"错误（Code == CodeNotFound）。
+//
+// 判定顺序：
+//  1. 先用 FromGRPC 还原跨 gRPC/zrpc 传输的业务错误——zrpc 客户端拿到的是
+//     status error，其 Message 即服务端 *Error.Error() 的 code=... msg=... 文本；
+//  2. 再沿错误链（Unwrap）取第一个命中的 *Error（与 CodeOf 语义一致），
+//     判断其 Code 是否为 CodeNotFound，可穿透 fmt.Errorf("%w") 等包装。
+//
+// 注意：model.ErrNotFound（sqlx 裸错误 sql.ErrNoRows 的包装）不是 *Error，
+// 本函数对其返回 false；数据层错误请继续用 errors.Is(err, model.ErrNotFound) 判断。
+func IsNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	if e, ok := FromGRPC(err); ok {
+		return e.Code == CodeNotFound
+	}
+	var biz *Error
+	if errors.As(err, &biz) {
+		return biz.Code == CodeNotFound
+	}
+	return false
 }
 
 // un 解包一层 error，避免直接依赖 errors.Unwrap 的语义。
