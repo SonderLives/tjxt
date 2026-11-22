@@ -19,12 +19,8 @@ use (
 	./app/mq/trade-mq
 	./pkg
 	./rpc/course
-	./rpc/exam
 	./rpc/learning
-	./rpc/media
-	./rpc/message
 	./rpc/pay
 	./rpc/promotion
-	./rpc/remark
 	./rpc/user
 )

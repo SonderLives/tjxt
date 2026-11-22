@@ -6,9 +6,10 @@ package noticetemplate
 import (
 	"context"
 
+	backendlogic "tjxt/api/message/backend/logic"
+	"tjxt/api/message/backend/pb"
 	"tjxt/api/message/internal/svc"
 	"tjxt/api/message/internal/types"
-	messageclient "tjxt/rpc/message/client/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewGetNoticeTemplateLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *GetNoticeTemplateLogic) GetNoticeTemplate(req *types.IdPathReq) (resp *types.NoticeTemplateVO, err error) {
-	r, err := l.svcCtx.MessageRpc.GetNoticeTemplate(l.ctx, &messageclient.IdReq{Id: req.Id})
+	r, err := backendlogic.NewGetNoticeTemplateLogic(l.ctx, l.svcCtx.Backend).GetNoticeTemplate(&pb.IdReq{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}

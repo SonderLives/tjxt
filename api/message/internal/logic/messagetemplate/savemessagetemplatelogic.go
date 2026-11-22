@@ -6,9 +6,10 @@ package messagetemplate
 import (
 	"context"
 
+	backendlogic "tjxt/api/message/backend/logic"
+	"tjxt/api/message/backend/pb"
 	"tjxt/api/message/internal/svc"
 	"tjxt/api/message/internal/types"
-	messageclient "tjxt/rpc/message/client/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewSaveMessageTemplateLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *SaveMessageTemplateLogic) SaveMessageTemplate(req *types.MessageTemplateSaveReq) (resp *types.IdVO, err error) {
-	r, err := l.svcCtx.MessageRpc.SaveMessageTemplate(l.ctx, &messageclient.MessageTemplateSaveReq{
+	r, err := backendlogic.NewSaveMessageTemplateLogic(l.ctx, l.svcCtx.Backend).SaveMessageTemplate(&pb.MessageTemplateSaveReq{
 		Id:                req.Id,
 		Name:              req.Name,
 		PlatformCode:      req.PlatformCode,

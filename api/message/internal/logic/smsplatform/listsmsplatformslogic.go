@@ -6,9 +6,10 @@ package smsplatform
 import (
 	"context"
 
+	backendlogic "tjxt/api/message/backend/logic"
+	"tjxt/api/message/backend/pb"
 	"tjxt/api/message/internal/svc"
 	"tjxt/api/message/internal/types"
-	messageclient "tjxt/rpc/message/client/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewListSmsPlatformsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *ListSmsPlatformsLogic) ListSmsPlatforms() (resp *types.SmsPlatformListVO, err error) {
-	r, err := l.svcCtx.MessageRpc.ListSmsPlatforms(l.ctx, &messageclient.Empty{})
+	r, err := backendlogic.NewListSmsPlatformsLogic(l.ctx, l.svcCtx.Backend).ListSmsPlatforms(&pb.Empty{})
 	if err != nil {
 		return nil, err
 	}

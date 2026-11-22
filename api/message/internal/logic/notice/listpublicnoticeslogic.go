@@ -6,9 +6,10 @@ package notice
 import (
 	"context"
 
+	backendlogic "tjxt/api/message/backend/logic"
+	"tjxt/api/message/backend/pb"
 	"tjxt/api/message/internal/svc"
 	"tjxt/api/message/internal/types"
-	messageclient "tjxt/rpc/message/client/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewListPublicNoticesLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *ListPublicNoticesLogic) ListPublicNotices(req *types.PageReq) (resp *types.PublicNoticeListVO, err error) {
-	r, err := l.svcCtx.MessageRpc.ListPublicNotices(l.ctx, &messageclient.PageReq{
+	r, err := backendlogic.NewListPublicNoticesLogic(l.ctx, l.svcCtx.Backend).ListPublicNotices(&pb.PageReq{
 		PageNo:   int32(req.PageNo),
 		PageSize: int32(req.PageSize),
 	})

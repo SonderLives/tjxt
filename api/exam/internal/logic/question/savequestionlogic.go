@@ -6,9 +6,10 @@ package question
 import (
 	"context"
 
+	backendlogic "tjxt/api/exam/backend/logic"
+	"tjxt/api/exam/backend/pb"
 	"tjxt/api/exam/internal/svc"
 	"tjxt/api/exam/internal/types"
-	examclient "tjxt/rpc/exam/client/exam"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -32,7 +33,7 @@ func (l *SaveQuestionLogic) SaveQuestion(req *types.QuestionSaveReq) (resp *type
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	rpcResp, err := l.svcCtx.ExamRpc.SaveQuestion(l.ctx, &examclient.QuestionSaveReq{
+	rpcResp, err := backendlogic.NewSaveQuestionLogic(l.ctx, l.svcCtx.Backend).SaveQuestion(&pb.QuestionSaveReq{
 		Id:         req.Id,
 		Name:       req.Name,
 		Type:       req.Type,

@@ -6,9 +6,10 @@ package noticetask
 import (
 	"context"
 
+	backendlogic "tjxt/api/message/backend/logic"
+	"tjxt/api/message/backend/pb"
 	"tjxt/api/message/internal/svc"
 	"tjxt/api/message/internal/types"
-	messageclient "tjxt/rpc/message/client/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewListNoticeTasksLogic(ctx context.Context, svcCtx *svc.ServiceContext) *L
 }
 
 func (l *ListNoticeTasksLogic) ListNoticeTasks(req *types.PageReq) (resp *types.NoticeTaskListVO, err error) {
-	r, err := l.svcCtx.MessageRpc.ListNoticeTasks(l.ctx, &messageclient.PageReq{
+	r, err := backendlogic.NewListNoticeTasksLogic(l.ctx, l.svcCtx.Backend).ListNoticeTasks(&pb.PageReq{
 		PageNo:   int32(req.PageNo),
 		PageSize: int32(req.PageSize),
 	})

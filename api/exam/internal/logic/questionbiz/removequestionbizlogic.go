@@ -6,9 +6,10 @@ package questionbiz
 import (
 	"context"
 
+	backendlogic "tjxt/api/exam/backend/logic"
+	"tjxt/api/exam/backend/pb"
 	"tjxt/api/exam/internal/svc"
 	"tjxt/api/exam/internal/types"
-	examclient "tjxt/rpc/exam/client/exam"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -32,7 +33,7 @@ func (l *RemoveQuestionBizLogic) RemoveQuestionBiz(req *types.QuestionBizReq) (r
 	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
 		return nil, err
 	}
-	if _, err := l.svcCtx.ExamRpc.RemoveQuestionBiz(l.ctx, &examclient.QuestionBizReq{
+	if _, err := backendlogic.NewRemoveQuestionBizLogic(l.ctx, l.svcCtx.Backend).RemoveQuestionBiz(&pb.QuestionBizReq{
 		BizId:      req.BizId,
 		QuestionId: req.QuestionId,
 	}); err != nil {

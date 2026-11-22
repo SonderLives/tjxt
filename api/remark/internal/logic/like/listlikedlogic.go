@@ -4,7 +4,8 @@ import (
 	"context"
 	"strconv"
 
-	remarkclient "tjxt/rpc/remark/client/remark"
+	backendlogic "tjxt/api/remark/backend/logic"
+	"tjxt/api/remark/backend/pb"
 	"tjxt/pkg/auth"
 
 	"tjxt/api/remark/internal/svc"
@@ -39,7 +40,7 @@ func (l *ListLikedLogic) ListLiked(req *types.LikeListReq) (resp *types.LikeList
 			bizIds = append(bizIds, id)
 		}
 	}
-	r, err := l.svcCtx.RemarkRpc.QueryLikedBizIds(l.ctx, &remarkclient.LikedReq{
+	r, err := backendlogic.NewQueryLikedBizIdsLogic(l.ctx, l.svcCtx.Backend).QueryLikedBizIds(&pb.LikedReq{
 		UserId:  userId,
 		BizType: req.BizType,
 		BizIds:  bizIds,

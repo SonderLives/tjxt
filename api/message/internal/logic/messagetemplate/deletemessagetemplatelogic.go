@@ -6,9 +6,10 @@ package messagetemplate
 import (
 	"context"
 
+	backendlogic "tjxt/api/message/backend/logic"
+	"tjxt/api/message/backend/pb"
 	"tjxt/api/message/internal/svc"
 	"tjxt/api/message/internal/types"
-	messageclient "tjxt/rpc/message/client/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewDeleteMessageTemplateLogic(ctx context.Context, svcCtx *svc.ServiceConte
 }
 
 func (l *DeleteMessageTemplateLogic) DeleteMessageTemplate(req *types.IdPathReq) (resp *types.OkVO, err error) {
-	if _, err := l.svcCtx.MessageRpc.DeleteMessageTemplate(l.ctx, &messageclient.IdReq{Id: req.Id}); err != nil {
+	if _, err := backendlogic.NewDeleteMessageTemplateLogic(l.ctx, l.svcCtx.Backend).DeleteMessageTemplate(&pb.IdReq{Id: req.Id}); err != nil {
 		return nil, err
 	}
 	return &types.OkVO{Success: true}, nil

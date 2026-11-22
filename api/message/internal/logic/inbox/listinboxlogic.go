@@ -6,9 +6,10 @@ package inbox
 import (
 	"context"
 
+	backendlogic "tjxt/api/message/backend/logic"
+	"tjxt/api/message/backend/pb"
 	"tjxt/api/message/internal/svc"
 	"tjxt/api/message/internal/types"
-	messageclient "tjxt/rpc/message/client/message"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -33,7 +34,7 @@ func (l *ListInboxLogic) ListInbox(req *types.InboxListReq) (resp *types.InboxLi
 	if err != nil {
 		return nil, err
 	}
-	r, err := l.svcCtx.MessageRpc.ListInbox(l.ctx, &messageclient.InboxPageReq{
+	r, err := backendlogic.NewListInboxLogic(l.ctx, l.svcCtx.Backend).ListInbox(&pb.InboxPageReq{
 		PageNo:   int32(req.PageNo),
 		PageSize: int32(req.PageSize),
 		UserId:   userId,

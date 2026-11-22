@@ -3,7 +3,8 @@ package like
 import (
 	"context"
 
-	remarkclient "tjxt/rpc/remark/client/remark"
+	backendlogic "tjxt/api/remark/backend/logic"
+	"tjxt/api/remark/backend/pb"
 	"tjxt/pkg/auth"
 
 	"tjxt/api/remark/internal/svc"
@@ -31,7 +32,7 @@ func (l *LikeLogic) Like(req *types.LikeRecordFormReq) (resp *types.OkVO, err er
 	if err != nil {
 		return nil, err
 	}
-	_, err = l.svcCtx.RemarkRpc.Like(l.ctx, &remarkclient.LikeReq{
+	_, err = backendlogic.NewLikeLogic(l.ctx, l.svcCtx.Backend).Like(&pb.LikeReq{
 		UserId:  userId,
 		BizId:   req.BizId,
 		BizType: req.BizType,

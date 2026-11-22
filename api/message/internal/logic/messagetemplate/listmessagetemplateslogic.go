@@ -6,9 +6,10 @@ package messagetemplate
 import (
 	"context"
 
+	backendlogic "tjxt/api/message/backend/logic"
+	"tjxt/api/message/backend/pb"
 	"tjxt/api/message/internal/svc"
 	"tjxt/api/message/internal/types"
-	messageclient "tjxt/rpc/message/client/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewListMessageTemplatesLogic(ctx context.Context, svcCtx *svc.ServiceContex
 }
 
 func (l *ListMessageTemplatesLogic) ListMessageTemplates(req *types.PageReq) (resp *types.MessageTemplateListVO, err error) {
-	r, err := l.svcCtx.MessageRpc.ListMessageTemplates(l.ctx, &messageclient.PageReq{
+	r, err := backendlogic.NewListMessageTemplatesLogic(l.ctx, l.svcCtx.Backend).ListMessageTemplates(&pb.PageReq{
 		PageNo:   int32(req.PageNo),
 		PageSize: int32(req.PageSize),
 	})

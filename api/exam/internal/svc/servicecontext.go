@@ -2,21 +2,22 @@ package svc
 
 import (
 	"tjxt/api/exam/internal/config"
-	examclient "tjxt/rpc/exam/client/exam"
-	"tjxt/pkg/auth"
 
-	"github.com/zeromicro/go-zero/zrpc"
+	backendsvc "tjxt/api/exam/backend/svc"
 )
 
 type ServiceContext struct {
-	Config  config.Config
-	ExamRpc examclient.Exam
+	Config config.Config
+
+	// Backend exam 后端服务上下文（题目 Model 等）。原 exam RPC 进程折叠后，
+	// 业务逻辑包随迁至 api/exam/backend，api logic 直接构造 backend logic
+	// 在进程内调用，不再经 gRPC。
+	Backend *backendsvc.ServiceContext
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config: c,
-		ExamRpc: examclient.NewExam(zrpc.MustNewClient(c.ExamRpc,
-			zrpc.WithUnaryClientInterceptor(auth.OutgoingUserIdInterceptor))),
+		Config:  c,
+		Backend: backendsvc.NewServiceContext(c.Config),
 	}
 }

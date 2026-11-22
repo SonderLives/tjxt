@@ -3,12 +3,12 @@
 package logic
 
 import (
+	"tjxt/api/exam/backend/pb"
 	"tjxt/api/exam/internal/types"
-	examclient "tjxt/rpc/exam/client/exam"
 )
 
-// ToQuestionVO 将 RPC 返回的题目 VO 转换为 API 响应 VO
-func ToQuestionVO(in *examclient.QuestionVO) *types.QuestionVO {
+// ToQuestionVO 将 backend 返回的题目 VO 转换为 API 响应 VO
+func ToQuestionVO(in *pb.QuestionVO) *types.QuestionVO {
 	if in == nil {
 		return nil
 	}
