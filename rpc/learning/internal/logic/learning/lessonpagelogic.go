@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"tjxt/pkg/auth"
+	"tjxt/pkg/page"
 
 	"tjxt/rpc/learning/internal/svc"
 	"tjxt/rpc/learning/pb"
@@ -27,7 +28,7 @@ func NewLessonPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Lesson
 
 // 我的课表分页
 func (l *LessonPageLogic) LessonPage(in *pb.LessonPageRequest) (*pb.LessonPageReply, error) {
-	userID, err := auth.UserIdFromCtx(l.ctx)
+	userID, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +42,7 @@ func (l *LessonPageLogic) LessonPage(in *pb.LessonPageRequest) (*pb.LessonPageRe
 	}
 	return &pb.LessonPageReply{
 		Total: total,
-		Pages: calcPages(total, in.PageSize),
+		Pages: page.CalcPages(total, in.PageSize),
 		List:  vos,
 	}, nil
 }

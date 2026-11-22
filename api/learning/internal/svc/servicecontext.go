@@ -7,6 +7,7 @@ import (
 	courseclient "tjxt/rpc/course/client/course"
 	"tjxt/api/learning/internal/config"
 	learningclient "tjxt/rpc/learning/client/learning"
+	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )
@@ -21,7 +22,10 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:      c,
-		LearningRpc: learningclient.NewLearning(zrpc.MustNewClient(c.LearningRpc)),
+		LearningRpc: learningclient.NewLearning(zrpc.MustNewClient(c.LearningRpc,
+			// 将当前登录用户 id 透传到下游 RPC 的 gRPC metadata 中，
+			// 供 learning-rpc 侧读取用户态（学习记录/计划等接口依赖）。
+			zrpc.WithUnaryClientInterceptor(auth.OutgoingUserIdInterceptor))),
 		CourseRpc:   courseclient.NewCourse(zrpc.MustNewClient(c.CourseRpc)),
 	}
 }

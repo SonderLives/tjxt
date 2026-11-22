@@ -27,7 +27,7 @@ func NewPlanSaveLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PlanSave
 
 // 创建/更新学习计划（每周章节数）
 func (l *PlanSaveLogic) PlanSave(in *pb.PlanSaveRequest) (*pb.Empty, error) {
-	userID, err := auth.UserIdFromCtx(l.ctx)
+	userID, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
 		return nil, err
 	}
