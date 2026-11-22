@@ -28,11 +28,7 @@ func NewDeleteInboxLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delet
 }
 
 func (l *DeleteInboxLogic) DeleteInbox(req *types.IdPathReq) (resp *types.OkVO, err error) {
-	ctx, err := ctxWithUserId(l.ctx)
-	if err != nil {
-		return nil, err
-	}
-	if _, err := l.svcCtx.MessageRpc.DeleteInbox(ctx, &messageclient.IdReq{Id: req.Id}); err != nil {
+	if _, err := l.svcCtx.MessageRpc.DeleteInbox(l.ctx, &messageclient.IdReq{Id: req.Id}); err != nil {
 		return nil, err
 	}
 	return &types.OkVO{Success: true}, nil
