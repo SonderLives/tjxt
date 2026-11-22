@@ -217,6 +217,57 @@ make check-gen      # 重生成 API 并校验与仓库零漂移（契约一致�
 
 
 
+## 🧬 Proto 治理（buf）
+
+仓库根 `buf.yaml`（v2 workspace）把 13 个 `rpc/<svc>` 目录注册为 13 个 buf 模块，承担两层门禁：
+
+1. **buf lint**：proto 静态检查（命名风格、syntax、package 规范等）。
+2. **buf breaking**：对 `master` 的破坏性变更门禁（改字段类型/编号、删字段/消息/RPC 等会直接报错）。
+
+### buf 的角色边界（重要）
+
+| 事项 | 归属 | 说明 |
+| --- | --- | --- |
+| proto lint / breaking 门禁 | **buf** | `buf.yaml` 一处配置，本地与 CI 同口径 |
+| pb / zrpc 代码生成 | **goctl** | buf 不接管生成链路：goctl 的 zrpc 骨架（server/logic/client）不是 protoc 插件，无法由 buf 替代；生成入口仍是 `make rpc` |
+
+### 本地命令
+
+```bash
+make buf-lint        # buf lint：检查 13 个 rpc proto（规则与豁免见 buf.yaml）
+make buf-breaking    # buf breaking：对比 master，禁止破坏性 proto 变更
+```
+
+本地需安装 buf（CI 已固定 `v1.75.0`）：
+
+```bash
+scoop install buf    # 或 go install github.com/bufbuild/buf/cmd/buf@v1.75.0
+```
+
+> `buf-breaking` 用 `.git#branch=master` 作为基线；master 上还没有 `buf.yaml`，所以命令里带 `--against-config buf.yaml` 复用同一 workspace 配置，否则 against 侧会被当成单一模块（报 "13 images vs 1 images"）。
+
+### CI 行为
+
+`.github/workflows/ci.yml` 在 go 门禁之前新增三步：安装 buf（`bufbuild/buf-setup-action`，buf 版本固定 `v1.75.0`）→ `buf lint` → `buf breaking --against '.git#branch=master'`。因 breaking 需要对比 master，checkout 已改为 `fetch-depth: 0` 拉全量历史。原有 lint/test/build 步骤语义不变。
+
+### 豁免规则清单（buf.yaml lint.except）
+
+存量 proto 大量字段为驼峰命名、消息被多个 RPC 复用，修复这些规则都需要破坏性变更（改字段名/消息名/服务名/包名或挪目录），会直接改变 goctl 生成的 pb/zrpc 代码与线上 RPC 全限定名（`/package.Service/Method`）。因此对以下 7 条规则显式豁免（原因已注释在 `buf.yaml`）：
+
+| 豁免规则 | 要求 | 豁免原因 |
+| --- | --- | --- |
+| `PACKAGE_DIRECTORY_MATCH` | 目录与包名层级一致（`rpc/<svc>/<svc>/`） | 挪动 proto 会破坏 goctl rpc protoc 的执行路径与仓库既有布局 |
+| `PACKAGE_VERSION_SUFFIX` | 包名带版本后缀（如 `user.v1`） | 改包名会改变生成代码与 gRPC 全限定名 |
+| `SERVICE_SUFFIX` | 服务名以 `Service` 结尾 | 改服务名会改变 RPC 路径，影响 zrpc 客户端与所有调用方 |
+| `FIELD_LOWER_SNAKE_CASE` | 字段名 lower_snake_case | 存量字段大量驼峰（`userId`/`pageNo` 等），改字段名改变 JSON wire 名称与生成 Go 结构体字段 |
+| `RPC_REQUEST_RESPONSE_UNIQUE` | 请求/响应类型不得跨 RPC 复用 | 拆分复用消息需新建并重命名类型，改变生成代码面 |
+| `RPC_REQUEST_STANDARD_NAME` | 请求类型命名 `RpcNameRequest` | 需重命名消息类型，改变生成 Go 类型名 |
+| `RPC_RESPONSE_STANDARD_NAME` | 响应类型命名 `RpcNameResponse` | 需重命名消息类型，改变生成 Go 类型名 |
+
+新增 proto 仍受其余规则约束（消息/RPC/枚举命名、syntax 声明、package 规范等）；新增字段请遵守 snake_case，新增消息请按 `RPC 名 + Request/Response` 命名，避免豁免面继续扩大。
+
+
+
 ## 📋 Makefile 速查
 
 ```bash
@@ -228,6 +279,8 @@ make test            # 各模块 go test
 make lint            # golangci-lint 逐模块检查
 make fmt             # go fmt 所有模块
 make ci              # 一条龙门禁：verify + lint + test + build
+make buf-lint        # buf lint：检查 13 个 rpc proto（规则与豁免见 buf.yaml）
+make buf-breaking    # buf breaking：对比 master，禁止破坏性 proto 变更
 make clean           # 删除 bin/ 与各服务下遗留 exe
 make check-gen       # 重生成 API 并校验与仓库零漂移（契约一致性守卫）
 make run-<svc>       # 前台跑单个 API（如 make run-user）
