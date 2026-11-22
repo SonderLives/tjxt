@@ -1,0 +1,28 @@
+// Code scaffolded by goctl. Safe to edit.
+// goctl 1.10.1
+
+package noticetask
+
+import (
+	"net/http"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
+	"tjxt/app/message/api/internal/logic/noticetask"
+	"tjxt/app/message/api/internal/svc"
+	"tjxt/app/message/api/internal/types"
+	"tjxt/pkg/response"
+)
+
+func SaveNoticeTaskHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.NoticeTaskSaveReq
+		if err := httpx.Parse(r, &req); err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+			return
+		}
+
+		l := noticetask.NewSaveNoticeTaskLogic(r.Context(), svcCtx)
+		resp, err := l.SaveNoticeTask(&req)
+		response.Write(w, r, resp, err)
+	}
+}

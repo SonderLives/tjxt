@@ -1,8 +1,8 @@
 # buf workspace 配置（v2）：仓库根统一管理全部 proto 治理。
 # 模块分两类：
-#   1. 保留 RPC 服务（5 个）：service/<svc>/rpc，pb / zrpc 代码生成仍走 goctl（make rpc）。
-#   2. 折叠服务（8 个）：RPC 进程壳已删除，proto 随迁 service/<svc>/api/<svc>.proto（模块根），
-#      pb 类型由 buf generate 生成到 service/<svc>/api/backend/pb（make pb，模板见 buf.gen.yaml）。
+#   1. 保留 RPC 服务（5 个）：app/<svc>/rpc，pb / zrpc 代码生成仍走 goctl（make rpc）。
+#   2. 折叠服务（8 个）：RPC 进程壳已删除，proto 随迁 app/<svc>/api/<svc>.proto（模块根），
+#      pb 类型由 buf generate 生成到 app/<svc>/api/backend/pb（make pb，模板见 buf.gen.yaml）。
 # 职责边界：buf 承担 lint + breaking 门禁与折叠服务的 pb 类型生成；
 # 保留服务的 pb / zrpc 生成仍由 goctl 负责，buf 不接管生成链路。
 # 每个模块显式声明稳定 name（buf.build/tjxt/<svc>，仅本地标识、不发布 BSR）：
@@ -11,32 +11,32 @@
 version: v2
 modules:
   # 保留 RPC 服务（5 个）
-  - path: service/user/rpc
+  - path: app/user/rpc
     name: buf.build/tjxt/user
-  - path: service/course/rpc
+  - path: app/course/rpc
     name: buf.build/tjxt/course
-  - path: service/learning/rpc
+  - path: app/learning/rpc
     name: buf.build/tjxt/learning
-  - path: service/pay/rpc
+  - path: app/pay/rpc
     name: buf.build/tjxt/pay
-  - path: service/promotion/rpc
+  - path: app/promotion/rpc
     name: buf.build/tjxt/promotion
   # 折叠服务（8 个，proto 在模块根）
-  - path: service/auth/api
+  - path: app/auth/api
     name: buf.build/tjxt/auth
-  - path: service/exam/api
+  - path: app/exam/api
     name: buf.build/tjxt/exam
-  - path: service/media/api
+  - path: app/media/api
     name: buf.build/tjxt/media
-  - path: service/message/api
+  - path: app/message/api
     name: buf.build/tjxt/message
-  - path: service/remark/api
+  - path: app/remark/api
     name: buf.build/tjxt/remark
-  - path: service/search/api
+  - path: app/search/api
     name: buf.build/tjxt/search
-  - path: service/trade/api
+  - path: app/trade/api
     name: buf.build/tjxt/trade
-  - path: service/data/api
+  - path: app/data/api
     name: buf.build/tjxt/data
 lint:
   # 从官方 STANDARD 类别起步（1.75.0 中 DEFAULT 已废弃并更名为 STANDARD）。
@@ -46,7 +46,7 @@ lint:
   # 会直接改变 goctl 生成的 pb/zrpc 代码与线上 RPC 全限定名，故显式豁免；
   # 新增 proto 仍受其余规则（命名风格、syntax、package 规范等）约束。
   except:
-    # 包目录一致：要求目录为 service/<svc>/rpc/<svc>/（包名层级），
+    # 包目录一致：要求目录为 app/<svc>/rpc/<svc>/（包名层级），
     # 挪动 proto 会破坏 goctl rpc protoc 的执行路径与仓库既有布局，豁免。
     - PACKAGE_DIRECTORY_MATCH
     # 包版本后缀：要求包名如 user.v1，改包名会改变生成代码与 gRPC 全限定名，豁免。

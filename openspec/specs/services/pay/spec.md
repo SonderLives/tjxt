@@ -16,7 +16,7 @@ pay（支付网关）是支付与退款微服务（RPC 服务名 `Pay`），管�
 | GET | /pay-channels/list | 查询支付渠道列表 | - | R«List«PayChannelDTO»» |
 | PUT | /pay-channels/{id} | 修改支付渠道 | PayChannelDTO | R |
 
-- 响应统一为 `common/response.R{Code,Msg,RequestId,Data any}`；错误码遵循共享错误码表（见 `openspec/specs/shared/error-codes`）
+- 响应统一为 `pkg/response.R{Code,Msg,RequestId,Data any}`；错误码遵循共享错误码表（见 `openspec/specs/shared/error-codes`）
 - 三个接口为薄封装，实际行为由 `pay.rpc` 渠道方法承载（见「RPC 支付渠道方法」与「支付渠道管理规则」）
 
 #### Scenario: 添加渠道后查询列表
@@ -61,10 +61,10 @@ pay 服务 SHALL 以 gRPC 服务名 `Pay` 注册于 etcd（key `pay.rpc`，监�
 
 | 消费方 | 调用方式 | 说明 |
 |--------|---------|------|
-| `pay-api`（自身 API 层） | `service/pay/api/internal/svc/servicecontext.go` import `payclient "tjxt/service/pay/rpc/pay"` | 渠道管理、下单、关单、回调、退款、结果查询共 13 个 handler 全部转发到自身 RPC |
-| `trade-rpc` | `service/trade/rpc/internal/svc/servicecontext.go:10` import `payclient "tjxt/service/pay/rpc/pay"`，装配为 `PayRpc payclient.Pay` | 交易域调用支付/退款下单、关单、支付/退款结果查询（见 `service/trade/rpc/internal/config/config.go:24` 注释） |
+| `pay-api`（自身 API 层） | `app/pay/api/internal/svc/servicecontext.go` import `payclient "tjxt/app/pay/rpc/pay"` | 渠道管理、下单、关单、回调、退款、结果查询共 13 个 handler 全部转发到自身 RPC |
+| `trade-rpc` | `app/trade/rpc/internal/svc/servicecontext.go:10` import `payclient "tjxt/app/pay/rpc/pay"`，装配为 `PayRpc payclient.Pay` | 交易域调用支付/退款下单、关单、支付/退款结果查询（见 `app/trade/rpc/internal/config/config.go:24` 注释） |
 
-> 已知缺口：`trade.rpc` 已在 `servicecontext.go:38` 完成 `PayRpc` 装配、`trade.yaml` 也已配置 `PayRpc.Etcd.Key: pay.rpc`，但 `service/trade/rpc/internal/logic/` 下暂无任何实际调用点，属于已接线未落地的依赖。
+> 已知缺口：`trade.rpc` 已在 `servicecontext.go:38` 完成 `PayRpc` 装配、`trade.yaml` 也已配置 `PayRpc.Etcd.Key: pay.rpc`，但 `app/trade/rpc/internal/logic/` 下暂无任何实际调用点，属于已接线未落地的依赖。
 
 #### Scenario: pay-api handler 转发
 
@@ -532,7 +532,7 @@ pay 服务的存储层 SHALL 满足以下不变量：
 
 ### Requirement: 服务配置与依赖
 
-pay 服务 SHALL 按以下配置运行（`service/pay/api/etc/pay-api.yaml`、`service/pay/rpc/etc/pay.yaml`）：
+pay 服务 SHALL 按以下配置运行（`app/pay/api/etc/pay-api.yaml`、`app/pay/rpc/etc/pay.yaml`）：
 
 | 服务 | 配置项 | 默认值 |
 |------|--------|--------|
@@ -546,7 +546,7 @@ pay 服务 SHALL 按以下配置运行（`service/pay/api/etc/pay-api.yaml`、`s
 
 - 依赖的外部服务：MySQL `tj_pay` 库（含 `pay_channel` / `pay_order` / `refund_order` 三张表）、Redis 缓存（节点模式，缓存渠道与支付/退款单主键查询）、etcd（RPC 注册与发现）
 - `parseTime=true` 为必需项：`PayOrder.PayOverTime` / `CreateTime` 声明为 `time.Time`，`PaySuccessTime` 为 `sql.NullTime`，均需驱动直接解析
-- 作为被依赖方：`pay.rpc` 被 `service/pay/api/etc/pay-api.yaml`（`PayRpc` 节）与 `service/trade/rpc/etc/trade.yaml`（`PayRpc` 节）声明为客户端
+- 作为被依赖方：`pay.rpc` 被 `app/pay/api/etc/pay-api.yaml`（`PayRpc` 节）与 `app/trade/rpc/etc/trade.yaml`（`PayRpc` 节）声明为客户端
 
 > 已知缺口：第三方支付网关无任何配置项——当前为 mock 实现（`mockQrCodeUrl`），未接入微信/支付宝，故无 appId / 商户号 / 私钥 / 回调验签等配置。
 >

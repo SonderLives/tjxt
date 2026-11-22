@@ -2,7 +2,7 @@
 
 ## Purpose
 
-定义跨服务 RabbitMQ 事件总线的拓扑、事件清单、结构体规范与消费约定（`common/mq`、`common/mq/event/`）。事件用于订单支付、消息发送、积分变更等异步解耦场景。
+定义跨服务 RabbitMQ 事件总线的拓扑、事件清单、结构体规范与消费约定（`pkg/mq`、`pkg/mq/event/`）。事件用于订单支付、消息发送、积分变更等异步解耦场景。
 
 **订阅方进程（RPC 折叠后）**：原挂在 rpc/search、rpc/trade 进程内的 MQ 消费者已独立为 `app/mq/search-mq`（消费 `course.up/down` 同步 ES 索引）与 `app/mq/trade-mq`（消费 `pay.success` 回写订单、发布 `order.pay`/`order.refund`）两个后台消费者进程；learning/promotion 等 5 个保留 RPC 服务的消费者仍在各自 rpc 进程内。
 
@@ -17,8 +17,8 @@
 | `course.events` | `course.up` | course.rpc 课程上架 | app/mq/search-mq（`search.course.up`） | 写/更新 ES 课程索引 |
 | `course.events` | `course.down` | course.rpc 课程下架 | app/mq/search-mq（`search.course.down`） | 删 ES 课程索引 |
 | `pay.exchange` | `pay.success` | pay.rpc 支付成功回调 | app/mq/trade-mq（`trade.order.paid`） | 条件更新订单为已支付（幂等） |
-| `order.exchange` | `order.pay` | app/mq/trade-mq（订单置为已支付后发布） | service/learning/rpc（`learning.lesson.pay.queue`） | 为用户加课 |
-| `order.exchange` | `order.refund` | service/trade/api backend（退款审批通过） | service/learning/rpc（`learning.lesson.refund.queue`） | 撤销课程 |
+| `order.exchange` | `order.pay` | app/mq/trade-mq（订单置为已支付后发布） | app/learning/rpc（`learning.lesson.pay.queue`） | 为用户加课 |
+| `order.exchange` | `order.refund` | app/trade/api backend（退款审批通过） | app/learning/rpc（`learning.lesson.refund.queue`） | 撤销课程 |
 
 #### Scenario: 课程上下架同步索引
 
@@ -115,7 +115,7 @@ message-rpc SHALL 发布以下事件：`inbox.send`（站内信内部投递）�
 
 ### Requirement: 事件结构体规范
 
-所有事件结构体 SHALL 定义在 `common/mq/event/` 下，JSON 序列化，字段命名 camelCase，必须携带 `IdempotencyKey`（幂等键）与 `Timestamp`。
+所有事件结构体 SHALL 定义在 `pkg/mq/event/` 下，JSON 序列化，字段命名 camelCase，必须携带 `IdempotencyKey`（幂等键）与 `Timestamp`。
 
 #### Scenario: 订单创建事件结构
 

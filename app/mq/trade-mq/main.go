@@ -5,10 +5,10 @@ import (
 	"flag"
 	"fmt"
 
-	backendsvc "tjxt/service/trade/api/backend/svc"
+	backendsvc "tjxt/app/trade/api/backend/svc"
 	"tjxt/app/mq/trade-mq/config"
-	"tjxt/common/confenv"
-	"tjxt/common/mq"
+	"tjxt/pkg/confenv"
+	"tjxt/pkg/mq"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

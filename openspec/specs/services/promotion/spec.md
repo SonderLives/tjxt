@@ -2,7 +2,7 @@
 
 ## Purpose
 
-promotion（营销优惠）微服务负责优惠券模板管理（建券 / 发放 / 暂停 / 删除）、用户优惠券全生命周期（领取 / 兑换码兑换 / 核销 / 退还 / 过期）、券组合穷举与订单优惠试算，以及兑换码批量生成与核销。HTTP 服务 `promotion-api` 监听 8812（纯透传层，全部业务判断下沉 RPC）；RPC 服务 `Promotion` 监听 8092（gRPC），经 etcd（`127.0.0.1:2379`，key：`promotion.rpc`）注册与发现。数据库为 MySQL `tj_promotion` 库（coupon / user_coupon / coupon_code 共 3 张表），Redis 缓存主键查询。proto 头注释声明供 promotion-api 与 trade 等内部服务调用，但截至当前版本仅 promotion-api 在 `servicecontext.go` 注入了 client，trade 侧（RPC 折叠后位于 `service/trade/api/backend`）尚未 import（未接线）；本服务刻意不依赖任何其他服务的 RPC——券适用范围 `scopes` 仅回传课程三级分类 id，分类名称由 course 服务维护。
+promotion（营销优惠）微服务负责优惠券模板管理（建券 / 发放 / 暂停 / 删除）、用户优惠券全生命周期（领取 / 兑换码兑换 / 核销 / 退还 / 过期）、券组合穷举与订单优惠试算，以及兑换码批量生成与核销。HTTP 服务 `promotion-api` 监听 8812（纯透传层，全部业务判断下沉 RPC）；RPC 服务 `Promotion` 监听 8092（gRPC），经 etcd（`127.0.0.1:2379`，key：`promotion.rpc`）注册与发现。数据库为 MySQL `tj_promotion` 库（coupon / user_coupon / coupon_code 共 3 张表），Redis 缓存主键查询。proto 头注释声明供 promotion-api 与 trade 等内部服务调用，但截至当前版本仅 promotion-api 在 `servicecontext.go` 注入了 client，trade 侧（RPC 折叠后位于 `app/trade/api/backend`）尚未 import（未接线）；本服务刻意不依赖任何其他服务的 RPC——券适用范围 `scopes` 仅回传课程三级分类 id，分类名称由 course 服务维护。
 
 ## Requirements
 
@@ -22,7 +22,7 @@ promotion-api SHALL 提供优惠券模板的管理接口（全部经 `PromotionR
 
 补充约束：
 
-- 响应统一为 `common/response.R{Code,Msg,RequestId,Data any}`；分页约定 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码遵循共享错误码规范
+- 响应统一为 `pkg/response.R{Code,Msg,RequestId,Data any}`；分页约定 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码遵循共享错误码规范
 - 聚合文档 `docs/tjxt.openapi.json` 将上述端点认证列标注为「否」，但按 configs.md 记载，全部路由在 `routes.go` 中由 `rest.WithJwt(serverCtx.Config.Auth.AccessSecret)` 统一包裹，需携带有效 JWT，以配置记载为准
 - rpc-spec 记载 promotion-api 共 16 个 HTTP handler，聚合文档仅收录 14 个端点
 
@@ -84,7 +84,7 @@ promotion-api SHALL 提供管理端兑换码分页查询端点 `GET /codes/page`
 - 分页计算：`limit = pageSize`，`pageSize <= 0` 时取 10；`pages = (total + limit - 1) / limit`
 - 认证：与其余端点一致，由 `routes.go` 的 `rest.WithJwt(...)` 全局包裹
 
-> 注：wiki 的 `promotion/api-spec.md` 未收录该端点（源于 `docs/tjxt.openapi.json` 提取不全），但 `service/promotion/api/internal/handler/routes.go` 与 `couponcodepagelogic.go` 中确实存在，此处以代码实现为准补齐。
+> 注：wiki 的 `promotion/api-spec.md` 未收录该端点（源于 `docs/tjxt.openapi.json` 提取不全），但 `app/promotion/api/internal/handler/routes.go` 与 `couponcodepagelogic.go` 中确实存在，此处以代码实现为准补齐。
 
 #### Scenario: 分页查询兑换码
 
@@ -140,7 +140,7 @@ RPC 服务 `Promotion` SHALL 经 etcd（key：`promotion.rpc`，监听 `0.0.0.0:
 - `CouponIssueFormDTO` 关键字段：`issueBeginTime`（为空视为立即发放）、`issueEndTime`（不得早于开始时间）、`termBeginTime` / `termDays` / `termEndTime`（`termDays` 与 `termEndTime` 二选一必填）
 - 响应 `CouponDiscountDTO`：`discountAmount`（本方案最大优惠金额，分）、`discountDetail`（map<课程 id, 分摊优惠金额>）、`ids`（使用的用户券 id）、`rules`（规则文案，如「满100元减20元」）
 
-> 已知缺口（未接线）：proto 头注释声明「供 promotion-api 与 trade 等内部服务通过 etcd 服务发现调用」，但截至当前版本仅 promotion-api 在 `servicecontext.go` 注入了 `promotionclient`，trade 侧（RPC 折叠后位于 `service/trade/api/backend`）尚未 import 本服务 client。
+> 已知缺口（未接线）：proto 头注释声明「供 promotion-api 与 trade 等内部服务通过 etcd 服务发现调用」，但截至当前版本仅 promotion-api 在 `servicecontext.go` 注入了 `promotionclient`，trade 侧（RPC 折叠后位于 `app/trade/api/backend`）尚未 import 本服务 client。
 
 #### Scenario: C 端领券调用链
 
@@ -495,7 +495,7 @@ promotion-api SHALL 作为纯透传层，全部业务判断下沉到 RPC：
 
 ### Requirement: 配置与部署形态
 
-服务部署 SHALL 遵循以下配置（默认值来自 `service/promotion/api/etc/promotion-api.yaml` 与 `service/promotion/rpc/etc/promotion.yaml`）：
+服务部署 SHALL 遵循以下配置（默认值来自 `app/promotion/api/etc/promotion-api.yaml` 与 `app/promotion/rpc/etc/promotion.yaml`）：
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|

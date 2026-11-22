@@ -25,9 +25,9 @@ jobs:
       - name: Buf lint
         run: buf lint
 
-      # 双保险：master 仍是迁移前布局（无 service/ 目录）时，buf.yaml 解释 against 侧会报
-      # 「模块下无 .proto 文件」，回退 buf.master.yaml（按 master 旧布局声明模块）；
-      # 合入后 master 即新布局，第一条命令直接通过。
+      # 双保险：master 仍是 service/<svc>/{api,rpc} 布局时，buf.yaml（指向 app/<svc>/...）
+      # 解释 against 侧会报「模块下无 .proto 文件」，回退 buf.master.yaml（按 master 现行
+      # service/ 布局声明同一批模块）；合入后 master 即 app/ 布局，第一条命令直接通过。
       - name: Buf breaking (against master)
         run: |
           buf breaking --against '.git#branch=master' --against-config buf.yaml 2>/dev/null || \

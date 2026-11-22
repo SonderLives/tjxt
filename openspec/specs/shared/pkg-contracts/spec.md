@@ -2,13 +2,13 @@
 
 ## Purpose
 
-定义 `common/` 公共库对全部服务暴露的契约：JWT 身份上下文（common/auth）、统一响应（common/response）、分页（common/page）、ID 生成（common/idgen）、事件总线封装（common/mq）、错误码（common/errorx，见 [error-codes](../error-codes/spec.md)），以及共享库的版本兼容策略。
+定义 `pkg/` 公共库对全部服务暴露的契约：JWT 身份上下文（pkg/auth）、统一响应（pkg/response）、分页（pkg/page）、ID 生成（pkg/idgen）、事件总线封装（pkg/mq）、错误码（pkg/errorx，见 [error-codes](../error-codes/spec.md)），以及共享库的版本兼容策略。
 
 ## Requirements
 
-### Requirement: common/auth — JWT 身份上下文
+### Requirement: pkg/auth — JWT 身份上下文
 
-Handler/Logic SHALL 只通过 `common/auth` 的函数获取身份，禁止直接解析 JWT：
+Handler/Logic SHALL 只通过 `pkg/auth` 的函数获取身份，禁止直接解析 JWT：
 
 - `GetUserId(ctx) int64` — 从 context 获取用户 ID
 - `GetRole(ctx) string` — 从 context 获取角色编码
@@ -21,7 +21,7 @@ Handler/Logic SHALL 只通过 `common/auth` 的函数获取身份，禁止直接
 - **THEN** 调用 `auth.GetUserId(ctx)` 获取
 - **AND** 禁止在 handler/logic 中手动读取 `Authorization` header 并解析 token
 
-### Requirement: common/response — 统一响应结构
+### Requirement: pkg/response — 统一响应结构
 
 所有 HTTP 接口 SHALL 通过 `response.Write(w, r, data, err)` 输出统一响应结构 `R{Code, Msg, RequestId, Data}`：
 
@@ -40,7 +40,7 @@ Handler/Logic SHALL 只通过 `common/auth` 的函数获取身份，禁止直接
 - **WHEN** handler 直接调用 `httpx.OkJsonCtx` / `httpx.ErrorCtx`
 - **THEN** 视为违反契约（丢失统一码与 RequestId），代码评审必须拒绝
 
-### Requirement: common/page — 分页契约
+### Requirement: pkg/page — 分页契约
 
 分页请求/响应 SHALL 使用统一结构：
 
@@ -52,7 +52,7 @@ Handler/Logic SHALL 只通过 `common/auth` 的函数获取身份，禁止直接
 - **WHEN** 请求携带 `pageSize=200`
 - **THEN** 校验失败（PageSize 上限 100），返回参数错误
 
-### Requirement: common/idgen — 全局唯一 ID
+### Requirement: pkg/idgen — 全局唯一 ID
 
 全局唯一标识（订单号、流水号、券码、文件 ID 等）SHALL 使用 `idgen.NextId()`（int64 雪花 ID）或 `idgen.NextIdStr()`，禁止自行实现 ID 生成逻辑。
 
@@ -61,13 +61,13 @@ Handler/Logic SHALL 只通过 `common/auth` 的函数获取身份，禁止直接
 - **WHEN** trade 服务创建订单需要生成订单 ID
 - **THEN** 调用 `idgen.NextId()` 获取雪花 ID，不在业务代码中自行实现 ID 生成
 
-### Requirement: common/mq — 事件总线封装
+### Requirement: pkg/mq — 事件总线封装
 
-事件收发 SHALL 通过 `common/mq` 封装：
+事件收发 SHALL 通过 `pkg/mq` 封装：
 
 - 生产者：`Producer.Publish(ctx, exchange, routingKey, msg)`（自动重试、确认机制）、`Producer.PublishDelay(..., delay)`（基于死信队列的延迟发布）
 - 消费者：`Consumer.Consume(queue, handler func(ctx, msg []byte) error)` 注册处理器
-- 事件结构体统一定义在 `common/mq/event/`
+- 事件结构体统一定义在 `pkg/mq/event/`
 
 #### Scenario: 延迟发布
 
@@ -76,7 +76,7 @@ Handler/Logic SHALL 只通过 `common/auth` 的函数获取身份，禁止直接
 
 ### Requirement: pkg 版本兼容策略
 
-`common/` 共享库的导出符号变更 SHALL 遵循以下兼容策略：
+`pkg/` 共享库的导出符号变更 SHALL 遵循以下兼容策略：
 
 | 变更类型 | 策略 |
 |----------|------|
@@ -88,6 +88,6 @@ Handler/Logic SHALL 只通过 `common/auth` 的函数获取身份，禁止直接
 
 #### Scenario: 共享库变更发布
 
-- **WHEN** 修改了 `common/` 中导出符号
-- **THEN** 在 `common/CHANGELOG.md` 记录变更，发布时打 Tag `common/v<version>`
+- **WHEN** 修改了 `pkg/` 中导出符号
+- **THEN** 在 `pkg/CHANGELOG.md` 记录变更，发布时打 Tag `pkg/v<version>`
 

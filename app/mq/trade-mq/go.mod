@@ -4,8 +4,8 @@ go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
-	tjxt/common v0.0.0-00010101000000-000000000000
-	tjxt/service/trade/api v0.0.0-00010101000000-000000000000
+	tjxt/pkg v0.0.0-00010101000000-000000000000
+	tjxt/app/trade/api v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -105,6 +105,6 @@ require (
 )
 
 replace (
-	tjxt/common => ../../../common
-	tjxt/service/trade/api => ../../../service/trade/api
+	tjxt/pkg => ../../../pkg
+	tjxt/app/trade/api => ../../../app/trade/api
 )

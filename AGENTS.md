@@ -58,7 +58,7 @@
 #### 2.1 推荐结构
 ``` bash
 tjxt/
-├── service/
+├── app/                         # 全部业务进程：服务目录（下分 api / rpc）+ 后台任务目录
 │   │
 │   ├── user/
 │   │   ├── api/                 # 用户 HTTP API
@@ -72,15 +72,14 @@ tjxt/
 │   │   ├── api/                 # 交易 HTTP API
 │   │   └── rpc/                 # 交易 RPC 服务
 │   │
-│   └── learning/
-│       └── rpc/                 # 学习 RPC 服务
-│
-├── app/
+│   ├── learning/
+│   │   └── rpc/                 # 学习 RPC 服务
+│   │
 │   ├── mq/                      # 消息队列消费者
 │   ├── cron/                    # 定时任务
 │   └── job/                     # 后台任务
 │
-├── common/                      # 公共组件
+├── pkg/                         # 公共组件 (module: tjxt/pkg)
 │   ├── auth/
 │   ├── cache/
 │   ├── constants/

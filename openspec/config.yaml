@@ -8,7 +8,7 @@ context: |
   ## 技术栈
   - go-zero v1.10.3（goctl 代码生成）、Go 1.26.x（go.work 工作区，每 api/rpc 独立 go.mod）
   - MySQL 8.0（127.0.0.1:3306 root/0000，每服务独享 tj_<domain> 库；data 服务无独立 DB）
-  - Redis 7.x（缓存/分布式锁/限流）、RabbitMQ 3.13（事件总线 common/mq，基于 amqp091-go）、etcd 3.5（服务发现/配置）
+  - Redis 7.x（缓存/分布式锁/限流）、RabbitMQ 3.13（事件总线 pkg/mq，基于 amqp091-go）、etcd 3.5（服务发现/配置）
   - 可观测性：trace/metrics/logs 统一经 otel-collector 收口 → Jaeger:16686 / Prometheus:9090 / Loki:3100
 
   ## 服务清单（API 8801-8813 / RPC 8081-8093）
@@ -22,14 +22,14 @@ context: |
   1. 单向依赖：API 层 → RPC 层 → DB/MQ，禁止反向调用
   2. 跨服务仅走 RPC Client（etcd 发现，key 如 auth.rpc），严禁 import 对方 internal 包
   3. 数据库隔离：每服务独享库，跨域查询走对应服务 RPC
-  4. 异步解耦：订单支付、消息发送、积分变更等通过 RabbitMQ 事件（common/mq/event）
+  4. 异步解耦：订单支付、消息发送、积分变更等通过 RabbitMQ 事件（pkg/mq/event）
   5. 跨服务调用统一 3s 超时；写操作 RPC 携带 IdempotencyKey 保证幂等
 
   ## API 统一契约
-  - 响应：所有 HTTP 接口返回 common/response.R{Code,Msg,RequestId,Data}，handler 必须用 result.Write(w,r,data,err)，禁止 httpx.OkJsonCtx/ErrorCtx
+  - 响应：所有 HTTP 接口返回 pkg/response.R{Code,Msg,RequestId,Data}，handler 必须用 result.Write(w,r,data,err)，禁止 httpx.OkJsonCtx/ErrorCtx
   - 分页：PageRequest{PageNo default=1, PageSize default=20 lte=100} → PageResponse[T]{Total,List,PageNo,PageSize}
-  - 错误码：common/errorx；系统通用 100000-100999，领域分段 101000(auth) 102000(course) 103000(trade) 104000(learning) 105000(pay) 106000(media) 107000(promotion) 108000(message) 109000(exam) 110000(search) 111000(user)，不重叠
-  - 鉴权：.api 的 @server(jwt: Auth)；logic 内用 common/auth.GetUserId/GetRole 取身份，禁止手解 JWT
+  - 错误码：pkg/errorx；系统通用 100000-100999，领域分段 101000(auth) 102000(course) 103000(trade) 104000(learning) 105000(pay) 106000(media) 107000(promotion) 108000(message) 109000(exam) 110000(search) 111000(user)，不重叠
+  - 鉴权：.api 的 @server(jwt: Auth)；logic 内用 pkg/auth.GetUserId/GetRole 取身份，禁止手解 JWT
   - 路由：RESTful，非 CRUD 动作用动词前缀（/courses/:id/publish）；URL 前缀 /api/v1；响应字段只增不减
   - 类型命名 <动作><资源>Req/Resp；goctl 不支持 any，用 interface{}
 
@@ -37,7 +37,7 @@ context: |
   - 只手写：internal/logic/*.go、internal/model/*model.go（Custom 扩展）、业务扩展文件（consts.go/vars.go）
   - 禁止手写：handler、types、routes、pb、server、config 骨架；禁止改 *_gen.go
   - 标准流程：DDL(sql/ddl/tj_<domain>.sql) → goctl model（-cache）→ proto → goctl rpc protoc --client=true → .api → goctl api go → 手写 Logic
-  - 目录命名 gozero 风格（小驼峰无下划线）；module path：tjxt/service/<svc>/api 与 tjxt/service/<svc>/rpc；跨服务依赖用 require+replace 本地相对路径，伪版本 v0.0.0-00010101000000-000000000000
+  - 目录命名 gozero 风格（小驼峰无下划线）；module path：tjxt/app/<svc>/api 与 tjxt/app/<svc>/rpc；跨服务依赖用 require+replace 本地相对路径，伪版本 v0.0.0-00010101000000-000000000000
 
   ## 代码风格
   - 错误处理统一 errorx.NewErrCode(...).WithError(err)，禁止裸返回 error / fmt.Errorf 包装
@@ -46,7 +46,7 @@ context: |
   - 提交前 make fmt；Git 流程（分支/Conventional Commits/PR 模板/发布）见 specs/conventions/git-workflow
 
   ## 可观测性（勿删配置）
-  - 每个服务 service/<svc>/api/etc/*.yaml 与 service/<svc>/rpc/etc/*.yaml 已注入 Telemetry{Endpoint:127.0.0.1:4318,otlphttp} / Prometheus{Port 唯一,/metrics} / Log{Mode:file,Encoding:json,Path:logs/<svc>} 三段，禁止删除或改坏
+  - 每个服务 app/<svc>/api/etc/*.yaml 与 app/<svc>/rpc/etc/*.yaml 已注入 Telemetry{Endpoint:127.0.0.1:4318,otlphttp} / Prometheus{Port 唯一,/metrics} / Log{Mode:file,Encoding:json,Path:logs/<svc>} 三段，禁止删除或改坏
   - Log.Path 为相对路径，服务必须从仓库根启动，否则日志采集不到
   - Prometheus 只抓 otel-collector:8889；go-zero 无 OTLP metrics/logs exporter，故 metrics 走 scrape 代理、logs 走 filelog
 

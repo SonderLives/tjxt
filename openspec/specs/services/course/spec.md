@@ -8,7 +8,7 @@ course（课程管理）是课程管理微服务，覆盖分类（category）、
 
 ### Requirement: HTTP 课程分类管理接口
 
-> **状态说明**：接口清单源自聚合文档 `docs/tjxt.openapi.json`（api-spec.md，最后同步 2026-08-05），「认证」列标注为「否」；go-zero 侧 `service/course/api/course.api` 的四个路由组（`/categorys`、`/courses`、`/course`、`/catalogues`）均声明 `jwt: Auth`，以 `.api` 为准。
+> **状态说明**：接口清单源自聚合文档 `docs/tjxt.openapi.json`（api-spec.md，最后同步 2026-08-05），「认证」列标注为「否」；go-zero 侧 `app/course/api/course.api` 的四个路由组（`/categorys`、`/courses`、`/course`、`/catalogues`）均声明 `jwt: Auth`，以 `.api` 为准。
 
 course 服务 SHALL 暴露以下课程分类管理接口：
 
@@ -23,7 +23,7 @@ course 服务 SHALL 暴露以下课程分类管理接口：
 | DELETE | /categorys/{id} | 删除分类信息 | - | R{data: R} |
 | GET | /categorys/{id} | 获取课程分类信息 | - | R{data: R«CategoryInfoVO»} |
 
-统一约定（引用全局规范）：响应格式为 `common/response.R{Code,Msg,RequestId,Data any}`；分页为 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码见共享错误码表（`specs/shared/error-codes`）。以下各 HTTP 接口 Requirement 均沿用该约定，不再重复。
+统一约定（引用全局规范）：响应格式为 `pkg/response.R{Code,Msg,RequestId,Data any}`；分页为 `PageRequest{PageNo,PageSize}` → `PageResponse{Total,List,PageNo,PageSize}`；错误码见共享错误码表（`specs/shared/error-codes`）。以下各 HTTP 接口 Requirement 均沿用该约定，不再重复。
 
 #### Scenario: 新增课程分类
 
@@ -238,7 +238,7 @@ RPC 方法共 37 个，按域分组为：分类管理 8 个、课程基础信息
 | `CourseMediaUseInfo` | `MediaIdsRequest { media_ids }` | `MediaQuoteList` | 查媒资被引用的次数 |
 | `CourseGenerator` | `Empty {}` | `IdResponse { id }` | 生成课程草稿 ID |
 
-关键字段：`CourseBaseInfoSaveRequest` 含 `id`、`name`、`cover_url`、`price`、`free`、`third_cate_id` 等字段（proto 完整定义见 `service/course/rpc/course.proto`）。
+关键字段：`CourseBaseInfoSaveRequest` 含 `id`、`name`、`cover_url`、`price`、`free`、`third_cate_id` 等字段（proto 完整定义见 `app/course/rpc/course.proto`）。
 
 > 已知缺口：分页/详情中的 `sold` / `enroll_num` / `score` 字段在 course 库无列，填 0，真实值由 trade / learning 服务提供，course 暂未接线对应 RPC（详见「课程查询」）。
 
@@ -357,7 +357,7 @@ Step 枚举（由代码常量确定）：
 
 课程名称校验 SHALL 为：`CourseCheckName` 用于编辑时校验课程名称是否重复，传入 `id` 时排除自身（草稿表 `FindByNameExceptId`），新增（`id=0`）时全局查重。
 
-> **路由映射冲突说明**：business-rules.md 的「保存方法映射」将五个保存方法写作 `POST /courses/draft/{id}/1`、`POST /courses/draft/media`、`POST /courses/draft/{id}/4`、`POST /courses/draft/{id}/5` 形态；api-spec.md 与 go-zero 实际路由 `service/course/api/course.api` 为 `POST /courses/baseInfo/save`、`POST /courses/media/save/{id}`、`POST /courses/subjects/save/{id}`、`POST /courses/teachers/save`、`POST /courses/catas/save/{id}/{step}`，以 api-spec.md / `.api` 为准（本规格 HTTP 接口表已按后者转写）。
+> **路由映射冲突说明**：business-rules.md 的「保存方法映射」将五个保存方法写作 `POST /courses/draft/{id}/1`、`POST /courses/draft/media`、`POST /courses/draft/{id}/4`、`POST /courses/draft/{id}/5` 形态；api-spec.md 与 go-zero 实际路由 `app/course/api/course.api` 为 `POST /courses/baseInfo/save`、`POST /courses/media/save/{id}`、`POST /courses/subjects/save/{id}`、`POST /courses/teachers/save`、`POST /courses/catas/save/{id}/{step}`，以 api-spec.md / `.api` 为准（本规格 HTTP 接口表已按后者转写）。
 
 #### Scenario: 新增课程初始化 Step
 
@@ -490,7 +490,7 @@ Step 枚举（由代码常量确定）：
 | first_cate_id / second_cate_id / third_cate_id | 三级分类筛选 |
 | begin_time / end_time | 时间范围 |
 
-- 分页经 `common/page`（`Normalize` + `CalcPages`），结果一次性回填一/二/三级分类名称（来自 `CategoryModel.ListAll`）。
+- 分页经 `pkg/page`（`Normalize` + `CalcPages`），结果一次性回填一/二/三级分类名称（来自 `CategoryModel.ListAll`）。
 - 门户查询 `CoursePortalQuery` 维度同上，门户通常只查已上架(2)。
 
 其他查询入口：
@@ -595,7 +595,7 @@ course 域数据 SHALL 满足以下不变量：
 
 course 服务 SHALL 按以下配置运行。
 
-API 服务配置（`service/course/api/etc/course-api.yaml`）：
+API 服务配置（`app/course/api/etc/course-api.yaml`）：
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
@@ -607,7 +607,7 @@ API 服务配置（`service/course/api/etc/course-api.yaml`）：
 | `CourseRpc.Etcd.Hosts[0]` | `127.0.0.1:2379` | etcd 地址 |
 | `CourseRpc.Etcd.Key` | `course.rpc` | course RPC 服务发现 key |
 
-RPC 服务配置（`service/course/rpc/etc/course.yaml`）：
+RPC 服务配置（`app/course/rpc/etc/course.yaml`）：
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
