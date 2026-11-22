@@ -7,7 +7,8 @@
 #              → 解析 → 经 loki exporter 推给 Loki
 # 说明：
 #   - go-zero v1.10.3 只出 Prometheus 原生 /metrics（无 OTLP metrics 导出），故 metrics 采用
-#     「collector 当 scrape 代理」：collector 抓 26 个服务，再统一暴露给 Prometheus，业务代码零改动。
+#     「collector 当 scrape 代理」：collector 抓 20 个服务（13 api + 5 保留 rpc + search-mq；trade-mq 无
+#     Prometheus 端点不抓），再统一暴露给 Prometheus，业务代码零改动。
 #   - go-zero v1.10.3 无 Loki/OTLP logs 导出，故 logs 采用「文件采集」：go-zero 写 JSON 文件，
 #     collector 用 filelog 读文件 → loki exporter 推送，业务代码零改动。
 #   - 日志目录约定：服务从仓库根启动（CWD=仓库根）时落到 <repo>/logs/<svc>/（<svc> 如 user-rpc、course-api，相对路径），
@@ -31,18 +32,15 @@ receivers:
           static_configs:
             - targets:
                 - host.docker.internal:9101   # user.rpc
-                - host.docker.internal:9102   # auth.rpc
                 - host.docker.internal:9103   # course.rpc
                 - host.docker.internal:9104   # learning.rpc
-                - host.docker.internal:9105   # exam.rpc
-                - host.docker.internal:9106   # media.rpc
-                - host.docker.internal:9107   # message.rpc
                 - host.docker.internal:9108   # pay.rpc
-                - host.docker.internal:9109   # trade.rpc
-                - host.docker.internal:9110   # search.rpc
-                - host.docker.internal:9111   # data.rpc
                 - host.docker.internal:9112   # promotion.rpc
-                - host.docker.internal:9113   # remark.rpc
+        - job_name: tjxt-mq
+          metrics_path: /metrics
+          static_configs:
+            - targets:
+                - host.docker.internal:9110   # search-mq（ES 同步消费者，沿用原 search.rpc 的 9110）
         - job_name: tjxt-api
           metrics_path: /metrics
           static_configs:
@@ -133,7 +131,7 @@ service:
       processors: [batch]
       exporters: [otlphttp/jaeger]
     metrics:
-      receivers: [prometheus]      # collector 抓 26 个服务的 /metrics
+      receivers: [prometheus]      # collector 抓 20 个服务的 /metrics（13 api + 5 rpc + search-mq）
       exporters: [prometheus]      # 在 8889 聚合暴露给 Prometheus
     logs:
       receivers: [otlp, filelog]   # filelog 读文件（主）；otlp 预留给未来 OTLP logs
