@@ -51,8 +51,6 @@ tjxt/
 ├── buf.gen.yaml             # buf generate 模板（折叠服务 pb 类型生成，仅 protoc-gen-go）
 ├── build.ps1                # PowerShell 全量构建（与 make build 同清单：20 个二进制）
 ├── docker-compose.yml       # MySQL/Redis/RabbitMQ/etcd/ES/RustFS + 可观测性栈（Jaeger/otel-collector/Prometheus/Loki）一键启动
-├── tools/
-│   └── goctl-templates/     # goctl 自定义模板（api/rpc 生成统一走该目录，handler 统一 result.Write）
 ├── pkg/                     # 公共代码库 (module: tjxt/pkg)
 │   ├── auth/                # JWT 签发/校验、Claims 定义
 │   ├── mq/                  # RabbitMQ 事件总线 (生产者/消费者/事件定义)
@@ -231,7 +229,7 @@ make run-all-rpc   # 启动 5 个保留 RPC + 2 个 MQ 消费者（各开一个�
 | 场景                     | 命令                                                                                                                                |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | 新建 API 骨架              | `goctl api new <svc>`                                                                                                             |
-| 修改 `.api` 后重生成         | `goctl api go -api app/<svc>/api/<svc>.api -dir app/<svc>/api --home tools/goctl-templates`                                    |
+| 修改 `.api` 后重生成         | `goctl api go -api app/<svc>/api/<svc>.api -dir app/<svc>/api`                                    |
 | 新建 RPC 骨架（仅 5 个保留服务）   | `goctl rpc new <svc>`                                                                                                             |
 | 修改保留服务 `.proto` 后重生成   | `cd app/<svc>/rpc && goctl rpc protoc <svc>.proto --go_out=. --go-grpc_out=. --zrpc_out=. --client=true -m`                                    |
 | 修改折叠服务 `.proto` 后重生成   | `cd app/<svc>/api && buf generate --template ../../../buf.gen.yaml`（只产出 pb 类型到 `backend/pb/`）                                      |
@@ -239,14 +237,16 @@ make run-all-rpc   # 启动 5 个保留 RPC + 2 个 MQ 消费者（各开一个�
 | Model 需加自定义方法          | 在 `internal/model/<tbl>model.go` 里写扩展 (`_gen.go` 由 goctl 管理)                                                                      |
 
 
-> **goctl 版本固定（重要）**：仓库生成物出自 **goctl 1.10.1**，API 侧使用仓库自有模板目录 `tools/goctl-templates/`
-> （handler 统一调 `pkg/response.Write`，与 goctl 默认模板不同）。日常生成请安装 1.10.1 并带 `--home tools/goctl-templates`：
+> **goctl 版本固定**：仓库生成物出自 **goctl 1.10.1**，日常生成请安装同版本：
 >
 > ```bash
 > go install github.com/zeromicro/go-zero/tools/goctl@v1.10.1
 > ```
 >
-> 用其他版本生成会让 routes.go/types.go 的版本头漂移（`make check-gen` 会拦截）。RPC 侧逻辑文件由 goctl 跳过已存在文件保护，server/client/pb 可安全再生成。
+> API 生成走 **goctl 默认模板**（历史上有过自定义模板目录，已随工具链精简移除，可从 git 历史找回）。
+> 默认模板的 handler 输出为 `httpx` 风格，与仓库既有约定 `pkg/response.Write` 不同——
+> **除非有意统一切换风格，不要对存量服务跑 `make api`**（logic 文件受 goctl 跳过保护不受影响）；
+> `make rpc` / `make pb` / `make model` 不受影响，可安全使用。
 >
 > **buf 通道（折叠服务 pb 类型）**：模板在仓库根 `buf.gen.yaml`（version v2，仅 `protoc-gen-go` 插件，无 gRPC 桩）。
 > 在 `app/<svc>/api` 目录下执行时 buf 向上找到根 `buf.yaml` workspace，只对当前模块生成；输出路径由 proto 的
@@ -261,7 +261,7 @@ make rpc            # 根据 .proto 重生成 5 个保留 RPC 服务的 pb/serve
 make pb             # buf generate 重生成 8 个折叠服务的 pb 类型（app/<svc>/api/backend/pb）
 make model          # 根据 sql/migrations/<db>/00001_schema.sql 生成 model（输出到 ./model/<db>/）
 make generate       # api + rpc + pb 全量重生成
-make check-gen      # 重生成 api + pb 并校验与仓库零漂移（api types 与 pb 类型双守卫）
+make check-gen      # 重生成折叠服务 pb 类型并校验与仓库零漂移（buf 契约守卫）
 ```
 
 
@@ -335,7 +335,7 @@ make ci              # 一条龙门禁：verify + lint + test + build
 make buf-lint        # buf lint：检查 13 个 proto 模块（规则与豁免见 buf.yaml）
 make buf-breaking    # buf breaking：对比 master，禁止破坏性 proto 变更
 make clean           # 删除 bin/ 与各服务下遗留 exe
-make check-gen       # 重生成 api + pb 并校验与仓库零漂移（api types 与 pb 类型双守卫）
+make check-gen       # 重生成折叠服务 pb 类型并校验与仓库零漂移（buf 契约守卫）
 make run-<svc>       # 前台跑单个 API（如 make run-user）
 make run-<svc>-rpc   # 前台跑单个保留 RPC（如 make run-user-rpc）
 make run-trade-mq    # 前台跑支付回写消费者

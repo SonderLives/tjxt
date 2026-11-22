@@ -3,9 +3,6 @@
 GOCTL := goctl
 GO    := go
 
-# goctl 自定义模板目录（api/rpc 生成统一走该模板，保证生成产物稳定）
-GOCTL_TPL_HOME := tools/goctl-templates
-
 # Windows 下强制用 cmd 作为 recipe shell。
 # 否则 PATH 里有 sh.exe（如 Git Bash）时 make 会改用 sh，把 PS 片段里的 $$jobs、$$_
 # 当 sh 变量展开，打碎所有 powershell 目标（build/api/rpc/test/lint/verify/tidy/fmt/clean）。
@@ -81,7 +78,7 @@ api: ## 根据 .api 重新生成 handler/logic/types（覆盖生成产物，logi
 	  @{ api='app/search/api/search.api';   dir='app/search/api' }, \
 	  @{ api='app/trade/api/trade.api';     dir='app/trade/api' }, \
 	  @{ api='app/user/api/user.api';       dir='app/user/api' } ); \
-	  $$jobs | ForEach-Object { Write-Host ('  api  -> {0}' -f $$_.dir); & $(GOCTL) api go -api $$_.api -dir $$_.dir -style gozero -home $(GOCTL_TPL_HOME); if ($$LASTEXITCODE -ne 0) { exit 1 } }"
+	  $$jobs | ForEach-Object { Write-Host ('  api  -> {0}' -f $$_.dir); & $(GOCTL) api go -api $$_.api -dir $$_.dir -style gozero; if ($$LASTEXITCODE -ne 0) { exit 1 } }"
 
 # goctl rpc protoc：在 .proto 所在目录下执行
 # 仅 5 个保留 RPC 服务；8 个折叠服务的 pb 类型生成走 pb 目标（buf generate）。
@@ -89,7 +86,7 @@ rpc: ## 根据 .proto 重新生成 pb/server/client/logic（5 个保留 RPC 服�
 	@powershell -NoProfile -Command "$$jobs = @( \
 	  'app/course/rpc/course.proto', 'app/learning/rpc/learning.proto', \
 	  'app/pay/rpc/pay.proto', 'app/promotion/rpc/promotion.proto', 'app/user/rpc/user.proto' ); \
-	  $$jobs | ForEach-Object { $$d = Split-Path $$_ -Parent; $$f = Split-Path $$_ -Leaf; Write-Host ('  rpc  -> {0}' -f $$d); Push-Location $$d; & $(GOCTL) rpc protoc $$f --go_out=. --go-grpc_out=. --zrpc_out=. --client=true -m --home $(GOCTL_TPL_HOME); $$code=$$LASTEXITCODE; Pop-Location; if ($$code -ne 0) { exit 1 } }"
+	  $$jobs | ForEach-Object { $$d = Split-Path $$_ -Parent; $$f = Split-Path $$_ -Leaf; Write-Host ('  rpc  -> {0}' -f $$d); Push-Location $$d; & $(GOCTL) rpc protoc $$f --go_out=. --go-grpc_out=. --zrpc_out=. --client=true -m; $$code=$$LASTEXITCODE; Pop-Location; if ($$code -ne 0) { exit 1 } }"
 
 # buf generate：为 8 个折叠服务再生成 pb 类型（app/<svc>/api/backend/pb）。
 # 它们的 rpc 进程壳已删、goctl rpc protoc 无法只生成类型，故走 buf；
@@ -120,8 +117,10 @@ model: ## 根据 sql/migrations/<db>/00001_schema.sql 生成 model（输出到 .
 
 generate: api rpc pb ## 一键重新生成 api + rpc + pb
 
-check-gen: ## 重生成 API 与 pb 类型并校验与仓库零漂移（api types 与 pb 类型双守卫）
-	$(MAKE) api
+# api 生成走 goctl 默认模板（自定义模板目录 tools/goctl-templates 已移除，历史版本见 git）。
+# 注意：默认模板的 handler 输出为 httpx 风格，与仓库约定的 pkg/response.Write 风格不同；
+# 对存量服务执行 make api 会覆盖 handler 风格，除非有意切换，否则仅对新增服务使用。
+check-gen: ## 重生成折叠服务 pb 类型并校验与仓库零漂移（buf 契约守卫）
 	$(MAKE) pb
 	git diff --exit-code -- app
 
