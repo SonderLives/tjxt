@@ -2,11 +2,12 @@ package promotionlogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
 	"tjxt/rpc/promotion/internal/model"
 	"tjxt/rpc/promotion/internal/svc"
 	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -33,7 +34,7 @@ func (l *CouponPauseLogic) CouponPause(in *pb.IdRequest) (*pb.Empty, error) {
 
 	data, err := l.svcCtx.CouponModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("优惠券不存在")
 		}
 		l.Errorf("find coupon failed, id=%d, err=%v", in.Id, err)
