@@ -18,7 +18,7 @@ type (
 		couponModel
 		// FindList 查询全部未删除优惠券。
 		FindList(ctx context.Context) ([]*Coupon, error)
-		// FindPage 按条件分页查询优惠券，offset/limit 由 pkg/utils/page 归一化后传入。
+		// FindPage 按条件分页查询优惠券，offset/limit 由 pkg/page 归一化后传入。
 		FindPage(ctx context.Context, name, status, discountType string, offset, limit int64) ([]*Coupon, int64, error)
 		// FindByIds 批量查询优惠券。
 		FindByIds(ctx context.Context, ids []int64) ([]*Coupon, error)

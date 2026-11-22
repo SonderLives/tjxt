@@ -118,10 +118,10 @@ pkg/
 ├── auth/          # JWT 上下文工具
 ├── mq/            # RabbitMQ 生产者/消费者封装
 ├── response/      # 统一响应 R{Code,Msg,RequestId,Data}
-├── utils/
-│   ├── idgen/     # 雪花算法 ID 生成
-│   └── page/      # 分页请求/响应结构
-└── errorx/          # 统一错误码定义
+├── idgen/         # 雪花算法 ID 生成
+├── page/          # 分页请求/响应结构
+├── timex/         # 统一时间格式化 Layout/Format/Parse
+└── errorx/        # 统一错误码定义
 ```
 
 #### Scenario: data 服务的配置路径

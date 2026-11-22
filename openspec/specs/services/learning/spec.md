@@ -223,7 +223,7 @@ learning SHALL 以幂等方式开通课程、以逻辑失效方式撤销课程�
 
 - 开通幂等：`GrantCourses` 使用 `INSERT ... ON DUPLICATE KEY UPDATE update_time = NOW()`，依赖 `uk_user_course` 唯一索引，重复开通只刷新 `update_time`
 - 初始状态：status=0（未开始）、week_freq=NULL、plan_status=0、learned_sections=0、latest_section_id=NULL、latest_learn_time=NULL、expire_time=NULL
-- 主键生成：`idgen.NextID()` 雪花算法（`tjxt/pkg/utils/idgen`），非数据库自增
+- 主键生成：`idgen.NextID()` 雪花算法（`tjxt/pkg/idgen`），非数据库自增
 - 逐条插入：`GrantCourses` 对每个 courseID 单独执行一次 SQL（非批量 INSERT），任一条失败立即 return
 - 撤销即失效：`RevokeCourses` 置 status=3（失效）、plan_status=0（无计划），不物理删除
 - 删除亦失效：`RemoveLesson` 同样只把 status 置 3（该 Service/Model 方法已存在，但 proto/.api 未暴露出口）

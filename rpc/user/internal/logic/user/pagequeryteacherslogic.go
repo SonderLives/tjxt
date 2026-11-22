@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/user/internal/svc"
 	"tjxt/rpc/user/pb"
-	"tjxt/pkg/utils/page"
+	"tjxt/pkg/page"
 	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"

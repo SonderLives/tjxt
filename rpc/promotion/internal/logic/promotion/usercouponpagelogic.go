@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/promotion/internal/model"
 	"tjxt/rpc/promotion/internal/svc"
 	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/utils/page"
+	"tjxt/pkg/page"
 	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"

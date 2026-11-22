@@ -2,7 +2,7 @@
 
 ## Purpose
 
-定义 `pkg/` 公共库对全部服务暴露的契约：JWT 身份上下文（pkg/auth）、统一响应（pkg/response）、分页（pkg/utils/page）、ID 生成（pkg/utils/idgen）、事件总线封装（pkg/mq）、错误码（pkg/errorx，见 [error-codes](../error-codes/spec.md)），以及共享库的版本兼容策略。
+定义 `pkg/` 公共库对全部服务暴露的契约：JWT 身份上下文（pkg/auth）、统一响应（pkg/response）、分页（pkg/page）、ID 生成（pkg/idgen）、事件总线封装（pkg/mq）、错误码（pkg/errorx，见 [error-codes](../error-codes/spec.md)），以及共享库的版本兼容策略。
 
 ## Requirements
 
@@ -40,7 +40,7 @@ Handler/Logic SHALL 只通过 `pkg/auth` 的函数获取身份，禁止直接解
 - **WHEN** handler 直接调用 `httpx.OkJsonCtx` / `httpx.ErrorCtx`
 - **THEN** 视为违反契约（丢失统一码与 RequestId），代码评审必须拒绝
 
-### Requirement: pkg/utils/page — 分页契约
+### Requirement: pkg/page — 分页契约
 
 分页请求/响应 SHALL 使用统一结构：
 
@@ -52,7 +52,7 @@ Handler/Logic SHALL 只通过 `pkg/auth` 的函数获取身份，禁止直接解
 - **WHEN** 请求携带 `pageSize=200`
 - **THEN** 校验失败（PageSize 上限 100），返回参数错误
 
-### Requirement: pkg/utils/idgen — 全局唯一 ID
+### Requirement: pkg/idgen — 全局唯一 ID
 
 全局唯一标识（订单号、流水号、券码、文件 ID 等）SHALL 使用 `idgen.NextId()`（int64 雪花 ID）或 `idgen.NextIdStr()`，禁止自行实现 ID 生成逻辑。
 

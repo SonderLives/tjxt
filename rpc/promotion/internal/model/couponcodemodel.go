@@ -16,7 +16,7 @@ type (
 	// and implement the added methods in customCouponCodeModel.
 	CouponCodeModel interface {
 		couponCodeModel
-		// FindPageByCoupon 按优惠券+状态分页查询兑换码，offset/limit 由 pkg/utils/page 归一化后传入。
+		// FindPageByCoupon 按优惠券+状态分页查询兑换码，offset/limit 由 pkg/page 归一化后传入。
 		FindPageByCoupon(ctx context.Context, couponId int64, status string, offset, limit int64) ([]*CouponCode, int64, error)
 		// MarkUsed 将兑换码标记为已使用，返回受影响行数（0 表示已被抢兑）。
 		MarkUsed(ctx context.Context, id, userId int64) (int64, error)

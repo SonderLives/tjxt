@@ -37,7 +37,7 @@ type R struct {
 
 ### Requirement: 统一分页契约
 
-分页请求 SHALL 使用 `pkg/utils/page.PageRequest`，响应 SHALL 使用 `pkg/utils/page.PageResponse[T]`。
+分页请求 SHALL 使用 `pkg/page.PageRequest`，响应 SHALL 使用 `pkg/page.PageResponse[T]`。
 
 ```go
 type PageRequest struct {

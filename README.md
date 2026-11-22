@@ -47,10 +47,10 @@ tjxt/
 │   ├── auth/                # JWT 签发/校验、Claims 定义
 │   ├── mq/                  # RabbitMQ 事件总线 (生产者/消费者/事件定义)
 │   ├── response/            # 统一响应 R{code,msg,requestId,data} + 分页
-│   ├── errorx/                # 业务错误码体系 + HTTP 状态映射
-│   ├── utils/
-│   │   ├── idgen/           # 雪花算法 ID 生成器
-│   │   └── page/            # 分页工具
+│   ├── errorx/              # 业务错误码体系 + HTTP 状态映射
+│   ├── idgen/               # 雪花算法 ID 生成器
+│   ├── page/                # 分页工具
+│   ├── timex/               # 统一时间格式化 Layout/Format/Parse
 │   └── go.mod
 ├── sql/
 │   ├── ddl/                 # goctl model 生成用的纯 DDL (按库分文件)
@@ -294,12 +294,12 @@ go ctx.MQClient.Start(context.Background())
 | 包                 | 说明                                                                                   |
 | ----------------- | ------------------------------------------------------------------------------------ |
 | `pkg/auth`        | JWT `Sign/Parse`、Claims 含 `userId`/`role`                                            |
-| `pkg/errorx`        | 业务错误码 `Codexxx` + `Msg/Wrap/HttpStatus`                                              |
+| `pkg/errorx`      | 业务错误码 `Codexxx` + `Msg/Wrap/HttpStatus`                                              |
 | `pkg/response`    | 统一响应 `R{code,msg,requestId,data}` + `Page{list,total,pages}` + `Write(w,r,data,err)` |
 | `pkg/mq`          | RabbitMQ 事件总线：confirm 发布、泛型消费者（手动 ack、失败 Nack 重回队列）、交换机/路由键常量                        |
-| `pkg/utils/idgen` | 雪花算法 `NextID()`                                                                      |
-| `pkg/utils/page`  | 分页参数归一化                                                                              |
-| `pkg/utils/timex` | 统一时间格式化 Layout/Format/Parse                                                          |
+| `pkg/idgen`       | 雪花算法 `NextID()`                                                                      |
+| `pkg/page`        | 分页参数归一化                                                                              |
+| `pkg/timex`       | 统一时间格式化 Layout/Format/Parse                                                          |
 | `pkg/confenv`     | 配置环境变量占位解析（`${VAR}` / `${VAR|default}`）                                              |
 
 
@@ -370,7 +370,7 @@ replace tjxt/pkg => ../../pkg
 2. **错误处理**: 业务错误用 `errorx.New(code, msg)` 或 `errorx.Wrap(err, code, msg)`，不要直接返回 `error`
 3. **日志**: 使用 go-zero 内置 `logx`，关键路径带上 `trace.TraceIDFromContext(ctx)`
 4. **事务**: RPC 层用 `model.Transact(ctx, func(session sqlx.Session) error { ... })`
-5. **分页**: 统一用 `pkg/utils/page.ParsePageReq(req)` + `result.Page{List, Total, Pages}`
+5. **分页**: 统一用 `pkg/page.ParsePageReq(req)` + `result.Page{List, Total, Pages}`
 
 
 

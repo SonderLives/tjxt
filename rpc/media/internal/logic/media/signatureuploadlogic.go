@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/media/internal/model"
 	"tjxt/rpc/media/internal/svc"
 	"tjxt/rpc/media/pb"
-	"tjxt/pkg/utils/idgen"
+	"tjxt/pkg/idgen"
 	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"

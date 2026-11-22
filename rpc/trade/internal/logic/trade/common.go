@@ -10,7 +10,7 @@ import (
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
 
-	"tjxt/pkg/utils/idgen"
+	"tjxt/pkg/idgen"
 )
 
 // ===================== 状态枚举 =====================
