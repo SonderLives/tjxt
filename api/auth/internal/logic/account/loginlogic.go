@@ -55,14 +55,21 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginVO, err error)
 	}, nil
 }
 
+// user.Type 取值（tj_user.type），与 DDL 注释一致：1-员工, 2-普通学员, 3-老师。
+const (
+	userTypeStaff    int32 = 1
+	userTypeStudent  int32 = 2
+	userTypeTeacher  int32 = 3
+)
+
 // roleByType 按 user.Type 给一个初始角色；真实项目里应由 account_role 表驱动。
 func roleByType(userType int32) string {
 	switch userType {
-	case 1:
+	case userTypeStaff:
 		return authutil.RoleStaff
-	case 2:
+	case userTypeStudent:
 		return authutil.RoleStudent
-	case 3:
+	case userTypeTeacher:
 		return authutil.RoleTeacher
 	default:
 		return authutil.RoleUser
