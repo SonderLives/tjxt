@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"tjxt/apps/learning/rpc/internal/model"
+	"tjxt/rpc/learning/internal/model"
 	"tjxt/pkg/xerr"
 )
 

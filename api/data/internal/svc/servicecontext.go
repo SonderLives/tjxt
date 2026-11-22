@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"tjxt/apps/data/api/internal/config"
-	dataclient "tjxt/apps/data/rpc/client/data"
+	"tjxt/api/data/internal/config"
+	dataclient "tjxt/rpc/data/client/data"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/zrpc"

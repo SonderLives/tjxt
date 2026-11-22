@@ -7,7 +7,7 @@ package auth
 import (
 	"context"
 
-	"tjxt/apps/auth/rpc/pb"
+	"tjxt/rpc/auth/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

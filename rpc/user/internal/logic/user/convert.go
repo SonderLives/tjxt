@@ -3,8 +3,8 @@ package userlogic
 import (
 	"database/sql"
 
-	"tjxt/apps/user/rpc/internal/model"
-	"tjxt/apps/user/rpc/pb"
+	"tjxt/rpc/user/internal/model"
+	"tjxt/rpc/user/pb"
 )
 
 // nullStr 将字符串转为 sql.NullString，空字符串视为 NULL。

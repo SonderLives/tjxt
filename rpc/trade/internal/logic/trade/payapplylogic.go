@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	payclient "tjxt/apps/pay/rpc/client/pay"
-	"tjxt/apps/trade/rpc/internal/model"
-	"tjxt/apps/trade/rpc/internal/svc"
-	"tjxt/apps/trade/rpc/pb"
+	payclient "tjxt/rpc/pay/client/pay"
+	"tjxt/rpc/trade/internal/model"
+	"tjxt/rpc/trade/internal/svc"
+	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

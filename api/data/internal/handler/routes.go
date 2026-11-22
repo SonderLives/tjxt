@@ -6,10 +6,10 @@ package handler
 import (
 	"net/http"
 
-	board "tjxt/apps/data/api/internal/handler/board"
-	today "tjxt/apps/data/api/internal/handler/today"
-	top10 "tjxt/apps/data/api/internal/handler/top10"
-	"tjxt/apps/data/api/internal/svc"
+	board "tjxt/api/data/internal/handler/board"
+	today "tjxt/api/data/internal/handler/today"
+	top10 "tjxt/api/data/internal/handler/top10"
+	"tjxt/api/data/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

@@ -5,10 +5,10 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/apps/trade/rpc/internal/config"
-	tradeserver "tjxt/apps/trade/rpc/internal/server/trade"
-	"tjxt/apps/trade/rpc/internal/svc"
-	"tjxt/apps/trade/rpc/pb"
+	"tjxt/rpc/trade/internal/config"
+	tradeserver "tjxt/rpc/trade/internal/server/trade"
+	"tjxt/rpc/trade/internal/svc"
+	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"

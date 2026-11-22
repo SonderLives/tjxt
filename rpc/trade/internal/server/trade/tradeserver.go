@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/apps/trade/rpc/internal/logic/trade"
-	"tjxt/apps/trade/rpc/internal/svc"
-	"tjxt/apps/trade/rpc/pb"
+	"tjxt/rpc/trade/internal/logic/trade"
+	"tjxt/rpc/trade/internal/svc"
+	"tjxt/rpc/trade/pb"
 )
 
 type TradeServer struct {

@@ -6,9 +6,9 @@ package logic
 import (
 	"context"
 
-	"tjxt/apps/course/api/internal/svc"
-	"tjxt/apps/course/api/internal/types"
-	"tjxt/apps/course/rpc/pb"
+	"tjxt/api/course/internal/svc"
+	"tjxt/api/course/internal/types"
+	"tjxt/rpc/course/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

@@ -4,11 +4,11 @@ import (
 	"context"
 	"strconv"
 
-	remarkclient "tjxt/apps/remark/rpc/client/remark"
+	remarkclient "tjxt/rpc/remark/client/remark"
 	"tjxt/pkg/auth"
 
-	"tjxt/apps/remark/api/internal/svc"
-	"tjxt/apps/remark/api/internal/types"
+	"tjxt/api/remark/internal/svc"
+	"tjxt/api/remark/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

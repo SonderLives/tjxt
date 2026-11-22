@@ -4,8 +4,8 @@
 package svc
 
 import (
-	"tjxt/apps/media/api/internal/config"
-	mediaclient "tjxt/apps/media/rpc/client/media"
+	"tjxt/api/media/internal/config"
+	mediaclient "tjxt/rpc/media/client/media"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )

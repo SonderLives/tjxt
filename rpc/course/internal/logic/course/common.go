@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"time"
 
-	"tjxt/apps/course/rpc/internal/model"
-	"tjxt/apps/course/rpc/internal/svc"
-	"tjxt/apps/course/rpc/pb"
-	userclient "tjxt/apps/user/rpc/client/user"
+	"tjxt/rpc/course/internal/model"
+	"tjxt/rpc/course/internal/svc"
+	"tjxt/rpc/course/pb"
+	userclient "tjxt/rpc/user/client/user"
 	"tjxt/pkg/utils/idgen"
 
 	"github.com/zeromicro/go-zero/core/logx"

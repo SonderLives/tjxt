@@ -1,8 +1,8 @@
 package svc
 
 import (
-	"tjxt/apps/remark/api/internal/config"
-	remarkclient "tjxt/apps/remark/rpc/client/remark"
+	"tjxt/api/remark/internal/config"
+	remarkclient "tjxt/rpc/remark/client/remark"
 
 	"github.com/zeromicro/go-zero/zrpc"
 )

@@ -7,7 +7,7 @@ package learning
 import (
 	"context"
 
-	"tjxt/apps/learning/rpc/pb"
+	"tjxt/rpc/learning/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

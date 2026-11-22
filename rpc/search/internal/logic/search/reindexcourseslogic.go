@@ -3,8 +3,8 @@ package searchlogic
 import (
 	"context"
 
-	"tjxt/apps/search/rpc/internal/svc"
-	"tjxt/apps/search/rpc/pb"
+	"tjxt/rpc/search/internal/svc"
+	"tjxt/rpc/search/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

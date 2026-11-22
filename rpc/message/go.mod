@@ -1,4 +1,4 @@
-module tjxt/apps/message/rpc
+module tjxt/rpc/message
 
 go 1.26.2
 
@@ -102,4 +102,4 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
-replace tjxt/pkg => ../../../pkg
+replace tjxt/pkg => ../../pkg

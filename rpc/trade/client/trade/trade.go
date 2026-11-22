@@ -7,7 +7,7 @@ package trade
 import (
 	"context"
 
-	"tjxt/apps/trade/rpc/pb"
+	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

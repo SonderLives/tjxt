@@ -3,8 +3,8 @@ package examlogic
 import (
 	"context"
 
-	"tjxt/apps/exam/rpc/internal/svc"
-	"tjxt/apps/exam/rpc/pb"
+	"tjxt/rpc/exam/internal/svc"
+	"tjxt/rpc/exam/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

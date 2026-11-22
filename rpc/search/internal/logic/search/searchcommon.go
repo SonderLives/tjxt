@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"tjxt/apps/search/rpc/internal/svc"
-	"tjxt/apps/search/rpc/pb"
+	"tjxt/rpc/search/internal/svc"
+	"tjxt/rpc/search/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	courseclient "tjxt/apps/course/rpc/client/course"
+	courseclient "tjxt/rpc/course/client/course"
 	"tjxt/pkg/mq/event"
 	"tjxt/pkg/xerr"
 

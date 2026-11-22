@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"tjxt/apps/user/rpc/internal/model"
-	"tjxt/apps/user/rpc/internal/svc"
-	"tjxt/apps/user/rpc/pb"
+	"tjxt/rpc/user/internal/model"
+	"tjxt/rpc/user/internal/svc"
+	"tjxt/rpc/user/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

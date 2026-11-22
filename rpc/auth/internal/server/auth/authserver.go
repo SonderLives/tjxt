@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/apps/auth/rpc/internal/logic/auth"
-	"tjxt/apps/auth/rpc/internal/svc"
-	"tjxt/apps/auth/rpc/pb"
+	"tjxt/rpc/auth/internal/logic/auth"
+	"tjxt/rpc/auth/internal/svc"
+	"tjxt/rpc/auth/pb"
 )
 
 type AuthServer struct {

@@ -6,10 +6,10 @@ import (
 	"encoding/json"
 	"time"
 
-	promotionclient "tjxt/apps/promotion/rpc/client/promotion"
-	"tjxt/apps/trade/rpc/internal/model"
-	"tjxt/apps/trade/rpc/internal/svc"
-	"tjxt/apps/trade/rpc/pb"
+	promotionclient "tjxt/rpc/promotion/client/promotion"
+	"tjxt/rpc/trade/internal/model"
+	"tjxt/rpc/trade/internal/svc"
+	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/xerr"
 

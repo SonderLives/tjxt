@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"tjxt/apps/exam/rpc/internal/model"
-	"tjxt/apps/exam/rpc/pb"
+	"tjxt/rpc/exam/internal/model"
+	"tjxt/rpc/exam/pb"
 
 	"google.golang.org/grpc/metadata"
 )

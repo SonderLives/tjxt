@@ -1,4 +1,4 @@
-module tjxt/apps/course/rpc
+module tjxt/rpc/course
 
 go 1.26.2
 
@@ -99,9 +99,9 @@ require (
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
-	tjxt/apps/user/rpc v0.0.0-00010101000000-000000000000
+	tjxt/rpc/user v0.0.0-00010101000000-000000000000
 )
 
-replace tjxt/pkg => ../../../pkg
+replace tjxt/pkg => ../../pkg
 
-replace tjxt/apps/user/rpc => ../../user/rpc
+replace tjxt/rpc/user => ../../rpc/user

@@ -3,13 +3,13 @@ package user
 import (
 	"context"
 
-	"tjxt/apps/user/api/internal/logic/convert"
-	"tjxt/apps/user/api/internal/svc"
-	"tjxt/apps/user/api/internal/types"
+	"tjxt/api/user/internal/logic/convert"
+	"tjxt/api/user/internal/svc"
+	"tjxt/api/user/internal/types"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	pb "tjxt/apps/user/rpc/pb"
+	pb "tjxt/rpc/user/pb"
 )
 
 type GetCurrentUserLogic struct {

@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/apps/media/rpc/internal/logic/media"
-	"tjxt/apps/media/rpc/internal/svc"
-	"tjxt/apps/media/rpc/pb"
+	"tjxt/rpc/media/internal/logic/media"
+	"tjxt/rpc/media/internal/svc"
+	"tjxt/rpc/media/pb"
 )
 
 type MediaServer struct {

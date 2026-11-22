@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/apps/course/rpc/internal/config"
-	courseserver "tjxt/apps/course/rpc/internal/server/course"
-	"tjxt/apps/course/rpc/internal/svc"
-	"tjxt/apps/course/rpc/pb"
+	"tjxt/rpc/course/internal/config"
+	courseserver "tjxt/rpc/course/internal/server/course"
+	"tjxt/rpc/course/internal/svc"
+	"tjxt/rpc/course/pb"
 
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"

@@ -6,12 +6,12 @@ package logic
 import (
 	"context"
 
-	"tjxt/apps/promotion/api/internal/svc"
-	"tjxt/apps/promotion/api/internal/types"
+	"tjxt/api/promotion/internal/svc"
+	"tjxt/api/promotion/internal/types"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	pb "tjxt/apps/promotion/rpc/client/promotion"
+	pb "tjxt/rpc/promotion/client/promotion"
 )
 
 type UserCouponDiscountLogic struct {

@@ -6,8 +6,8 @@ package top10
 import (
 	"net/http"
 
-	"tjxt/apps/data/api/internal/logic/top10"
-	"tjxt/apps/data/api/internal/svc"
+	"tjxt/api/data/internal/logic/top10"
+	"tjxt/api/data/internal/svc"
 	"tjxt/pkg/response"
 )
 

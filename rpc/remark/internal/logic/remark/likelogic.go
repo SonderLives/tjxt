@@ -3,9 +3,9 @@ package remarklogic
 import (
 	"context"
 
-	"tjxt/apps/remark/rpc/internal/model"
-	"tjxt/apps/remark/rpc/internal/svc"
-	"tjxt/apps/remark/rpc/pb"
+	"tjxt/rpc/remark/internal/model"
+	"tjxt/rpc/remark/internal/svc"
+	"tjxt/rpc/remark/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlc"

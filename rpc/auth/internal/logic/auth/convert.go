@@ -5,8 +5,8 @@ import (
 	"sort"
 	"time"
 
-	"tjxt/apps/auth/rpc/internal/model"
-	"tjxt/apps/auth/rpc/pb"
+	"tjxt/rpc/auth/internal/model"
+	"tjxt/rpc/auth/pb"
 )
 
 // timeLayout 对外输出的时间格式，与其他微服务保持一致。

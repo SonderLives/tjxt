@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"tjxt/apps/course/rpc/internal/config"
-	"tjxt/apps/course/rpc/internal/model"
-	userclient "tjxt/apps/user/rpc/client/user"
+	"tjxt/rpc/course/internal/config"
+	"tjxt/rpc/course/internal/model"
+	userclient "tjxt/rpc/user/client/user"
 	"tjxt/pkg/mq"
 	"tjxt/pkg/mq/event"
 

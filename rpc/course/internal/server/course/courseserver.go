@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/apps/course/rpc/internal/logic/course"
-	"tjxt/apps/course/rpc/internal/svc"
-	"tjxt/apps/course/rpc/pb"
+	"tjxt/rpc/course/internal/logic/course"
+	"tjxt/rpc/course/internal/svc"
+	"tjxt/rpc/course/pb"
 )
 
 type CourseServer struct {

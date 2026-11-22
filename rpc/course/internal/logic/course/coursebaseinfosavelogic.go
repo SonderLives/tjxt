@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"time"
 
-	"tjxt/apps/course/rpc/internal/model"
-	"tjxt/apps/course/rpc/internal/svc"
-	"tjxt/apps/course/rpc/pb"
+	"tjxt/rpc/course/internal/model"
+	"tjxt/rpc/course/internal/svc"
+	"tjxt/rpc/course/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

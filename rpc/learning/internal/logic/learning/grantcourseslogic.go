@@ -3,8 +3,8 @@ package learninglogic
 import (
 	"context"
 
-	"tjxt/apps/learning/rpc/internal/svc"
-	"tjxt/apps/learning/rpc/pb"
+	"tjxt/rpc/learning/internal/svc"
+	"tjxt/rpc/learning/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

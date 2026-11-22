@@ -1,4 +1,4 @@
-module tjxt/apps/trade/rpc
+module tjxt/rpc/trade
 
 go 1.26.2
 
@@ -6,8 +6,8 @@ require (
 	github.com/zeromicro/go-zero v1.10.3
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.11
-	tjxt/apps/course/rpc v0.0.0-00010101000000-000000000000
-	tjxt/apps/pay/rpc v0.0.0-00010101000000-000000000000
+	tjxt/rpc/course v0.0.0-00010101000000-000000000000
+	tjxt/rpc/pay v0.0.0-00010101000000-000000000000
 	tjxt/pkg v0.0.0-00010101000000-000000000000
 )
 
@@ -105,7 +105,7 @@ require (
 )
 
 replace (
-	tjxt/apps/course/rpc => ../../course/rpc
-	tjxt/apps/pay/rpc => ../../pay/rpc
-	tjxt/pkg => ../../../pkg
+	tjxt/rpc/course => ../../rpc/course
+	tjxt/rpc/pay => ../../rpc/pay
+	tjxt/pkg => ../../pkg
 )

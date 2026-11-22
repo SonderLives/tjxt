@@ -6,9 +6,9 @@ package interests
 import (
 	"context"
 
-	"tjxt/apps/search/api/internal/svc"
-	"tjxt/apps/search/api/internal/types"
-	searchclient "tjxt/apps/search/rpc/client/search"
+	"tjxt/api/search/internal/svc"
+	"tjxt/api/search/internal/types"
+	searchclient "tjxt/rpc/search/client/search"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"

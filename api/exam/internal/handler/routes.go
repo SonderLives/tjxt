@@ -6,9 +6,9 @@ package handler
 import (
 	"net/http"
 
-	question "tjxt/apps/exam/api/internal/handler/question"
-	questionbiz "tjxt/apps/exam/api/internal/handler/questionbiz"
-	"tjxt/apps/exam/api/internal/svc"
+	question "tjxt/api/exam/internal/handler/question"
+	questionbiz "tjxt/api/exam/internal/handler/questionbiz"
+	"tjxt/api/exam/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

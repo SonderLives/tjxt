@@ -8,9 +8,9 @@ import (
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 
-	"tjxt/apps/pay/api/internal/logic"
-	"tjxt/apps/pay/api/internal/svc"
-	"tjxt/apps/pay/api/internal/types"
+	"tjxt/api/pay/internal/logic"
+	"tjxt/api/pay/internal/svc"
+	"tjxt/api/pay/internal/types"
 	"tjxt/pkg/response"
 )
 

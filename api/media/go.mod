@@ -1,11 +1,11 @@
-module tjxt/apps/media/api
+module tjxt/api/media
 
 go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
-	tjxt/apps/media/rpc v0.0.0-00010101000000-000000000000
 	tjxt/pkg v0.0.0-00010101000000-000000000000
+	tjxt/rpc/media v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -51,6 +51,7 @@ require (
 	github.com/prometheus/procfs v0.16.1 // indirect
 	github.com/redis/go-redis/v9 v9.21.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/titanous/json5 v1.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.21 // indirect
@@ -101,6 +102,6 @@ require (
 )
 
 replace (
-	tjxt/apps/media/rpc => ../rpc
-	tjxt/pkg => ../../../pkg
+	tjxt/pkg => ../../pkg
+	tjxt/rpc/media => ../../rpc/media
 )

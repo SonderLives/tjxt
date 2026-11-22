@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"errors"
 
-	"tjxt/apps/trade/rpc/internal/model"
-	"tjxt/apps/trade/rpc/internal/svc"
-	"tjxt/apps/trade/rpc/pb"
+	"tjxt/rpc/trade/internal/model"
+	"tjxt/rpc/trade/internal/svc"
+	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/xerr"
 

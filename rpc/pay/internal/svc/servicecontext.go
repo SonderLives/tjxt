@@ -3,9 +3,9 @@ package svc
 import (
 	"fmt"
 
-	"tjxt/apps/pay/rpc/internal/config"
-	"tjxt/apps/pay/rpc/internal/gateway"
-	"tjxt/apps/pay/rpc/internal/model"
+	"tjxt/rpc/pay/internal/config"
+	"tjxt/rpc/pay/internal/gateway"
+	"tjxt/rpc/pay/internal/model"
 	"tjxt/pkg/mq"
 
 	"github.com/zeromicro/go-zero/core/logx"

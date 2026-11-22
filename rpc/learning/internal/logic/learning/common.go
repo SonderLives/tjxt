@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"tjxt/apps/learning/rpc/internal/model"
-	"tjxt/apps/learning/rpc/pb"
+	"tjxt/rpc/learning/internal/model"
+	"tjxt/rpc/learning/pb"
 	"tjxt/pkg/auth"
 )
 

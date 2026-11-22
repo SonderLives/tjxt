@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/apps/data/rpc/internal/logic/data"
-	"tjxt/apps/data/rpc/internal/svc"
-	"tjxt/apps/data/rpc/pb"
+	"tjxt/rpc/data/internal/logic/data"
+	"tjxt/rpc/data/internal/svc"
+	"tjxt/rpc/data/pb"
 )
 
 type DataServer struct {

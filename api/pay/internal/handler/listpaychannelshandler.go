@@ -6,8 +6,8 @@ package handler
 import (
 	"net/http"
 
-	"tjxt/apps/pay/api/internal/logic"
-	"tjxt/apps/pay/api/internal/svc"
+	"tjxt/api/pay/internal/logic"
+	"tjxt/api/pay/internal/svc"
 	"tjxt/pkg/response"
 )
 

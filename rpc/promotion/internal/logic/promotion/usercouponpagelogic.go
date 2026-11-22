@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"tjxt/apps/promotion/rpc/internal/model"
-	"tjxt/apps/promotion/rpc/internal/svc"
-	"tjxt/apps/promotion/rpc/pb"
+	"tjxt/rpc/promotion/internal/model"
+	"tjxt/rpc/promotion/internal/svc"
+	"tjxt/rpc/promotion/pb"
 	"tjxt/pkg/utils/page"
 	"tjxt/pkg/xerr"
 

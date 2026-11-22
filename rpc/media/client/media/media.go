@@ -7,7 +7,7 @@ package media
 import (
 	"context"
 
-	"tjxt/apps/media/rpc/pb"
+	"tjxt/rpc/media/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

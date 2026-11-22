@@ -6,8 +6,8 @@ package interests
 import (
 	"net/http"
 
-	"tjxt/apps/search/api/internal/logic/interests"
-	"tjxt/apps/search/api/internal/svc"
+	"tjxt/api/search/internal/logic/interests"
+	"tjxt/api/search/internal/svc"
 	"tjxt/pkg/response"
 )
 

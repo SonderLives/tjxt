@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"tjxt/apps/exam/api/internal/config"
-	examclient "tjxt/apps/exam/rpc/client/exam"
+	"tjxt/api/exam/internal/config"
+	examclient "tjxt/rpc/exam/client/exam"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/xerr"
 

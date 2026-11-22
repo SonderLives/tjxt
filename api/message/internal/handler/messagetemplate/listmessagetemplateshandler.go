@@ -7,9 +7,9 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/apps/message/api/internal/logic/messagetemplate"
-	"tjxt/apps/message/api/internal/svc"
-	"tjxt/apps/message/api/internal/types"
+	"tjxt/api/message/internal/logic/messagetemplate"
+	"tjxt/api/message/internal/svc"
+	"tjxt/api/message/internal/types"
 	"tjxt/pkg/response"
 )
 

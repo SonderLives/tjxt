@@ -7,7 +7,7 @@ package search
 import (
 	"context"
 
-	"tjxt/apps/search/rpc/pb"
+	"tjxt/rpc/search/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

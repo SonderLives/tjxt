@@ -6,10 +6,10 @@ package menu
 import (
 	"context"
 
-	"tjxt/apps/auth/api/internal/svc"
-	"tjxt/apps/auth/api/internal/types"
-	authclient "tjxt/apps/auth/rpc/client/auth"
-	"tjxt/apps/auth/rpc/pb"
+	"tjxt/api/auth/internal/svc"
+	"tjxt/api/auth/internal/types"
+	authclient "tjxt/rpc/auth/client/auth"
+	"tjxt/rpc/auth/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

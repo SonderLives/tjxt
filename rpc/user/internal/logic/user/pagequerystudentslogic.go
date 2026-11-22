@@ -3,8 +3,8 @@ package userlogic
 import (
 	"context"
 
-	"tjxt/apps/user/rpc/internal/svc"
-	"tjxt/apps/user/rpc/pb"
+	"tjxt/rpc/user/internal/svc"
+	"tjxt/rpc/user/pb"
 	"tjxt/pkg/utils/page"
 	"tjxt/pkg/xerr"
 

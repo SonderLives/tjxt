@@ -1,10 +1,10 @@
-module tjxt/apps/remark/api
+module tjxt/api/remark
 
 go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
-	tjxt/apps/remark/rpc v0.0.0-00010101000000-000000000000
+	tjxt/rpc/remark v0.0.0-00010101000000-000000000000
 	tjxt/pkg v0.0.0-00010101000000-000000000000
 )
 
@@ -101,6 +101,6 @@ require (
 )
 
 replace (
-	tjxt/apps/remark/rpc => ../rpc
-	tjxt/pkg => ../../../pkg
+	tjxt/rpc/remark => ../../rpc/remark
+	tjxt/pkg => ../../pkg
 )

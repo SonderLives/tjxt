@@ -7,7 +7,7 @@ package exam
 import (
 	"context"
 
-	"tjxt/apps/exam/rpc/pb"
+	"tjxt/rpc/exam/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

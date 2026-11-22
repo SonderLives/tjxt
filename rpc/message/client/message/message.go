@@ -7,7 +7,7 @@ package message
 import (
 	"context"
 
-	"tjxt/apps/message/rpc/pb"
+	"tjxt/rpc/message/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"tjxt/apps/auth/rpc/internal/svc"
-	"tjxt/apps/auth/rpc/pb"
+	"tjxt/rpc/auth/internal/svc"
+	"tjxt/rpc/auth/pb"
 	authutil "tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"

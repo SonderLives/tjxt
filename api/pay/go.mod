@@ -1,10 +1,10 @@
-module tjxt/apps/pay/api
+module tjxt/api/pay
 
 go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
-	tjxt/apps/pay/rpc v0.0.0-00010101000000-000000000000
+	tjxt/rpc/pay v0.0.0-00010101000000-000000000000
 	tjxt/pkg v0.0.0-00010101000000-000000000000
 )
 
@@ -101,6 +101,6 @@ require (
 )
 
 replace (
-	tjxt/apps/pay/rpc => ../rpc
-	tjxt/pkg => ../../../pkg
+	tjxt/rpc/pay => ../../rpc/pay
+	tjxt/pkg => ../../pkg
 )

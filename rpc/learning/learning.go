@@ -5,10 +5,10 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/apps/learning/rpc/internal/config"
-	learningserver "tjxt/apps/learning/rpc/internal/server/learning"
-	"tjxt/apps/learning/rpc/internal/svc"
-	"tjxt/apps/learning/rpc/pb"
+	"tjxt/rpc/learning/internal/config"
+	learningserver "tjxt/rpc/learning/internal/server/learning"
+	"tjxt/rpc/learning/internal/svc"
+	"tjxt/rpc/learning/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"

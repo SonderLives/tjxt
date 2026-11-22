@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"sort"
 
-	"tjxt/apps/data/rpc/internal/svc"
-	"tjxt/apps/data/rpc/pb"
+	"tjxt/rpc/data/internal/svc"
+	"tjxt/rpc/data/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

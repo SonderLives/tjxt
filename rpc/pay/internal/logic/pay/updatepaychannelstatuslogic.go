@@ -3,8 +3,8 @@ package paylogic
 import (
 	"context"
 
-	"tjxt/apps/pay/rpc/internal/svc"
-	"tjxt/apps/pay/rpc/pb"
+	"tjxt/rpc/pay/internal/svc"
+	"tjxt/rpc/pay/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

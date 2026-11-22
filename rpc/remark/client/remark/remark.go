@@ -7,7 +7,7 @@ package remark
 import (
 	"context"
 
-	"tjxt/apps/remark/rpc/pb"
+	"tjxt/rpc/remark/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

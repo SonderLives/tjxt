@@ -6,9 +6,9 @@ package messagetemplate
 import (
 	"context"
 
-	"tjxt/apps/message/api/internal/svc"
-	"tjxt/apps/message/api/internal/types"
-	messageclient "tjxt/apps/message/rpc/client/message"
+	"tjxt/api/message/internal/svc"
+	"tjxt/api/message/internal/types"
+	messageclient "tjxt/rpc/message/client/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

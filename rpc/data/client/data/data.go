@@ -7,7 +7,7 @@ package data
 import (
 	"context"
 
-	"tjxt/apps/data/rpc/pb"
+	"tjxt/rpc/data/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

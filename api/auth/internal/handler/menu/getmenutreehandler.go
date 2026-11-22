@@ -6,8 +6,8 @@ package menu
 import (
 	"net/http"
 
-	"tjxt/apps/auth/api/internal/logic/menu"
-	"tjxt/apps/auth/api/internal/svc"
+	"tjxt/api/auth/internal/logic/menu"
+	"tjxt/api/auth/internal/svc"
 	"tjxt/pkg/response"
 )
 

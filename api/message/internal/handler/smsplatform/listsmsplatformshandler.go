@@ -6,8 +6,8 @@ package smsplatform
 import (
 	"net/http"
 
-	"tjxt/apps/message/api/internal/logic/smsplatform"
-	"tjxt/apps/message/api/internal/svc"
+	"tjxt/api/message/internal/logic/smsplatform"
+	"tjxt/api/message/internal/svc"
 	"tjxt/pkg/response"
 )
 

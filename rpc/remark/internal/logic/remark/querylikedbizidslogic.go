@@ -3,8 +3,8 @@ package remarklogic
 import (
 	"context"
 
-	"tjxt/apps/remark/rpc/internal/svc"
-	"tjxt/apps/remark/rpc/pb"
+	"tjxt/rpc/remark/internal/svc"
+	"tjxt/rpc/remark/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

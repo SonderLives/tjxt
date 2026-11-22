@@ -7,9 +7,9 @@ import (
 	"context"
 	"fmt"
 
-	"tjxt/apps/pay/api/internal/svc"
-	"tjxt/apps/pay/api/internal/types"
-	payclient "tjxt/apps/pay/rpc/client/pay"
+	"tjxt/api/pay/internal/svc"
+	"tjxt/api/pay/internal/types"
+	payclient "tjxt/rpc/pay/client/pay"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

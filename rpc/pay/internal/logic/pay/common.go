@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"time"
 
-	"tjxt/apps/pay/rpc/internal/model"
-	"tjxt/apps/pay/rpc/pb"
+	"tjxt/rpc/pay/internal/model"
+	"tjxt/rpc/pay/pb"
 	"tjxt/pkg/utils/idgen"
 	"tjxt/pkg/utils/page"
 )

@@ -3,8 +3,8 @@ package medialogic
 import (
 	"context"
 
-	"tjxt/apps/media/rpc/internal/svc"
-	"tjxt/apps/media/rpc/pb"
+	"tjxt/rpc/media/internal/svc"
+	"tjxt/rpc/media/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

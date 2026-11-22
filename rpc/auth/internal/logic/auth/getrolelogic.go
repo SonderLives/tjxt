@@ -3,9 +3,9 @@ package authlogic
 import (
 	"context"
 
-	"tjxt/apps/auth/rpc/internal/model"
-	"tjxt/apps/auth/rpc/internal/svc"
-	"tjxt/apps/auth/rpc/pb"
+	"tjxt/rpc/auth/internal/model"
+	"tjxt/rpc/auth/internal/svc"
+	"tjxt/rpc/auth/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"tjxt/apps/trade/api/internal/svc"
-	"tjxt/apps/trade/api/internal/types"
-	"tjxt/apps/trade/rpc/pb"
+	"tjxt/api/trade/internal/svc"
+	"tjxt/api/trade/internal/types"
+	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

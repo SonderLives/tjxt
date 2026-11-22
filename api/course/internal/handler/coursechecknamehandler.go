@@ -7,9 +7,9 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"tjxt/apps/course/api/internal/logic"
-	"tjxt/apps/course/api/internal/svc"
-	"tjxt/apps/course/api/internal/types"
+	"tjxt/api/course/internal/logic"
+	"tjxt/api/course/internal/svc"
+	"tjxt/api/course/internal/types"
 	"tjxt/pkg/response"
 )
 

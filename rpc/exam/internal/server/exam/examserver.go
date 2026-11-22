@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/apps/exam/rpc/internal/logic/exam"
-	"tjxt/apps/exam/rpc/internal/svc"
-	"tjxt/apps/exam/rpc/pb"
+	"tjxt/rpc/exam/internal/logic/exam"
+	"tjxt/rpc/exam/internal/svc"
+	"tjxt/rpc/exam/pb"
 )
 
 type ExamServer struct {

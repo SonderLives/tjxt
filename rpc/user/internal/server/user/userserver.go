@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/apps/user/rpc/internal/logic/user"
-	"tjxt/apps/user/rpc/internal/svc"
-	"tjxt/apps/user/rpc/pb"
+	"tjxt/rpc/user/internal/logic/user"
+	"tjxt/rpc/user/internal/svc"
+	"tjxt/rpc/user/pb"
 )
 
 type UserServer struct {

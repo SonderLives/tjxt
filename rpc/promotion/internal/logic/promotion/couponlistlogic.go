@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"tjxt/apps/promotion/rpc/internal/svc"
-	"tjxt/apps/promotion/rpc/pb"
+	"tjxt/rpc/promotion/internal/svc"
+	"tjxt/rpc/promotion/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

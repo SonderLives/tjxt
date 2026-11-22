@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/apps/promotion/rpc/internal/config"
-	promotionserver "tjxt/apps/promotion/rpc/internal/server/promotion"
-	"tjxt/apps/promotion/rpc/internal/svc"
-	"tjxt/apps/promotion/rpc/pb"
+	"tjxt/rpc/promotion/internal/config"
+	promotionserver "tjxt/rpc/promotion/internal/server/promotion"
+	"tjxt/rpc/promotion/internal/svc"
+	"tjxt/rpc/promotion/pb"
 
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"

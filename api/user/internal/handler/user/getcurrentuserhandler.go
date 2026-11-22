@@ -6,8 +6,8 @@ package user
 import (
 	"net/http"
 
-	"tjxt/apps/user/api/internal/logic/user"
-	"tjxt/apps/user/api/internal/svc"
+	"tjxt/api/user/internal/logic/user"
+	"tjxt/api/user/internal/svc"
 	"tjxt/pkg/response"
 )
 

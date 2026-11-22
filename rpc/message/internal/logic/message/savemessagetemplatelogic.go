@@ -3,9 +3,9 @@ package messagelogic
 import (
 	"context"
 
-	"tjxt/apps/message/rpc/internal/model"
-	"tjxt/apps/message/rpc/internal/svc"
-	"tjxt/apps/message/rpc/pb"
+	"tjxt/rpc/message/internal/model"
+	"tjxt/rpc/message/internal/svc"
+	"tjxt/rpc/message/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

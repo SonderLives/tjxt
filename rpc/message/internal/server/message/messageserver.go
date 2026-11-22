@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/apps/message/rpc/internal/logic/message"
-	"tjxt/apps/message/rpc/internal/svc"
-	"tjxt/apps/message/rpc/pb"
+	"tjxt/rpc/message/internal/logic/message"
+	"tjxt/rpc/message/internal/svc"
+	"tjxt/rpc/message/pb"
 )
 
 type MessageServer struct {

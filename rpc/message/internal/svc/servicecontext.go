@@ -1,8 +1,8 @@
 package svc
 
 import (
-	"tjxt/apps/message/rpc/internal/config"
-	"tjxt/apps/message/rpc/internal/model"
+	"tjxt/rpc/message/internal/config"
+	"tjxt/rpc/message/internal/model"
 
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )

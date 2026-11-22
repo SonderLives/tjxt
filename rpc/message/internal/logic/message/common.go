@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"tjxt/apps/message/rpc/internal/model"
-	"tjxt/apps/message/rpc/pb"
+	"tjxt/rpc/message/internal/model"
+	"tjxt/rpc/message/pb"
 	"tjxt/pkg/utils/idgen"
 
 	"google.golang.org/grpc/metadata"

@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/apps/exam/rpc/internal/config"
-	examserver "tjxt/apps/exam/rpc/internal/server/exam"
-	"tjxt/apps/exam/rpc/internal/svc"
-	"tjxt/apps/exam/rpc/pb"
+	"tjxt/rpc/exam/internal/config"
+	examserver "tjxt/rpc/exam/internal/server/exam"
+	"tjxt/rpc/exam/internal/svc"
+	"tjxt/rpc/exam/pb"
 
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"

@@ -7,9 +7,9 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/apps/remark/api/internal/config"
-	"tjxt/apps/remark/api/internal/handler"
-	"tjxt/apps/remark/api/internal/svc"
+	"tjxt/api/remark/internal/config"
+	"tjxt/api/remark/internal/handler"
+	"tjxt/api/remark/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 	"tjxt/pkg/confenv"

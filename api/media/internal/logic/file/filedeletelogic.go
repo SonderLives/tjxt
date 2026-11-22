@@ -6,9 +6,9 @@ package file
 import (
 	"context"
 
-	"tjxt/apps/media/api/internal/svc"
-	"tjxt/apps/media/api/internal/types"
-	mediaclient "tjxt/apps/media/rpc/client/media"
+	"tjxt/api/media/internal/svc"
+	"tjxt/api/media/internal/types"
+	mediaclient "tjxt/rpc/media/client/media"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"

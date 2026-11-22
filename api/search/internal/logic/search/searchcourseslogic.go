@@ -6,10 +6,10 @@ package search
 import (
 	"context"
 
-	"tjxt/apps/search/api/internal/svc"
-	"tjxt/apps/search/api/internal/types"
-	searchclient "tjxt/apps/search/rpc/client/search"
-	searchpb "tjxt/apps/search/rpc/pb"
+	"tjxt/api/search/internal/svc"
+	"tjxt/api/search/internal/types"
+	searchclient "tjxt/rpc/search/client/search"
+	searchpb "tjxt/rpc/search/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

@@ -1,11 +1,11 @@
-module tjxt/apps/message/api
+module tjxt/api/message
 
 go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
 	google.golang.org/grpc v1.83.2
-	tjxt/apps/message/rpc v0.0.0-00010101000000-000000000000
+	tjxt/rpc/message v0.0.0-00010101000000-000000000000
 	tjxt/pkg v0.0.0-00010101000000-000000000000
 )
 
@@ -101,6 +101,6 @@ require (
 )
 
 replace (
-	tjxt/apps/message/rpc => ../rpc
-	tjxt/pkg => ../../../pkg
+	tjxt/rpc/message => ../../rpc/message
+	tjxt/pkg => ../../pkg
 )

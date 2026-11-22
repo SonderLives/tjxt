@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"tjxt/apps/promotion/rpc/internal/model"
-	"tjxt/apps/promotion/rpc/pb"
+	"tjxt/rpc/promotion/internal/model"
+	"tjxt/rpc/promotion/pb"
 	"tjxt/pkg/xerr"
 )
 

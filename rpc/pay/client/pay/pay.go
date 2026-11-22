@@ -7,7 +7,7 @@ package pay
 import (
 	"context"
 
-	"tjxt/apps/pay/rpc/pb"
+	"tjxt/rpc/pay/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

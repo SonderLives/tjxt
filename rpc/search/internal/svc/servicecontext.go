@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strings"
 
-	courseclient "tjxt/apps/course/rpc/client/course"
-	"tjxt/apps/search/rpc/internal/config"
-	"tjxt/apps/search/rpc/internal/model"
-	"tjxt/apps/search/rpc/pb"
+	courseclient "tjxt/rpc/course/client/course"
+	"tjxt/rpc/search/internal/config"
+	"tjxt/rpc/search/internal/model"
+	"tjxt/rpc/search/pb"
 	"tjxt/pkg/mq"
 
 	"github.com/elastic/go-elasticsearch/v9"

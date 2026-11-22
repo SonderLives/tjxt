@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"time"
 
-	courseclient "tjxt/apps/course/rpc/client/course"
-	"tjxt/apps/trade/rpc/internal/model"
-	"tjxt/apps/trade/rpc/internal/svc"
-	"tjxt/apps/trade/rpc/pb"
+	courseclient "tjxt/rpc/course/client/course"
+	"tjxt/rpc/trade/internal/model"
+	"tjxt/rpc/trade/internal/svc"
+	"tjxt/rpc/trade/pb"
 
 	"tjxt/pkg/utils/idgen"
 )

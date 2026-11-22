@@ -6,9 +6,9 @@ package today
 import (
 	"context"
 
-	"tjxt/apps/data/api/internal/svc"
-	"tjxt/apps/data/api/internal/types"
-	dataclient "tjxt/apps/data/rpc/client/data"
+	"tjxt/api/data/internal/svc"
+	"tjxt/api/data/internal/types"
+	dataclient "tjxt/rpc/data/client/data"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

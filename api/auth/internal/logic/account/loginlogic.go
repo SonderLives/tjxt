@@ -3,12 +3,12 @@ package account
 import (
 	"context"
 
-	authclient "tjxt/apps/auth/rpc/client/auth"
-	userclient "tjxt/apps/user/rpc/client/user"
+	authclient "tjxt/rpc/auth/client/auth"
+	userclient "tjxt/rpc/user/client/user"
 	authutil "tjxt/pkg/auth"
 
-	"tjxt/apps/auth/api/internal/svc"
-	"tjxt/apps/auth/api/internal/types"
+	"tjxt/api/auth/internal/svc"
+	"tjxt/api/auth/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

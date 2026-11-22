@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/apps/pay/rpc/internal/config"
-	payserver "tjxt/apps/pay/rpc/internal/server/pay"
-	"tjxt/apps/pay/rpc/internal/svc"
-	"tjxt/apps/pay/rpc/pb"
+	"tjxt/rpc/pay/internal/config"
+	payserver "tjxt/rpc/pay/internal/server/pay"
+	"tjxt/rpc/pay/internal/svc"
+	"tjxt/rpc/pay/pb"
 
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"

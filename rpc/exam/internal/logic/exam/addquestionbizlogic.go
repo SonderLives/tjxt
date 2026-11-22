@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 
-	"tjxt/apps/exam/rpc/internal/model"
-	"tjxt/apps/exam/rpc/internal/svc"
-	"tjxt/apps/exam/rpc/pb"
+	"tjxt/rpc/exam/internal/model"
+	"tjxt/rpc/exam/internal/svc"
+	"tjxt/rpc/exam/pb"
 	"tjxt/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"

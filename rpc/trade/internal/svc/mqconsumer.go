@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"tjxt/apps/trade/rpc/internal/model"
+	"tjxt/rpc/trade/internal/model"
 	"tjxt/pkg/mq"
 	"tjxt/pkg/mq/event"
 

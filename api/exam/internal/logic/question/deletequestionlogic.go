@@ -6,9 +6,9 @@ package question
 import (
 	"context"
 
-	"tjxt/apps/exam/api/internal/svc"
-	"tjxt/apps/exam/api/internal/types"
-	examclient "tjxt/apps/exam/rpc/client/exam"
+	"tjxt/api/exam/internal/svc"
+	"tjxt/api/exam/internal/types"
+	examclient "tjxt/rpc/exam/client/exam"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"

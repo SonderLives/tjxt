@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/apps/data/rpc/internal/config"
-	dataServer "tjxt/apps/data/rpc/internal/server/data"
-	"tjxt/apps/data/rpc/internal/svc"
-	"tjxt/apps/data/rpc/pb"
+	"tjxt/rpc/data/internal/config"
+	dataServer "tjxt/rpc/data/internal/server/data"
+	"tjxt/rpc/data/internal/svc"
+	"tjxt/rpc/data/pb"
 
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"

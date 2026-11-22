@@ -6,10 +6,10 @@ package logic
 import (
 	"context"
 
-	"tjxt/apps/course/api/internal/svc"
-	"tjxt/apps/course/api/internal/types"
-	"tjxt/apps/course/rpc/pb"
-	learningpb "tjxt/apps/learning/rpc/pb"
+	"tjxt/api/course/internal/svc"
+	"tjxt/api/course/internal/types"
+	"tjxt/rpc/course/pb"
+	learningpb "tjxt/rpc/learning/pb"
 	"tjxt/pkg/auth"
 	"tjxt/pkg/xerr"
 

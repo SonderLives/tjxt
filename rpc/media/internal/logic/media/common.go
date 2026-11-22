@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"tjxt/apps/media/rpc/internal/model"
-	"tjxt/apps/media/rpc/internal/store"
-	"tjxt/apps/media/rpc/pb"
+	"tjxt/rpc/media/internal/model"
+	"tjxt/rpc/media/internal/store"
+	"tjxt/rpc/media/pb"
 	"tjxt/pkg/utils/idgen"
 )
 

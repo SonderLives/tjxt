@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/apps/remark/rpc/internal/logic/remark"
-	"tjxt/apps/remark/rpc/internal/svc"
-	"tjxt/apps/remark/rpc/pb"
+	"tjxt/rpc/remark/internal/logic/remark"
+	"tjxt/rpc/remark/internal/svc"
+	"tjxt/rpc/remark/pb"
 )
 
 type RemarkServer struct {

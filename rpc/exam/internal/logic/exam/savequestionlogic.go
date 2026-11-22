@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"strings"
 
-	"tjxt/apps/exam/rpc/internal/model"
-	"tjxt/apps/exam/rpc/internal/svc"
-	"tjxt/apps/exam/rpc/pb"
+	"tjxt/rpc/exam/internal/model"
+	"tjxt/rpc/exam/internal/svc"
+	"tjxt/rpc/exam/pb"
 	"tjxt/pkg/utils/idgen"
 	"tjxt/pkg/xerr"
 

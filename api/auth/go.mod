@@ -1,11 +1,11 @@
-module tjxt/apps/auth/api
+module tjxt/api/auth
 
 go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
-	tjxt/apps/auth/rpc v0.0.0-00010101000000-000000000000
-	tjxt/apps/user/rpc v0.0.0-00010101000000-000000000000
+	tjxt/rpc/auth v0.0.0-00010101000000-000000000000
+	tjxt/rpc/user v0.0.0-00010101000000-000000000000
 	tjxt/pkg v0.0.0-00010101000000-000000000000
 )
 
@@ -102,7 +102,7 @@ require (
 )
 
 replace (
-	tjxt/apps/auth/rpc => ../rpc
-	tjxt/apps/user/rpc => ../../user/rpc
-	tjxt/pkg => ../../../pkg
+	tjxt/rpc/auth => ../../rpc/auth
+	tjxt/rpc/user => ../../rpc/user
+	tjxt/pkg => ../../pkg
 )

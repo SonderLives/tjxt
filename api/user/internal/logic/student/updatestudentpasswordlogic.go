@@ -3,9 +3,9 @@ package student
 import (
 	"context"
 
-	"tjxt/apps/user/api/internal/logic/convert"
-	"tjxt/apps/user/api/internal/svc"
-	"tjxt/apps/user/api/internal/types"
+	"tjxt/api/user/internal/logic/convert"
+	"tjxt/api/user/internal/svc"
+	"tjxt/api/user/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

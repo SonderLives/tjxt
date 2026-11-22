@@ -7,7 +7,7 @@ package promotion
 import (
 	"context"
 
-	"tjxt/apps/promotion/rpc/pb"
+	"tjxt/rpc/promotion/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"tjxt/apps/media/rpc/internal/model"
-	"tjxt/apps/media/rpc/internal/svc"
-	"tjxt/apps/media/rpc/pb"
+	"tjxt/rpc/media/internal/model"
+	"tjxt/rpc/media/internal/svc"
+	"tjxt/rpc/media/pb"
 	"tjxt/pkg/utils/idgen"
 	"tjxt/pkg/xerr"
 

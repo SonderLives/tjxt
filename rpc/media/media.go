@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 
-	"tjxt/apps/media/rpc/internal/config"
-	mediaserver "tjxt/apps/media/rpc/internal/server/media"
-	"tjxt/apps/media/rpc/internal/svc"
-	"tjxt/apps/media/rpc/pb"
+	"tjxt/rpc/media/internal/config"
+	mediaserver "tjxt/rpc/media/internal/server/media"
+	"tjxt/rpc/media/internal/svc"
+	"tjxt/rpc/media/pb"
 
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"

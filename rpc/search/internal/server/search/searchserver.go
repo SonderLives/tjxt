@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"tjxt/apps/search/rpc/internal/logic/search"
-	"tjxt/apps/search/rpc/internal/svc"
-	"tjxt/apps/search/rpc/pb"
+	"tjxt/rpc/search/internal/logic/search"
+	"tjxt/rpc/search/internal/svc"
+	"tjxt/rpc/search/pb"
 )
 
 type SearchServer struct {
