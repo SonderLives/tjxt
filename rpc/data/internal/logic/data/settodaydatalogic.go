@@ -6,7 +6,7 @@ import (
 
 	"tjxt/rpc/data/internal/svc"
 	"tjxt/rpc/data/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -37,7 +37,7 @@ func (l *SetTodayDataLogic) SetTodayData(in *pb.TodayDataSetReq) (*pb.OkReply, e
 		"version":     strconv.Itoa(int(in.Version)),
 	}
 	if err := l.svcCtx.Rds.HmsetCtx(l.ctx, todayDataKey, fields); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "写入今日数据失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "写入今日数据失败")
 	}
 	return &pb.OkReply{Success: true}, nil
 }

@@ -6,7 +6,7 @@ import (
 	payclient "tjxt/rpc/pay/client/pay"
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,13 +27,13 @@ func NewPayChannelGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pay
 
 func (l *PayChannelGetLogic) PayChannelGet(in *pb.IdRequest) (*pb.PayChannelDTO, error) {
 	if in.Id <= 0 {
-		return nil, xerr.BadRequestf("支付渠道ID不能为空")
+		return nil, errorx.BadRequestf("支付渠道ID不能为空")
 	}
 
 	// pay 服务未提供按 id 查询，先取全量再筛选
 	resp, err := l.svcCtx.PayRpc.ListPayChannels(l.ctx, &payclient.ListPayChannelsRequest{})
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询支付渠道失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询支付渠道失败")
 	}
 
 	for _, ch := range resp.List {
@@ -49,5 +49,5 @@ func (l *PayChannelGetLogic) PayChannelGet(in *pb.IdRequest) (*pb.PayChannelDTO,
 			Status:          ch.Status,
 		}, nil
 	}
-	return nil, xerr.NotFound("支付渠道不存在")
+	return nil, errorx.NotFound("支付渠道不存在")
 }

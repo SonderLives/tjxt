@@ -11,7 +11,7 @@ import (
 
 	courseclient "tjxt/rpc/course/client/course"
 	"tjxt/pkg/mq/event"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -70,7 +70,7 @@ func (c *courseIndexConsumer) syncUp(ctx context.Context, courseId int64) error 
 	info, err := c.svcCtx.CourseRpc.CourseSearchInfoForIndex(ctx, &courseclient.IdRequest{Id: courseId})
 	if err != nil {
 		// 课程不存在视为终态：不上索引，直接丢弃（避免无效重试）
-		if xerr.CodeOf(err) == xerr.CodeNotFound {
+		if errorx.CodeOf(err) == errorx.CodeNotFound {
 			logx.Errorf("course not found for index, courseId=%d: %v", courseId, err)
 			return nil
 		}

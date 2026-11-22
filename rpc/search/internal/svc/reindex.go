@@ -8,7 +8,7 @@ import (
 	"time"
 
 	courseclient "tjxt/rpc/course/client/course"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/elastic/go-elasticsearch/v9/esutil"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -22,7 +22,7 @@ const reindexPageSize = 500
 // 幂等：以 courseId 作为文档 ID 做 upsert，重复执行安全（启动时 + 手动均可调用）。
 func ReindexAll(ctx context.Context, svcCtx *ServiceContext) (indexed, total int64, err error) {
 	if svcCtx.ES == nil {
-		return 0, 0, xerr.ServiceUnavailable("搜索服务暂不可用")
+		return 0, 0, errorx.ServiceUnavailable("搜索服务暂不可用")
 	}
 
 	bi, err := esutil.NewBulkIndexer(esutil.BulkIndexerConfig{
@@ -33,7 +33,7 @@ func ReindexAll(ctx context.Context, svcCtx *ServiceContext) (indexed, total int
 		FlushInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return 0, 0, xerr.Wrapf(err, xerr.CodeInternal, "初始化批量索引器失败")
+		return 0, 0, errorx.Wrapf(err, errorx.CodeInternal, "初始化批量索引器失败")
 	}
 
 	var failed int64
@@ -44,7 +44,7 @@ func ReindexAll(ctx context.Context, svcCtx *ServiceContext) (indexed, total int
 		})
 		if err != nil {
 			_ = bi.Close(ctx)
-			return 0, total, xerr.Wrapf(err, xerr.CodeInternal, "拉取课程索引列表失败")
+			return 0, total, errorx.Wrapf(err, errorx.CodeInternal, "拉取课程索引列表失败")
 		}
 
 		for _, info := range reply.Items {
@@ -66,7 +66,7 @@ func ReindexAll(ctx context.Context, svcCtx *ServiceContext) (indexed, total int
 				Body:       bytes.NewReader(body),
 			}); aErr != nil {
 				_ = bi.Close(ctx)
-				return 0, total, xerr.Wrapf(aErr, xerr.CodeInternal, "批量写入 ES 失败")
+				return 0, total, errorx.Wrapf(aErr, errorx.CodeInternal, "批量写入 ES 失败")
 			}
 		}
 
@@ -76,7 +76,7 @@ func ReindexAll(ctx context.Context, svcCtx *ServiceContext) (indexed, total int
 	}
 
 	if err := bi.Close(ctx); err != nil {
-		return 0, total, xerr.Wrapf(err, xerr.CodeInternal, "刷新批量索引器失败")
+		return 0, total, errorx.Wrapf(err, errorx.CodeInternal, "刷新批量索引器失败")
 	}
 
 	stats := bi.Stats()

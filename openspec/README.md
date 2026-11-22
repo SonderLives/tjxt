@@ -12,7 +12,7 @@ openspec/
 │   ├── architecture/       # 跨服务架构：service-topology（依赖拓扑/调用链/契约原则/部署视图）
 │   ├── conventions/       # 工程约定：goctl-codegen / api-contracts / code-style / git-workflow
 │   ├── shared/            # 跨服务共享契约
-│   │   ├── error-codes/   # pkg/xerr 统一错误码
+│   │   ├── error-codes/   # pkg/errorx 统一错误码
 │   │   ├── mq-events/     # RabbitMQ 事件总线契约
 │   │   └── pkg-contracts/ # pkg/ 公共库契约（auth/response/page/idgen/mq）
 │   └── infra/             # 基础设施规格
@@ -59,7 +59,7 @@ openspec/
 | `architecture/service-topology` | 服务依赖图（设计意图 vs 实际接线对照）、下单支付/学习进度/文件上传三条调用链、5 条服务间契约原则、跨服务数据访问正反例、数据域边界与 SQL 版本管理、K8s 生产部署拓扑 |
 | `conventions/goctl-codegen` | 生成优先与手写边界、标准开发顺序、goctl api/rpc/model 命令与覆盖行为、命名与模块结构、Model 扩展模式、常见错误规避、可观测性配置保护 |
 | `conventions/api-contracts` | 统一响应 `response.R` + `result.Write`、分页契约、JWT 与身份获取、错误码分段、`.api` 编写规范、参数绑定、版本兼容 |
-| `conventions/code-style` | 命名/格式化、xerr 错误处理、ctx 透传与 3s 超时、ServiceContext 依赖注入、标准包布局、import 分组与禁止项、测试约定 |
+| `conventions/code-style` | 命名/格式化、errorx 错误处理、ctx 透传与 3s 超时、ServiceContext 依赖注入、标准包布局、import 分组与禁止项、测试约定 |
 | `conventions/git-workflow` | 分支策略、Conventional Commits、PR 模板与门禁、SemVer、发布流程、CHANGELOG 与分支保护 |
 | `infra/local-dev-workflow` | 环境依赖、8 容器启动、go.work 初始化、先 RPC 后 API 启动顺序、Makefile 目标、SQL 目录约定、已知开发陷阱 |
 | `infra/local-env` | docker-compose 容器清单、端口、凭据、健康检查 |

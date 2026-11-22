@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/pay/internal/svc"
 	"tjxt/rpc/pay/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,7 +23,7 @@ func NewListPayChannelsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *L
 func (l *ListPayChannelsLogic) ListPayChannels(in *pb.ListPayChannelsRequest) (*pb.ListPayChannelsResponse, error) {
 	list, err := l.svcCtx.PayChannelModel.FindAllEnabled(l.ctx)
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询支付渠道失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询支付渠道失败")
 	}
 	resp := &pb.ListPayChannelsResponse{List: make([]*pb.PayChannelResponse, 0, len(list))}
 	for _, item := range list {

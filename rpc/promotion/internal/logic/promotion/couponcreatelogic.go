@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/promotion/internal/svc"
 	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -34,19 +34,19 @@ func (l *CouponCreateLogic) CouponCreate(in *pb.CouponFormDTO) (*pb.CouponDetail
 	ret, err := l.svcCtx.CouponModel.Insert(l.ctx, data)
 	if err != nil {
 		l.Errorf("insert coupon failed, name=%s, err=%v", data.Name, err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "新增优惠券失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "新增优惠券失败")
 	}
 
 	id, err := ret.LastInsertId()
 	if err != nil {
 		l.Errorf("get coupon last insert id failed, err=%v", err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "新增优惠券失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "新增优惠券失败")
 	}
 
 	saved, err := l.svcCtx.CouponModel.FindOne(l.ctx, id)
 	if err != nil {
 		l.Errorf("find coupon after insert failed, id=%d, err=%v", id, err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "新增优惠券失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "新增优惠券失败")
 	}
 	return toCouponDetailVO(saved), nil
 }

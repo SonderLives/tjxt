@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +29,7 @@ func NewCourseCatalogueIndexListLogic(ctx context.Context, svcCtx *svc.ServiceCo
 func (l *CourseCatalogueIndexListLogic) CourseCatalogueIndexList(in *pb.IdRequest) (*pb.CataSimpleList, error) {
 	list, err := l.svcCtx.CourseCatalogueDraftModel.ListByCourseId(l.ctx, in.Id)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程目录草稿失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程目录草稿失败")
 	}
 
 	// 先按 c_index 顺序给章编号

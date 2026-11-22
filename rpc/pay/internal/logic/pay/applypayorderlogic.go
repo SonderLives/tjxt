@@ -9,7 +9,7 @@ import (
 	"tjxt/rpc/pay/internal/model"
 	"tjxt/rpc/pay/internal/svc"
 	"tjxt/rpc/pay/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -33,22 +33,22 @@ func NewApplyPayOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *App
 
 func (l *ApplyPayOrderLogic) ApplyPayOrder(in *pb.ApplyPayOrderRequest) (*pb.ApplyPayOrderResponse, error) {
 	if in.BizOrderNo <= 0 || in.BizUserId <= 0 || in.Amount <= 0 {
-		return nil, xerr.BadRequestf("biz_order_no/biz_user_id/amount 非法")
+		return nil, errorx.BadRequestf("biz_order_no/biz_user_id/amount 非法")
 	}
 	if in.PayChannelCode == "" {
-		return nil, xerr.BadRequestf("支付渠道编码不能为空")
+		return nil, errorx.BadRequestf("支付渠道编码不能为空")
 	}
 
 	// 渠道校验
 	channel, err := l.svcCtx.PayChannelModel.FindByCode(l.ctx, in.PayChannelCode)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("支付渠道不存在")
+			return nil, errorx.NotFound("支付渠道不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询支付渠道失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询支付渠道失败")
 	}
 	if channel.Status != PayChannelStatusEnabled {
-		return nil, xerr.Conflict("支付渠道已停用")
+		return nil, errorx.Conflict("支付渠道已停用")
 	}
 
 	// 幂等：biz_order_no 已有单则直接复用
@@ -58,13 +58,13 @@ func (l *ApplyPayOrderLogic) ApplyPayOrder(in *pb.ApplyPayOrderRequest) (*pb.App
 		case PayOrderStatusPaying:
 			return &pb.ApplyPayOrderResponse{QrCodeUrl: formatNullString(existing.QrCodeUrl)}, nil
 		case PayOrderStatusSuccess:
-			return nil, xerr.Conflict("订单已支付，请勿重复支付")
+			return nil, errorx.Conflict("订单已支付，请勿重复支付")
 		default:
-			return nil, xerr.Conflict("订单已关闭，请重新下单")
+			return nil, errorx.Conflict("订单已关闭，请重新下单")
 		}
 	}
 	if !isNotFound(err) {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询已有支付单失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询已有支付单失败")
 	}
 
 	// 默认 30 分钟超时
@@ -88,7 +88,7 @@ func (l *ApplyPayOrderLogic) ApplyPayOrder(in *pb.ApplyPayOrderRequest) (*pb.App
 		ChannelCode: in.PayChannelCode,
 	})
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "渠道下单失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "渠道下单失败")
 	}
 	po := &model.PayOrder{
 		BizOrderNo:     in.BizOrderNo,
@@ -109,7 +109,7 @@ func (l *ApplyPayOrderLogic) ApplyPayOrder(in *pb.ApplyPayOrderRequest) (*pb.App
 		},
 	}
 	if _, err := l.svcCtx.PayOrderModel.Insert(l.ctx, po); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "创建支付单失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "创建支付单失败")
 	}
 	return &pb.ApplyPayOrderResponse{QrCodeUrl: po.QrCodeUrl.String}, nil
 }

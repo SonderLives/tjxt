@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -40,7 +40,7 @@ func (l *CourseSimpleInfoListLogic) CourseSimpleInfoList(in *pb.CourseSimpleInfo
 		return &pb.CourseSimpleInfoListReply{Items: []*pb.CourseSimpleInfoItem{}}, nil
 	}
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "批量查询课程失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "批量查询课程失败")
 	}
 
 	items := make([]*pb.CourseSimpleInfoItem, 0, len(list))

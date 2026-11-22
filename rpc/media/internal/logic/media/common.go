@@ -10,7 +10,7 @@ import (
 	"tjxt/rpc/media/internal/model"
 	"tjxt/rpc/media/internal/store"
 	"tjxt/rpc/media/pb"
-	"tjxt/pkg/utils/idgen"
+	"tjxt/pkg/idgen"
 )
 
 // 文件状态

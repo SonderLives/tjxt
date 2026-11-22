@@ -6,8 +6,8 @@ import (
 
 	"tjxt/rpc/pay/internal/model"
 	"tjxt/rpc/pay/pb"
-	"tjxt/pkg/utils/idgen"
-	"tjxt/pkg/utils/page"
+	"tjxt/pkg/idgen"
+	"tjxt/pkg/page"
 )
 
 // 支付渠道状态

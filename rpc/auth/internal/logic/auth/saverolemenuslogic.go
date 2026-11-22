@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/auth/internal/model"
 	"tjxt/rpc/auth/internal/svc"
 	"tjxt/rpc/auth/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,18 +28,18 @@ func NewSaveRoleMenusLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Sav
 // SaveRoleMenus 全量覆盖角色的菜单分配。传空列表等价于清空该角色的全部菜单。
 func (l *SaveRoleMenusLogic) SaveRoleMenus(in *pb.RoleMenuReq) (*pb.Empty, error) {
 	if in.RoleId <= 0 {
-		return nil, xerr.BadRequestf("角色 id 无效")
+		return nil, errorx.BadRequestf("角色 id 无效")
 	}
 
 	role, err := l.svcCtx.RoleModel.FindOne(l.ctx, in.RoleId)
 	if err != nil {
 		if err == model.ErrNotFound {
-			return nil, xerr.NotFound("角色不存在")
+			return nil, errorx.NotFound("角色不存在")
 		}
 		return nil, err
 	}
 	if role.Deleted != 0 {
-		return nil, xerr.NotFound("角色不存在")
+		return nil, errorx.NotFound("角色不存在")
 	}
 
 	// 校验菜单均有效，避免写入指向已删除菜单的脏分配。
@@ -54,7 +54,7 @@ func (l *SaveRoleMenusLogic) SaveRoleMenus(in *pb.RoleMenuReq) (*pb.Empty, error
 		}
 		for _, id := range in.MenuIds {
 			if _, ok := valid[id]; !ok {
-				return nil, xerr.BadRequestf("菜单 %d 不存在或已删除", id)
+				return nil, errorx.BadRequestf("菜单 %d 不存在或已删除", id)
 			}
 		}
 	}

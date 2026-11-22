@@ -136,7 +136,7 @@ user 服务 SHALL 在 `LoginVerify` 中只做「找用户 + 比对密码 + 状�
 - 两者皆空：直接返回 `ErrUserNotFound`，不查库
 - 状态前置：`status != 1` 返回 `ErrUserDisabled`，**先于密码比对**，禁用账户不泄漏密码正确性
 - 密码比对：`bcrypt.CompareHashAndPassword`，失败返回 `ErrBadCredential`
-- 错误类型：使用包级哨兵错误（`ErrUserNotFound` / `ErrBadCredential` / `ErrUserDisabled`）而非 `xerr`，由调用方 auth 服务翻译为业务错误码
+- 错误类型：使用包级哨兵错误（`ErrUserNotFound` / `ErrBadCredential` / `ErrUserDisabled`）而非 `errorx`，由调用方 auth 服务翻译为业务错误码
 
 #### Scenario: 登录核验成功路径
 

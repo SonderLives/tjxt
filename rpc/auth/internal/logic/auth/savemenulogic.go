@@ -7,8 +7,8 @@ import (
 	"tjxt/rpc/auth/internal/model"
 	"tjxt/rpc/auth/internal/svc"
 	"tjxt/rpc/auth/pb"
-	"tjxt/pkg/utils/idgen"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/idgen"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -34,13 +34,13 @@ func NewSaveMenuLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SaveMenu
 func (l *SaveMenuLogic) SaveMenu(in *pb.MenuSaveReq) (*pb.IdReply, error) {
 	label := strings.TrimSpace(in.Label)
 	if label == "" {
-		return nil, xerr.BadRequestf("菜单名称不能为空")
+		return nil, errorx.BadRequestf("菜单名称不能为空")
 	}
 	if in.ParentId < 0 {
-		return nil, xerr.BadRequestf("父菜单 id 无效")
+		return nil, errorx.BadRequestf("父菜单 id 无效")
 	}
 	if in.Id > 0 && in.Id == in.ParentId {
-		return nil, xerr.BadRequestf("父菜单不能是自身")
+		return nil, errorx.BadRequestf("父菜单不能是自身")
 	}
 
 	// 指定父节点时校验其存在，避免产生游离分支。
@@ -48,12 +48,12 @@ func (l *SaveMenuLogic) SaveMenu(in *pb.MenuSaveReq) (*pb.IdReply, error) {
 		parent, err := l.svcCtx.MenuModel.FindOne(l.ctx, in.ParentId)
 		if err != nil {
 			if err == model.ErrNotFound {
-				return nil, xerr.NotFound("父菜单不存在")
+				return nil, errorx.NotFound("父菜单不存在")
 			}
 			return nil, err
 		}
 		if parent.Deleted != 0 {
-			return nil, xerr.NotFound("父菜单不存在")
+			return nil, errorx.NotFound("父菜单不存在")
 		}
 	}
 
@@ -83,12 +83,12 @@ func (l *SaveMenuLogic) SaveMenu(in *pb.MenuSaveReq) (*pb.IdReply, error) {
 	menu, err := l.svcCtx.MenuModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if err == model.ErrNotFound {
-			return nil, xerr.NotFound("菜单不存在")
+			return nil, errorx.NotFound("菜单不存在")
 		}
 		return nil, err
 	}
 	if menu.Deleted != 0 {
-		return nil, xerr.NotFound("菜单不存在")
+		return nil, errorx.NotFound("菜单不存在")
 	}
 
 	oldParent := menu.ParentId

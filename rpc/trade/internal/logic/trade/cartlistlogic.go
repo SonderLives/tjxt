@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,12 +30,12 @@ func NewCartListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CartList
 func (l *CartListLogic) CartList(in *pb.Empty) (*pb.CartListReply, error) {
 	userId, err := auth.UserIdFromCtx(l.ctx)
 	if err != nil {
-		return nil, xerr.New(xerr.CodeUnauthorized, "未登录")
+		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
 	}
 
 	carts, err := l.svcCtx.CartModel.ListByUserId(l.ctx, userId)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询购物车失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询购物车失败")
 	}
 
 	items := make([]*pb.CartVO, 0, len(carts))

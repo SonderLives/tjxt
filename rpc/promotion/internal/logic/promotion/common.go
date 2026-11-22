@@ -11,7 +11,7 @@ import (
 
 	"tjxt/rpc/promotion/internal/model"
 	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 )
 
 const timeLayout = "2006-01-02 15:04:05"
@@ -37,7 +37,7 @@ func generateCodes(n int64) ([]string, error) {
 		for i := 0; i < codeLength; i++ {
 			idx, err := rand.Int(rand.Reader, max)
 			if err != nil {
-				return nil, xerr.Wrap(err, xerr.CodeInternal, "生成兑换码失败")
+				return nil, errorx.Wrap(err, errorx.CodeInternal, "生成兑换码失败")
 			}
 			sb.WriteByte(codeAlphabet[idx.Int64()])
 		}
@@ -83,7 +83,7 @@ func parseTime(s string) (sql.NullTime, error) {
 			return sql.NullTime{Time: t, Valid: true}, nil
 		}
 	}
-	return sql.NullTime{}, xerr.BadRequestf("时间格式非法：%s", s)
+	return sql.NullTime{}, errorx.BadRequestf("时间格式非法：%s", s)
 }
 
 // ============================ 错误判定 ============================
@@ -310,37 +310,37 @@ func buildCoupon(in *pb.CouponFormDTO, operator int64) *model.Coupon {
 // validateCouponForm 校验优惠券表单的业务约束。
 func validateCouponForm(in *pb.CouponFormDTO) error {
 	if strings.TrimSpace(in.Name) == "" {
-		return xerr.BadRequestf("优惠券名称不能为空")
+		return errorx.BadRequestf("优惠券名称不能为空")
 	}
 	switch in.DiscountType {
 	case model.DiscountTypeReduce:
 		if in.ThresholdAmount <= 0 {
-			return xerr.BadRequestf("满减券必须设置使用门槛")
+			return errorx.BadRequestf("满减券必须设置使用门槛")
 		}
 		if in.DiscountValue <= 0 || in.DiscountValue >= in.ThresholdAmount {
-			return xerr.BadRequestf("满减金额必须大于 0 且小于使用门槛")
+			return errorx.BadRequestf("满减金额必须大于 0 且小于使用门槛")
 		}
 	case model.DiscountTypeDiscount:
 		if in.DiscountValue <= 0 || in.DiscountValue >= 100 {
-			return xerr.BadRequestf("折扣值必须在 1~99 之间")
+			return errorx.BadRequestf("折扣值必须在 1~99 之间")
 		}
 	case model.DiscountTypeNoThreshold:
 		if in.DiscountValue <= 0 {
-			return xerr.BadRequestf("无门槛券优惠金额必须大于 0")
+			return errorx.BadRequestf("无门槛券优惠金额必须大于 0")
 		}
 	default:
-		return xerr.BadRequestf("优惠券类型非法：%s", in.DiscountType)
+		return errorx.BadRequestf("优惠券类型非法：%s", in.DiscountType)
 	}
 	switch in.ObtainWay {
 	case model.ObtainWayReceive, model.ObtainWayExchange, model.ObtainWayAssign:
 	default:
-		return xerr.BadRequestf("获取方式非法：%s", in.ObtainWay)
+		return errorx.BadRequestf("获取方式非法：%s", in.ObtainWay)
 	}
 	if in.TotalNum < 0 || in.UserLimit < 0 {
-		return xerr.BadRequestf("发行总量与每人限领数量不能为负数")
+		return errorx.BadRequestf("发行总量与每人限领数量不能为负数")
 	}
 	if in.Specific && len(in.Scopes) == 0 {
-		return xerr.BadRequestf("限定适用范围时必须指定范围")
+		return errorx.BadRequestf("限定适用范围时必须指定范围")
 	}
 	return nil
 }

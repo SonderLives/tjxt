@@ -18,7 +18,7 @@ type (
 		userCouponModel
 		// FindByUserAndStatus 查询指定用户在某状态下的优惠券，status 为空表示不限。
 		FindByUserAndStatus(ctx context.Context, userId int64, status string) ([]*UserCoupon, error)
-		// FindPageByUser 按用户+状态分页查询，offset/limit 由 pkg/utils/page 归一化后传入。
+		// FindPageByUser 按用户+状态分页查询，offset/limit 由 pkg/page 归一化后传入。
 		FindPageByUser(ctx context.Context, userId int64, status string, offset, limit int64) ([]*UserCoupon, int64, error)
 		// FindByIdsAndUser 批量按 id 查询当前用户的优惠券，防止越权使用他人券。
 		FindByIdsAndUser(ctx context.Context, ids []int64, userId int64) ([]*UserCoupon, error)

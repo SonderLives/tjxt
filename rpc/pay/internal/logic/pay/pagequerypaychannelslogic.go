@@ -5,8 +5,8 @@ import (
 
 	"tjxt/rpc/pay/internal/svc"
 	"tjxt/rpc/pay/pb"
-	"tjxt/pkg/utils/page"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/page"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,7 +25,7 @@ func (l *PageQueryPayChannelsLogic) PageQueryPayChannels(in *pb.PageQueryPayChan
 	offset, limit := normalizePage(in)
 	list, total, err := l.svcCtx.PayChannelModel.PageList(l.ctx, in.Name, in.ChannelCode, int64(in.Status), offset, limit)
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "分页查询支付渠道失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "分页查询支付渠道失败")
 	}
 	resp := &pb.PageQueryPayChannelsResponse{
 		Total: total,

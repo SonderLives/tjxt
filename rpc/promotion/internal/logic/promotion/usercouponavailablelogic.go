@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/promotion/internal/model"
 	"tjxt/rpc/promotion/internal/svc"
 	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,7 +30,7 @@ func NewUserCouponAvailableLogic(ctx context.Context, svcCtx *svc.ServiceContext
 // 按优惠金额从高到低返回，供下单页选择。
 func (l *UserCouponAvailableLogic) UserCouponAvailable(in *pb.OrderCourseListRequest) (*pb.CouponDiscountListReply, error) {
 	if in.UserId <= 0 {
-		return nil, xerr.Unauthorized("")
+		return nil, errorx.Unauthorized("")
 	}
 	if len(in.CourseList) == 0 {
 		return &pb.CouponDiscountListReply{}, nil
@@ -40,7 +40,7 @@ func (l *UserCouponAvailableLogic) UserCouponAvailable(in *pb.OrderCourseListReq
 	userCoupons, err := l.svcCtx.UserCouponModel.FindByUserAndStatus(l.ctx, in.UserId, model.UserCouponStatusUnused)
 	if err != nil {
 		l.Errorf("find user coupon failed, userId=%d, err=%v", in.UserId, err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询可用优惠券失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询可用优惠券失败")
 	}
 	if len(userCoupons) == 0 {
 		return &pb.CouponDiscountListReply{}, nil
@@ -74,7 +74,7 @@ func (l *UserCouponAvailableLogic) loadCoupons(ucs []*model.UserCoupon) (map[int
 	list, err := l.svcCtx.CouponModel.FindByIds(l.ctx, ids)
 	if err != nil {
 		l.Errorf("find coupons by ids failed, err=%v", err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询优惠券规则失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询优惠券规则失败")
 	}
 
 	result := make(map[int64]*model.Coupon, len(list))

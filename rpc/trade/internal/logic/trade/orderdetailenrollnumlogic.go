@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +28,7 @@ func (l *OrderDetailEnrollNumLogic) OrderDetailEnrollNum(in *pb.EnrollNumRequest
 	// course_id -> 报名人数
 	items, err := l.svcCtx.OrderDetailModel.CountPaidByCourseIds(l.ctx, in.CourseIdList)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "统计课程报名人数失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "统计课程报名人数失败")
 	}
 	if items == nil {
 		items = make(map[int64]int64)

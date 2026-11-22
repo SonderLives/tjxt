@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,14 +27,14 @@ func NewCourseSearchInfoForIndexLogic(ctx context.Context, svcCtx *svc.ServiceCo
 // CourseSearchInfoForIndex 查询课程用于搜索引擎建索引的字段（正式课程表）。
 func (l *CourseSearchInfoForIndexLogic) CourseSearchInfoForIndex(in *pb.IdRequest) (*pb.CourseSearchIndexInfo, error) {
 	if in.Id == 0 {
-		return nil, xerr.BadRequestf("课程id不能为空")
+		return nil, errorx.BadRequestf("课程id不能为空")
 	}
 	c, err := l.svcCtx.CourseModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("课程不存在")
+			return nil, errorx.NotFound("课程不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程失败")
 	}
 
 	var enable int32

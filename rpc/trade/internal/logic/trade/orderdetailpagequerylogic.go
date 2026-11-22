@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/trade/internal/model"
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -43,7 +43,7 @@ func (l *OrderDetailPageQueryLogic) OrderDetailPageQuery(in *pb.OrderDetailPageR
 
 	details, total, err := l.svcCtx.OrderDetailModel.PageQuery(l.ctx, f)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询订单明细分页失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询订单明细分页失败")
 	}
 
 	list := make([]*pb.OrderDetailPageVO, 0, len(details))

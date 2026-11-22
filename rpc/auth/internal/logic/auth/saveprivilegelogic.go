@@ -8,8 +8,8 @@ import (
 	"tjxt/rpc/auth/internal/model"
 	"tjxt/rpc/auth/internal/svc"
 	"tjxt/rpc/auth/pb"
-	"tjxt/pkg/utils/idgen"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/idgen"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -33,25 +33,25 @@ func (l *SavePrivilegeLogic) SavePrivilege(in *pb.PrivilegeSaveReq) (*pb.IdReply
 	method := strings.ToUpper(strings.TrimSpace(in.Method))
 	uri := strings.TrimSpace(in.Uri)
 	if method == "" {
-		return nil, xerr.BadRequestf("请求方式不能为空")
+		return nil, errorx.BadRequestf("请求方式不能为空")
 	}
 	if uri == "" {
-		return nil, xerr.BadRequestf("请求路径不能为空")
+		return nil, errorx.BadRequestf("请求路径不能为空")
 	}
 	if in.MenuId <= 0 {
-		return nil, xerr.BadRequestf("菜单 id 无效")
+		return nil, errorx.BadRequestf("菜单 id 无效")
 	}
 
 	// 权限必须挂在有效菜单下，否则前端菜单树无法展示。
 	menu, err := l.svcCtx.MenuModel.FindOne(l.ctx, in.MenuId)
 	if err != nil {
 		if err == model.ErrNotFound {
-			return nil, xerr.NotFound("菜单不存在")
+			return nil, errorx.NotFound("菜单不存在")
 		}
 		return nil, err
 	}
 	if menu.Deleted != 0 {
-		return nil, xerr.NotFound("菜单不存在")
+		return nil, errorx.NotFound("菜单不存在")
 	}
 
 	if in.Id <= 0 {
@@ -72,12 +72,12 @@ func (l *SavePrivilegeLogic) SavePrivilege(in *pb.PrivilegeSaveReq) (*pb.IdReply
 	privilege, err := l.svcCtx.PrivilegeModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if err == model.ErrNotFound {
-			return nil, xerr.NotFound("权限不存在")
+			return nil, errorx.NotFound("权限不存在")
 		}
 		return nil, err
 	}
 	if privilege.Deleted != 0 {
-		return nil, xerr.NotFound("权限不存在")
+		return nil, errorx.NotFound("权限不存在")
 	}
 
 	privilege.MenuId = sql.NullInt64{Int64: in.MenuId, Valid: true}

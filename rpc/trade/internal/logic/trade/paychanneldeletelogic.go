@@ -6,7 +6,7 @@ import (
 	payclient "tjxt/rpc/pay/client/pay"
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +27,7 @@ func NewPayChannelDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 
 func (l *PayChannelDeleteLogic) PayChannelDelete(in *pb.IdRequest) (*pb.Empty, error) {
 	if in.Id <= 0 {
-		return nil, xerr.BadRequestf("支付渠道ID不能为空")
+		return nil, errorx.BadRequestf("支付渠道ID不能为空")
 	}
 
 	// 渠道无物理删除，置为禁用（status=2）等价逻辑删除
@@ -35,7 +35,7 @@ func (l *PayChannelDeleteLogic) PayChannelDelete(in *pb.IdRequest) (*pb.Empty, e
 		Id:     in.Id,
 		Status: 2,
 	}); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "删除支付渠道失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "删除支付渠道失败")
 	}
 	return &pb.Empty{}, nil
 }

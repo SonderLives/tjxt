@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -37,16 +37,16 @@ func downCourse(ctx context.Context, svcCtx *svc.ServiceContext, id int64) error
 	course, err := svcCtx.CourseModel.FindOne(ctx, id)
 	if err != nil {
 		if isNotFound(err) {
-			return xerr.NotFound("课程不存在")
+			return errorx.NotFound("课程不存在")
 		}
-		return xerr.Wrap(err, xerr.CodeInternal, "查询课程失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "查询课程失败")
 	}
 	if course.Status == int64(CourseStatusDownShelf) {
 		return nil
 	}
 	course.Status = int64(CourseStatusDownShelf)
 	if err = svcCtx.CourseModel.Update(ctx, course); err != nil {
-		return xerr.Wrap(err, xerr.CodeInternal, "课程下架失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "课程下架失败")
 	}
 	// 发布下架事件，触发 search 服务从 ES 索引删除（best-effort：失败仅告警）
 	svcCtx.PublishCourseEvent(ctx, id, false)

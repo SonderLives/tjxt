@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -33,7 +33,7 @@ func Sign(userID int64, role, secret string, expireSeconds int64) (string, error
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signed, err := token.SignedString([]byte(secret))
 	if err != nil {
-		return "", xerr.Wrap(err, xerr.CodeInternal, "签发令牌失败")
+		return "", errorx.Wrap(err, errorx.CodeInternal, "签发令牌失败")
 	}
 	return signed, nil
 }
@@ -42,22 +42,22 @@ func Sign(userID int64, role, secret string, expireSeconds int64) (string, error
 func Parse(tokenString, secret string) (int64, string, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, xerr.Unauthorized("")
+			return nil, errorx.Unauthorized("")
 		}
 		return []byte(secret), nil
 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 	if err != nil {
-		return 0, "", xerr.Wrap(err, xerr.CodeUnauthorized, "")
+		return 0, "", errorx.Wrap(err, errorx.CodeUnauthorized, "")
 	}
 	claims, ok := token.Claims.(*Claims)
 	if !ok || !token.Valid {
-		return 0, "", xerr.Unauthorized("")
+		return 0, "", errorx.Unauthorized("")
 	}
 	userID := claims.UserId
 	if userID <= 0 {
 		parsed, err := strconv.ParseInt(claims.Subject, 10, 64)
 		if err != nil || parsed <= 0 {
-			return 0, "", xerr.Unauthorized("")
+			return 0, "", errorx.Unauthorized("")
 		}
 		userID = parsed
 	}

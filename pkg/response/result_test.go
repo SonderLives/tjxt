@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"tjxt/pkg/response"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 )
 
 func TestWriteSuccess(t *testing.T) {
@@ -33,7 +33,7 @@ func TestWriteBizError(t *testing.T) {
 	r := httptest.NewRequest(http.MethodGet, "/x", nil)
 	w := httptest.NewRecorder()
 
-	response.Write(w, r, nil, xerr.New(xerr.CodeNotFound, "课程不存在"))
+	response.Write(w, r, nil, errorx.New(errorx.CodeNotFound, "课程不存在"))
 
 	if w.Code != http.StatusNotFound {
 		t.Fatalf("status = %d, want 404", w.Code)

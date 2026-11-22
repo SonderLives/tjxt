@@ -6,8 +6,8 @@ import (
 	"tjxt/rpc/media/internal/model"
 	"tjxt/rpc/media/internal/svc"
 	"tjxt/rpc/media/pb"
-	"tjxt/pkg/utils/idgen"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/idgen"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -36,20 +36,20 @@ func (l *MediaSaveLogic) MediaSave(in *pb.MediaSaveRequest) (*pb.MediaIdReply, e
 // create 新建媒资：校验文件名与关联文件（status=2），创建后把文件标记为已使用
 func (l *MediaSaveLogic) create(in *pb.MediaSaveRequest) (*pb.MediaIdReply, error) {
 	if in.Filename == "" {
-		return nil, xerr.BadRequestf("文件名不能为空")
+		return nil, errorx.BadRequestf("文件名不能为空")
 	}
 	if in.FileId == "" {
-		return nil, xerr.BadRequestf("fileId 不能为空")
+		return nil, errorx.BadRequestf("fileId 不能为空")
 	}
 	file, err := l.svcCtx.FileModel.FindByKey(l.ctx, in.FileId)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("文件不存在")
+			return nil, errorx.NotFound("文件不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询文件失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询文件失败")
 	}
 	if file.Status != FileStatusUploaded {
-		return nil, xerr.Conflict("文件尚未上传或已被使用")
+		return nil, errorx.Conflict("文件尚未上传或已被使用")
 	}
 
 	id := idgen.NextID()
@@ -69,7 +69,7 @@ func (l *MediaSaveLogic) create(in *pb.MediaSaveRequest) (*pb.MediaIdReply, erro
 		// RPC 协议暂无用户字段，creater/updater 保持默认 0
 	}
 	if _, err := l.svcCtx.MediaModel.Insert(l.ctx, media); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "创建媒资失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "创建媒资失败")
 	}
 	// 媒资关联成功后把文件标记为已使用（status=3），失败仅记录日志不影响主流程
 	if err := l.svcCtx.FileModel.UpdateStatus(l.ctx, file.Id, FileStatusUsed); err != nil {
@@ -83,9 +83,9 @@ func (l *MediaSaveLogic) update(in *pb.MediaSaveRequest) (*pb.MediaIdReply, erro
 	media, err := l.svcCtx.MediaModel.FindOneNotDeleted(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("媒资不存在")
+			return nil, errorx.NotFound("媒资不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询媒资失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询媒资失败")
 	}
 	if in.Filename != "" {
 		media.Filename = in.Filename
@@ -94,7 +94,7 @@ func (l *MediaSaveLogic) update(in *pb.MediaSaveRequest) (*pb.MediaIdReply, erro
 	media.Size = in.Size
 	// RPC 协议无 media_url/cover_url 字段，保持原值不变
 	if err := l.svcCtx.MediaModel.Update(l.ctx, media); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "更新媒资失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "更新媒资失败")
 	}
 	return &pb.MediaIdReply{Id: media.Id}, nil
 }

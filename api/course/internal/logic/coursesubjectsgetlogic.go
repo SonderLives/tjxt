@@ -9,7 +9,7 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,7 +32,7 @@ func NewCourseSubjectsGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 func (l *CourseSubjectsGetLogic) CourseSubjectsGet(req *types.IdPathReq) (resp []types.CataSubjectVO, err error) {
 	list, err := l.svcCtx.CourseRpc.CourseSubjectsGet(l.ctx, &pb.IdRequest{Id: req.Id})
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程题目失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程题目失败")
 	}
 	resp = make([]types.CataSubjectVO, 0, len(list.Items))
 	for _, c := range list.Items {

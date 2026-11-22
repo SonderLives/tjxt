@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +31,7 @@ func (l *CategoryAddLogic) CategoryAdd(in *pb.CategoryAddRequest) (*pb.Empty, er
 	if in.ParentId != 0 {
 		parent, err := l.svcCtx.CategoryModel.FindOne(l.ctx, in.ParentId)
 		if err != nil && !isNotFound(err) {
-			return nil, xerr.Wrap(err, xerr.CodeInternal, "查询父分类失败")
+			return nil, errorx.Wrap(err, errorx.CodeInternal, "查询父分类失败")
 		}
 		if parent != nil {
 			level = int64(parent.Level) + 1
@@ -47,7 +47,7 @@ func (l *CategoryAddLogic) CategoryAdd(in *pb.CategoryAddRequest) (*pb.Empty, er
 		Updater:  0,
 	}
 	if _, err := l.svcCtx.CategoryModel.Insert(l.ctx, data); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "新增分类失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "新增分类失败")
 	}
 	return &pb.Empty{}, nil
 }

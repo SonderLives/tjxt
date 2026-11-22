@@ -10,7 +10,7 @@ import (
 	"tjxt/api/pay/internal/svc"
 	"tjxt/api/pay/internal/types"
 	payclient "tjxt/rpc/pay/client/pay"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +31,7 @@ func NewNotifyPayFailedLogic(ctx context.Context, svcCtx *svc.ServiceContext) *N
 
 func (l *NotifyPayFailedLogic) NotifyPayFailed(req *types.NotifyPayFailedReq) (resp *types.Result, err error) {
 	if !verifySign(l.svcCtx.Config.PayNotifySecret, fmt.Sprintf("payOrderNo=%d", req.PayOrderNo), req.Sign) {
-		return nil, xerr.Unauthorized("支付回调签名校验失败")
+		return nil, errorx.Unauthorized("支付回调签名校验失败")
 	}
 	if _, err := l.svcCtx.PayRpc.NotifyPayFailed(l.ctx, &payclient.NotifyPayFailedRequest{
 		PayOrderNo: req.PayOrderNo,

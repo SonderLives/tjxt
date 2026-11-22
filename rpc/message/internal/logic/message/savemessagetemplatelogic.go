@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,27 +28,27 @@ func NewSaveMessageTemplateLogic(ctx context.Context, svcCtx *svc.ServiceContext
 // 短信模板 新增/更新
 func (l *SaveMessageTemplateLogic) SaveMessageTemplate(in *pb.MessageTemplateSaveReq) (*pb.IdReply, error) {
 	if in.Name == "" || in.PlatformCode == "" || in.SignName == "" || in.ThirdTemplateCode == "" || in.Content == "" {
-		return nil, xerr.BadRequestf("模板名称/平台代号/签名/第三方模板code/内容不能为空")
+		return nil, errorx.BadRequestf("模板名称/平台代号/签名/第三方模板code/内容不能为空")
 	}
 
 	// 校验短信平台存在且启用
 	platform, err := l.svcCtx.SmsThirdPlatformModel.FindByCode(l.ctx, in.PlatformCode)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.BadRequestf("短信平台不存在")
+			return nil, errorx.BadRequestf("短信平台不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询短信平台失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询短信平台失败")
 	}
 	if platform.Status != MessageTemplateStatusEnabled {
-		return nil, xerr.BadRequestf("短信平台未启用")
+		return nil, errorx.BadRequestf("短信平台未启用")
 	}
 
 	// 校验通知模板存在
 	if _, err := l.svcCtx.NoticeTemplateModel.FindOne(l.ctx, in.TemplateId); err != nil {
 		if isNotFound(err) {
-			return nil, xerr.BadRequestf("通知模板不存在")
+			return nil, errorx.BadRequestf("通知模板不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询通知模板失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询通知模板失败")
 	}
 
 	operator := userIdFromCtx(l.ctx)
@@ -66,7 +66,7 @@ func (l *SaveMessageTemplateLogic) SaveMessageTemplate(in *pb.MessageTemplateSav
 			Updater:           operator,
 		}
 		if _, err := l.svcCtx.MessageTemplateModel.Insert(l.ctx, data); err != nil {
-			return nil, xerr.Wrapf(err, xerr.CodeInternal, "新增短信模板失败")
+			return nil, errorx.Wrapf(err, errorx.CodeInternal, "新增短信模板失败")
 		}
 		return &pb.IdReply{Id: data.Id}, nil
 	}
@@ -74,9 +74,9 @@ func (l *SaveMessageTemplateLogic) SaveMessageTemplate(in *pb.MessageTemplateSav
 	old, err := l.svcCtx.MessageTemplateModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("短信模板不存在")
+			return nil, errorx.NotFound("短信模板不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询短信模板失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询短信模板失败")
 	}
 	old.Name = in.Name
 	old.PlatformCode = in.PlatformCode
@@ -87,7 +87,7 @@ func (l *SaveMessageTemplateLogic) SaveMessageTemplate(in *pb.MessageTemplateSav
 	old.Status = int64(in.Status)
 	old.Updater = operator
 	if err := l.svcCtx.MessageTemplateModel.Update(l.ctx, old); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "更新短信模板失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "更新短信模板失败")
 	}
 	return &pb.IdReply{Id: old.Id}, nil
 }

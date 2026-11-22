@@ -6,7 +6,7 @@ import (
 
 	"tjxt/rpc/media/internal/svc"
 	"tjxt/rpc/media/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,9 +31,9 @@ func (l *SignaturePreviewLogic) SignaturePreview(in *pb.SignatureRequest) (*pb.S
 		media, err := l.svcCtx.MediaModel.FindOneNotDeleted(l.ctx, in.MediaId)
 		if err != nil {
 			if isNotFound(err) {
-				return nil, xerr.NotFound("媒资不存在")
+				return nil, errorx.NotFound("媒资不存在")
 			}
-			return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询媒资失败")
+			return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询媒资失败")
 		}
 		if st := l.svcCtx.Store; st != nil {
 			if file, ferr := l.svcCtx.FileModel.FindByKey(l.ctx, media.FileId); ferr == nil {
@@ -49,7 +49,7 @@ func (l *SignaturePreviewLogic) SignaturePreview(in *pb.SignatureRequest) (*pb.S
 
 	// 未指定媒资：按文件名生成占位 key 返回
 	if in.FileName == "" {
-		return nil, xerr.BadRequestf("fileName 不能为空")
+		return nil, errorx.BadRequestf("fileName 不能为空")
 	}
 	key := objectKey(in.FileName)
 	return &pb.SignatureVO{PlayUrl: mockPlayURL(key)}, nil

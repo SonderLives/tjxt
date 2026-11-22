@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/user/internal/model"
 	"tjxt/rpc/user/internal/svc"
 	"tjxt/rpc/user/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,13 +29,13 @@ func NewUpdateUserStatusLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 // UpdateUserStatus 更新账户状态（0-禁用 1-正常）。
 func (l *UpdateUserStatusLogic) UpdateUserStatus(in *pb.UpdateStatusRequest) (*pb.EmptyResponse, error) {
 	if in.Status != 0 && in.Status != 1 {
-		return nil, xerr.BadRequestf("状态取值非法")
+		return nil, errorx.BadRequestf("状态取值非法")
 	}
 	if err := l.svcCtx.UserModel.UpdateStatus(l.ctx, in.UserId, int64(in.Status), in.Operator); err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.NotFound("用户不存在")
+			return nil, errorx.NotFound("用户不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "更新状态失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "更新状态失败")
 	}
 	return &pb.EmptyResponse{}, nil
 }

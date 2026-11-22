@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +28,7 @@ func NewListSmsPlatformsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 func (l *ListSmsPlatformsLogic) ListSmsPlatforms(in *pb.Empty) (*pb.SmsPlatformListReply, error) {
 	list, err := l.svcCtx.SmsThirdPlatformModel.FindAll(l.ctx)
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询短信平台列表失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询短信平台列表失败")
 	}
 	resp := &pb.SmsPlatformListReply{
 		List: make([]*pb.SmsPlatformVO, 0, len(list)),

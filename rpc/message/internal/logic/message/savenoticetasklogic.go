@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,24 +29,24 @@ func NewSaveNoticeTaskLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Sa
 // 通知任务 新增/更新
 func (l *SaveNoticeTaskLogic) SaveNoticeTask(in *pb.NoticeTaskSaveReq) (*pb.IdReply, error) {
 	if in.Name == "" {
-		return nil, xerr.BadRequestf("任务名称不能为空")
+		return nil, errorx.BadRequestf("任务名称不能为空")
 	}
 
 	// 校验通知模板存在
 	if _, err := l.svcCtx.NoticeTemplateModel.FindOne(l.ctx, in.TemplateId); err != nil {
 		if isNotFound(err) {
-			return nil, xerr.BadRequestf("通知模板不存在")
+			return nil, errorx.BadRequestf("通知模板不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询通知模板失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询通知模板失败")
 	}
 
 	pushTime, err := parseDateTime(in.PushTime)
 	if err != nil {
-		return nil, xerr.BadRequestf("pushTime 格式非法")
+		return nil, errorx.BadRequestf("pushTime 格式非法")
 	}
 	expireTime, err := parseDateTime(in.ExpireTime)
 	if err != nil {
-		return nil, xerr.BadRequestf("expireTime 格式非法")
+		return nil, errorx.BadRequestf("expireTime 格式非法")
 	}
 	interval := sql.NullInt64{}
 	if in.Interval > 0 {
@@ -77,7 +77,7 @@ func (l *SaveNoticeTaskLogic) SaveNoticeTask(in *pb.NoticeTaskSaveReq) (*pb.IdRe
 			Updater:    operator,
 		}
 		if _, err := l.svcCtx.NoticeTaskModel.Insert(l.ctx, data); err != nil {
-			return nil, xerr.Wrapf(err, xerr.CodeInternal, "新增通知任务失败")
+			return nil, errorx.Wrapf(err, errorx.CodeInternal, "新增通知任务失败")
 		}
 		return &pb.IdReply{Id: data.Id}, nil
 	}
@@ -85,9 +85,9 @@ func (l *SaveNoticeTaskLogic) SaveNoticeTask(in *pb.NoticeTaskSaveReq) (*pb.IdRe
 	old, err := l.svcCtx.NoticeTaskModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("通知任务不存在")
+			return nil, errorx.NotFound("通知任务不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询通知任务失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询通知任务失败")
 	}
 	old.TemplateId = in.TemplateId
 	old.Name = in.Name
@@ -98,7 +98,7 @@ func (l *SaveNoticeTaskLogic) SaveNoticeTask(in *pb.NoticeTaskSaveReq) (*pb.IdRe
 	old.MaxTimes = int64(maxTimes)
 	old.Updater = operator
 	if err := l.svcCtx.NoticeTaskModel.Update(l.ctx, old); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "更新通知任务失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "更新通知任务失败")
 	}
 	return &pb.IdReply{Id: old.Id}, nil
 }

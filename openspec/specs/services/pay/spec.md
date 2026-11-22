@@ -441,12 +441,12 @@ pay 服务 SHALL 提供以下四类查询接口：
 
 | 场景 | 错误构造 |
 |------|---------|
-| 参数非法 | `xerr.BadRequestf(...)` |
-| 记录不存在 | `xerr.NotFound(...)` |
-| 状态冲突 / 唯一性冲突 | `xerr.Conflict(...)` |
-| 数据库异常 | `xerr.Wrapf(err, xerr.CodeInternal, ...)` |
+| 参数非法 | `errorx.BadRequestf(...)` |
+| 记录不存在 | `errorx.NotFound(...)` |
+| 状态冲突 / 唯一性冲突 | `errorx.Conflict(...)` |
+| 数据库异常 | `errorx.Wrapf(err, errorx.CodeInternal, ...)` |
 
-> 注：pay 服务统一使用 `xerr.Wrapf`（user 服务用的是 `xerr.Wrap`），两者在错误包装语义上等价，仅格式化能力不同。
+> 注：pay 服务统一使用 `errorx.Wrapf`（user 服务用的是 `errorx.Wrap`），两者在错误包装语义上等价，仅格式化能力不同。
 
 #### Scenario: 对账取详情
 

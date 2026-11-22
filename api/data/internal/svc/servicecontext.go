@@ -8,7 +8,7 @@ import (
 
 	"tjxt/api/data/internal/config"
 	dataclient "tjxt/rpc/data/client/data"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
@@ -29,30 +29,30 @@ func NewServiceContext(c config.Config) *ServiceContext {
 }
 
 // errClientInterceptor 将下游 RPC 返回的错误还原为 xerr 业务错误，
-// 避免 *xerr.Error 跨 gRPC 传输后丢失业务错误码（go-zero 默认不还原）。
+// 避免 *errorx.Error 跨 gRPC 传输后丢失业务错误码（go-zero 默认不还原）。
 func errClientInterceptor(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 	err := invoker(ctx, method, req, reply, cc, opts...)
 	if err == nil {
 		return nil
 	}
-	if _, ok := err.(*xerr.Error); ok {
+	if _, ok := err.(*errorx.Error); ok {
 		return err
 	}
 	// 下游通过 xerr 返回的错误，其 Error() 文本会原样进入 gRPC status message，
 	// 格式为 code=<码> msg=<提示> [cause=<底层原因>]
 	if statusErr, ok := status.FromError(err); ok && statusErr.Code() != 0 {
 		if code, msg := parseXerrMessage(statusErr.Message()); code != 0 {
-			return xerr.New(code, msg)
+			return errorx.New(code, msg)
 		}
 	}
 	return err
 }
 
-// xerrMessagePattern 匹配 xerr.Error() 的字符串格式
+// xerrMessagePattern 匹配 errorx.Error() 的字符串格式
 var xerrMessagePattern = regexp.MustCompile(`^code=(\d+)\s+msg=(.*)$`)
 
 // parseXerrMessage 从 gRPC status message 中还原业务错误码与提示信息
-func parseXerrMessage(msg string) (xerr.Code, string) {
+func parseXerrMessage(msg string) (errorx.Code, string) {
 	m := xerrMessagePattern.FindStringSubmatch(msg)
 	if len(m) != 3 {
 		return 0, ""
@@ -65,5 +65,5 @@ func parseXerrMessage(msg string) (xerr.Code, string) {
 	if idx := strings.Index(text, " cause="); idx >= 0 {
 		text = text[:idx]
 	}
-	return xerr.Code(code), text
+	return errorx.Code(code), text
 }

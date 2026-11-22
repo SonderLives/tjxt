@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/trade/internal/model"
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,14 +30,14 @@ func (l *OrderGetLogic) OrderGet(in *pb.IdRequest) (*pb.OrderVO, error) {
 	order, err := l.svcCtx.OrderModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.NotFound("订单不存在")
+			return nil, errorx.NotFound("订单不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询订单失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询订单失败")
 	}
 
 	details, e := l.svcCtx.OrderDetailModel.ListByOrderId(l.ctx, in.Id)
 	if e != nil && !errors.Is(e, model.ErrNotFound) {
-		return nil, xerr.Wrap(e, xerr.CodeInternal, "查询订单明细失败")
+		return nil, errorx.Wrap(e, errorx.CodeInternal, "查询订单明细失败")
 	}
 
 	return toOrderVO(order, details), nil

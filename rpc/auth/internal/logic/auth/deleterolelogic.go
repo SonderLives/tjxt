@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/auth/internal/model"
 	"tjxt/rpc/auth/internal/svc"
 	"tjxt/rpc/auth/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,21 +29,21 @@ func NewDeleteRoleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delete
 // 固定角色与仍被账户引用的角色不允许删除。
 func (l *DeleteRoleLogic) DeleteRole(in *pb.IdReq) (*pb.Empty, error) {
 	if in.Id <= 0 {
-		return nil, xerr.BadRequestf("角色 id 无效")
+		return nil, errorx.BadRequestf("角色 id 无效")
 	}
 
 	role, err := l.svcCtx.RoleModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if err == model.ErrNotFound {
-			return nil, xerr.NotFound("角色不存在")
+			return nil, errorx.NotFound("角色不存在")
 		}
 		return nil, err
 	}
 	if role.Deleted != 0 {
-		return nil, xerr.NotFound("角色不存在")
+		return nil, errorx.NotFound("角色不存在")
 	}
 	if role.Type == fixedRoleType {
-		return nil, xerr.Conflict("固定角色不允许删除")
+		return nil, errorx.Conflict("固定角色不允许删除")
 	}
 
 	// 仍被账户引用时拒绝删除，避免出现权限悬空的账号。
@@ -52,7 +52,7 @@ func (l *DeleteRoleLogic) DeleteRole(in *pb.IdReq) (*pb.Empty, error) {
 		return nil, err
 	}
 	if used > 0 {
-		return nil, xerr.Conflict("该角色已分配给账户，请先解除分配")
+		return nil, errorx.Conflict("该角色已分配给账户，请先解除分配")
 	}
 
 	if err := l.svcCtx.RoleModel.SoftDelete(l.ctx, in.Id, 0); err != nil {

@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,14 +28,14 @@ func NewCourseFullInfoGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 // CourseFullInfoGet 查询正式课程详情，可按需附带目录树与授课老师 id。
 func (l *CourseFullInfoGetLogic) CourseFullInfoGet(in *pb.CourseFullInfoGetRequest) (*pb.CourseFullInfo, error) {
 	if in.Id == 0 {
-		return nil, xerr.BadRequestf("课程id不能为空")
+		return nil, errorx.BadRequestf("课程id不能为空")
 	}
 	c, err := l.svcCtx.CourseModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("课程不存在")
+			return nil, errorx.NotFound("课程不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程失败")
 	}
 
 	info := &pb.CourseFullInfo{
@@ -54,7 +54,7 @@ func (l *CourseFullInfoGetLogic) CourseFullInfoGet(in *pb.CourseFullInfoGetReque
 	if in.WithCatalogue {
 		catalogues, cerr := l.svcCtx.CourseCatalogueModel.ListByCourseId(l.ctx, c.Id)
 		if cerr != nil {
-			return nil, xerr.Wrap(cerr, xerr.CodeInternal, "查询课程目录失败")
+			return nil, errorx.Wrap(cerr, errorx.CodeInternal, "查询课程目录失败")
 		}
 		info.Chapters = l.buildChapterTree(catalogues)
 	}
@@ -62,7 +62,7 @@ func (l *CourseFullInfoGetLogic) CourseFullInfoGet(in *pb.CourseFullInfoGetReque
 	if in.WithTeachers {
 		teachers, terr := l.svcCtx.CourseTeacherModel.ListByCourseId(l.ctx, c.Id)
 		if terr != nil {
-			return nil, xerr.Wrap(terr, xerr.CodeInternal, "查询课程老师失败")
+			return nil, errorx.Wrap(terr, errorx.CodeInternal, "查询课程老师失败")
 		}
 		ids := make([]int64, 0, len(teachers))
 		for _, t := range teachers {

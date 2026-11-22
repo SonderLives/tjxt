@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,12 +28,12 @@ func NewOrderPageQueryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Or
 func (l *OrderPageQueryLogic) OrderPageQuery(in *pb.OrderPageRequest) (*pb.OrderPageReply, error) {
 	userId, err := auth.UserIdFromCtx(l.ctx)
 	if err != nil {
-		return nil, xerr.New(xerr.CodeUnauthorized, "未登录")
+		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
 	}
 
 	orders, total, err := l.svcCtx.OrderModel.PageQueryByUser(l.ctx, userId, in.PageNo, in.PageSize, in.Status, in.NoNo, in.SortBy, in.IsAsc)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询订单分页失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询订单分页失败")
 	}
 
 	list := make([]*pb.OrderPageVO, 0, len(orders))

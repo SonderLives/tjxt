@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/user/internal/model"
 	"tjxt/rpc/user/internal/svc"
 	"tjxt/rpc/user/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,13 +32,13 @@ func (l *UpdateUserByIdLogic) UpdateUserById(in *pb.UserDTO) (*pb.EmptyResponse,
 	u, err := l.svcCtx.UserModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.NotFound("用户不存在")
+			return nil, errorx.NotFound("用户不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "更新用户失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "更新用户失败")
 	}
 	d, err := l.svcCtx.UserDetailModel.FindOne(l.ctx, in.Id)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "更新用户失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "更新用户失败")
 	}
 	if d == nil {
 		d = &model.UserDetail{Id: in.Id, Type: u.Type, Creater: sql.NullInt64{Int64: in.Id, Valid: true}}
@@ -76,10 +76,10 @@ func (l *UpdateUserByIdLogic) UpdateUserById(in *pb.UserDTO) (*pb.EmptyResponse,
 	d.Updater = in.Id
 
 	if err := l.svcCtx.UserModel.Update(l.ctx, u); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "更新用户失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "更新用户失败")
 	}
 	if err := l.svcCtx.UserDetailModel.Update(l.ctx, d); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "更新用户失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "更新用户失败")
 	}
 	return &pb.EmptyResponse{}, nil
 }

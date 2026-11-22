@@ -9,7 +9,7 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -36,7 +36,7 @@ func (l *CatalogueBatchQueryLogic) CatalogueBatchQuery(req *types.CourseBatchQue
 	}
 	list, gerr := l.svcCtx.CourseRpc.CourseCatalogueBatchQuery(l.ctx, &pb.IdsRequest{Ids: ids})
 	if gerr != nil {
-		return nil, xerr.Wrap(gerr, xerr.CodeInternal, "批量查询课程目录失败")
+		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "批量查询课程目录失败")
 	}
 	resp = make([]types.CataSimpleInfoVO, 0, len(list.Items))
 	for _, c := range list.Items {

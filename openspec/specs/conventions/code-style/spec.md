@@ -28,17 +28,17 @@ Go 源码 SHALL 遵守以下基础规范，并在提交前执行 `make fmt`。
 
 ### Requirement: 错误处理
 
-错误 SHALL 统一用 `pkg/xerr` 包装后返回，禁止裸返回 error 或用 `fmt.Errorf` 包装标准库错误。
+错误 SHALL 统一用 `pkg/errorx` 包装后返回，禁止裸返回 error 或用 `fmt.Errorf` 包装标准库错误。
 
 ```go
-// ✅ 统一用 xerr 包装
+// ✅ 统一用 errorx 包装
 if err != nil {
-    return nil, xerr.NewErrCode(xerr.DB_ERROR).WithError(err)
+    return nil, errorx.NewErrCode(errorx.DB_ERROR).WithError(err)
 }
 
 // ✅ 业务校验失败返回具体码
 if user.Status != 1 {
-    return nil, xerr.NewErrCode(xerr.USER_DISABLED)
+    return nil, errorx.NewErrCode(errorx.USER_DISABLED)
 }
 
 // ❌ 禁止裸返回 error
@@ -51,13 +51,13 @@ return nil, fmt.Errorf("db error: %w", err)
 #### Scenario: 基础设施错误
 
 - **WHEN** DB / Redis / RPC 调用返回 error
-- **THEN** 用 `xerr.NewErrCode(xerr.<对应码>).WithError(err)` 包装后向上返回
+- **THEN** 用 `errorx.NewErrCode(errorx.<对应码>).WithError(err)` 包装后向上返回
 - **AND** 原始 error 被保留在包装结果中以便排查，但不直接暴露给客户端
 
 #### Scenario: 业务规则不满足
 
 - **WHEN** 业务校验失败（如用户被禁用）
-- **THEN** 返回具体业务错误码（如 `xerr.USER_DISABLED`），不附带底层 error
+- **THEN** 返回具体业务错误码（如 `errorx.USER_DISABLED`），不附带底层 error
 
 ### Requirement: Context 传递与超时
 
@@ -118,10 +118,10 @@ pkg/
 ├── auth/          # JWT 上下文工具
 ├── mq/            # RabbitMQ 生产者/消费者封装
 ├── response/      # 统一响应 R{Code,Msg,RequestId,Data}
-├── utils/
-│   ├── idgen/     # 雪花算法 ID 生成
-│   └── page/      # 分页请求/响应结构
-└── xerr/          # 统一错误码定义
+├── idgen/         # 雪花算法 ID 生成
+├── page/          # 分页请求/响应结构
+├── timex/         # 统一时间格式化 Layout/Format/Parse
+└── errorx/        # 统一错误码定义
 ```
 
 #### Scenario: data 服务的配置路径
@@ -148,7 +148,7 @@ import (
 import (
     "tjxt/rpc/auth/auth"   // RPC client
     "tjxt/pkg/response"
-    "tjxt/pkg/xerr"
+    "tjxt/pkg/errorx"
 )
 ```
 

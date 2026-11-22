@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/trade/internal/model"
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,24 +31,24 @@ func (l *OrderDetailGetLogic) OrderDetailGet(in *pb.IdRequest) (*pb.OrderDetailA
 	d, err := l.svcCtx.OrderDetailModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.NotFound("订单明细不存在")
+			return nil, errorx.NotFound("订单明细不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询订单明细失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询订单明细失败")
 	}
 
 	order, err := l.svcCtx.OrderModel.FindOne(l.ctx, d.OrderId)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.NotFound("订单不存在")
+			return nil, errorx.NotFound("订单不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询订单失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询订单失败")
 	}
 
 	// 退款申请可能不存在，忽略未找到
 	ra, err := l.svcCtx.RefundApplyModel.FindByOrderDetailId(l.ctx, d.Id)
 	if err != nil {
 		if !errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.Wrap(err, xerr.CodeInternal, "查询退款申请失败")
+			return nil, errorx.Wrap(err, errorx.CodeInternal, "查询退款申请失败")
 		}
 		ra = nil
 	}

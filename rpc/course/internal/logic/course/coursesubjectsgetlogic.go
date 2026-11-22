@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,7 +30,7 @@ func NewCourseSubjectsGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 func (l *CourseSubjectsGetLogic) CourseSubjectsGet(in *pb.IdRequest) (*pb.CataSubjectInfoList, error) {
 	binds, err := l.svcCtx.CourseCataSubjectDraftModel.ListByCourseId(l.ctx, in.Id)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程题目关系失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程题目关系失败")
 	}
 	if len(binds) == 0 {
 		return &pb.CataSubjectInfoList{Items: []*pb.CatalogSubjectInfo{}}, nil
@@ -54,7 +54,7 @@ func (l *CourseSubjectsGetLogic) CourseSubjectsGet(in *pb.IdRequest) (*pb.CataSu
 
 	subjects, err := l.svcCtx.SubjectModel.ListByIds(l.ctx, subjectIds)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询题目详情失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询题目详情失败")
 	}
 	subjectMap := make(map[int64]*model.Subject, len(subjects))
 	for _, s := range subjects {

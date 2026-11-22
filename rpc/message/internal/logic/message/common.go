@@ -8,7 +8,7 @@ import (
 
 	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/utils/idgen"
+	"tjxt/pkg/idgen"
 
 	"google.golang.org/grpc/metadata"
 )

@@ -6,8 +6,8 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/utils/page"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/page"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -43,7 +43,7 @@ func (l *CoursePortalQueryLogic) CoursePortalQuery(in *pb.CoursePortalQueryReque
 
 	list, total, err := l.svcCtx.CourseModel.PageQuery(l.ctx, filter, offset, limit)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "分页查询课程失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "分页查询课程失败")
 	}
 
 	return &pb.CoursePageQueryReply{

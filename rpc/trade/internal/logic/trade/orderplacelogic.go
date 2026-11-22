@@ -11,7 +11,7 @@ import (
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -34,10 +34,10 @@ func NewOrderPlaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OrderP
 func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderResultVO, error) {
 	userId, err := auth.UserIdFromCtx(l.ctx)
 	if err != nil {
-		return nil, xerr.New(xerr.CodeUnauthorized, "未登录")
+		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
 	}
 	if len(in.CourseIds) == 0 {
-		return nil, xerr.BadRequestf("课程ID不能为空")
+		return nil, errorx.BadRequestf("课程ID不能为空")
 	}
 
 	courseMap := fetchCourseMap(l.ctx, l.svcCtx, in.CourseIds)
@@ -63,7 +63,7 @@ func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderRe
 			UserId:        userId,
 		})
 		if derr != nil {
-			return nil, xerr.Wrap(derr, xerr.CodeInternal, "计算优惠券折扣失败")
+			return nil, errorx.Wrap(derr, errorx.CodeInternal, "计算优惠券折扣失败")
 		}
 		discountAmount = reply.DiscountAmount
 		if discountAmount > total {
@@ -135,7 +135,7 @@ func (l *OrderPlaceLogic) OrderPlace(in *pb.PlaceOrderRequest) (*pb.PlaceOrderRe
 		}
 		return nil
 	}); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "创建订单失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "创建订单失败")
 	}
 
 	// 核销优惠券：失败不影响订单创建（折扣已生效），券状态由过期/对账兜底

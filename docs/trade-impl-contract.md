@@ -8,9 +8,9 @@
 1. 保留原始 `func (l *XxxLogic) Xxx(...)` 签名与返回值形式（命名返回 `resp` 也要保留）。
 2. 子代理之间**不运行 `go build`**（并发冲突）。最后由主控统一编译修复。
 3. 每个文件只改自己负责的文件，互不覆盖。
-4. 错误统一用 `tjxt/pkg/xerr`：`xerr.BadRequestf`、`xerr.NotFound`、`xerr.New(code, msg)`、`xerr.Wrap(err, msg)`。
-   - 导入：`"tjxt/pkg/xerr"`。
-   - 常见 code：`xerr.CodeBadRequest`、`xerr.CodeNotFound`、`xerr.CodeConflict`、`xerr.CodeInternal`。
+4. 错误统一用 `tjxt/pkg/errorx`：`errorx.BadRequestf`、`errorx.NotFound`、`errorx.New(code, msg)`、`errorx.Wrap(err, msg)`。
+   - 导入：`"tjxt/pkg/errorx"`。
+   - 常见 code：`errorx.CodeBadRequest`、`errorx.CodeNotFound`、`errorx.CodeConflict`、`errorx.CodeInternal`。
 5. 金额、id、status、数量一律用 **int64**；proto 里 `int32` 字段在构造 pb 时显式 `int32(x)`；API types 里都是 int64，无需转换。
 6. 自定义 Model 内嵌 `CachedConn`，**统一使用** `m.QueryRowsNoCacheCtx` / `m.QueryRowNoCacheCtx` / `m.ExecNoCacheCtx`（不要直接用 `QueryRowsCtx`，被遮蔽会编译失败）。
 7. 不要引入 `interface{}`，用 `any`。
@@ -62,7 +62,7 @@ API (`api/internal/svc`): `l.svcCtx.TradeRpc (tradeclient.Trade)` —— API 层
 - **支付渠道无本地表**：trade 没有 `pay_channel` 表，所有 `PayChannel*` / `PayChannels` RPC **委托给 PayRpc**（已接，类型别名 `payclient`，import `"tjxt/apps/pay/rpc/pay"`）：
   - `PayChannelAdd(in *pb.PayChannelDTO)` → `PayRpc.AddPayChannel(ctx, &payclient.PayChannelRequest{Name, ChannelCode, ChannelIcon, ChannelPriority})` → `&pb.IdReply{Id: resp.Id}`
   - `PayChannelList(in *pb.Empty)` → `PayRpc.ListPayChannels(ctx, &payclient.ListPayChannelsRequest{})` → 遍历 `resp.List` 映射为 `[]*pb.PayChannelDTO{Id,Name,ChannelCode,ChannelIcon,ChannelPriority,Status}`
-  - `PayChannelGet(in *pb.IdRequest)` → `PayRpc.ListPayChannels(ctx, ...)` 然后按 `id` 找到匹配项返回；找不到 `return nil, xerr.NotFound("支付渠道不存在")`
+  - `PayChannelGet(in *pb.IdRequest)` → `PayRpc.ListPayChannels(ctx, ...)` 然后按 `id` 找到匹配项返回；找不到 `return nil, errorx.NotFound("支付渠道不存在")`
   - `PayChannelDelete(in *pb.IdRequest)` → `PayRpc.UpdatePayChannelStatus(ctx, &payclient.UpdatePayChannelStatusRequest{Id: in.Id, Status: 2})`（2=禁用，等价删除）
   - `PayChannels(in *pb.Empty)`（学员侧）→ `PayRpc.ListPayChannels` → 映射为 `[]*pb.PayChannelVO{Id,Name,ChannelCode,ChannelIcon,ChannelPriority}`
   - pay 侧 `PayChannelResponse` 字段：`id,name,channel_code,channel_priority(int32),channel_icon,status(int32)`；`PayChannelRequest` 字段：`id,name,channel_code,channel_priority(int32),channel_icon`。
@@ -91,5 +91,5 @@ RPC 组：cart(6)+pay(7) / order(8)+order_detail(6) / refund(10)
 API 组：cart(6)+pay(7) / order(8)+order_detail(6) / refund(10)
 
 黄金标准（先读这两个文件对齐风格）：
-- `apps/trade/rpc/internal/logic/cartaddlogic.go`（RPC 含 CourseRpc 校验 + Model.Insert + xerr）
+- `apps/trade/rpc/internal/logic/cartaddlogic.go`（RPC 含 CourseRpc 校验 + Model.Insert + errorx）
 - `apps/trade/api/internal/logic/cartaddlogic.go`（API 取 user_id + 调 TradeRpc + 返回 NamePlaceVO）

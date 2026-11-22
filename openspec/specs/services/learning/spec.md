@@ -2,7 +2,7 @@
 
 ## Purpose
 
-learning（学习进度）微服务覆盖我的课表 / 学习计划 / 学习记录（课表查询、报名校验、学习计划、学习进度提交），HTTP 服务 `learning-api` 监听 8804，RPC 服务 `learning.rpc` 监听 8084（gRPC），经 etcd（`127.0.0.1:2379`，key `learning.rpc`）注册与发现；数据库为 MySQL `tj_learning` 库（仅 `learning_lesson` 一张表）。架构为三层 `logic` → `service.LearningService`（本仓库唯一在 model 之上再抽 service 层的服务，承载参数校验与 `xerr` 错误映射）→ `model`；RPC 11 个 + API 9 个 logic 共 20/20 已实现并通过编译。作为交易链路的终点不配置任何下游 RpcClient：只被 learning-api 自身调用，并消费 trade 经 RabbitMQ `order.exchange` 发布的 `order.pay` / `order.refund` 事件开通 / 撤销课程（消费端队列与交换机配置就绪，Consumer 未接线）；课程侧字段（课程名 / 封面 / 章节数等）由 API 层经 `course.rpc` 补全。
+learning（学习进度）微服务覆盖我的课表 / 学习计划 / 学习记录（课表查询、报名校验、学习计划、学习进度提交），HTTP 服务 `learning-api` 监听 8804，RPC 服务 `learning.rpc` 监听 8084（gRPC），经 etcd（`127.0.0.1:2379`，key `learning.rpc`）注册与发现；数据库为 MySQL `tj_learning` 库（仅 `learning_lesson` 一张表）。架构为三层 `logic` → `service.LearningService`（本仓库唯一在 model 之上再抽 service 层的服务，承载参数校验与 `errorx` 错误映射）→ `model`；RPC 11 个 + API 9 个 logic 共 20/20 已实现并通过编译。作为交易链路的终点不配置任何下游 RpcClient：只被 learning-api 自身调用，并消费 trade 经 RabbitMQ `order.exchange` 发布的 `order.pay` / `order.refund` 事件开通 / 撤销课程（消费端队列与交换机配置就绪，Consumer 未接线）；课程侧字段（课程名 / 封面 / 章节数等）由 API 层经 `course.rpc` 补全。
 
 ## Requirements
 
@@ -36,7 +36,7 @@ learning-api SHALL 提供以下课表接口（均经 `LearningRpc` 转发）：
 #### Scenario: 报名校验拦截播放
 
 - **WHEN** 播放页请求 GET /lessons/{courseId}/valid
-- **THEN** 已报名返回 `lesson_id`；未报名时服务层抛 `xerr.NotFound`，由 API 框架渲染为 404
+- **THEN** 已报名返回 `lesson_id`；未报名时服务层抛 `errorx.NotFound`，由 API 框架渲染为 404
 - **AND** 课程已失效（status=EXPIRED）时返回 Conflict（「课程已失效」）
 
 #### Scenario: 统计课程学习人数
@@ -183,39 +183,39 @@ learning-api SHALL 按聚合文档提供以下积分与签到接口：
 
 ### Requirement: 参数校验与错误映射
 
-learning SHALL 在 Service 层（`internal/service/learning.go`）委托 Model 前完成参数校验，并做 `xerr` 错误映射；Logic 层负责身份提取：
+learning SHALL 在 Service 层（`internal/service/learning.go`）委托 Model 前完成参数校验，并做 `errorx` 错误映射；Logic 层负责身份提取：
 
 - Logic 层身份提取：用户相关接口经 `pkg/auth.UserIdFromCtx(l.ctx)` 从 JWT 取 `user_id`；内部事件接口 `GrantCourses` / `RevokeCourses` 的 `user_id` 取自请求体（来自 trade 内部 RPC，非 JWT）；`LessonCount` 为公开统计，无需登录
 - Service 层参数校验：
 
 | 规则 | 触发条件 | 返回 |
 |------|---------|------|
-| 用户与课程 ID 校验 | `userID <= 0` 或 `len(courseIDs) == 0` | `xerr.BadRequestf("userID/courseIDs 非法")` |
-| 单课程校验 | `userID <= 0` 或 `courseID <= 0` | `xerr.BadRequestf("userID/courseID 非法")` |
-| 用户 ID 校验 | `userID <= 0` | `xerr.BadRequestf("userID 非法")` |
-| 课程 ID 校验 | `courseID <= 0` | `xerr.BadRequestf("courseID 非法")` |
-| 计划参数校验 | `userID <= 0` 或 `courseID <= 0` 或 `weekFreq <= 0` | `xerr.BadRequestf("userID/courseID/weekFreq 非法")` |
-| 记录提交校验 | `lessonID <= 0` 或 `sectionID <= 0` | `xerr.BadRequestf("lessonID/sectionID 非法")` |
+| 用户与课程 ID 校验 | `userID <= 0` 或 `len(courseIDs) == 0` | `errorx.BadRequestf("userID/courseIDs 非法")` |
+| 单课程校验 | `userID <= 0` 或 `courseID <= 0` | `errorx.BadRequestf("userID/courseID 非法")` |
+| 用户 ID 校验 | `userID <= 0` | `errorx.BadRequestf("userID 非法")` |
+| 课程 ID 校验 | `courseID <= 0` | `errorx.BadRequestf("courseID 非法")` |
+| 计划参数校验 | `userID <= 0` 或 `courseID <= 0` 或 `weekFreq <= 0` | `errorx.BadRequestf("userID/courseID/weekFreq 非法")` |
+| 记录提交校验 | `lessonID <= 0` 或 `sectionID <= 0` | `errorx.BadRequestf("lessonID/sectionID 非法")` |
 
 - 错误映射：
 
 | 底层错误 | 映射结果 |
 |---------|---------|
-| `sql.ErrNoRows`（GetLesson） | `xerr.NotFound("学习记录不存在")` |
-| `sql.ErrNoRows`（CreatePlan） | `xerr.NotFound("学习记录不存在")` |
-| 其他 DB 错误（GetLesson） | `xerr.Wrapf(err, xerr.CodeInternal, "查询学习记录失败")` |
-| 其他 DB 错误（CreatePlan） | `xerr.Wrapf(err, xerr.CodeInternal, "更新学习计划失败")` |
+| `sql.ErrNoRows`（GetLesson） | `errorx.NotFound("学习记录不存在")` |
+| `sql.ErrNoRows`（CreatePlan） | `errorx.NotFound("学习记录不存在")` |
+| 其他 DB 错误（GetLesson） | `errorx.Wrapf(err, errorx.CodeInternal, "查询学习记录失败")` |
+| 其他 DB 错误（CreatePlan） | `errorx.Wrapf(err, errorx.CodeInternal, "更新学习计划失败")` |
 
 #### Scenario: Service 层参数校验
 
 - **WHEN** Service 收到 `userID <= 0` / `courseID <= 0` / `weekFreq <= 0` / `lessonID <= 0` / `sectionID <= 0` 等非法参数
-- **THEN** 返回对应的 `xerr.BadRequestf` 错误，不落库
+- **THEN** 返回对应的 `errorx.BadRequestf` 错误，不落库
 
 #### Scenario: 学习记录不存在映射
 
 - **WHEN** GetLesson / CreatePlan 底层返回 `sql.ErrNoRows`
-- **THEN** 映射为 `xerr.NotFound("学习记录不存在")`
-- **AND** 其他 DB 错误映射为 `xerr.Wrapf(CodeInternal)`（「查询学习记录失败」/「更新学习计划失败」）
+- **THEN** 映射为 `errorx.NotFound("学习记录不存在")`
+- **AND** 其他 DB 错误映射为 `errorx.Wrapf(CodeInternal)`（「查询学习记录失败」/「更新学习计划失败」）
 
 ### Requirement: 课程开通与撤销规则
 
@@ -223,7 +223,7 @@ learning SHALL 以幂等方式开通课程、以逻辑失效方式撤销课程�
 
 - 开通幂等：`GrantCourses` 使用 `INSERT ... ON DUPLICATE KEY UPDATE update_time = NOW()`，依赖 `uk_user_course` 唯一索引，重复开通只刷新 `update_time`
 - 初始状态：status=0（未开始）、week_freq=NULL、plan_status=0、learned_sections=0、latest_section_id=NULL、latest_learn_time=NULL、expire_time=NULL
-- 主键生成：`idgen.NextID()` 雪花算法（`tjxt/pkg/utils/idgen`），非数据库自增
+- 主键生成：`idgen.NextID()` 雪花算法（`tjxt/pkg/idgen`），非数据库自增
 - 逐条插入：`GrantCourses` 对每个 courseID 单独执行一次 SQL（非批量 INSERT），任一条失败立即 return
 - 撤销即失效：`RevokeCourses` 置 status=3（失效）、plan_status=0（无计划），不物理删除
 - 删除亦失效：`RemoveLesson` 同样只把 status 置 3（该 Service/Model 方法已存在，但 proto/.api 未暴露出口）
@@ -291,7 +291,7 @@ learning SHALL 以幂等方式开通课程、以逻辑失效方式撤销课程�
 
 「我正在学」SHALL 返回该用户 `latest_learn_time` 最新的一条未失效记录（`FindLatestLearnedByUser`，带 `status <> LessonStatusExpired` 过滤）。
 
-> 已知缺口：`CurrentLesson` / `FindLatestLearnedByUser` 未做 `sql.ErrNoRows → xerr.NotFound` 映射（与 GetLesson 不一致），无记录时 `LearningNow` 直接透传底层错误，`sql.ErrNoRows` 经 go-zero 框架转 500；如需前端友好应补 `errors.Is(err, sql.ErrNoRows)` 判断（可在 LearningNow logic 修复）。
+> 已知缺口：`CurrentLesson` / `FindLatestLearnedByUser` 未做 `sql.ErrNoRows → errorx.NotFound` 映射（与 GetLesson 不一致），无记录时 `LearningNow` 直接透传底层错误，`sql.ErrNoRows` 经 go-zero 框架转 500；如需前端友好应补 `errors.Is(err, sql.ErrNoRows)` 判断（可在 LearningNow logic 修复）。
 
 #### Scenario: 返回最近学习的课程
 
@@ -307,11 +307,11 @@ learning SHALL 以幂等方式开通课程、以逻辑失效方式撤销课程�
 
 报名校验 SHALL 复用 GetLesson 并在其上追加失效判定，返回 lesson_id 供播放页拦截。流程（LessonValid / ValidateLesson）：
 
-1. `GetLesson(userID, courseID)` → 未找到：`xerr.NotFound("学习记录不存在")`；DB 错误：`xerr.Wrapf(CodeInternal, "查询学习记录失败")`
-2. `lesson.Status == LessonStatusExpired` → `xerr.Conflict("课程已失效")`
+1. `GetLesson(userID, courseID)` → 未找到：`errorx.NotFound("学习记录不存在")`；DB 错误：`errorx.Wrapf(CodeInternal, "查询学习记录失败")`
+2. `lesson.Status == LessonStatusExpired` → `errorx.Conflict("课程已失效")`
 3. 通过后返回 `lesson.Id`
 
-Logic 层把返回的 `lesson_id` 填入 `LessonValidReply.LessonId`；未报名时服务层抛 `xerr.NotFound`，由 API 框架渲染为 404。
+Logic 层把返回的 `lesson_id` 填入 `LessonValidReply.LessonId`；未报名时服务层抛 `errorx.NotFound`，由 API 框架渲染为 404。
 
 #### Scenario: 已报名通过校验
 
@@ -321,18 +321,18 @@ Logic 层把返回的 `lesson_id` 填入 `LessonValidReply.LessonId`；未报名
 #### Scenario: 未报名或课程失效拦截
 
 - **WHEN** 用户未报名（GetLesson 未找到）
-- **THEN** 服务层抛 `xerr.NotFound("学习记录不存在")`，由 API 框架渲染为 404
-- **AND** 课程已失效（status=EXPIRED）时抛 `xerr.Conflict("课程已失效")`
+- **THEN** 服务层抛 `errorx.NotFound("学习记录不存在")`，由 API 框架渲染为 404
+- **AND** 课程已失效（status=EXPIRED）时抛 `errorx.Conflict("课程已失效")`
 
 ### Requirement: 学习计划规则
 
 学习计划 SHALL 不单独建表，直接更新 `learning_lesson.week_freq` + `plan_status`：
 
 - 计划落在 lesson 表：`UpdatePlan` 的 UPDATE 语句设置 `week_freq = ?`、`plan_status = 1`
-- weekFreq 必须 > 0：`CreatePlan` 校验 `weekFreq <= 0` → `xerr.BadRequestf`
+- weekFreq 必须 > 0：`CreatePlan` 校验 `weekFreq <= 0` → `errorx.BadRequestf`
 - 可空写入：`sql.NullInt64{Int64: weekFreq, Valid: weekFreq > 0}`，weekFreq <= 0 时写 NULL
 - 只能给未失效课程设计划：UPDATE 带 `AND status <> LessonStatusExpired`
-- 记录不存在判定：`RowsAffected() == 0` → `sql.ErrNoRows`，由 Service 转 `xerr.NotFound("学习记录不存在")`
+- 记录不存在判定：`RowsAffected() == 0` → `sql.ErrNoRows`，由 Service 转 `errorx.NotFound("学习记录不存在")`
 - 撤销课程清计划：`RevokeCourses` 同时置 `plan_status = 0`
 - PlanPage 周维度字段：`week_total_plan` 由当页列表的 `week_freq` 求和得到（int64 返回）
 
@@ -342,7 +342,7 @@ Logic 层把返回的 `lesson_id` 填入 `LessonValidReply.LessonId`；未报名
 
 - **WHEN** 调用 PlanSave(course_id, freq)
 - **THEN** UPDATE `learning_lesson` 置 week_freq=freq、plan_status=1，仅对 status <> 3（未失效）的记录生效
-- **AND** 记录不存在（RowsAffected==0）时返回 `xerr.NotFound("学习记录不存在")`
+- **AND** 记录不存在（RowsAffected==0）时返回 `errorx.NotFound("学习记录不存在")`
 
 #### Scenario: 周维度统计现状
 

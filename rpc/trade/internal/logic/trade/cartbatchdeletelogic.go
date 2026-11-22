@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/trade/internal/model"
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -33,7 +33,7 @@ func (l *CartBatchDeleteLogic) CartBatchDelete(in *pb.CartBatchDeleteRequest) (*
 		}
 		// 条目不存在视为已删除，跳过
 		if err := l.svcCtx.CartModel.Delete(l.ctx, id); err != nil && !errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.Wrap(err, xerr.CodeInternal, "批量删除购物车条目失败")
+			return nil, errorx.Wrap(err, errorx.CodeInternal, "批量删除购物车条目失败")
 		}
 	}
 	return &pb.Empty{}, nil

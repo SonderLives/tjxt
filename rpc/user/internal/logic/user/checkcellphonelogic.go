@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/user/internal/svc"
 	"tjxt/rpc/user/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +28,7 @@ func NewCheckCellPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ch
 func (l *CheckCellPhoneLogic) CheckCellPhone(in *pb.CheckCellPhoneRequest) (*pb.BoolResponse, error) {
 	exists, err := l.svcCtx.UserModel.ExistsByCellPhone(l.ctx, in.CellPhone)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "校验手机号失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "校验手机号失败")
 	}
 	return &pb.BoolResponse{Result: exists}, nil
 }

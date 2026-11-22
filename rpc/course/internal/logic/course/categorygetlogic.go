@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,9 +29,9 @@ func (l *CategoryGetLogic) CategoryGet(in *pb.IdRequest) (*pb.CategoryInfo, erro
 	c, err := l.svcCtx.CategoryModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("分类不存在")
+			return nil, errorx.NotFound("分类不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询分类失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询分类失败")
 	}
 	courseNum, _ := l.svcCtx.CourseModel.CountByThirdCateId(l.ctx, c.Id)
 	thirdNum, _ := l.svcCtx.CategoryModel.CountByParentId(l.ctx, c.Id)

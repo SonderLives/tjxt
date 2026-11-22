@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/trade/internal/model"
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,15 +28,15 @@ func NewRefundApplyGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Re
 
 func (l *RefundApplyGetLogic) RefundApplyGet(in *pb.IdRequest) (*pb.RefundApplyVO, error) {
 	if in.Id <= 0 {
-		return nil, xerr.BadRequestf("退款申请ID不能为空")
+		return nil, errorx.BadRequestf("退款申请ID不能为空")
 	}
 
 	ra, err := l.svcCtx.RefundApplyModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.NotFound("退款申请不存在")
+			return nil, errorx.NotFound("退款申请不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询退款申请失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询退款申请失败")
 	}
 
 	order, _ := l.svcCtx.OrderModel.FindOne(l.ctx, ra.OrderId)

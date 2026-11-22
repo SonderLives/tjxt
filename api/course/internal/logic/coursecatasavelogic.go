@@ -9,7 +9,7 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -40,7 +40,7 @@ func (l *CourseCataSaveLogic) CourseCataSave(req *types.CataSaveReq) (resp *type
 		Chapters: chapters,
 	})
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "保存课程目录失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "保存课程目录失败")
 	}
 	return &types.NameExistVO{Existed: false}, nil
 }

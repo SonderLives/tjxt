@@ -10,7 +10,7 @@ import (
 	"tjxt/api/pay/internal/types"
 	payclient "tjxt/rpc/pay/client/pay"
 	"tjxt/pkg/auth"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -34,14 +34,14 @@ func NewMockPayLogic(ctx context.Context, svcCtx *svc.ServiceContext) *MockPayLo
 // 生产环境应置 MockPayEnabled=false 关闭本接口。
 func (l *MockPayLogic) MockPay(req *types.MockPayReq) (resp *types.Result, err error) {
 	if !l.svcCtx.Config.MockPayEnabled {
-		return nil, xerr.Forbidden("模拟支付未开启")
+		return nil, errorx.Forbidden("模拟支付未开启")
 	}
 	userId, err := auth.UserIdFromCtx(l.ctx)
 	if err != nil {
-		return nil, xerr.New(xerr.CodeUnauthorized, "未登录")
+		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
 	}
 	if req.BizOrderNo <= 0 {
-		return nil, xerr.BadRequestf("bizOrderNo 非法")
+		return nil, errorx.BadRequestf("bizOrderNo 非法")
 	}
 
 	// 属主校验：支付单必须属于当前登录用户
@@ -52,13 +52,13 @@ func (l *MockPayLogic) MockPay(req *types.MockPayReq) (resp *types.Result, err e
 		return nil, err
 	}
 	if payOrder.BizUserId != userId {
-		return nil, xerr.Forbidden("无权操作该订单")
+		return nil, errorx.Forbidden("无权操作该订单")
 	}
 	switch payOrder.Status {
 	case 3: // 已支付：幂等成功
 		return &types.Result{Code: 200, Msg: "OK"}, nil
 	case 2: // 已关闭
-		return nil, xerr.Conflict("支付单已关闭，无法支付")
+		return nil, errorx.Conflict("支付单已关闭，无法支付")
 	}
 
 	if _, err := l.svcCtx.PayRpc.NotifyPaySuccess(l.ctx, &payclient.NotifyPaySuccessRequest{

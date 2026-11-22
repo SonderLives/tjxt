@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,14 +27,14 @@ func NewCourseCheckNameLogic(ctx context.Context, svcCtx *svc.ServiceContext) *C
 // CourseCheckName 校验课程名称是否已存在（编辑模式下排除自身）。
 func (l *CourseCheckNameLogic) CourseCheckName(in *pb.CourseCheckNameRequest) (*pb.NameExistReply, error) {
 	if in.Name == "" {
-		return nil, xerr.BadRequestf("课程名称不能为空")
+		return nil, errorx.BadRequestf("课程名称不能为空")
 	}
 	_, err := l.svcCtx.CourseDraftModel.FindByNameExceptId(l.ctx, in.Name, in.Id)
 	if err != nil {
 		if isNotFound(err) {
 			return &pb.NameExistReply{Existed: false}, nil
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "校验课程名称失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "校验课程名称失败")
 	}
 	return &pb.NameExistReply{Existed: true}, nil
 }

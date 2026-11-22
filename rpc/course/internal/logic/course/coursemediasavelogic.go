@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +29,7 @@ func NewCourseMediaSaveLogic(ctx context.Context, svcCtx *svc.ServiceContext) *C
 // CourseMediaSave 把媒资信息回填到课程草稿目录（小节）上。
 func (l *CourseMediaSaveLogic) CourseMediaSave(in *pb.CourseMediaSaveRequest) (*pb.Empty, error) {
 	if in.CourseId == 0 {
-		return nil, xerr.BadRequestf("课程id不能为空")
+		return nil, errorx.BadRequestf("课程id不能为空")
 	}
 	if len(in.Medias) == 0 {
 		return &pb.Empty{}, nil
@@ -37,7 +37,7 @@ func (l *CourseMediaSaveLogic) CourseMediaSave(in *pb.CourseMediaSaveRequest) (*
 
 	catalogues, err := l.svcCtx.CourseCatalogueDraftModel.ListByCourseId(l.ctx, in.CourseId)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程目录草稿失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程目录草稿失败")
 	}
 	cataMap := make(map[int64]*model.CourseCatalogueDraft, len(catalogues))
 	for _, c := range catalogues {
@@ -50,7 +50,7 @@ func (l *CourseMediaSaveLogic) CourseMediaSave(in *pb.CourseMediaSaveRequest) (*
 		}
 		cata, ok := cataMap[media.CataId]
 		if !ok {
-			return nil, xerr.NotFound("课程目录不存在")
+			return nil, errorx.NotFound("课程目录不存在")
 		}
 		cata.MediaId = media.MediaId
 		cata.VideoName = media.VideoName
@@ -61,7 +61,7 @@ func (l *CourseMediaSaveLogic) CourseMediaSave(in *pb.CourseMediaSaveRequest) (*
 			cata.Trailer = 0
 		}
 		if err := l.svcCtx.CourseCatalogueDraftModel.Update(l.ctx, cata); err != nil {
-			return nil, xerr.Wrap(err, xerr.CodeInternal, "保存课程媒资失败")
+			return nil, errorx.Wrap(err, errorx.CodeInternal, "保存课程媒资失败")
 		}
 	}
 	return &pb.Empty{}, nil

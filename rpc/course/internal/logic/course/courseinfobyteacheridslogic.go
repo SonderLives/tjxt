@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +31,7 @@ func (l *CourseInfoByTeacherIdsLogic) CourseInfoByTeacherIds(in *pb.TeacherIdsRe
 	}
 	relations, err := l.svcCtx.CourseTeacherModel.ListByTeacherIds(l.ctx, in.TeacherIds)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询老师课程关系失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询老师课程关系失败")
 	}
 
 	// 同一老师在同一课程下可能有多条记录，按课程 id 去重

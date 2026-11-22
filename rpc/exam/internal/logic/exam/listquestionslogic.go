@@ -5,8 +5,8 @@ import (
 
 	"tjxt/rpc/exam/internal/svc"
 	"tjxt/rpc/exam/pb"
-	"tjxt/pkg/utils/page"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/page"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,7 +30,7 @@ func (l *ListQuestionsLogic) ListQuestions(in *pb.QuestionListReq) (*pb.Question
 	list, total, err := l.svcCtx.QuestionModel.FindPage(l.ctx,
 		in.Name, int64(in.Type), in.CateId1, in.CateId2, int64(in.Difficulty), offset, limit)
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "分页查询题目失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "分页查询题目失败")
 	}
 
 	resp := &pb.QuestionListReply{
@@ -40,7 +40,7 @@ func (l *ListQuestionsLogic) ListQuestions(in *pb.QuestionListReq) (*pb.Question
 	for _, q := range list {
 		d, err := loadDetail(l.ctx, l.svcCtx.QuestionDetailModel, q.Id)
 		if err != nil {
-			return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询题目详情失败")
+			return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目详情失败")
 		}
 		resp.List = append(resp.List, toQuestionVO(q, d))
 	}

@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,10 +29,10 @@ func NewSendNoticeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SendNo
 // 站内信 直接发送一条（不查模板）
 func (l *SendNoticeLogic) SendNotice(in *pb.SendNoticeReq) (*pb.IdReply, error) {
 	if in.UserId <= 0 {
-		return nil, xerr.BadRequestf("目标用户不能为空")
+		return nil, errorx.BadRequestf("目标用户不能为空")
 	}
 	if in.Content == "" {
-		return nil, xerr.BadRequestf("通知内容不能为空")
+		return nil, errorx.BadRequestf("通知内容不能为空")
 	}
 
 	now := time.Now()
@@ -40,7 +40,7 @@ func (l *SendNoticeLogic) SendNotice(in *pb.SendNoticeReq) (*pb.IdReply, error) 
 	if in.ExpireTime != "" {
 		t, err := parseDateTime(in.ExpireTime)
 		if err != nil {
-			return nil, xerr.BadRequestf("expireTime 格式非法")
+			return nil, errorx.BadRequestf("expireTime 格式非法")
 		}
 		expireTime = t.Time
 	}
@@ -57,7 +57,7 @@ func (l *SendNoticeLogic) SendNotice(in *pb.SendNoticeReq) (*pb.IdReply, error) 
 		ExpireTime: expireTime,
 	}
 	if _, err := l.svcCtx.UserInboxModel.Insert(l.ctx, data); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "发送站内信失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "发送站内信失败")
 	}
 	return &pb.IdReply{Id: data.Id}, nil
 }

@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,10 +30,10 @@ func NewOrderFreeCourseLogic(ctx context.Context, svcCtx *svc.ServiceContext) *O
 func (l *OrderFreeCourseLogic) OrderFreeCourse(in *pb.FreeCourseRequest) (*pb.PlaceOrderResultVO, error) {
 	userId, err := auth.UserIdFromCtx(l.ctx)
 	if err != nil {
-		return nil, xerr.New(xerr.CodeUnauthorized, "未登录")
+		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
 	}
 	if in.CourseId <= 0 {
-		return nil, xerr.BadRequestf("课程ID不能为空")
+		return nil, errorx.BadRequestf("课程ID不能为空")
 	}
 
 	courseMap := fetchCourseMap(l.ctx, l.svcCtx, []int64{in.CourseId})
@@ -51,7 +51,7 @@ func (l *OrderFreeCourseLogic) OrderFreeCourse(in *pb.FreeCourseRequest) (*pb.Pl
 		CreateTime:     now(),
 	}
 	if _, err = l.svcCtx.OrderModel.Insert(l.ctx, order); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "创建订单失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "创建订单失败")
 	}
 
 	detail := &model.OrderDetail{
@@ -69,7 +69,7 @@ func (l *OrderFreeCourseLogic) OrderFreeCourse(in *pb.FreeCourseRequest) (*pb.Pl
 		CreateTime:    now(),
 	}
 	if _, err = l.svcCtx.OrderDetailModel.Insert(l.ctx, detail); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "创建订单明细失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "创建订单明细失败")
 	}
 
 	return &pb.PlaceOrderResultVO{

@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/promotion/internal/model"
 	"tjxt/rpc/promotion/internal/svc"
 	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,10 +30,10 @@ func NewUserCouponDiscountLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 // 仅接受属于当前用户且未使用的券，防止越权占用他人优惠券。
 func (l *UserCouponDiscountLogic) UserCouponDiscount(in *pb.OrderCouponDTO) (*pb.CouponDiscountDTO, error) {
 	if in.UserId <= 0 {
-		return nil, xerr.Unauthorized("")
+		return nil, errorx.Unauthorized("")
 	}
 	if len(in.CourseList) == 0 {
-		return nil, xerr.BadRequestf("订单课程不能为空")
+		return nil, errorx.BadRequestf("订单课程不能为空")
 	}
 	if len(in.UserCouponIds) == 0 {
 		return &pb.CouponDiscountDTO{}, nil
@@ -42,10 +42,10 @@ func (l *UserCouponDiscountLogic) UserCouponDiscount(in *pb.OrderCouponDTO) (*pb
 	userCoupons, err := l.svcCtx.UserCouponModel.FindByIdsAndUser(l.ctx, in.UserCouponIds, in.UserId)
 	if err != nil {
 		l.Errorf("find user coupon failed, userId=%d, err=%v", in.UserId, err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "计算优惠明细失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "计算优惠明细失败")
 	}
 	if len(userCoupons) != len(in.UserCouponIds) {
-		return nil, xerr.BadRequestf("优惠券不存在或不属于当前用户")
+		return nil, errorx.BadRequestf("优惠券不存在或不属于当前用户")
 	}
 
 	ids := make([]int64, 0, len(userCoupons))
@@ -55,7 +55,7 @@ func (l *UserCouponDiscountLogic) UserCouponDiscount(in *pb.OrderCouponDTO) (*pb
 	list, err := l.svcCtx.CouponModel.FindByIds(l.ctx, ids)
 	if err != nil {
 		l.Errorf("find coupons by ids failed, err=%v", err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "计算优惠明细失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "计算优惠明细失败")
 	}
 	coupons := make(map[int64]*model.Coupon, len(list))
 	for _, c := range list {
@@ -64,12 +64,12 @@ func (l *UserCouponDiscountLogic) UserCouponDiscount(in *pb.OrderCouponDTO) (*pb
 
 	available := usableUserCoupons(userCoupons, coupons, time.Now())
 	if len(available) != len(in.UserCouponIds) {
-		return nil, xerr.Conflict("存在已使用或已过期的优惠券，请重新选择")
+		return nil, errorx.Conflict("存在已使用或已过期的优惠券，请重新选择")
 	}
 
 	solution, ok := buildSolution(available, in.CourseList)
 	if !ok {
-		return nil, xerr.Conflict("所选优惠券不满足使用条件")
+		return nil, errorx.Conflict("所选优惠券不满足使用条件")
 	}
 	return solution, nil
 }

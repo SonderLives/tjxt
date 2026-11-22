@@ -5,8 +5,8 @@ import (
 
 	"tjxt/rpc/promotion/internal/svc"
 	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/utils/page"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/page"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -36,7 +36,7 @@ func (l *CouponPageLogic) CouponPage(in *pb.CouponPageRequest) (*pb.CouponPageRe
 	list, total, err := l.svcCtx.CouponModel.FindPage(l.ctx, in.Name, in.Status, in.Type, offset, limit)
 	if err != nil {
 		l.Errorf("page coupon failed, err=%v", err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询优惠券失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询优惠券失败")
 	}
 
 	items := make([]*pb.CouponPageVO, 0, len(list))

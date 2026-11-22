@@ -6,7 +6,7 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -33,7 +33,7 @@ func (l *CategoryAddLogic) CategoryAdd(req *types.CategoryAddReq) (resp *types.N
 		Index:    int32(req.Index),
 	})
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "新增分类失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "新增分类失败")
 	}
 	return &types.NameExistVO{Existed: false}, nil
 }

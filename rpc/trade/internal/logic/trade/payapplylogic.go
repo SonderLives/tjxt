@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/trade/internal/model"
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,19 +30,19 @@ func NewPayApplyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PayApply
 // ===== 支付 =====
 func (l *PayApplyLogic) PayApply(in *pb.PayApplyRequest) (*pb.PayApplyReply, error) {
 	if in.OrderId <= 0 {
-		return nil, xerr.BadRequestf("订单ID不能为空")
+		return nil, errorx.BadRequestf("订单ID不能为空")
 	}
 	if in.PayChannelCode == "" {
-		return nil, xerr.BadRequestf("支付渠道不能为空")
+		return nil, errorx.BadRequestf("支付渠道不能为空")
 	}
 
 	// 支付人与金额取自本地订单
 	order, err := l.svcCtx.OrderModel.FindOne(l.ctx, in.OrderId)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.NotFound("订单不存在")
+			return nil, errorx.NotFound("订单不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询订单失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询订单失败")
 	}
 
 	resp, err := l.svcCtx.PayRpc.ApplyPayOrder(l.ctx, &payclient.ApplyPayOrderRequest{
@@ -54,7 +54,7 @@ func (l *PayApplyLogic) PayApply(in *pb.PayApplyRequest) (*pb.PayApplyReply, err
 		NotifyUrl:      "",
 	})
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "发起支付失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "发起支付失败")
 	}
 	return &pb.PayApplyReply{QrUrl: resp.QrCodeUrl}, nil
 }

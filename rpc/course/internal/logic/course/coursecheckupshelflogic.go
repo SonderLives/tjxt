@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -35,12 +35,12 @@ func (l *CourseCheckUpShelfLogic) CourseCheckUpShelf(in *pb.IdRequest) (*pb.Empt
 	draft, err := l.svcCtx.CourseDraftModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("课程草稿不存在")
+			return nil, errorx.NotFound("课程草稿不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程草稿失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程草稿失败")
 	}
 	if draft.Step < courseStepFinished {
-		return nil, xerr.BadRequestf("课程信息未填写完整，当前进度 %d/%d，不能上架", draft.Step, courseStepFinished)
+		return nil, errorx.BadRequestf("课程信息未填写完整，当前进度 %d/%d，不能上架", draft.Step, courseStepFinished)
 	}
 	return &pb.Empty{}, nil
 }

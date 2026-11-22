@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,10 +31,10 @@ func NewCourseCatalogueSaveLogic(ctx context.Context, svcCtx *svc.ServiceContext
 // CourseCatalogueSave 保存课程目录草稿：先清空该课程的旧草稿，再按树重新落库，最后推进草稿填写进度。
 func (l *CourseCatalogueSaveLogic) CourseCatalogueSave(in *pb.CourseCatalogueSaveRequest) (*pb.Empty, error) {
 	if in.CourseId == 0 {
-		return nil, xerr.BadRequestf("课程id不能为空")
+		return nil, errorx.BadRequestf("课程id不能为空")
 	}
 	if err := l.svcCtx.CourseCatalogueDraftModel.DeleteByCourseId(l.ctx, in.CourseId); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "清理课程目录草稿失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "清理课程目录草稿失败")
 	}
 	if err := l.saveCataNodes(in.CourseId, 0, in.Chapters); err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (l *CourseCatalogueSaveLogic) saveCataNodes(courseId, parentId int64, nodes
 			CanUpdate:         1,
 		}
 		if _, err := l.svcCtx.CourseCatalogueDraftModel.Insert(l.ctx, data); err != nil {
-			return xerr.Wrap(err, xerr.CodeInternal, "保存课程目录草稿失败")
+			return errorx.Wrap(err, errorx.CodeInternal, "保存课程目录草稿失败")
 		}
 		if len(n.Sections) > 0 {
 			if err := l.saveCataNodes(courseId, id, n.Sections); err != nil {
@@ -95,16 +95,16 @@ func (l *CourseCatalogueSaveLogic) advanceStep(courseId, step int64) error {
 	draft, err := l.svcCtx.CourseDraftModel.FindOne(l.ctx, courseId)
 	if err != nil {
 		if isNotFound(err) {
-			return xerr.NotFound("课程草稿不存在")
+			return errorx.NotFound("课程草稿不存在")
 		}
-		return xerr.Wrap(err, xerr.CodeInternal, "查询课程草稿失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "查询课程草稿失败")
 	}
 	if draft.Step >= step {
 		return nil
 	}
 	draft.Step = step
 	if err := l.svcCtx.CourseDraftModel.Update(l.ctx, draft); err != nil {
-		return xerr.Wrap(err, xerr.CodeInternal, "更新课程草稿进度失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "更新课程草稿进度失败")
 	}
 	return nil
 }

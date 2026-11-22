@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/user/internal/model"
 	"tjxt/rpc/user/internal/svc"
 	"tjxt/rpc/user/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"golang.org/x/crypto/bcrypt"
@@ -33,13 +33,13 @@ func (l *UpdateCurrentUserLogic) UpdateCurrentUser(in *pb.UserFormRequest) (*pb.
 	u, err := l.svcCtx.UserModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.NotFound("用户不存在")
+			return nil, errorx.NotFound("用户不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "更新失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "更新失败")
 	}
 	d, err := l.svcCtx.UserDetailModel.FindOne(l.ctx, in.Id)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "更新失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "更新失败")
 	}
 	if d == nil {
 		d = &model.UserDetail{Id: in.Id, Type: u.Type, Creater: sql.NullInt64{Int64: in.Id, Valid: true}}
@@ -78,23 +78,23 @@ func (l *UpdateCurrentUserLogic) UpdateCurrentUser(in *pb.UserFormRequest) (*pb.
 
 	if in.Password != "" {
 		if in.OldPassword == "" {
-			return nil, xerr.BadRequestf("修改密码需提供原密码")
+			return nil, errorx.BadRequestf("修改密码需提供原密码")
 		}
 		if bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(in.OldPassword)) != nil {
-			return nil, xerr.Unauthorized("原密码错误")
+			return nil, errorx.Unauthorized("原密码错误")
 		}
 		hash, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
 		if err != nil {
-			return nil, xerr.Wrap(err, xerr.CodeInternal, "更新失败")
+			return nil, errorx.Wrap(err, errorx.CodeInternal, "更新失败")
 		}
 		u.Password = string(hash)
 	}
 
 	if err := l.svcCtx.UserModel.Update(l.ctx, u); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "更新失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "更新失败")
 	}
 	if err := l.svcCtx.UserDetailModel.Update(l.ctx, d); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "更新失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "更新失败")
 	}
 	return &pb.EmptyResponse{}, nil
 }

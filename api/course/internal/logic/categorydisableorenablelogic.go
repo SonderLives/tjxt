@@ -6,7 +6,7 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,7 +32,7 @@ func (l *CategoryDisableOrEnableLogic) CategoryDisableOrEnable(req *types.Catego
 		Status: int32(req.Status),
 	})
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "更新分类状态失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "更新分类状态失败")
 	}
 	return &types.NameExistVO{Existed: false}, nil
 }

@@ -490,7 +490,7 @@ Step 枚举（由代码常量确定）：
 | first_cate_id / second_cate_id / third_cate_id | 三级分类筛选 |
 | begin_time / end_time | 时间范围 |
 
-- 分页经 `pkg/utils/page`（`Normalize` + `CalcPages`），结果一次性回填一/二/三级分类名称（来自 `CategoryModel.ListAll`）。
+- 分页经 `pkg/page`（`Normalize` + `CalcPages`），结果一次性回填一/二/三级分类名称（来自 `CategoryModel.ListAll`）。
 - 门户查询 `CoursePortalQuery` 维度同上，门户通常只查已上架(2)。
 
 其他查询入口：

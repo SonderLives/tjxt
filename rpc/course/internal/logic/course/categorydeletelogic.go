@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -35,7 +35,7 @@ func (l *CategoryDeleteLogic) CategoryDelete(in *pb.IdRequest) (*pb.Empty, error
 func (l *CategoryDeleteLogic) deleteRecursive(id int64) error {
 	children, err := l.svcCtx.CategoryModel.FindByParentId(l.ctx, id)
 	if err != nil {
-		return xerr.Wrap(err, xerr.CodeInternal, "查询子分类失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "查询子分类失败")
 	}
 	for _, ch := range children {
 		if err := l.deleteRecursive(ch.Id); err != nil {
@@ -43,7 +43,7 @@ func (l *CategoryDeleteLogic) deleteRecursive(id int64) error {
 		}
 	}
 	if err := l.svcCtx.CategoryModel.Delete(l.ctx, id); err != nil {
-		return xerr.Wrap(err, xerr.CodeInternal, "删除分类失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "删除分类失败")
 	}
 	return nil
 }

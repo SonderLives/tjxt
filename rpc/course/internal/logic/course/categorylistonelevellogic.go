@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +28,7 @@ func NewCategoryListOneLevelLogic(ctx context.Context, svcCtx *svc.ServiceContex
 func (l *CategoryListOneLevelLogic) CategoryListOneLevel(in *pb.Empty) (*pb.CategoryList, error) {
 	list, err := l.svcCtx.CategoryModel.FindByLevel(l.ctx, 1)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询一级分类失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询一级分类失败")
 	}
 	items := make([]*pb.CategoryInfo, 0, len(list))
 	for _, c := range list {

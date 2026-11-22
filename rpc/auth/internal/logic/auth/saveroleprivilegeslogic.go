@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/auth/internal/model"
 	"tjxt/rpc/auth/internal/svc"
 	"tjxt/rpc/auth/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,18 +28,18 @@ func NewSaveRolePrivilegesLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 // SaveRolePrivileges 全量覆盖角色的权限分配。传空列表等价于收回该角色的全部权限。
 func (l *SaveRolePrivilegesLogic) SaveRolePrivileges(in *pb.RolePrivilegeReq) (*pb.Empty, error) {
 	if in.RoleId <= 0 {
-		return nil, xerr.BadRequestf("角色 id 无效")
+		return nil, errorx.BadRequestf("角色 id 无效")
 	}
 
 	role, err := l.svcCtx.RoleModel.FindOne(l.ctx, in.RoleId)
 	if err != nil {
 		if err == model.ErrNotFound {
-			return nil, xerr.NotFound("角色不存在")
+			return nil, errorx.NotFound("角色不存在")
 		}
 		return nil, err
 	}
 	if role.Deleted != 0 {
-		return nil, xerr.NotFound("角色不存在")
+		return nil, errorx.NotFound("角色不存在")
 	}
 
 	// 校验权限均有效，避免授出指向已删除权限的空壳授权。
@@ -54,7 +54,7 @@ func (l *SaveRolePrivilegesLogic) SaveRolePrivileges(in *pb.RolePrivilegeReq) (*
 		}
 		for _, id := range in.PrivilegeIds {
 			if _, ok := valid[id]; !ok {
-				return nil, xerr.BadRequestf("权限 %d 不存在或已删除", id)
+				return nil, errorx.BadRequestf("权限 %d 不存在或已删除", id)
 			}
 		}
 	}

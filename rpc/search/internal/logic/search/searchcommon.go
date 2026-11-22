@@ -8,13 +8,13 @@ import (
 
 	"tjxt/rpc/search/internal/svc"
 	"tjxt/rpc/search/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
 // courseSearch 执行 ES 查询并解析为分页结果。
-// ES 调用失败统一返回 xerr.ServiceUnavailable。
+// ES 调用失败统一返回 errorx.ServiceUnavailable。
 func courseSearch(ctx context.Context, svcCtx *svc.ServiceContext, body []byte) (*pb.CourseSearchPageReply, error) {
 	res, err := svcCtx.ES.Search(
 		svcCtx.ES.Search.WithContext(ctx),
@@ -23,11 +23,11 @@ func courseSearch(ctx context.Context, svcCtx *svc.ServiceContext, body []byte) 
 		svcCtx.ES.Search.WithTrackTotalHits(true),
 	)
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeServiceUnavailable, "搜索服务暂不可用")
+		return nil, errorx.Wrapf(err, errorx.CodeServiceUnavailable, "搜索服务暂不可用")
 	}
 	defer func() { _ = res.Body.Close() }()
 	if res.IsError() {
-		return nil, xerr.Wrapf(fmt.Errorf("%s", res.String()), xerr.CodeServiceUnavailable, "搜索服务暂不可用")
+		return nil, errorx.Wrapf(fmt.Errorf("%s", res.String()), errorx.CodeServiceUnavailable, "搜索服务暂不可用")
 	}
 
 	// 9.x 响应结构与 8.x 一致：total 为 {"value": n, "relation": "eq"}
@@ -42,7 +42,7 @@ func courseSearch(ctx context.Context, svcCtx *svc.ServiceContext, body []byte) 
 		} `json:"hits"`
 	}
 	if err := json.NewDecoder(res.Body).Decode(&parsed); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeServiceUnavailable, "搜索服务暂不可用")
+		return nil, errorx.Wrapf(err, errorx.CodeServiceUnavailable, "搜索服务暂不可用")
 	}
 
 	reply := &pb.CourseSearchPageReply{Total: parsed.Hits.Total.Value}

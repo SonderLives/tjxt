@@ -5,8 +5,8 @@ import (
 
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/utils/page"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/page"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,11 +30,11 @@ func (l *ListInboxLogic) ListInbox(in *pb.InboxPageReq) (*pb.InboxListReply, err
 	offset, limit := page.Normalize(int64(in.PageNo), int64(in.PageSize))
 	total, err := l.svcCtx.UserInboxModel.FindCount(l.ctx, in.UserId, int64(in.Type))
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "统计站内信失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "统计站内信失败")
 	}
 	list, err := l.svcCtx.UserInboxModel.FindList(l.ctx, in.UserId, int64(in.Type), offset, limit)
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "分页查询站内信失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "分页查询站内信失败")
 	}
 	resp := &pb.InboxListReply{
 		Total: total,

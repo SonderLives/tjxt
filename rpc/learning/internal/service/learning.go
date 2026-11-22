@@ -7,7 +7,7 @@ import (
 	"errors"
 
 	"tjxt/rpc/learning/internal/model"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 )
 
 // LearningService 学习域业务接口。
@@ -34,62 +34,62 @@ func NewLearningService(m model.LearningLessonModel) LearningService { return &l
 
 func (s *learningService) GrantCourses(ctx context.Context, userID int64, courseIDs []int64) error {
 	if userID <= 0 || len(courseIDs) == 0 {
-		return xerr.BadRequestf("userID/courseIDs 非法")
+		return errorx.BadRequestf("userID/courseIDs 非法")
 	}
 	return s.m.GrantCourses(ctx, userID, courseIDs)
 }
 
 func (s *learningService) RevokeCourses(ctx context.Context, userID int64, courseIDs []int64) error {
 	if userID <= 0 || len(courseIDs) == 0 {
-		return xerr.BadRequestf("userID/courseIDs 非法")
+		return errorx.BadRequestf("userID/courseIDs 非法")
 	}
 	return s.m.RevokeCourses(ctx, userID, courseIDs)
 }
 
 func (s *learningService) RemoveLesson(ctx context.Context, userID, courseID int64) error {
 	if userID <= 0 || courseID <= 0 {
-		return xerr.BadRequestf("userID/courseID 非法")
+		return errorx.BadRequestf("userID/courseID 非法")
 	}
 	return s.m.RemoveLesson(ctx, userID, courseID)
 }
 
 func (s *learningService) GetLesson(ctx context.Context, userID, courseID int64) (*model.LearningLesson, error) {
 	if userID <= 0 || courseID <= 0 {
-		return nil, xerr.BadRequestf("userID/courseID 非法")
+		return nil, errorx.BadRequestf("userID/courseID 非法")
 	}
 	lesson, err := s.m.FindByUserCourse(ctx, userID, courseID)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, xerr.NotFound("学习记录不存在")
+		return nil, errorx.NotFound("学习记录不存在")
 	}
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询学习记录失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询学习记录失败")
 	}
 	return lesson, nil
 }
 
 func (s *learningService) ListLessons(ctx context.Context, userID, pageNo, pageSize int64, asc bool) ([]*model.LearningLesson, int64, error) {
 	if userID <= 0 {
-		return nil, 0, xerr.BadRequestf("userID 非法")
+		return nil, 0, errorx.BadRequestf("userID 非法")
 	}
 	return s.m.ListByUser(ctx, userID, pageNo, pageSize, asc)
 }
 
 func (s *learningService) CountLessons(ctx context.Context, courseID int64) (int64, error) {
 	if courseID <= 0 {
-		return 0, xerr.BadRequestf("courseID 非法")
+		return 0, errorx.BadRequestf("courseID 非法")
 	}
 	return s.m.CountByCourse(ctx, courseID)
 }
 
 func (s *learningService) CreatePlan(ctx context.Context, userID, courseID, weekFreq int64) error {
 	if userID <= 0 || courseID <= 0 || weekFreq <= 0 {
-		return xerr.BadRequestf("userID/courseID/weekFreq 非法")
+		return errorx.BadRequestf("userID/courseID/weekFreq 非法")
 	}
 	if err := s.m.UpdatePlan(ctx, userID, courseID, weekFreq); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return xerr.NotFound("学习记录不存在")
+			return errorx.NotFound("学习记录不存在")
 		}
-		return xerr.Wrapf(err, xerr.CodeInternal, "更新学习计划失败")
+		return errorx.Wrapf(err, errorx.CodeInternal, "更新学习计划失败")
 	}
 	return nil
 }
@@ -100,7 +100,7 @@ func (s *learningService) ValidateLesson(ctx context.Context, userID, courseID i
 		return 0, err
 	}
 	if lesson.Status == model.LessonStatusExpired {
-		return 0, xerr.Conflict("课程已失效")
+		return 0, errorx.Conflict("课程已失效")
 	}
 	return lesson.Id, nil
 }
@@ -108,7 +108,7 @@ func (s *learningService) ValidateLesson(ctx context.Context, userID, courseID i
 // CurrentLesson 返回当前正在学习的课程（最近学习的一条）
 func (s *learningService) CurrentLesson(ctx context.Context, userID int64) (*model.LearningLesson, error) {
 	if userID <= 0 {
-		return nil, xerr.BadRequestf("userID 非法")
+		return nil, errorx.BadRequestf("userID 非法")
 	}
 	return s.m.FindLatestLearnedByUser(ctx, userID)
 }
@@ -123,7 +123,7 @@ const (
 // sectionType：1=视频小节（更新最近学习小节），2=考试小节（只更新最近学习时间）。
 func (s *learningService) CommitRecord(ctx context.Context, userID, lessonID, sectionID, sectionType, moment, duration int64, commitTime string) error {
 	if lessonID <= 0 || sectionID <= 0 {
-		return xerr.BadRequestf("lessonID/sectionID 非法")
+		return errorx.BadRequestf("lessonID/sectionID 非法")
 	}
 	if sectionType == SectionTypeExam {
 		return s.m.UpdateLatestLearnTime(ctx, lessonID, moment, duration)
@@ -133,7 +133,7 @@ func (s *learningService) CommitRecord(ctx context.Context, userID, lessonID, se
 
 func (s *learningService) ListLessonPlans(ctx context.Context, userID, pageNo, pageSize int64, asc bool) ([]*model.LearningLesson, int64, error) {
 	if userID <= 0 {
-		return nil, 0, xerr.BadRequestf("userID 非法")
+		return nil, 0, errorx.BadRequestf("userID 非法")
 	}
 	return s.m.ListPlansByUser(ctx, userID, pageNo, pageSize, asc)
 }
