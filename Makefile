@@ -163,11 +163,12 @@ verify: ## 校验所有服务的 .api/.proto 与 internal/ 目录是否齐全
 buf-lint: ## buf lint 检查 13 个 proto 模块（规则与豁免见 buf.yaml）
 	buf lint
 
-# breaking 对比 master（本 worktree 场景直接读本地 .git）；
-# master 尚无 buf.yaml，需用 --against-config 复用同一 workspace 配置，
-# 否则 against 侧会被当成单一模块（13 vs 1 报错）。
+# breaking 对比 master（本 worktree 场景直接读本地 .git）。
+# against 侧配置双保险：master 若仍是迁移前布局（无 service/ 目录），用新布局的 buf.yaml
+# 解释会报「模块下无 .proto 文件」，此时回退 buf.master.yaml（按 master 旧布局声明模块）；
+# 合入后 master 树即新布局，第一条命令直接通过，回退不会执行。
 buf-breaking: ## buf breaking 破坏性变更门禁（对比 master）
-	buf breaking --against ".git#branch=master" --against-config buf.yaml
+	buf breaking --against ".git#branch=master" --against-config buf.yaml || buf breaking --against ".git#branch=master" --against-config buf.master.yaml
 
 sync: ## go work sync
 	$(GO) work sync

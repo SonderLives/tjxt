@@ -1,0 +1,39 @@
+# buf breaking 的 against 侧专用配置（仅被 make buf-breaking / CI 的 --against-config 引用）。
+# 背景：master 分支（本分支合入前）目录仍为布局迁移前的 api/<svc>、rpc/<svc> 结构；
+# 迁移后 buf.yaml 的模块路径已指向 service/<svc>/{api,rpc}，直接拿它解释 master 树会因
+# 「模块下无 .proto 文件」报错。本文件按 master 的旧布局声明同一批模块。
+# 关键：两侧 buf.yaml/buf.master.yaml 给模块声明了相同的稳定 name（buf.build/tjxt/<svc>），
+# buf breaking 按「模块 name + 模块内相对路径」对比文件身份，与目录布局解耦，
+# 目录迁移本身不触发 breaking 报错。
+# 本分支合入 master 后，master 树即新布局，against-config 恢复用 buf.yaml 即可
+# （Makefile/CI 已做成 buf.yaml 优先、失败回退本文件的双保险，无需手动切换）。
+version: v2
+modules:
+  # 保留 RPC 服务（5 个，master 布局）
+  - path: rpc/user
+    name: buf.build/tjxt/user
+  - path: rpc/course
+    name: buf.build/tjxt/course
+  - path: rpc/learning
+    name: buf.build/tjxt/learning
+  - path: rpc/pay
+    name: buf.build/tjxt/pay
+  - path: rpc/promotion
+    name: buf.build/tjxt/promotion
+  # 折叠服务（8 个，master 布局：proto 在 api/<svc> 模块根）
+  - path: api/auth
+    name: buf.build/tjxt/auth
+  - path: api/exam
+    name: buf.build/tjxt/exam
+  - path: api/media
+    name: buf.build/tjxt/media
+  - path: api/message
+    name: buf.build/tjxt/message
+  - path: api/remark
+    name: buf.build/tjxt/remark
+  - path: api/search
+    name: buf.build/tjxt/search
+  - path: api/trade
+    name: buf.build/tjxt/trade
+  - path: api/data
+    name: buf.build/tjxt/data

@@ -5,23 +5,39 @@
 #      pb 类型由 buf generate 生成到 service/<svc>/api/backend/pb（make pb，模板见 buf.gen.yaml）。
 # 职责边界：buf 承担 lint + breaking 门禁与折叠服务的 pb 类型生成；
 # 保留服务的 pb / zrpc 生成仍由 goctl 负责，buf 不接管生成链路。
+# 每个模块显式声明稳定 name（buf.build/tjxt/<svc>，仅本地标识、不发布 BSR）：
+# buf breaking 按「模块 name + 模块内相对路径」对比文件身份，name 与目录布局解耦，
+# 目录迁移/搬家不会把既有 proto 误报为删除；against 侧对照 buf.master.yaml。
 version: v2
 modules:
   # 保留 RPC 服务（5 个）
   - path: service/user/rpc
+    name: buf.build/tjxt/user
   - path: service/course/rpc
+    name: buf.build/tjxt/course
   - path: service/learning/rpc
+    name: buf.build/tjxt/learning
   - path: service/pay/rpc
+    name: buf.build/tjxt/pay
   - path: service/promotion/rpc
+    name: buf.build/tjxt/promotion
   # 折叠服务（8 个，proto 在模块根）
   - path: service/auth/api
+    name: buf.build/tjxt/auth
   - path: service/exam/api
+    name: buf.build/tjxt/exam
   - path: service/media/api
+    name: buf.build/tjxt/media
   - path: service/message/api
+    name: buf.build/tjxt/message
   - path: service/remark/api
+    name: buf.build/tjxt/remark
   - path: service/search/api
+    name: buf.build/tjxt/search
   - path: service/trade/api
+    name: buf.build/tjxt/trade
   - path: service/data/api
+    name: buf.build/tjxt/data
 lint:
   # 从官方 STANDARD 类别起步（1.75.0 中 DEFAULT 已废弃并更名为 STANDARD）。
   use:
