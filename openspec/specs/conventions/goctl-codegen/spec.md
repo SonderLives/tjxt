@@ -2,21 +2,24 @@
 
 ## Purpose
 
-规范 tjxt 微服务在 go-zero v1.10.3 下的代码生成职责边界与 goctl 工作流，确保骨架代码一律由 goctl 产出、人工只编写业务逻辑（`internal/logic`）、Custom Model 扩展与业务扩展文件，从而在重生成骨架时不丢失业务实现、不破坏模块结构。本规格取代任何「手写 handler / types / routes / pb / server / config 骨架」的做法，是新增服务或改动契约时的唯一权威流程。
+规范 tjxt 微服务在 go-zero v1.10.3 下的代码生成职责边界与 goctl/buf 工作流，确保骨架代码一律由生成器产出、人工只编写业务逻辑（`internal/logic`、折叠服务的 `backend/logic`）、Custom Model 扩展与业务扩展文件，从而在重生成骨架时不丢失业务实现、不破坏模块结构。本规格取代任何「手写 handler / types / routes / pb / server / config 骨架」的做法，是新增服务或改动契约时的唯一权威流程。
+
+**生成双通道（RPC 折叠后）**：5 个保留 RPC 服务（user/course/learning/pay/promotion）走 `make rpc`（goctl rpc protoc，产出 pb/server/client/logic）；8 个折叠服务（auth/exam/media/message/remark/search/trade/data）的 RPC 进程壳已删、只剩 pb 类型，走 `make pb`（buf generate，模板 `buf.gen.yaml`，仅 protoc-gen-go，产出 `api/<svc>/backend/pb/`）。`make check-gen` 对两条通道同时做零漂移守卫（重生成 api + pb 后 `git diff --exit-code -- api`）。
 
 ## Requirements
 
 ### Requirement: 生成优先与手写边界
 
-代码产出 SHALL 遵循「生成优先、手写最小化」：仅允许手写三类文件，其余骨架一律由 goctl 生成。
+代码产出 SHALL 遵循「生成优先、手写最小化」：仅允许手写三类文件，其余骨架一律由 goctl / buf 生成。
 
 | 类别 | 文件 | 说明 |
 |------|------|------|
-| 可手写 | `internal/logic/*.go` | 业务逻辑核心 |
+| 可手写 | `internal/logic/*.go`、`backend/logic/*.go` | 业务逻辑核心 |
 | 可手写 | `internal/model/*model.go` | Custom Model 扩展方法，**不含 `*_model_gen.go`** |
 | 可手写 | 业务扩展文件 | 如 `solution.go`、常量 `consts.go`、`vars.go` |
 | 禁止手写 | `handler/`、`internal/types/`、`routes.go` | goctl api go 产出 |
-| 禁止手写 | `pb/`、`internal/server/`、client 代码 | goctl rpc protoc 产出 |
+| 禁止手写 | `pb/`、`internal/server/`、client 代码（保留 RPC 服务） | goctl rpc protoc 产出 |
+| 禁止手写 | `backend/pb/`（折叠服务） | buf generate 产出（`make pb`） |
 | 禁止手写 | `internal/config/`、`internal/svc/` 骨架 | 生成后仅允许在其中注入依赖 |
 
 #### Scenario: 新增接口只需重生成骨架
@@ -33,7 +36,7 @@
 
 ### Requirement: 标准开发顺序
 
-新增或改造一个服务 SHALL 严格按以下顺序执行：
+新增或改造一个**保留 RPC 服务**（user/course/learning/pay/promotion）SHALL 严格按以下顺序执行：
 
 ```
 1. 设计 DB 表结构
@@ -45,6 +48,18 @@
 7. goctl api 生成 API 骨架（handler/logic/types/routes）
 8. 手写 Logic 实现业务
 9. 构建测试（go build / go vet / go test）
+```
+
+新增或改造一个**折叠服务**（无跨服务调用方，RPC 层已并入 API 进程）SHALL 按以下顺序执行：
+
+```
+1. 设计 DB 表结构 → sql/ddl/tj_<domain>.sql → goctl model 生成到 api/<svc>/backend/model
+2. 设计 api/<svc>/<svc>.proto（pb 契约，go_package 锚定 ./backend/pb）
+3. cd api/<svc> && buf generate --template ../../buf.gen.yaml 生成 pb 类型到 backend/pb/
+4. 设计 api/<svc>/<svc>.api
+5. goctl api 生成 API 骨架
+6. 手写 api/<svc>/backend/logic 实现业务（API logic 进程内直调 backend）
+7. 构建测试
 ```
 
 #### Scenario: DDL 先行
@@ -83,9 +98,9 @@ goctl api go --api <svc>.api --dir . --style gozero
 - **THEN** 使用 `interface{}` 而非 `any`
 - **AND** 需要数组请求体时包一层 struct（如 `courseList`），不得直接声明顶层数组
 
-### Requirement: goctl RPC 生成
+### Requirement: goctl RPC 生成（仅 5 个保留服务）
 
-RPC 骨架 SHALL 由以下命令产出（工作目录为 `rpc/<svc>`）：
+保留 RPC 服务（user/course/learning/pay/promotion）的 RPC 骨架 SHALL 由以下命令产出（工作目录为 `rpc/<svc>`）：
 
 ```bash
 cd rpc/<svc>
@@ -115,6 +130,35 @@ goctl rpc protoc <svc>.proto \
 - **THEN** 本服务生成时必须带 `--client=true`，产出 `rpc/<svc>/<svc>/<svc>.go`
 - **AND** 调用方通过 `go.mod` 的 `require` + 本地相对路径 `replace` 引入，禁止 import 对方 `internal` 包
 
+### Requirement: 折叠服务 pb 类型生成（buf）
+
+8 个折叠服务（auth/exam/media/message/remark/search/trade/data）的 pb 类型 SHALL 由 buf generate 产出，不再使用 goctl rpc protoc（其 rpc 进程壳已删除，goctl 无法只生成类型）：
+
+```bash
+cd api/<svc>
+buf generate --template ../../buf.gen.yaml
+```
+
+| 项 | 约定 |
+|------|------|
+| 模板 | 仓库根 `buf.gen.yaml`（version v2，仅 `protoc-gen-go` 插件，无 gRPC 服务桩） |
+| workspace | buf 向上找到仓库根 `buf.yaml`（api/<svc> 为注册模块），只对当前模块生成 |
+| 输出位置 | 由 proto 的 `go_package`（`./backend/pb`）锚定，落在 `api/<svc>/backend/pb/` |
+| 契约位置 | proto 在模块根 `api/<svc>/<svc>.proto`，buf lint/breaking 与保留服务同规则治理 |
+| 零漂移守卫 | `make check-gen` = `make api` + `make pb` + `git diff --exit-code -- api` |
+
+#### Scenario: 修改折叠服务契约后重生成
+
+- **WHEN** 修改 `api/<svc>/<svc>.proto` 中的消息定义
+- **THEN** 执行 `make pb`（或在服务目录 buf generate）后 `backend/pb/<svc>.pb.go` 被刷新
+- **AND** `backend/logic/` 等手写业务文件不受影响；`git diff` 出现漂移须重生成并随契约变更一同提交
+
+#### Scenario: go_package 锚定错误
+
+- **WHEN** 折叠服务 proto 的 `go_package` 不是 `./backend/pb`（如遗留 `./pb`）
+- **THEN** buf generate 的产物会落到错误目录（`api/<svc>/pb/`），`make check-gen` 无法收敛
+- **AND** 必须先修正 proto 的 `go_package` 为 `./backend/pb` 并把 pb 文件归位 `backend/pb/`，再纳入生成守卫
+
 ### Requirement: goctl Model 生成与扩展
 
 Model 层 SHALL 由 DDL 生成，并只允许在 Custom Model 中扩展：
@@ -137,7 +181,7 @@ goctl model mysql ddl \
 扩展模式示例：
 
 ```go
-// rpc/auth/internal/model/usermodel.go（手写，可编辑）
+// rpc/user/internal/model/usermodel.go（手写，可编辑；折叠服务对应 api/<svc>/backend/model/）
 type UserModel interface {
     UserModelGen // 嵌入生成的接口
     FindByPhone(ctx context.Context, phone string) (*User, error)
@@ -169,10 +213,11 @@ func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User
 
 | 项目 | 规范 | 示例 |
 |------|------|------|
-| 模块路径 | `module tjxt/api/<svc>`、`module tjxt/rpc/<svc>` | `module tjxt/api/auth` |
-| 依赖组织 | api 与 rpc 各自独立 `go.mod` | `api/<svc>/go.mod`、`rpc/<svc>/go.mod` |
-| 公共库引用 | 各模块 `replace tjxt/pkg => ../../../pkg`（data 服务四级 `../../../../pkg`） | — |
+| 模块路径 | `module tjxt/api/<svc>`、`module tjxt/rpc/<svc>`（保留服务）、`module tjxt/app/mq/<svc>`（MQ 消费者） | `module tjxt/api/auth` |
+| 依赖组织 | api / rpc / mq 各自独立 `go.mod` | `api/<svc>/go.mod`、`rpc/<svc>/go.mod`、`app/mq/trade-mq/go.mod` |
+| 公共库引用 | 各模块 `replace tjxt/pkg => ../../../pkg`（data 服务四级 `../../../../pkg`；app/mq 为三级） | — |
 | 跨服务依赖 | 调用方 `go.mod` 中 `require` + 本地相对路径 `replace`，伪版本 `v0.0.0-00010101000000-000000000000` | `tjxt/rpc/course => ../../course/rpc` |
+| 折叠服务 backend | 业务包随迁 `api/<svc>/backend`（config/logic/model/pb/svc），仅同模块内引用 | `tjxt/api/search/backend` |
 | 目录命名 | gozero 风格（小驼峰，无下划线） | `internal/logic`、`userCoupon` |
 | 文件命名 | 小驼峰 | `userCouponLogic.go`、`couponModel.go` |
 | 包名 | 与目录名一致 | `package logic` |
@@ -182,7 +227,7 @@ func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User
 #### Scenario: 新增服务的模块落位
 
 - **WHEN** 新建服务 `<svc>`
-- **THEN** 建立 `api/<svc>` 与 `rpc/<svc>` 两个 go.mod，并在 `go.work` 中 `use`
+- **THEN** 无跨服务调用方时只建 `api/<svc>`（业务实现在 `backend/`，pb 走 buf）；有跨服务调用方时另建 `rpc/<svc>`，并在 `go.work` 中 `use`
 - **AND** 公共库与跨服务依赖一律通过 `replace` 指向本地相对路径，不发布到远端
 
 ### Requirement: 常见错误与规避
@@ -202,11 +247,11 @@ func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User
 
 - **WHEN** yaml 中新增配置项但服务未读取到
 - **THEN** 对照 `internal/config/config.go` 的 struct tag 核对字段名与层级
-- **AND** 确认该 yaml 位于服务实际加载的 `etc/` 路径（统一为 `api/<svc>/etc/` 与 `rpc/<svc>/etc/`）
+- **AND** 确认该 yaml 位于服务实际加载的 `etc/` 路径（统一为 `api/<svc>/etc/`、`rpc/<svc>/etc/` 与 `app/mq/<svc>/etc/`）
 
 ### Requirement: 可观测性配置保护
 
-每个服务 `api/<svc>/etc/*.yaml` 与 `rpc/<svc>/etc/*.yaml` 中已注入的三段配置 SHALL 被视为不可删除、不可改坏：
+每个服务 `api/<svc>/etc/*.yaml`、保留 RPC 的 `rpc/<svc>/etc/*.yaml` 与 MQ 消费者的 `app/mq/*/etc/*.yaml` 中已注入的三段配置 SHALL 被视为不可删除、不可改坏：
 
 ```yaml
 Telemetry:                 # 链路追踪：go-zero 自动 StartAgent，推 OTLP 到 127.0.0.1:4318
@@ -217,7 +262,8 @@ Telemetry:                 # 链路追踪：go-zero 自动 StartAgent，推 OTLP
 
 Prometheus:               # 指标：各自暴露 /metrics，由 otel-collector 抓取后聚合
   Host: 0.0.0.0
-  Port: <唯一>            # RPC 9101-9113 / API 9201-9213
+  Port: <唯一>            # API 9201-9213 / 保留 RPC 9101/9103/9104/9108/9112 / search-mq 9110
+                          # （trade-mq 无 Prometheus 端点，不配该段）
   Path: /metrics
 
 Log:                      # 日志：写 JSON 文件，由 collector filelog 采集进 Loki

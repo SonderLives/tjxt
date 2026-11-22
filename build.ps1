@@ -2,34 +2,30 @@ param(
     [string]$ProjectRoot = "."
 )
 
-# 与 Makefile build 目标保持一致：13 服务 x {api,rpc} = 26 个二进制
+# 与 Makefile build 目标保持一致：13 api + 5 保留 rpc + 2 mq consumer = 20 个二进制
+# （8 个折叠服务 auth/exam/media/message/remark/search/trade/data 的 rpc 进程壳已删除，
+#   业务实现在各自 api/<svc>/backend；trade/search 的 MQ 消费者独立为 app/mq/*）
 $services = @(
-    @{path="api/auth"; name="auth-api"},
-    @{path="rpc/auth"; name="auth-rpc"},
-    @{path="api/course"; name="course-api"},
-    @{path="rpc/course"; name="course-rpc"},
-    @{path="api/data"; name="data-api"},
-    @{path="rpc/data"; name="data-rpc"},
-    @{path="api/exam"; name="exam-api"},
-    @{path="rpc/exam"; name="exam-rpc"},
-    @{path="api/learning"; name="learning-api"},
-    @{path="rpc/learning"; name="learning-rpc"},
-    @{path="api/media"; name="media-api"},
-    @{path="rpc/media"; name="media-rpc"},
-    @{path="api/message"; name="message-api"},
-    @{path="rpc/message"; name="message-rpc"},
-    @{path="api/pay"; name="pay-api"},
-    @{path="rpc/pay"; name="pay-rpc"},
-    @{path="api/promotion"; name="promotion-api"},
-    @{path="rpc/promotion"; name="promotion-rpc"},
-    @{path="api/remark"; name="remark-api"},
-    @{path="rpc/remark"; name="remark-rpc"},
-    @{path="api/search"; name="search-api"},
-    @{path="rpc/search"; name="search-rpc"},
-    @{path="api/trade"; name="trade-api"},
-    @{path="rpc/trade"; name="trade-rpc"},
-    @{path="api/user"; name="user-api"},
-    @{path="rpc/user"; name="user-rpc"}
+    @{path="api/auth";          name="auth-api"},
+    @{path="api/course";        name="course-api"},
+    @{path="api/data";          name="data-api"},
+    @{path="api/exam";          name="exam-api"},
+    @{path="api/learning";      name="learning-api"},
+    @{path="api/media";         name="media-api"},
+    @{path="api/message";       name="message-api"},
+    @{path="api/pay";           name="pay-api"},
+    @{path="api/promotion";     name="promotion-api"},
+    @{path="api/remark";        name="remark-api"},
+    @{path="api/search";        name="search-api"},
+    @{path="api/trade";         name="trade-api"},
+    @{path="api/user";          name="user-api"},
+    @{path="rpc/user";          name="user-rpc"},
+    @{path="rpc/course";        name="course-rpc"},
+    @{path="rpc/learning";      name="learning-rpc"},
+    @{path="rpc/pay";           name="pay-rpc"},
+    @{path="rpc/promotion";     name="promotion-rpc"},
+    @{path="app/mq/trade-mq";   name="trade-mq"},
+    @{path="app/mq/search-mq";  name="search-mq"}
 )
 
 $ProjectRoot = (Resolve-Path $ProjectRoot).Path
@@ -51,4 +47,4 @@ if ($fail) {
     Write-Host "构建失败" -ForegroundColor Red
     exit 1
 }
-Write-Host "构建完成！26 个二进制文件在 bin/ 目录" -ForegroundColor Green
+Write-Host "构建完成！20 个二进制文件在 bin/ 目录" -ForegroundColor Green

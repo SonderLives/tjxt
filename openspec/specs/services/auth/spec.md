@@ -4,6 +4,8 @@
 
 auth（认证授权）是认证域的基础微服务，职责为「RBAC 权限模型（角色 / 菜单 / 权限 / 角色-菜单、角色-权限、账户-角色绑定）+ JWT 令牌签发 + 登录记录审计」。HTTP API 层 `auth-api` 监听 `0.0.0.0:8802`，RPC 服务 `Auth` 监听 `0.0.0.0:8082`（gRPC），经 etcd 以 key `auth.rpc` 注册与发现。数据存储于 MySQL `tj_auth` 库（`role` / `menu` / `privilege` / `role_menu` / `role_privilege` / `account_role` / `login_record` 七张表），角色/菜单/权限数据由 Redis 缓存托管（node 单机模式）。登录链路上 `auth-api` 依赖 `user.rpc` 的 `LoginVerify` 核验用户凭证，核验通过后由自身 `Auth.SignToken` 签发 JWT；`learning-api` 推测使用 `authclient` 进行 token 校验。
 
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/auth`，`auth.rpc` :8082）已删除，RPC 层业务实现随迁 `api/auth/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `api/auth/auth.proto`，pb 类型由 `make pb`（buf generate）再生成到 `api/auth/backend/pb/`。下文涉及「RPC 服务 / rpc/auth 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
+
 ## Requirements
 
 ### Requirement: 登录与令牌管理 HTTP 接口

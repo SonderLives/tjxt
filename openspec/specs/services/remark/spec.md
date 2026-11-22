@@ -4,6 +4,8 @@
 
 remark（评论点赞）是评论互动域的点赞微服务（RPC 服务名 `Remark`），以 `bizType + bizId` 多态泛化承载回复、笔记、问答等各业务对象的点赞关系，`bizType` 不做枚举校验、不感知具体业务表，点赞能力可被任意新业务复用。API 层 `remark-api`（HTTP :8813）为纯透传层，2 个 handler 全部转发到自身 RPC `remark.rpc`（gRPC :8093，etcd 服务发现 key `remark.rpc`）。数据落在 MySQL `tj_remark` 库唯一的 `like_record` 表（无逻辑删除字段，软取消语义），Redis 缓存主键与唯一索引查询，etcd `127.0.0.1:2379` 服务注册与发现；`remark.rpc` 不依赖任何其他服务的 RPC。
 
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/remark`，`remark.rpc` :8093）已删除，RPC 层业务实现随迁 `api/remark/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `api/remark/remark.proto`，pb 类型由 `make pb`（buf generate）再生成到 `api/remark/backend/pb/`。下文涉及「RPC 服务 / rpc/remark 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
+
 ## Requirements
 
 ### Requirement: HTTP API 点赞接口

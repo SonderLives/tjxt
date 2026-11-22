@@ -13,8 +13,9 @@
 | 组件 | 版本要求 | 说明 |
 |------|---------|------|
 | Go | 1.26.2+ | `go.work` 声明版本 |
-| goctl | 1.10.x | go-zero 代码生成器，**所有骨架代码必须由它生成** |
-| protoc / protoc-gen-go / protoc-gen-go-grpc | 最新 | RPC 层 pb 生成 |
+| goctl | 1.10.x | go-zero 代码生成器，**api/保留 rpc 骨架代码必须由它生成** |
+| buf | 1.75.0 | proto lint/breaking 门禁 + 折叠服务 pb 类型生成（`make pb`） |
+| protoc-gen-go | 1.36.x | buf generate 的 pb 插件（折叠服务）；保留 rpc 另需 protoc / protoc-gen-go-grpc |
 | Docker Desktop | — | 拉起 MySQL/Redis/RabbitMQ/etcd 及可观测性栈 |
 | PowerShell | 5.1+ | Makefile 内部大量使用 `powershell -NoProfile`，**Windows 环境专用** |
 
@@ -61,28 +62,22 @@ go install github.com/zeromicro/go-zero/tools/goctl@latest
 
 ### Requirement: 工作区初始化与服务启动
 
-工作区 SHALL 先 `make init`（`go work sync` + 逐模块 `go mod tidy`），再按「先 RPC 后 API」的顺序启动服务。
+工作区 SHALL 先 `make init`（`go work sync` + 逐模块 `go mod tidy`），再按「先 RPC 后 API（及 MQ 消费者）」的顺序启动服务。
 
-- `go.work` 聚合 28 个 `use` 条目（13 服务 × api/rpc 共 26 个模块 + `pkg` + 根模块）
-- 每个服务 `api/` 与 `rpc/` 各有独立 `go.mod`；公共库经 `replace tjxt/pkg => ../../../pkg` 引用
-- 启动命令：`make run-<svc>`（API）、`make run-<svc>-rpc`（RPC）、`make run-all` / `make run-all-rpc`（全量）
-- 端口已统一分配且唯一：API 8801-8813、RPC 8081-8093、metrics RPC 9101-9113 / API 9201-9213
+- `go.work` 聚合 22 个 `use` 条目（13 api + 5 保留 rpc + 2 mq 消费者 + `pkg` + 根模块）
+- 每个服务 `api/`、保留服务 `rpc/` 与 `app/mq/*/` 各有独立 `go.mod`；公共库经 `replace tjxt/pkg => ../../../pkg` 引用
+- 启动命令：`make run-<svc>`（API）、`make run-<svc>-rpc`（仅 5 个保留 RPC）、`make run-trade-mq` / `make run-search-mq`（MQ 消费者）、`make run-all`（全部 API）/ `make run-all-rpc`（5 个保留 RPC + 2 个 MQ 消费者）
+- 端口已统一分配且唯一：API 8801-8813、保留 RPC 8081/8083/8084/8088/8092、metrics：API 9201-9213、保留 RPC 9101/9103/9104/9108/9112、search-mq 9110
 
-> 源冲突说明：wiki `05-development/quickstart.md` v1.2 仍称「media-api 与 pay-api 同占 8808」。实测 26 份 `etc/*.yaml` 端口已重排为 `media-api 8806` / `pay-api 8808`，API 端口 8801-8813 全局唯一，无冲突，可同时启动。
+> 源冲突说明：wiki `05-development/quickstart.md` v1.2 仍称「media-api 与 pay-api 同占 8808」。实测 `etc/*.yaml` 端口已重排为 `media-api 8806` / `pay-api 8808`，API 端口 8801-8813 全局唯一，无冲突，可同时启动。
 
-> 已知缺口：`Makefile` 的 `SERVICES` 变量仅列出 11 个服务，**缺 `promotion` 与 `remark`**，这两个服务无法用 `make run-*` 启动，需手工 `cd api/<svc> && go run . -f etc/<svc>-api.yaml`。
+> 折叠说明：auth/exam/media/message/remark/search/trade/data 的 rpc 进程壳已删除，无 `run-<svc>-rpc` 目标；trade/search 原消费 MQ 的职责由 `app/mq/trade-mq`、`app/mq/search-mq` 承接，用 `run-trade-mq` / `run-search-mq` 启动。
 
 #### Scenario: 冷启动全套服务
 
 - **WHEN** 开发者启动整套系统
-- **THEN** 先 `make init`，再启动全部 RPC（注册到 etcd），然后启动全部 API（从 etcd 发现 RPC）
+- **THEN** 先 `make init`，再启动 5 个保留 RPC（注册到 etcd）与 2 个 MQ 消费者，然后启动全部 API（从 etcd 发现 RPC）
 - **AND** 顺序颠倒会导致 API 侧服务发现失败
-
-#### Scenario: 启动 promotion 或 remark
-
-- **WHEN** 需要运行 promotion / remark 服务
-- **THEN** 因 Makefile `SERVICES` 未包含，须手工进入服务目录 `go run`
-- **AND** 从仓库根启动，保证 `Log.Path: logs/<svc>` 相对路径解析正确
 
 ### Requirement: 代码生成与校验命令
 
@@ -91,15 +86,17 @@ go install github.com/zeromicro/go-zero/tools/goctl@latest
 | 目标 | 作用 |
 |------|------|
 | `make init` | `go work sync` + 逐模块 `go mod tidy` |
-| `make api` | 按 `.api` 全量重生成 handler/types/routes |
-| `make rpc` | 按 `.proto` 全量重生成 pb/server/client |
+| `make api` | 按 `.api` 全量重生成 handler/types/routes（13 个服务） |
+| `make rpc` | 按 `.proto` 全量重生成 pb/server/client（仅 5 个保留 RPC 服务，goctl） |
+| `make pb` | buf generate 重生成 8 个折叠服务的 pb 类型到 `api/<svc>/backend/pb/` |
 | `make model` | 按 `sql/ddl/*.sql` 生成带缓存的 model |
-| `make generate` | `api + rpc` 一键生成 |
-| `make build` | 构建全部 26 个二进制到 `bin/` |
+| `make generate` | `api + rpc + pb` 一键生成 |
+| `make check-gen` | 重生成 api + pb 后 `git diff --exit-code -- api`（api types 与 pb 类型双守卫） |
+| `make build` | 构建全部 20 个二进制（13 api + 5 rpc + 2 mq）到 `bin/` |
 | `make fmt` | 全模块 `go fmt ./...` |
-| `make lint` | 全模块 `go vet ./...` |
+| `make lint` | golangci-lint 逐模块检查 |
 | `make test` | 全模块 `go test ./...` |
-| `make verify` | fmt + lint + test 一站式（另有 `make verify` 校验目录齐全的语义） |
+| `make verify` | 校验所有服务的 .api/.proto 与 internal/ 目录齐全 |
 | `make tidy` | 全模块 `go mod tidy` |
 | `make docker-up` / `make docker-logs` | 启动 / 跟踪基础设施容器 |
 
@@ -139,8 +136,8 @@ SQL 脚本 SHALL 按用途分放两个目录，改表时同步更新：
 
 | 陷阱 | 规避方式 |
 |------|---------|
-| Makefile 服务清单曾有缺口 | `SERVICES` 曾只列 11 个（缺 `promotion`/`remark`），现已是全量 13 个，新增服务须同步维护 `SERVICES`/`API_DIRS`/`RPC_DIRS` |
-| `data` 服务目录曾有特例 | 旧布局多套一层（服务目录下再套服务名目录），现已扁平化为顶层标准布局 `api/data`、`rpc/data`，与其他服务一致 |
+| Makefile 服务清单曾有缺口 | `SERVICES` 曾只列 11 个（缺 `promotion`/`remark`），现已是全量 13 个；折叠后新增服务须同步维护 `SERVICES`/`API_DIRS`/`RPC_DIRS`/`FOLDED_SVCS`/`MQ_DIRS` |
+| `data` 服务目录曾有特例 | 旧布局多套一层（服务目录下再套服务名目录），现已扁平化为顶层标准布局 `api/data`（rpc/data 已折叠删除），与其他服务一致 |
 | Windows 下 `rm` 被沙箱拦截 | 清空目录准备重生成时 `rm -rf` 可能静默失败，需确认删除结果 |
 | 统一响应易写错 | handler 必须用 `result.Write(w, r, data, err)`，不要用 goctl 生成的 Result 类型 |
 | JWT 中间件 | 在 `.api` 中用 `@server jwt: Auth` 声明，userId 通过 `auth.UserIdFromCtx(l.ctx)` 获取 |

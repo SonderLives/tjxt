@@ -4,6 +4,8 @@
 
 exam（考试题库）是考试与题库管理微服务，提供题目（题干/选项/答案/解析）的新增、更新、删除、分页检索，以及题目与业务对象（如课程小节）的关联管理。HTTP API 层 `exam-api` 监听 `0.0.0.0:8805`，RPC 服务 `Exam` 监听 `0.0.0.0:8085`（gRPC），经 etcd 以 key `exam.rpc` 注册与发现，API 层经 etcd 调用自身 RPC。数据存储于 MySQL `tj_exam` 库（`question` / `question_detail` / `question_biz` 三张业务表 + Seata `undo_log` 闲置表），主键查询由 Redis 缓存托管。当前仅 `exam-api` 自身消费该 RPC，course / learning 等跨服务消费方尚未接线；JWT 鉴权依赖与签发方 `auth.rpc` 的密钥配置保持一致。
 
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/exam`，`exam.rpc` :8085）已删除，RPC 层业务实现随迁 `api/exam/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `api/exam/exam.proto`，pb 类型由 `make pb`（buf generate）再生成到 `api/exam/backend/pb/`。下文涉及「RPC 服务 / rpc/exam 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
+
 ## Requirements
 
 ### Requirement: 管理端内容管理接口（笔记 / 互动问题 / 回答评论）

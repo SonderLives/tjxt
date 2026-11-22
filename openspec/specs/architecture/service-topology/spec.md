@@ -2,13 +2,15 @@
 
 ## Purpose
 
-定义 tjxt 13 个微服务之间的依赖关系、三条核心跨服务 RPC 调用链、服务间契约原则，以及跨服务数据访问与数据域边界规则。本规格是判断「某服务是否有权调用另一服务」与「跨域数据应如何取得」的权威依据：任何跨服务取数必须走目标服务的 RPC 或事件，严禁直连他库、直连 `internal` 包。同时给出生产部署拓扑视图（K8s），作为本地 `docker-compose` 环境的上位形态。
+定义 tjxt 13 个微服务之间的依赖关系、三条核心跨服务调用链、服务间契约原则，以及跨服务数据访问与数据域边界规则。本规格是判断「某服务是否有权调用另一服务」与「跨域数据应如何取得」的权威依据：任何跨服务取数必须走目标服务的 RPC 或事件，严禁直连他库、直连 `internal` 包。同时给出生产部署拓扑视图（K8s），作为本地 `docker-compose` 环境的上位形态。
+
+**进程拓扑（RPC 折叠后）**：全仓 20 个进程 = 13 个 API 服务 + 5 个保留 RPC 服务（user/course/learning/pay/promotion，仅它们存在跨服务调用方）+ 2 个 MQ 消费者（app/mq/trade-mq、app/mq/search-mq）。auth/exam/media/message/remark/search/trade/data 8 个服务的 RPC 进程壳已删除，业务实现随迁各自 `api/<svc>/backend`，进程内直调、不再注册 etcd RPC 端点。
 
 ## Requirements
 
 ### Requirement: 服务依赖拓扑
 
-服务间依赖 SHALL 以「API 层 → RPC 层 → DB/MQ」单向流动，下图为 wiki 记载的**设计意图拓扑**（端口已按实测更正）；由于部分依赖尚未接线，实际可用链路以紧随其后的「接线状态表」为准。
+服务间依赖 SHALL 以「API 层 → RPC 层/本地 backend → DB/MQ」单向流动，下图为 wiki 记载的**设计意图拓扑**（端口已按实测更正，折叠服务已标注）；由于部分依赖尚未接线，实际可用链路以紧随其后的「接线状态表」为准。
 
 ```mermaid
 graph TD
@@ -21,49 +23,45 @@ graph TD
     Client --> MediaAPI[media-api:8806]
 
     UserAPI --> UserRPC[user-rpc:8081]
-    AuthAPI --> AuthRPC[auth-rpc:8082]
     AuthAPI --> UserRPC
     CourseAPI --> CourseRPC[course-rpc:8083]
     LearningAPI --> LearningRPC[learning-rpc:8084]
     LearningAPI --> CourseRPC
     PayAPI --> PayRPC[pay-rpc:8088]
-    TradeAPI --> TradeRPC[trade-rpc:8089]
-    TradeAPI --> PayRPC
-    MediaAPI --> MediaRPC[media-rpc:8086]
+    TradeAPI --> TradeBackend[trade backend<br/>api/trade/backend 已折叠]
+    TradeBackend --> PayRPC
+    MediaAPI --> MediaBackend[media backend<br/>api/media/backend 已折叠]
 
-    PromotionRPC[promotion-rpc:8092] --> AuthRPC
-    MessageRPC[message-rpc:8087] --> AuthRPC
-    ExamRPC[exam-rpc:8085] --> AuthRPC
-    ExamRPC --> CourseRPC
-    SearchRPC[search-rpc:8090] --> AuthRPC
-    DataRPC[data-rpc:8091] --> AuthRPC
-    DataRPC --> CourseRPC
-    DataRPC --> TradeRPC
-    DataRPC --> LearningRPC
+    PayRPC --> PayMQ[trade-mq 消费 pay.success<br/>回写订单并发布 order.pay]
+    TradeMQ[trade-mq] --> LearningRPC
+    CourseRPC --> SearchMQ[search-mq 消费 course.up/down<br/>写/删 ES 索引]
 ```
 
-> 源冲突说明 1：wiki `00-architecture/service-topology.md` 的 mermaid 图中 `auth-api` 标注为 8801、`auth-rpc` 标注为 8081。实测 26 份 `etc/*.yaml`，实际为 `user-api 8801` / `auth-api 8802`、`user-rpc 8081` / `auth-rpc 8082`，上图已按实测更正。
+> 源冲突说明 1：wiki `00-architecture/service-topology.md` 的 mermaid 图中 `auth-api` 标注为 8801、`auth-rpc` 标注为 8081。实测 `etc/*.yaml`，实际为 `user-api 8801` / `auth-api 8802`、`user-rpc 8081` / `auth-rpc 8082`，上图已按实测更正。
 >
-> 源冲突说明 2：上图源自设计意图，**多数 API→auth-rpc 的边并未实际接线**——各服务普遍通过自身 yaml 的 `Auth.AccessSecret` + go-zero JWT 中间件本地校验，而非调用 auth-rpc。仅表中 ✅ 项可视为真实链路。
+> 源冲突说明 2：上图源自设计意图，**多数 API→auth-rpc 的边并未实际接线**——各服务普遍通过自身 yaml 的 `Auth.AccessSecret` + go-zero JWT 中间件本地校验。仅表中 ✅ 项可视为真实链路。
+>
+> 折叠说明：auth/exam/media/message/remark/search/trade/data 的 RPC 层已折叠进 `api/<svc>/backend`，原 `xxx-rpc` 节点不复存在；trade/search 原挂在 RPC 进程的 MQ 消费职责由 `app/mq/trade-mq`、`app/mq/search-mq` 承接。
 
 **实际接线状态**（以 `ServiceContext` 中 client 是否实例化、logic 是否调用为准）：
 
 | 调用方 | 被调方 | 状态 | 说明 |
 |--------|--------|------|------|
 | auth-api | user.rpc | ✅ 已接线 | 登录时调 `LoginVerify` 核验凭证 |
-| trade-rpc | pay.rpc | ✅ 已接线 | 支付/退款经 pay 代理 |
-| search-rpc | course.rpc | ✅ 已接线 | 课程索引数据源 |
+| trade backend（api/trade/backend） | pay.rpc | ✅ 已接线 | 支付/退款经 pay 代理 |
+| search-mq（app/mq/search-mq） | course.rpc | ✅ 已接线 | 课程索引数据源（course.up 回源/全量重建） |
 | learning-api | course.rpc | ✅ 已接线 | 校验课程有效性 |
 | course-rpc | user.rpc | ❌ 未接线 | 教师姓名/头像留空 |
 | course-rpc | learning.rpc | ❌ 未接线 | `lesson_id` 填 0 |
-| course-rpc | media.rpc / exam.rpc | ❌ 未接线 | 媒资/题目存在性校验缺失 |
-| trade-rpc | promotion.rpc | ❌ 未接线 | 优惠未接入，实付金额未扣减 |
-| exam-rpc | course.rpc | ❌ 未接线 | 图中为设计意图 |
-| data-rpc | course / trade / learning | ❌ 未接线 | data 当前无上游 RPC 客户端配置，数据为回填/快照 |
-| 各服务 | auth.rpc（token 校验） | ⚠️ 多数未接线 | 改用本地 JWT 中间件校验 |
+| course-rpc | media / exam 业务 | ❌ 未接线 | 媒资/题目存在性校验缺失（media/exam 已折叠，跨域校验需走事件或 HTTP） |
+| trade backend | promotion.rpc | ❌ 未接线 | 优惠未接入，实付金额未扣减 |
+| exam backend（api/exam/backend） | course.rpc | ❌ 未接线 | 图中为设计意图 |
+| data-api | course / trade / learning | ❌ 未接线 | data 当前无上游 RPC 客户端配置，数据为回填/快照 |
+| 各服务 | auth（token 校验） | ⚠️ 多数未接线 | 改用本地 JWT 中间件校验（auth RPC 层已折叠） |
 | pay-rpc | 真实支付网关 | ⚠️ 占位 | demo 回调 URL，非真实渠道 |
-| trade-rpc | RabbitMQ | ⚠️ 未发射 | Producer 已装配但 logic 未调 `Publish` |
-| course-rpc | RabbitMQ | ✅ 已接线 | 上下架事件 → search 增量同步 |
+| trade-mq | RabbitMQ | ✅ 已接线 | 消费 `pay.success` 回写订单；发布 `order.pay`/`order.refund` |
+| search-mq | RabbitMQ | ✅ 已接线 | 消费 `course.up/down` → ES 增量同步 |
+| course-rpc | RabbitMQ | ✅ 已接线 | 上下架事件 → search-mq 增量同步 |
 
 #### Scenario: 判断一次跨服务调用是否合规
 
@@ -84,12 +82,12 @@ graph TD
 **下单支付链路**
 
 ```
-Client → trade-api → trade-rpc   (创建订单)
+Client → trade-api → trade backend (创建订单，RPC 层已折叠)
                   ⚠️ promotion-rpc (校验优惠券，未接线)
                    → pay-rpc      (发起支付)
                    → pay-rpc      (回调确认)
-                  ⚠️ message-rpc  (发送下单通知)
-                  ⚠️ learning-rpc (解锁课程，实际改由 MQ 事件驱动且事件未发射)
+                  ⚠️ message     (发送下单通知，message RPC 层已折叠，通知链路未接线)
+                  → MQ: pay.rpc 发布 pay.success → trade-mq 回写订单已支付并发布 order.pay → learning-rpc 解锁课程
 ```
 
 **学习进度同步链路**
@@ -97,27 +95,27 @@ Client → trade-api → trade-rpc   (创建订单)
 ```
 Client → learning-api → learning-rpc (记录进度)
                      → course-rpc    (校验课程有效性，已接线)
-                    ⚠️ message-rpc  (进度提醒/证书发放)
+                    ⚠️ message     (进度提醒/证书发放，message RPC 层已折叠，通知链路未接线)
 ```
 
 **文件上传签名链路**
 
 ```
-Client → media-api → media-rpc (获取上传签名)
-                  ⚠️ auth-rpc (校验身份)
+Client → media-api → media backend (获取上传签名，RPC 层已折叠)
+                  ⚠️ auth (校验身份，本地 JWT 中间件校验)
 ```
 
 #### Scenario: 下单支付
 
 - **WHEN** 客户端提交下单请求
-- **THEN** trade-api 调 trade-rpc 创建订单，再经 pay-rpc 发起支付并在回调中确认
-- **AND** 优惠券试算（promotion-rpc）与课程解锁（learning 侧）当前未打通：前者因 trade 未接线 promotion，后者因订单事件未发射
+- **THEN** trade-api 调本地 trade backend（`api/trade/backend`）创建订单，再经 pay-rpc 发起支付；支付回调后 pay-rpc 发布 `pay.success`，由 app/mq/trade-mq 消费回写订单并发布 `order.pay`
+- **AND** 优惠券试算（promotion-rpc）当前未打通（trade backend 未接线 promotion）；课程解锁由 learning.rpc 消费 `order.pay` 事件完成
 
 #### Scenario: 学习进度记录
 
 - **WHEN** 客户端上报学习进度
 - **THEN** learning-api 调 learning-rpc 记录，并经 course-rpc 校验课程有效性
-- **AND** 进度提醒/证书发放依赖 message-rpc，当前未接线
+- **AND** 进度提醒/证书发放依赖 message 服务（RPC 层已折叠为 api/message/backend），当前未接线
 
 ### Requirement: 服务间契约原则
 
@@ -143,26 +141,26 @@ Client → media-api → media-rpc (获取上传签名)
 
 ### Requirement: 跨服务数据访问规则
 
-跨域数据 SHALL 只经目标服务 RPC 获取，禁止直连他库：
+跨域数据 SHALL 只经目标服务 RPC 获取（目标为折叠服务时经事件或 HTTP，禁止直连其 backend/internal 包），禁止直连他库：
 
 | 场景 | 正确做法 | 禁止做法 |
 |------|----------|----------|
 | trade 需要课程价格 | 调用 course-rpc `GetCourse` | 直接查 `tj_course.course` |
 | learning 需要用户信息 | 调用 user-rpc `GetUserById` | 直接查 `tj_user.user` |
-| data 大屏需要交易汇总 | 调用 trade-rpc `GetTradeStats` | 直接查 `tj_trade.order` |
-| promotion 校验用户身份 | 调用 auth-rpc `VerifyToken` | 共享 JWT secret 自己解析 |
+| data 大屏需要交易汇总 | 调用 trade 侧能力（trade RPC 层已折叠，经事件或 api/trade HTTP） | 直接查 `tj_trade.order` |
+| promotion 校验用户身份 | 调用本地 JWT 校验（auth RPC 层已折叠） | 共享 JWT secret 跨服务扩散解析 |
 
 #### Scenario: 大屏聚合取数
 
 - **WHEN** data 服务需要交易/课程/学习三方汇总数据
-- **THEN** 分别调用对应服务的 RPC 聚合，不直连 `tj_trade` / `tj_course` / `tj_learning`
-- **AND** data 自身不持有关系型库（无 `DataSource`），所有数据来自上游 RPC 或快照
+- **THEN** 分别调用对应服务的 RPC 或事件聚合，不直连 `tj_trade` / `tj_course` / `tj_learning`
+- **AND** data 自身不持有关系型库（无 `DataSource`），所有数据来自上游或快照
 
 #### Scenario: 需要校验 JWT 的服务
 
 - **WHEN** 某服务需要确认请求者身份
-- **THEN** 调用 auth-rpc 的校验接口
-- **AND** 禁止通过共享 `AccessSecret` 自行解析 token（密钥扩散会导致轮换失效）
+- **THEN** 使用 go-zero JWT 中间件本地校验（签发能力已折叠进 api/auth/backend）
+- **AND** 禁止通过共享 `AccessSecret` 之外的渠道扩散解析逻辑（密钥轮换需统一管理）
 
 ### Requirement: 数据域边界与 SQL 版本管理
 

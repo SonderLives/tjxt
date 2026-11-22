@@ -127,8 +127,8 @@ pkg/
 #### Scenario: data 服务的配置路径
 
 - **WHEN** 定位 data 服务的配置与入口
-- **THEN** 使用 `api/data/etc/data-api.yaml` 与 `rpc/data/etc/data.yaml`
-- **AND** 13 个服务布局完全同构，均为 `api/<svc>/etc/` 与 `rpc/<svc>/etc/`
+- **THEN** 使用 `api/data/etc/data-api.yaml`（data 的 RPC 层已折叠进 api/data/backend，`rpc/data/etc/data.yaml` 已随折叠删除）
+- **AND** 13 个服务布局完全同构：API 配置统一为 `api/<svc>/etc/`，保留 RPC 另有 `rpc/<svc>/etc/`（仅 user/course/learning/pay/promotion）
 
 ### Requirement: Import 规则
 
@@ -146,7 +146,7 @@ import (
 )
 
 import (
-    "tjxt/rpc/auth/auth"   // RPC client
+    "tjxt/rpc/user/user"   // RPC client（示例用保留 RPC 服务；折叠服务的 client 已随折叠移除）
     "tjxt/pkg/response"
     "tjxt/pkg/errorx"
 )

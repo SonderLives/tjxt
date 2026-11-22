@@ -6,6 +6,8 @@ media（媒资文件）是媒资与文件管理微服务（RPC 服务名 `Media`
 
 > 实现状态（2026-08-06 复核，business-rules.md v1.2）：本服务业务 logic 已全部实现——20 个 logic 文件（RPC 10 + API 10）均已落地并编译通过（go build 全模块通过）；对象存储后端为 mock（见各处「已知缺口」）。业务规则各条为依据 `media.proto` / `tj_media.sql` / `media.api` / `tjxt.openapi.json` 契约推导的设计意图，建议对照源码最终确认。
 
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/media`，`media.rpc` :8086）已删除，RPC 层业务实现随迁 `api/media/backend`（config/logic/model/pb/svc/store），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `api/media/media.proto`，pb 类型由 `make pb`（buf generate）再生成到 `api/media/backend/pb/`。下文涉及「RPC 服务 / rpc/media 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
+
 ## Requirements
 
 ### Requirement: 文件管理 HTTP 接口
