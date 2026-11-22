@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 
-	courseclient "tjxt/apps/course/rpc/course"
+	courseclient "tjxt/apps/course/rpc/client/course"
 	"tjxt/apps/learning/api/internal/svc"
 	"tjxt/apps/learning/api/internal/types"
 	"tjxt/apps/learning/rpc/pb"
