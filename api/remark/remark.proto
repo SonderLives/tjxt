@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package remark;
 
-option go_package = "./pb";
+option go_package = "./backend/pb";
 
 // 点赞请求（写）
 message LikeReq {

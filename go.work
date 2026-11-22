@@ -24,7 +24,6 @@ use (
 	./rpc/media
 	./rpc/pay
 	./rpc/promotion
-	./rpc/remark
 	./rpc/trade
 	./rpc/user
 )
