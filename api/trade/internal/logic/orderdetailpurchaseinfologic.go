@@ -6,9 +6,10 @@ package logic
 import (
 	"context"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewOrderDetailPurchaseInfoLogic(ctx context.Context, svcCtx *svc.ServiceCon
 }
 
 func (l *OrderDetailPurchaseInfoLogic) OrderDetailPurchaseInfo(req *types.PurchaseInfoReq) (resp *types.PurchaseInfoVO, err error) {
-	reply, err := l.svcCtx.TradeRpc.OrderDetailPurchaseInfo(l.ctx, &pb.PurchaseInfoRequest{CourseId: req.CourseId})
+	reply, err := backendlogic.NewOrderDetailPurchaseInfoLogic(l.ctx, l.svcCtx.Backend).OrderDetailPurchaseInfo(&pb.PurchaseInfoRequest{CourseId: req.CourseId})
 	if err != nil {
 		return nil, err
 	}

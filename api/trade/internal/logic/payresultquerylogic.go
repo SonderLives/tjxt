@@ -6,9 +6,10 @@ package logic
 import (
 	"context"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewPayResultQueryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pa
 }
 
 func (l *PayResultQueryLogic) PayResultQuery(req *types.BizOrderIdPathReq) (resp *types.PayResultDTO, err error) {
-	reply, err := l.svcCtx.TradeRpc.PayResultQuery(l.ctx, &pb.PayResultQueryRequest{BizOrderId: req.BizOrderId})
+	reply, err := backendlogic.NewPayResultQueryLogic(l.ctx, l.svcCtx.Backend).PayResultQuery(&pb.PayResultQueryRequest{BizOrderId: req.BizOrderId})
 	if err != nil {
 		return nil, err
 	}

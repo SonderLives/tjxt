@@ -6,9 +6,10 @@ package logic
 import (
 	"context"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewRefundResultQueryLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *RefundResultQueryLogic) RefundResultQuery(req *types.BizRefundOrderIdPathReq) (resp *types.RefundResultDTO, err error) {
-	reply, err := l.svcCtx.TradeRpc.RefundResultQuery(l.ctx, &pb.RefundResultQueryRequest{
+	reply, err := backendlogic.NewRefundResultQueryLogic(l.ctx, l.svcCtx.Backend).RefundResultQuery(&pb.RefundResultQueryRequest{
 		BizRefundOrderId: req.BizRefundOrderId,
 	})
 	if err != nil {

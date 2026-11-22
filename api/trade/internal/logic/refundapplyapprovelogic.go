@@ -6,9 +6,10 @@ package logic
 import (
 	"context"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewRefundApplyApproveLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 func (l *RefundApplyApproveLogic) RefundApplyApprove(req *types.ApproveFormReq) (resp *types.NamePlaceVO, err error) {
-	if _, err = l.svcCtx.TradeRpc.RefundApplyApprove(l.ctx, &pb.ApproveRequest{
+	if _, err = backendlogic.NewRefundApplyApproveLogic(l.ctx, l.svcCtx.Backend).RefundApplyApprove(&pb.ApproveRequest{
 		Id:             req.Id,
 		ApproveType:    req.ApproveType,
 		ApproveOpinion: req.ApproveOpinion,

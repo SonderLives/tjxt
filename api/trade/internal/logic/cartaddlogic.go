@@ -3,9 +3,10 @@ package logic
 import (
 	"context"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,7 +26,7 @@ func NewCartAddLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CartAddLo
 }
 
 func (l *CartAddLogic) CartAdd(req *types.CartAddReq) (resp *types.NamePlaceVO, err error) {
-	if _, err = l.svcCtx.TradeRpc.CartAdd(l.ctx, &pb.CartAddRequest{CourseId: req.CourseId}); err != nil {
+	if _, err = backendlogic.NewCartAddLogic(l.ctx, l.svcCtx.Backend).CartAdd(&pb.CartAddRequest{CourseId: req.CourseId}); err != nil {
 		return nil, err
 	}
 	return &types.NamePlaceVO{Existed: true, Message: "ok"}, nil

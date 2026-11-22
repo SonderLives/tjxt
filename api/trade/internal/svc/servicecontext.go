@@ -4,26 +4,22 @@
 package svc
 
 import (
+	backendsvc "tjxt/api/trade/backend/svc"
 	"tjxt/api/trade/internal/config"
-	tradeclient "tjxt/rpc/trade/client/trade"
-	"tjxt/pkg/auth"
-
-	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
 	Config config.Config
 
-	// TradeRpc 交易域 RPC 客户端
-	TradeRpc tradeclient.Trade
+	// Backend 交易域本地 backend 服务上下文（DB/model/下游客户端/MQ producer）。
+	// 原 trade RPC 进程折叠后，业务逻辑包随迁至 api/trade/backend，
+	// api logic 直接构造 backend logic 在进程内调用，不再经 gRPC。
+	Backend *backendsvc.ServiceContext
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config: c,
-		TradeRpc: tradeclient.NewTrade(zrpc.MustNewClient(c.TradeRpc,
-			// 将当前登录用户 id 透传到下游 RPC 的 gRPC metadata 中，
-			// 供 trade-rpc 侧读取用户态（购物车/订单等接口依赖）。
-			zrpc.WithUnaryClientInterceptor(auth.OutgoingUserIdInterceptor))),
+		Config:  c,
+		Backend: backendsvc.NewServiceContext(c.Config),
 	}
 }

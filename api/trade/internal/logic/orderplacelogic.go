@@ -6,9 +6,10 @@ package logic
 import (
 	"context"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewOrderPlaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OrderP
 }
 
 func (l *OrderPlaceLogic) OrderPlace(req *types.PlaceOrderReq) (resp *types.PlaceOrderResultVO, err error) {
-	reply, err := l.svcCtx.TradeRpc.OrderPlace(l.ctx, &pb.PlaceOrderRequest{
+	reply, err := backendlogic.NewOrderPlaceLogic(l.ctx, l.svcCtx.Backend).OrderPlace(&pb.PlaceOrderRequest{
 		OrderId:   req.OrderId,
 		CourseIds: req.CourseIds,
 		CouponIds: req.CouponIds,

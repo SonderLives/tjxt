@@ -6,9 +6,10 @@ package logic
 import (
 	"context"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewPayChannelGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pay
 }
 
 func (l *PayChannelGetLogic) PayChannelGet(req *types.PayChannelIdReq) (resp *types.PayChannelDTO, err error) {
-	reply, err := l.svcCtx.TradeRpc.PayChannelGet(l.ctx, &pb.IdRequest{Id: req.Id})
+	reply, err := backendlogic.NewPayChannelGetLogic(l.ctx, l.svcCtx.Backend).PayChannelGet(&pb.IdRequest{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}

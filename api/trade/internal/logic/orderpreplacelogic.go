@@ -8,9 +8,10 @@ import (
 	"strconv"
 	"strings"
 
+	backendlogic "tjxt/api/trade/backend/logic"
+	"tjxt/api/trade/backend/pb"
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
-	"tjxt/rpc/trade/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -43,7 +44,7 @@ func (l *OrderPrePlaceLogic) OrderPrePlace(req *types.PrePlaceOrderReq) (resp *t
 		ids = append(ids, id)
 	}
 
-	reply, err := l.svcCtx.TradeRpc.OrderPrePlace(l.ctx, &pb.PrePlaceRequest{CourseIds: ids})
+	reply, err := backendlogic.NewOrderPrePlaceLogic(l.ctx, l.svcCtx.Backend).OrderPrePlace(&pb.PrePlaceRequest{CourseIds: ids})
 	if err != nil {
 		return nil, err
 	}
