@@ -3,6 +3,7 @@ package examlogic
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"strings"
 
 	"tjxt/pkg/auth"
@@ -88,7 +89,7 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 	// 更新题目
 	q, err := l.svcCtx.QuestionModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("题目不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目失败")
@@ -108,7 +109,7 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 	// upsert 题目详情
 	d, err := l.svcCtx.QuestionDetailModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if !isNotFound(err) {
+		if !errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目详情失败")
 		}
 		if _, err := l.svcCtx.QuestionDetailModel.Insert(l.ctx, &model.QuestionDetail{

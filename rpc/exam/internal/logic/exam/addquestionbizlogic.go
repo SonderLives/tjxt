@@ -3,11 +3,12 @@ package examlogic
 import (
 	"context"
 	"database/sql"
+	"errors"
 
+	"tjxt/pkg/errorx"
 	"tjxt/rpc/exam/internal/model"
 	"tjxt/rpc/exam/internal/svc"
 	"tjxt/rpc/exam/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -37,7 +38,7 @@ func (l *AddQuestionBizLogic) AddQuestionBiz(in *pb.QuestionBizReq) (*pb.IdReply
 
 	// 题目必须存在
 	if _, err := l.svcCtx.QuestionModel.FindOne(l.ctx, in.QuestionId); err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("题目不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目失败")
@@ -51,7 +52,7 @@ func (l *AddQuestionBizLogic) AddQuestionBiz(in *pb.QuestionBizReq) (*pb.IdReply
 	if err == nil {
 		return &pb.IdReply{Id: existing.Id}, nil
 	}
-	if !isNotFound(err) {
+	if !errors.Is(err, model.ErrNotFound) {
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目业务关联失败")
 	}
 
