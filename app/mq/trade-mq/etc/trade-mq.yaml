@@ -1,0 +1,39 @@
+Log:
+  Mode: file
+  Encoding: json
+  Path: logs/trade-mq
+  Level: info
+
+DataSource: root:${TJXT_DB_PASS|0000}@tcp(127.0.0.1:3306)/tj_trade?charset=utf8mb4&parseTime=true&loc=Local
+
+Cache:
+  - Host: 127.0.0.1:6379
+    Type: node
+    Pass: ""
+
+RabbitMQ:
+  Host: 127.0.0.1
+  Port: 5672
+  User: rabbitmq
+  Pass: ${TJXT_MQ_PASS|rabbitmq}
+  Exchange: order.exchange
+  PayRoutingKey: order.pay
+  RefundRoutingKey: order.refund
+
+PayRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: pay.rpc
+
+CourseRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: course.rpc
+
+PromotionRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: promotion.rpc

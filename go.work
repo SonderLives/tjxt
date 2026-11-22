@@ -15,6 +15,7 @@ use (
 	./api/search
 	./api/trade
 	./api/user
+	./app/mq/trade-mq
 	./pkg
 	./rpc/auth
 	./rpc/course

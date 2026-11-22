@@ -1,34 +1,32 @@
-package svc
+package main
 
 import (
 	"context"
 	"errors"
 
 	"tjxt/api/trade/backend/model"
+	backendsvc "tjxt/api/trade/backend/svc"
 	"tjxt/pkg/mq"
 	"tjxt/pkg/mq/event"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-// initMQ 注册支付成功事件消费者（pay.exchange / pay.success）。
-// MQ 不可用时跳过注册，不阻塞服务启动。
-func initMQ(svcCtx *ServiceContext, dsn string) {
-	client := mq.NewClient(dsn)
+// registerMQ 注册支付成功事件消费者（pay.exchange / pay.success）。
+func registerMQ(client *mq.Client, svcCtx *backendsvc.ServiceContext) {
 	consumer := &paySuccessConsumer{svcCtx: svcCtx}
 	mq.Register(client, mq.Binding{
 		Queue:      "trade.order.paid",
 		Exchange:   mq.ExchangePay,
 		RoutingKey: mq.RoutingKeyPaySuccess,
 	}, consumer.handlePaySuccess)
-	svcCtx.MQClient = client
 }
 
 // paySuccessConsumer 消费支付成功事件：回写订单状态为已支付，
 // 并向 learning 转发 OrderPayEvent（order.exchange / order.pay）开通课程。
 // 消费幂等：订单非待支付态直接 ack；数据库条件更新兜底并发。
 type paySuccessConsumer struct {
-	svcCtx *ServiceContext
+	svcCtx *backendsvc.ServiceContext
 }
 
 func (c *paySuccessConsumer) handlePaySuccess(ctx context.Context, evt *event.PaySuccessEvent) error {

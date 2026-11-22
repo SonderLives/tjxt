@@ -28,7 +28,6 @@ type ServiceContext struct {
 	CourseRpc    courseclient.Course
 	PromotionRpc promotionclient.Promotion
 	MQProducer   *mq.Producer // 可为 nil：MQ 未就绪时不阻塞启动
-	MQClient     *mq.Client   // 可为 nil：MQ 未就绪时跳过消费者启动
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -51,8 +50,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	} else {
 		svcCtx.MQProducer = prod
 	}
-
-	initMQ(svcCtx, dsn)
 
 	return svcCtx
 }
