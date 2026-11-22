@@ -8,8 +8,8 @@ import (
 
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
-	"tjxt/rpc/course/pb"
 	"tjxt/pkg/errorx"
+	"tjxt/rpc/course/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -36,7 +36,7 @@ func (l *CourseDownLogic) CourseDown(req *types.CourseIdListReq) (resp *types.Na
 	}
 	_, err = l.svcCtx.CourseRpc.CourseDown(l.ctx, &pb.IdsRequest{Ids: ids})
 	if err != nil {
-		return nil, errorx.Wrap(err, errorx.CodeInternal, "批量下架课程失败")
+		return nil, err
 	}
 	return &types.NameExistVO{Existed: false}, nil
 }

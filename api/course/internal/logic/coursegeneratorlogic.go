@@ -9,7 +9,6 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,7 +31,7 @@ func NewCourseGeneratorLogic(ctx context.Context, svcCtx *svc.ServiceContext) *C
 func (l *CourseGeneratorLogic) CourseGenerator() (resp *types.CourseCataIdVO, err error) {
 	res, gerr := l.svcCtx.CourseRpc.CourseGenerator(l.ctx, &pb.Empty{})
 	if gerr != nil {
-		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "生成课程 id 失败")
+		return nil, gerr
 	}
 	return &types.CourseCataIdVO{Id: res.Id}, nil
 }

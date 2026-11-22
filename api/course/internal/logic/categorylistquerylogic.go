@@ -6,7 +6,6 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,7 +31,7 @@ func (l *CategoryListQueryLogic) CategoryListQuery(req *types.CategoryListQueryR
 		Status: int32(req.Status),
 	})
 	if gerr != nil {
-		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "查询分类列表失败")
+		return nil, gerr
 	}
 	resp = make([]types.CategoryVO, 0, len(list.Items))
 	for _, c := range list.Items {

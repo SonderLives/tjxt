@@ -9,7 +9,6 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -35,7 +34,7 @@ func (l *CourseTeachersGetLogic) CourseTeachersGet(req *types.CourseCataQueryReq
 		See: req.See,
 	})
 	if err != nil {
-		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程老师失败")
+		return nil, err
 	}
 	resp = make([]types.TeacherCourseInfoVO, 0, len(list.Items))
 	for _, t := range list.Items {
