@@ -6,9 +6,10 @@ package inbox
 import (
 	"context"
 
+	backendlogic "tjxt/api/message/backend/logic"
+	"tjxt/api/message/backend/pb"
 	"tjxt/api/message/internal/svc"
 	"tjxt/api/message/internal/types"
-	messageclient "tjxt/rpc/message/client/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewMarkInboxReadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Mar
 }
 
 func (l *MarkInboxReadLogic) MarkInboxRead(req *types.IdPathReq) (resp *types.OkVO, err error) {
-	if _, err := l.svcCtx.MessageRpc.MarkInboxRead(l.ctx, &messageclient.IdReq{Id: req.Id}); err != nil {
+	if _, err := backendlogic.NewMarkInboxReadLogic(l.ctx, l.svcCtx.Backend).MarkInboxRead(&pb.IdReq{Id: req.Id}); err != nil {
 		return nil, err
 	}
 	return &types.OkVO{Success: true}, nil

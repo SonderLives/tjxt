@@ -6,9 +6,10 @@ package notice
 import (
 	"context"
 
+	backendlogic "tjxt/api/message/backend/logic"
+	"tjxt/api/message/backend/pb"
 	"tjxt/api/message/internal/svc"
 	"tjxt/api/message/internal/types"
-	messageclient "tjxt/rpc/message/client/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewSavePublicNoticeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *SavePublicNoticeLogic) SavePublicNotice(req *types.PublicNoticeSaveReq) (resp *types.IdVO, err error) {
-	r, err := l.svcCtx.MessageRpc.SavePublicNotice(l.ctx, &messageclient.PublicNoticeSaveReq{
+	r, err := backendlogic.NewSavePublicNoticeLogic(l.ctx, l.svcCtx.Backend).SavePublicNotice(&pb.PublicNoticeSaveReq{
 		Id:         req.Id,
 		Title:      req.Title,
 		Content:    req.Content,

@@ -6,9 +6,10 @@ package noticetask
 import (
 	"context"
 
+	backendlogic "tjxt/api/message/backend/logic"
+	"tjxt/api/message/backend/pb"
 	"tjxt/api/message/internal/svc"
 	"tjxt/api/message/internal/types"
-	messageclient "tjxt/rpc/message/client/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewSaveNoticeTaskLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Sa
 }
 
 func (l *SaveNoticeTaskLogic) SaveNoticeTask(req *types.NoticeTaskSaveReq) (resp *types.IdVO, err error) {
-	r, err := l.svcCtx.MessageRpc.SaveNoticeTask(l.ctx, &messageclient.NoticeTaskSaveReq{
+	r, err := backendlogic.NewSaveNoticeTaskLogic(l.ctx, l.svcCtx.Backend).SaveNoticeTask(&pb.NoticeTaskSaveReq{
 		Id:         req.Id,
 		TemplateId: req.TemplateId,
 		Name:       req.Name,

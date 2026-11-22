@@ -22,7 +22,6 @@ use (
 	./rpc/data
 	./rpc/learning
 	./rpc/media
-	./rpc/message
 	./rpc/pay
 	./rpc/promotion
 	./rpc/remark

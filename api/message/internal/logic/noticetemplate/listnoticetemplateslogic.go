@@ -6,9 +6,10 @@ package noticetemplate
 import (
 	"context"
 
+	backendlogic "tjxt/api/message/backend/logic"
+	"tjxt/api/message/backend/pb"
 	"tjxt/api/message/internal/svc"
 	"tjxt/api/message/internal/types"
-	messageclient "tjxt/rpc/message/client/message"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,7 @@ func NewListNoticeTemplatesLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *ListNoticeTemplatesLogic) ListNoticeTemplates(req *types.PageReq) (resp *types.NoticeTemplateListVO, err error) {
-	r, err := l.svcCtx.MessageRpc.ListNoticeTemplates(l.ctx, &messageclient.PageReq{
+	r, err := backendlogic.NewListNoticeTemplatesLogic(l.ctx, l.svcCtx.Backend).ListNoticeTemplates(&pb.PageReq{
 		PageNo:   int32(req.PageNo),
 		PageSize: int32(req.PageSize),
 	})
