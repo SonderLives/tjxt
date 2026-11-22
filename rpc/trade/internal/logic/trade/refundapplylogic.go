@@ -12,7 +12,7 @@ import (
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/mq"
 	"tjxt/pkg/mq/event"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -34,7 +34,7 @@ func NewRefundApplyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Refun
 // ===== 退款 =====
 func (l *RefundApplyLogic) RefundApply(in *pb.RefundApplyRequest) (*pb.RefundResultDTO, error) {
 	if in.BizOrderNo <= 0 {
-		return nil, xerr.BadRequestf("业务订单号不能为空")
+		return nil, errorx.BadRequestf("业务订单号不能为空")
 	}
 
 	resp, err := l.svcCtx.PayRpc.ApplyRefund(l.ctx, &payclient.ApplyRefundRequest{
@@ -43,7 +43,7 @@ func (l *RefundApplyLogic) RefundApply(in *pb.RefundApplyRequest) (*pb.RefundRes
 		RefundAmount:     in.RefundAmount,
 	})
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "申请退款失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "申请退款失败")
 	}
 
 	// 退款成功（demo 渠道同步返回成功）→ 通知 learning 撤销课程

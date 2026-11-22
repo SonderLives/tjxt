@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/pay/pb"
 	"tjxt/pkg/mq"
 	"tjxt/pkg/mq/event"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,26 +29,26 @@ func NewNotifyPaySuccessLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 
 func (l *NotifyPaySuccessLogic) NotifyPaySuccess(in *pb.NotifyPaySuccessRequest) (*pb.EmptyResponse, error) {
 	if in.PayOrderNo <= 0 {
-		return nil, xerr.BadRequestf("pay_order_no 非法")
+		return nil, errorx.BadRequestf("pay_order_no 非法")
 	}
 	m, err := l.svcCtx.PayOrderModel.FindOneByPayOrderNo(l.ctx, in.PayOrderNo)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("支付单不存在")
+			return nil, errorx.NotFound("支付单不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询支付单失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询支付单失败")
 	}
 	switch m.Status {
 	case PayOrderStatusSuccess:
 		return &pb.EmptyResponse{}, nil // 幂等
 	case PayOrderStatusClosed:
-		return nil, xerr.Conflict("订单已关闭，无法标记支付成功")
+		return nil, errorx.Conflict("订单已关闭，无法标记支付成功")
 	case PayOrderStatusPending, PayOrderStatusPaying:
 	}
 
 	transit, err := l.svcCtx.PayOrderModel.MarkToSuccess(l.ctx, m.Id, in.ResultCode, in.ResultMsg)
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "更新支付单状态失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "更新支付单状态失败")
 	}
 	if !transit {
 		// 并发回调下状态已被其他请求流转，按幂等成功处理，不重复发事件

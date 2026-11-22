@@ -11,7 +11,7 @@ import (
 	"tjxt/api/trade/internal/svc"
 	"tjxt/api/trade/internal/types"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -39,12 +39,12 @@ func (l *CartBatchDeleteLogic) CartBatchDelete(req *types.CartBatchDeleteReq) (r
 		}
 		id, parseErr := strconv.ParseInt(s, 10, 64)
 		if parseErr != nil {
-			return nil, xerr.BadRequestf("购物车id格式错误: %s", s)
+			return nil, errorx.BadRequestf("购物车id格式错误: %s", s)
 		}
 		ids = append(ids, id)
 	}
 	if len(ids) == 0 {
-		return nil, xerr.BadRequestf("购物车id不能为空")
+		return nil, errorx.BadRequestf("购物车id不能为空")
 	}
 
 	if _, err = l.svcCtx.TradeRpc.CartBatchDelete(l.ctx, &pb.CartBatchDeleteRequest{Ids: ids}); err != nil {

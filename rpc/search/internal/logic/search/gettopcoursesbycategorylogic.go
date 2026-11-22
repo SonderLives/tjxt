@@ -6,7 +6,7 @@ import (
 
 	"tjxt/rpc/search/internal/svc"
 	"tjxt/rpc/search/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,10 +29,10 @@ func NewGetTopCoursesByCategoryLogic(ctx context.Context, svcCtx *svc.ServiceCon
 // term 过滤 category_id_lv2 + enable=1，按销量、评分倒序。
 func (l *GetTopCoursesByCategoryLogic) GetTopCoursesByCategory(in *pb.IdReq) (*pb.CourseListReply, error) {
 	if in.Id <= 0 {
-		return nil, xerr.BadRequestf("二级分类id非法")
+		return nil, errorx.BadRequestf("二级分类id非法")
 	}
 	if l.svcCtx.ES == nil {
-		return nil, xerr.ServiceUnavailable("搜索服务暂不可用")
+		return nil, errorx.ServiceUnavailable("搜索服务暂不可用")
 	}
 
 	body := fmt.Sprintf(`{

@@ -8,7 +8,7 @@ import (
 
 	"tjxt/rpc/search/internal/svc"
 	"tjxt/rpc/search/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,10 +31,10 @@ func NewSearchCoursesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Sea
 // Sort：0 默认相关度，1 按销量，2 按评分。
 func (l *SearchCoursesLogic) SearchCourses(in *pb.CourseSearchRequest) (*pb.CourseSearchPageReply, error) {
 	if strings.TrimSpace(in.Keyword) == "" {
-		return nil, xerr.BadRequestf("搜索关键词不能为空")
+		return nil, errorx.BadRequestf("搜索关键词不能为空")
 	}
 	if l.svcCtx.ES == nil {
-		return nil, xerr.ServiceUnavailable("搜索服务暂不可用")
+		return nil, errorx.ServiceUnavailable("搜索服务暂不可用")
 	}
 
 	pageNo := in.PageNo

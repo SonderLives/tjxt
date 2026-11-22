@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +29,7 @@ func NewCategoryListAllLogic(ctx context.Context, svcCtx *svc.ServiceContext) *C
 func (l *CategoryListAllLogic) CategoryListAll(in *pb.CategoryListAllRequest) (*pb.CategoryNodeList, error) {
 	list, err := l.svcCtx.CategoryModel.ListAll(l.ctx)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询分类列表失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询分类列表失败")
 	}
 	if in.Name != "" {
 		filtered := make([]*model.Category, 0, len(list))

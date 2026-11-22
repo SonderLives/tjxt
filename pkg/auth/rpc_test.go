@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -148,8 +148,8 @@ func TestUserIdFromIncomingMD(t *testing.T) {
 				if err == nil {
 					t.Fatal("want error, got nil")
 				}
-				if got := xerr.CodeOf(err); got != xerr.CodeUnauthorized {
-					t.Fatalf("code = %d, want %d", got, xerr.CodeUnauthorized)
+				if got := errorx.CodeOf(err); got != errorx.CodeUnauthorized {
+					t.Fatalf("code = %d, want %d", got, errorx.CodeUnauthorized)
 				}
 				return
 			}

@@ -9,7 +9,7 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,7 +32,7 @@ func NewCatalogueSectionInfoLogic(ctx context.Context, svcCtx *svc.ServiceContex
 func (l *CatalogueSectionInfoLogic) CatalogueSectionInfo(req *types.IdPathReq) (resp *types.CourseSectionInfoVO, err error) {
 	info, gerr := l.svcCtx.CourseRpc.CourseCatalogueSectionInfo(l.ctx, &pb.IdRequest{Id: req.Id})
 	if gerr != nil {
-		return nil, xerr.Wrap(gerr, xerr.CodeInternal, "查询小节信息失败")
+		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "查询小节信息失败")
 	}
 	return &types.CourseSectionInfoVO{
 		Id:       info.Id,

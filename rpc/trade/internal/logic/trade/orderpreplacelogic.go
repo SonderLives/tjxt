@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
 	"tjxt/pkg/auth"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,10 +31,10 @@ func NewOrderPrePlaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ord
 func (l *OrderPrePlaceLogic) OrderPrePlace(in *pb.PrePlaceRequest) (*pb.OrderConfirmVO, error) {
 	userId, err := auth.UserIdFromCtx(l.ctx)
 	if err != nil {
-		return nil, xerr.New(xerr.CodeUnauthorized, "未登录")
+		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
 	}
 	if len(in.CourseIds) == 0 {
-		return nil, xerr.BadRequestf("课程ID不能为空")
+		return nil, errorx.BadRequestf("课程ID不能为空")
 	}
 
 	courseMap := fetchCourseMap(l.ctx, l.svcCtx, in.CourseIds)

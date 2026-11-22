@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +31,7 @@ func NewCourseTeachersGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 func (l *CourseTeachersGetLogic) CourseTeachersGet(in *pb.CourseTeachersGetRequest) (*pb.TeacherInfoList, error) {
 	teachers, err := l.svcCtx.CourseTeacherModel.ListByCourseId(l.ctx, in.Id)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程老师失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程老师失败")
 	}
 
 	ids := make([]int64, 0, len(teachers))

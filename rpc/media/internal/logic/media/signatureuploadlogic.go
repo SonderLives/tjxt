@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/media/internal/svc"
 	"tjxt/rpc/media/pb"
 	"tjxt/pkg/utils/idgen"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,10 +30,10 @@ func NewSignatureUploadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *S
 // 签名相关
 func (l *SignatureUploadLogic) SignatureUpload(in *pb.SignatureRequest) (*pb.SignatureVO, error) {
 	if in.FileName == "" {
-		return nil, xerr.BadRequestf("fileName 不能为空")
+		return nil, errorx.BadRequestf("fileName 不能为空")
 	}
 	if !supportedMediaType(in.MediaType) {
-		return nil, xerr.BadRequestf("mediaType 仅支持 video/image/audio")
+		return nil, errorx.BadRequestf("mediaType 仅支持 video/image/audio")
 	}
 
 	// 配置了对象存储：生成预签名 PUT URL（客户端直传，URL 本身即上传凭证）；
@@ -47,7 +47,7 @@ func (l *SignatureUploadLogic) SignatureUpload(in *pb.SignatureRequest) (*pb.Sig
 		Platform: PlatformTencent,
 	}
 	if _, err := l.svcCtx.FileModel.Insert(l.ctx, file); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "创建文件记录失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "创建文件记录失败")
 	}
 
 	token := ""
@@ -55,7 +55,7 @@ func (l *SignatureUploadLogic) SignatureUpload(in *pb.SignatureRequest) (*pb.Sig
 	if st := l.svcCtx.Store; st != nil {
 		u, err := st.PresignUpload(l.ctx, key, 30*time.Minute)
 		if err != nil {
-			return nil, xerr.Wrapf(err, xerr.CodeInternal, "生成上传签名失败")
+			return nil, errorx.Wrapf(err, errorx.CodeInternal, "生成上传签名失败")
 		}
 		uploadURL = u
 	}

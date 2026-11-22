@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/user/internal/model"
 	"tjxt/rpc/user/internal/svc"
 	"tjxt/rpc/user/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"golang.org/x/crypto/bcrypt"
@@ -32,18 +32,18 @@ func (l *ResetPasswordLogic) ResetPassword(in *pb.UserIdRequest) (*pb.EmptyRespo
 	u, err := l.svcCtx.UserModel.FindOne(l.ctx, in.UserId)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.NotFound("用户不存在")
+			return nil, errorx.NotFound("用户不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "重置密码失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "重置密码失败")
 	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(defaultInitialPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "重置密码失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "重置密码失败")
 	}
 	u.Password = string(hash)
 	u.Updater = in.UserId
 	if err := l.svcCtx.UserModel.Update(l.ctx, u); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "重置密码失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "重置密码失败")
 	}
 	return &pb.EmptyResponse{}, nil
 }

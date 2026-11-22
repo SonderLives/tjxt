@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
 	"tjxt/pkg/utils/page"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,11 +30,11 @@ func (l *ListMessageTemplatesLogic) ListMessageTemplates(in *pb.PageReq) (*pb.Me
 	offset, limit := page.Normalize(int64(in.PageNo), int64(in.PageSize))
 	total, err := l.svcCtx.MessageTemplateModel.FindCount(l.ctx)
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "统计短信模板失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "统计短信模板失败")
 	}
 	list, err := l.svcCtx.MessageTemplateModel.FindList(l.ctx, offset, limit)
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "分页查询短信模板失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "分页查询短信模板失败")
 	}
 	resp := &pb.MessageTemplateListReply{
 		Total: total,

@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/trade/internal/model"
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,9 +30,9 @@ func (l *RefundApplyNextLogic) RefundApplyNext(in *pb.Empty) (*pb.RefundApplyVO,
 	ra, err := l.svcCtx.RefundApplyModel.FindNextPending(l.ctx)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.NotFound("无待审批退款")
+			return nil, errorx.NotFound("无待审批退款")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询待审批退款失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询待审批退款失败")
 	}
 
 	order, _ := l.svcCtx.OrderModel.FindOne(l.ctx, ra.OrderId)

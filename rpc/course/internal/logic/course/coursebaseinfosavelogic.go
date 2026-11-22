@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,7 +30,7 @@ func NewCourseBaseInfoSaveLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 // CourseBaseInfoSave 新增或更新课程草稿基础信息，同时保存课程内容（介绍/详情/适用人群）。
 func (l *CourseBaseInfoSaveLogic) CourseBaseInfoSave(in *pb.CourseBaseInfoSaveRequest) (*pb.IdResponse, error) {
 	if in.Name == "" {
-		return nil, xerr.BadRequestf("课程名称不能为空")
+		return nil, errorx.BadRequestf("课程名称不能为空")
 	}
 
 	startTime := l.parseTime(in.PurchaseStartTime)
@@ -57,16 +57,16 @@ func (l *CourseBaseInfoSaveLogic) CourseBaseInfoSave(in *pb.CourseBaseInfoSaveRe
 			Updater:           0,
 		}
 		if _, err := l.svcCtx.CourseDraftModel.Insert(l.ctx, draft); err != nil {
-			return nil, xerr.Wrap(err, xerr.CodeInternal, "新增课程草稿失败")
+			return nil, errorx.Wrap(err, errorx.CodeInternal, "新增课程草稿失败")
 		}
 	} else {
 		id = in.Id
 		draft, err := l.svcCtx.CourseDraftModel.FindOne(l.ctx, id)
 		if err != nil {
 			if isNotFound(err) {
-				return nil, xerr.NotFound("课程不存在")
+				return nil, errorx.NotFound("课程不存在")
 			}
-			return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程草稿失败")
+			return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程草稿失败")
 		}
 		draft.Name = in.Name
 		draft.CoverUrl = in.CoverUrl
@@ -81,7 +81,7 @@ func (l *CourseBaseInfoSaveLogic) CourseBaseInfoSave(in *pb.CourseBaseInfoSaveRe
 			draft.Step = 1
 		}
 		if err := l.svcCtx.CourseDraftModel.Update(l.ctx, draft); err != nil {
-			return nil, xerr.Wrap(err, xerr.CodeInternal, "更新课程草稿失败")
+			return nil, errorx.Wrap(err, errorx.CodeInternal, "更新课程草稿失败")
 		}
 	}
 
@@ -98,7 +98,7 @@ func (l *CourseBaseInfoSaveLogic) CourseBaseInfoSave(in *pb.CourseBaseInfoSaveRe
 		Updater:         0,
 	}
 	if err := l.svcCtx.CourseContentDraftModel.Upsert(l.ctx, content); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "保存课程内容失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "保存课程内容失败")
 	}
 	return &pb.IdResponse{Id: id}, nil
 }

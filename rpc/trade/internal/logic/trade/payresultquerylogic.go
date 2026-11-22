@@ -6,7 +6,7 @@ import (
 	payclient "tjxt/rpc/pay/client/pay"
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,14 +27,14 @@ func NewPayResultQueryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pa
 
 func (l *PayResultQueryLogic) PayResultQuery(in *pb.PayResultQueryRequest) (*pb.PayResultDTO, error) {
 	if in.BizOrderId <= 0 {
-		return nil, xerr.BadRequestf("业务订单ID不能为空")
+		return nil, errorx.BadRequestf("业务订单ID不能为空")
 	}
 
 	resp, err := l.svcCtx.PayRpc.QueryPayResult(l.ctx, &payclient.QueryPayResultRequest{
 		BizOrderNo: in.BizOrderId,
 	})
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询支付结果失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询支付结果失败")
 	}
 
 	// pay 侧未返回支付渠道与支付成功时间，留空

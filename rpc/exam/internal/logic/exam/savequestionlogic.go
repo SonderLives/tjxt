@@ -9,7 +9,7 @@ import (
 	"tjxt/rpc/exam/internal/svc"
 	"tjxt/rpc/exam/pb"
 	"tjxt/pkg/utils/idgen"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,16 +32,16 @@ func NewSaveQuestionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Save
 func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, error) {
 	// 校验参数
 	if strings.TrimSpace(in.Name) == "" {
-		return nil, xerr.BadRequestf("题干不能为空")
+		return nil, errorx.BadRequestf("题干不能为空")
 	}
 	if in.Type < QuestionTypeSingle || in.Type > QuestionTypeSubjective {
-		return nil, xerr.BadRequestf("题目类型非法")
+		return nil, errorx.BadRequestf("题目类型非法")
 	}
 	if in.Difficulty < QuestionDifficultyEasy || in.Difficulty > QuestionDifficultyHard {
-		return nil, xerr.BadRequestf("难易度非法")
+		return nil, errorx.BadRequestf("难易度非法")
 	}
 	if in.Score <= 0 {
-		return nil, xerr.BadRequestf("分值必须大于0")
+		return nil, errorx.BadRequestf("分值必须大于0")
 	}
 
 	// 获取登录用户，作为创建人/更新人（上游 API 通过 metadata 透传）
@@ -69,7 +69,7 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 			Updater:      userId,
 		}
 		if _, err := l.svcCtx.QuestionModel.Insert(l.ctx, q); err != nil {
-			return nil, xerr.Wrapf(err, xerr.CodeInternal, "保存题目失败")
+			return nil, errorx.Wrapf(err, errorx.CodeInternal, "保存题目失败")
 		}
 		d := &model.QuestionDetail{
 			Id:       id,
@@ -78,7 +78,7 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 			Analysis: in.Analysis,
 		}
 		if _, err := l.svcCtx.QuestionDetailModel.Insert(l.ctx, d); err != nil {
-			return nil, xerr.Wrapf(err, xerr.CodeInternal, "保存题目详情失败")
+			return nil, errorx.Wrapf(err, errorx.CodeInternal, "保存题目详情失败")
 		}
 		return &pb.IdReply{Id: id}, nil
 	}
@@ -87,9 +87,9 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 	q, err := l.svcCtx.QuestionModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("题目不存在")
+			return nil, errorx.NotFound("题目不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询题目失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目失败")
 	}
 	q.Name = in.Name
 	q.Type = int64(in.Type)
@@ -100,14 +100,14 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 	q.Score = int64(in.Score)
 	q.Updater = userId
 	if err := l.svcCtx.QuestionModel.Update(l.ctx, q); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "更新题目失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "更新题目失败")
 	}
 
 	// upsert 题目详情
 	d, err := l.svcCtx.QuestionDetailModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if !isNotFound(err) {
-			return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询题目详情失败")
+			return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目详情失败")
 		}
 		if _, err := l.svcCtx.QuestionDetailModel.Insert(l.ctx, &model.QuestionDetail{
 			Id:       in.Id,
@@ -115,14 +115,14 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 			Answer:   in.Answer,
 			Analysis: in.Analysis,
 		}); err != nil {
-			return nil, xerr.Wrapf(err, xerr.CodeInternal, "保存题目详情失败")
+			return nil, errorx.Wrapf(err, errorx.CodeInternal, "保存题目详情失败")
 		}
 	} else {
 		d.Options = options
 		d.Answer = in.Answer
 		d.Analysis = in.Analysis
 		if err := l.svcCtx.QuestionDetailModel.Update(l.ctx, d); err != nil {
-			return nil, xerr.Wrapf(err, xerr.CodeInternal, "更新题目详情失败")
+			return nil, errorx.Wrapf(err, errorx.CodeInternal, "更新题目详情失败")
 		}
 	}
 	return &pb.IdReply{Id: in.Id}, nil

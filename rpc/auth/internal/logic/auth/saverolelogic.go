@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/auth/internal/svc"
 	"tjxt/rpc/auth/pb"
 	"tjxt/pkg/utils/idgen"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,10 +32,10 @@ func (l *SaveRoleLogic) SaveRole(in *pb.RoleSaveReq) (*pb.IdReply, error) {
 	code := strings.TrimSpace(in.Code)
 	name := strings.TrimSpace(in.Name)
 	if code == "" {
-		return nil, xerr.BadRequestf("角色代号不能为空")
+		return nil, errorx.BadRequestf("角色代号不能为空")
 	}
 	if name == "" {
-		return nil, xerr.BadRequestf("角色名称不能为空")
+		return nil, errorx.BadRequestf("角色名称不能为空")
 	}
 
 	// code 全局唯一，更新时排除自身。
@@ -44,7 +44,7 @@ func (l *SaveRoleLogic) SaveRole(in *pb.RoleSaveReq) (*pb.IdReply, error) {
 		return nil, err
 	}
 	if exists {
-		return nil, xerr.Conflict("角色代号已存在")
+		return nil, errorx.Conflict("角色代号已存在")
 	}
 
 	if in.Id <= 0 {
@@ -63,16 +63,16 @@ func (l *SaveRoleLogic) SaveRole(in *pb.RoleSaveReq) (*pb.IdReply, error) {
 	role, err := l.svcCtx.RoleModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if err == model.ErrNotFound {
-			return nil, xerr.NotFound("角色不存在")
+			return nil, errorx.NotFound("角色不存在")
 		}
 		return nil, err
 	}
 	if role.Deleted != 0 {
-		return nil, xerr.NotFound("角色不存在")
+		return nil, errorx.NotFound("角色不存在")
 	}
 	// 固定角色为系统内置，禁止改动代号，避免鉴权规则失效。
 	if role.Type == fixedRoleType && role.Code != code {
-		return nil, xerr.Conflict("固定角色不允许修改代号")
+		return nil, errorx.Conflict("固定角色不允许修改代号")
 	}
 
 	role.Code = code

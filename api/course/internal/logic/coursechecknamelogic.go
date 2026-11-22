@@ -9,7 +9,7 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -35,7 +35,7 @@ func (l *CourseCheckNameLogic) CourseCheckName(req *types.CourseCheckNameReq) (r
 		Id:   req.Id,
 	})
 	if gerr != nil {
-		return nil, xerr.Wrap(gerr, xerr.CodeInternal, "校验课程名称失败")
+		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "校验课程名称失败")
 	}
 	return &types.NameExistVO{Existed: res.Existed}, nil
 }

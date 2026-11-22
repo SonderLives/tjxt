@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/promotion/internal/model"
 	"tjxt/rpc/promotion/internal/svc"
 	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,22 +29,22 @@ func NewCouponIssueLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Coupo
 // 兑换码类型的券在首次发放时按发行总量生成兑换码。
 func (l *CouponIssueLogic) CouponIssue(in *pb.CouponIssueFormDTO) (*pb.Empty, error) {
 	if in.Id <= 0 {
-		return nil, xerr.BadRequestf("优惠券 id 非法")
+		return nil, errorx.BadRequestf("优惠券 id 非法")
 	}
 
 	data, err := l.svcCtx.CouponModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("优惠券不存在")
+			return nil, errorx.NotFound("优惠券不存在")
 		}
 		l.Errorf("find coupon failed, id=%d, err=%v", in.Id, err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "发放优惠券失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "发放优惠券失败")
 	}
 	if data.Deleted == 1 {
-		return nil, xerr.NotFound("优惠券不存在")
+		return nil, errorx.NotFound("优惠券不存在")
 	}
 	if data.Status == model.CouponStatusEnded {
-		return nil, xerr.Conflict("优惠券已结束，无法再次发放")
+		return nil, errorx.Conflict("优惠券已结束，无法再次发放")
 	}
 
 	issueBegin, err := parseTime(in.IssueBeginTime)
@@ -65,14 +65,14 @@ func (l *CouponIssueLogic) CouponIssue(in *pb.CouponIssueFormDTO) (*pb.Empty, er
 	}
 
 	if issueBegin.Valid && issueEnd.Valid && issueEnd.Time.Before(issueBegin.Time) {
-		return nil, xerr.BadRequestf("发放结束时间不能早于开始时间")
+		return nil, errorx.BadRequestf("发放结束时间不能早于开始时间")
 	}
 	if termBegin.Valid && termEnd.Valid && termEnd.Time.Before(termBegin.Time) {
-		return nil, xerr.BadRequestf("使用结束时间不能早于开始时间")
+		return nil, errorx.BadRequestf("使用结束时间不能早于开始时间")
 	}
 	// 有效期二选一：绝对区间 或 相对天数
 	if in.TermDays <= 0 && !termEnd.Valid {
-		return nil, xerr.BadRequestf("请设置有效期天数或使用结束时间")
+		return nil, errorx.BadRequestf("请设置有效期天数或使用结束时间")
 	}
 
 	firstIssue := data.Status == model.CouponStatusDraft
@@ -90,7 +90,7 @@ func (l *CouponIssueLogic) CouponIssue(in *pb.CouponIssueFormDTO) (*pb.Empty, er
 
 	if err := l.svcCtx.CouponModel.Update(l.ctx, data); err != nil {
 		l.Errorf("issue coupon failed, id=%d, err=%v", in.Id, err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "发放优惠券失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "发放优惠券失败")
 	}
 
 	// 兑换码券首次发放时批量生成兑换码
@@ -101,7 +101,7 @@ func (l *CouponIssueLogic) CouponIssue(in *pb.CouponIssueFormDTO) (*pb.Empty, er
 		}
 		if err := l.svcCtx.CouponCodeModel.BatchInsert(l.ctx, data.Id, codes, data.Updater); err != nil {
 			l.Errorf("batch insert coupon code failed, couponId=%d, err=%v", data.Id, err)
-			return nil, xerr.Wrap(err, xerr.CodeInternal, "生成兑换码失败")
+			return nil, errorx.Wrap(err, errorx.CodeInternal, "生成兑换码失败")
 		}
 	}
 

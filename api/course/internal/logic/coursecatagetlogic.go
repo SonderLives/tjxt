@@ -9,7 +9,7 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -36,7 +36,7 @@ func (l *CourseCataGetLogic) CourseCataGet(req *types.CourseCataQueryReq) (resp 
 		WithPractice: req.WithPractice,
 	})
 	if gerr != nil {
-		return nil, xerr.Wrap(gerr, xerr.CodeInternal, "查询课程目录树失败")
+		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "查询课程目录树失败")
 	}
 	resp = make([]types.CatalogueVO, 0, len(tree.Items))
 	for _, c := range tree.Items {

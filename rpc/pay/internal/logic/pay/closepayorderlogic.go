@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/pay/internal/svc"
 	"tjxt/rpc/pay/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,24 +23,24 @@ func NewClosePayOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Clo
 
 func (l *ClosePayOrderLogic) ClosePayOrder(in *pb.ClosePayOrderRequest) (*pb.EmptyResponse, error) {
 	if in.PayOrderNo <= 0 {
-		return nil, xerr.BadRequestf("pay_order_no 非法")
+		return nil, errorx.BadRequestf("pay_order_no 非法")
 	}
 	m, err := l.svcCtx.PayOrderModel.FindOneByPayOrderNo(l.ctx, in.PayOrderNo)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("支付单不存在")
+			return nil, errorx.NotFound("支付单不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询支付单失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询支付单失败")
 	}
 	switch m.Status {
 	case PayOrderStatusSuccess:
-		return nil, xerr.Conflict("订单已支付成功，无法关单")
+		return nil, errorx.Conflict("订单已支付成功，无法关单")
 	case PayOrderStatusClosed:
 		return &pb.EmptyResponse{}, nil
 	}
 	transit, err := l.svcCtx.PayOrderModel.MarkToClosed(l.ctx, m.Id, "MANUAL_CLOSE", "业务端主动关单")
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "关单失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "关单失败")
 	}
 	if !transit {
 		// 并发关单下已被其他请求流转，按幂等成功处理

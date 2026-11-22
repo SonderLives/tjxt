@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,7 +30,7 @@ func NewCourseCatalogueTreeGetLogic(ctx context.Context, svcCtx *svc.ServiceCont
 func (l *CourseCatalogueTreeGetLogic) CourseCatalogueTreeGet(in *pb.CourseCatalogueQueryRequest) (*pb.CatalogueTreeList, error) {
 	list, err := l.svcCtx.CourseCatalogueDraftModel.ListByCourseId(l.ctx, in.Id)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程目录草稿失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程目录草稿失败")
 	}
 	if !in.WithPractice {
 		filtered := make([]*model.CourseCatalogueDraft, 0, len(list))

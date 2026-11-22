@@ -9,7 +9,7 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,7 +32,7 @@ func NewCourseNameLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Course
 func (l *CourseNameLogic) CourseName(req *types.CourseNameReq) (resp []int64, err error) {
 	list, gerr := l.svcCtx.CourseRpc.CourseName2Ids(l.ctx, &pb.CourseNameRequest{Name: req.Name})
 	if gerr != nil {
-		return nil, xerr.Wrap(gerr, xerr.CodeInternal, "按名称查询课程失败")
+		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "按名称查询课程失败")
 	}
 	return list.Ids, nil
 }

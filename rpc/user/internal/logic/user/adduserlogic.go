@@ -9,7 +9,7 @@ import (
 	"tjxt/rpc/user/internal/svc"
 	"tjxt/rpc/user/pb"
 	"tjxt/pkg/utils/idgen"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"golang.org/x/crypto/bcrypt"
@@ -33,22 +33,22 @@ func NewAddUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddUserLo
 // 密码不随请求传入，统一使用默认初始口令（defaultInitialPassword），后续由用户自行修改或管理员重置。
 func (l *AddUserLogic) AddUser(in *pb.UserDTO) (*pb.IdResponse, error) {
 	if in.CellPhone == "" && in.Username == "" {
-		return nil, xerr.BadRequestf("手机号与用户名不能都为空")
+		return nil, errorx.BadRequestf("手机号与用户名不能都为空")
 	}
 	if in.CellPhone != "" {
 		exists, err := l.svcCtx.UserModel.ExistsByCellPhone(l.ctx, in.CellPhone)
 		if err != nil {
-			return nil, xerr.Wrap(err, xerr.CodeInternal, "创建用户失败")
+			return nil, errorx.Wrap(err, errorx.CodeInternal, "创建用户失败")
 		}
 		if exists {
-			return nil, xerr.Conflict("该手机号已存在")
+			return nil, errorx.Conflict("该手机号已存在")
 		}
 	}
 	if in.Username != "" {
 		if _, err := l.svcCtx.UserModel.FindOneByUsername(l.ctx, in.Username); err == nil {
-			return nil, xerr.Conflict("该用户名已存在")
+			return nil, errorx.Conflict("该用户名已存在")
 		} else if !errors.Is(err, model.ErrNotFound) {
-			return nil, xerr.Wrap(err, xerr.CodeInternal, "创建用户失败")
+			return nil, errorx.Wrap(err, errorx.CodeInternal, "创建用户失败")
 		}
 	}
 
@@ -58,7 +58,7 @@ func (l *AddUserLogic) AddUser(in *pb.UserDTO) (*pb.IdResponse, error) {
 	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(defaultInitialPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "创建用户失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "创建用户失败")
 	}
 	id := idgen.NextID()
 	user := &model.User{
@@ -72,7 +72,7 @@ func (l *AddUserLogic) AddUser(in *pb.UserDTO) (*pb.IdResponse, error) {
 		Updater:   id,
 	}
 	if _, err := l.svcCtx.UserModel.Insert(l.ctx, user); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "创建用户失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "创建用户失败")
 	}
 	detail := &model.UserDetail{
 		Id:       id,
@@ -93,7 +93,7 @@ func (l *AddUserLogic) AddUser(in *pb.UserDTO) (*pb.IdResponse, error) {
 		Updater:  id,
 	}
 	if _, err := l.svcCtx.UserDetailModel.Insert(l.ctx, detail); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "创建用户失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "创建用户失败")
 	}
 	return &pb.IdResponse{Id: id}, nil
 }

@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,12 +26,12 @@ func NewOrderDetailPurchaseInfoLogic(ctx context.Context, svcCtx *svc.ServiceCon
 
 func (l *OrderDetailPurchaseInfoLogic) OrderDetailPurchaseInfo(in *pb.PurchaseInfoRequest) (*pb.PurchaseInfoReply, error) {
 	if in.CourseId <= 0 {
-		return nil, xerr.BadRequestf("课程ID不能为空")
+		return nil, errorx.BadRequestf("课程ID不能为空")
 	}
 
 	enrollNum, realPayAmount, refundNum, err := l.svcCtx.OrderDetailModel.StatByCourseId(l.ctx, in.CourseId)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程购买信息失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程购买信息失败")
 	}
 
 	return &pb.PurchaseInfoReply{

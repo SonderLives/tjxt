@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +31,7 @@ func (l *CourseName2IdsLogic) CourseName2Ids(in *pb.CourseNameRequest) (*pb.Cour
 	}
 	list, err := l.svcCtx.CourseModel.FindByNameLike(l.ctx, in.Name)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "按名称查询课程失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "按名称查询课程失败")
 	}
 	ids := make([]int64, 0, len(list))
 	for _, c := range list {

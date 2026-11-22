@@ -4,7 +4,7 @@ import (
 	"context"
 	"strconv"
 
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -45,19 +45,19 @@ func OutgoingUserIdInterceptor(ctx context.Context, method string, req, reply an
 // UserIdFromIncomingMD 从 gRPC 入站 metadata 读取上游透传的登录用户 id。
 //
 // 缺少 metadata、缺少键、无法解析为 int64 或值 <=0 时，
-// 统一返回 xerr.Unauthorized("")（与 UserIdFromCtx 的失败语义一致）。
+// 统一返回 errorx.Unauthorized("")（与 UserIdFromCtx 的失败语义一致）。
 func UserIdFromIncomingMD(ctx context.Context) (int64, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return 0, xerr.Unauthorized("")
+		return 0, errorx.Unauthorized("")
 	}
 	vals := md.Get(MetadataUserIDKey)
 	if len(vals) == 0 {
-		return 0, xerr.Unauthorized("")
+		return 0, errorx.Unauthorized("")
 	}
 	userID, err := strconv.ParseInt(vals[0], 10, 64)
 	if err != nil || userID <= 0 {
-		return 0, xerr.Unauthorized("")
+		return 0, errorx.Unauthorized("")
 	}
 	return userID, nil
 }

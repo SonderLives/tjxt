@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -43,9 +43,9 @@ func publishCourse(ctx context.Context, svcCtx *svc.ServiceContext, id int64) er
 	draft, err := svcCtx.CourseDraftModel.FindOne(ctx, id)
 	if err != nil {
 		if isNotFound(err) {
-			return xerr.NotFound("课程草稿不存在")
+			return errorx.NotFound("课程草稿不存在")
 		}
-		return xerr.Wrap(err, xerr.CodeInternal, "查询课程草稿失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "查询课程草稿失败")
 	}
 
 	now := time.Now()
@@ -84,14 +84,14 @@ func publishCourse(ctx context.Context, svcCtx *svc.ServiceContext, id int64) er
 		course.PublishTimes = old.PublishTimes + 1
 		course.Creater = old.Creater
 		if err = svcCtx.CourseModel.Update(ctx, course); err != nil {
-			return xerr.Wrap(err, xerr.CodeInternal, "更新课程失败")
+			return errorx.Wrap(err, errorx.CodeInternal, "更新课程失败")
 		}
 	case isNotFound(err):
 		if _, err = svcCtx.CourseModel.Insert(ctx, course); err != nil {
-			return xerr.Wrap(err, xerr.CodeInternal, "发布课程失败")
+			return errorx.Wrap(err, errorx.CodeInternal, "发布课程失败")
 		}
 	default:
-		return xerr.Wrap(err, xerr.CodeInternal, "查询课程失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "查询课程失败")
 	}
 
 	if err = publishCourseContent(ctx, svcCtx, id, now); err != nil {
@@ -129,10 +129,10 @@ func publishCourseContent(ctx context.Context, svcCtx *svc.ServiceContext, id in
 			content.CreateTime = draft.CreateTime
 		}
 	case !isNotFound(err):
-		return xerr.Wrap(err, xerr.CodeInternal, "查询课程内容草稿失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "查询课程内容草稿失败")
 	}
 	if err = svcCtx.CourseContentModel.Upsert(ctx, content); err != nil {
-		return xerr.Wrap(err, xerr.CodeInternal, "保存课程内容失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "保存课程内容失败")
 	}
 	return nil
 }
@@ -141,17 +141,17 @@ func publishCourseContent(ctx context.Context, svcCtx *svc.ServiceContext, id in
 func publishCourseCatalogue(ctx context.Context, svcCtx *svc.ServiceContext, id int64) error {
 	olds, err := svcCtx.CourseCatalogueModel.ListByCourseId(ctx, id)
 	if err != nil {
-		return xerr.Wrap(err, xerr.CodeInternal, "查询课程目录失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "查询课程目录失败")
 	}
 	for _, o := range olds {
 		if err = svcCtx.CourseCatalogueModel.Delete(ctx, o.Id); err != nil {
-			return xerr.Wrap(err, xerr.CodeInternal, "清理旧课程目录失败")
+			return errorx.Wrap(err, errorx.CodeInternal, "清理旧课程目录失败")
 		}
 	}
 
 	drafts, err := svcCtx.CourseCatalogueDraftModel.ListByCourseId(ctx, id)
 	if err != nil {
-		return xerr.Wrap(err, xerr.CodeInternal, "查询课程目录草稿失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "查询课程目录草稿失败")
 	}
 	for _, d := range drafts {
 		data := &model.CourseCatalogue{
@@ -175,7 +175,7 @@ func publishCourseCatalogue(ctx context.Context, svcCtx *svc.ServiceContext, id 
 			Deleted:           d.Deleted,
 		}
 		if _, err = svcCtx.CourseCatalogueModel.Insert(ctx, data); err != nil {
-			return xerr.Wrap(err, xerr.CodeInternal, "发布课程目录失败")
+			return errorx.Wrap(err, errorx.CodeInternal, "发布课程目录失败")
 		}
 	}
 	return nil
@@ -185,17 +185,17 @@ func publishCourseCatalogue(ctx context.Context, svcCtx *svc.ServiceContext, id 
 func publishCourseTeacher(ctx context.Context, svcCtx *svc.ServiceContext, id int64) error {
 	olds, err := svcCtx.CourseTeacherModel.ListByCourseId(ctx, id)
 	if err != nil {
-		return xerr.Wrap(err, xerr.CodeInternal, "查询课程老师失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "查询课程老师失败")
 	}
 	for _, o := range olds {
 		if err = svcCtx.CourseTeacherModel.Delete(ctx, o.Id); err != nil {
-			return xerr.Wrap(err, xerr.CodeInternal, "清理旧课程老师失败")
+			return errorx.Wrap(err, errorx.CodeInternal, "清理旧课程老师失败")
 		}
 	}
 
 	drafts, err := svcCtx.CourseTeacherDraftModel.ListByCourseId(ctx, id)
 	if err != nil {
-		return xerr.Wrap(err, xerr.CodeInternal, "查询课程老师草稿失败")
+		return errorx.Wrap(err, errorx.CodeInternal, "查询课程老师草稿失败")
 	}
 	for _, d := range drafts {
 		data := &model.CourseTeacher{
@@ -210,7 +210,7 @@ func publishCourseTeacher(ctx context.Context, svcCtx *svc.ServiceContext, id in
 			Deleted:   d.Deleted,
 		}
 		if _, err = svcCtx.CourseTeacherModel.Insert(ctx, data); err != nil {
-			return xerr.Wrap(err, xerr.CodeInternal, "发布课程老师失败")
+			return errorx.Wrap(err, errorx.CodeInternal, "发布课程老师失败")
 		}
 	}
 	return nil

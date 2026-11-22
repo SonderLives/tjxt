@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -45,7 +45,7 @@ func (l *CourseSearchIndexInfoListLogic) CourseSearchIndexInfoList(in *pb.Course
 		Status: CourseStatusUpShelf,
 	}, (pageNo-1)*pageSize, pageSize)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程索引列表失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程索引列表失败")
 	}
 
 	items := make([]*pb.CourseSearchIndexInfo, 0, len(list))

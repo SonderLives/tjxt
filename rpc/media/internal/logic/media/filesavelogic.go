@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/media/internal/svc"
 	"tjxt/rpc/media/pb"
 	"tjxt/pkg/utils/idgen"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,13 +28,13 @@ func NewFileSaveLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FileSave
 
 func (l *FileSaveLogic) FileSave(in *pb.FileSaveRequest) (*pb.FileIdReply, error) {
 	if in.Filename == "" || in.Key == "" {
-		return nil, xerr.BadRequestf("filename/key 不能为空")
+		return nil, errorx.BadRequestf("filename/key 不能为空")
 	}
 	// 按 key 查重，已存在（未删除）返回冲突
 	if _, err := l.svcCtx.FileModel.FindByKey(l.ctx, in.Key); err == nil {
-		return nil, xerr.Conflict("文件已存在")
+		return nil, errorx.Conflict("文件已存在")
 	} else if !isNotFound(err) {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询文件失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询文件失败")
 	}
 
 	id := idgen.NextID()
@@ -46,7 +46,7 @@ func (l *FileSaveLogic) FileSave(in *pb.FileSaveRequest) (*pb.FileIdReply, error
 		Platform: PlatformTencent,
 	}
 	if _, err := l.svcCtx.FileModel.Insert(l.ctx, file); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "创建文件记录失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "创建文件记录失败")
 	}
 	return &pb.FileIdReply{Id: id}, nil
 }

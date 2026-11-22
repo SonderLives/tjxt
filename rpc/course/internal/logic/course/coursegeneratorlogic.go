@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -38,7 +38,7 @@ func (l *CourseGeneratorLogic) CourseGenerator(in *pb.Empty) (*pb.IdResponse, er
 		Updater:   0,
 	}
 	if _, err := l.svcCtx.CourseDraftModel.Insert(l.ctx, draft); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "生成课程草稿失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "生成课程草稿失败")
 	}
 	return &pb.IdResponse{Id: id}, nil
 }

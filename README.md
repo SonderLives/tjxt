@@ -47,7 +47,7 @@ tjxt/
 │   ├── auth/                # JWT 签发/校验、Claims 定义
 │   ├── mq/                  # RabbitMQ 事件总线 (生产者/消费者/事件定义)
 │   ├── response/            # 统一响应 R{code,msg,requestId,data} + 分页
-│   ├── xerr/                # 业务错误码体系 + HTTP 状态映射
+│   ├── errorx/                # 业务错误码体系 + HTTP 状态映射
 │   ├── utils/
 │   │   ├── idgen/           # 雪花算法 ID 生成器
 │   │   └── page/            # 分页工具
@@ -294,7 +294,7 @@ go ctx.MQClient.Start(context.Background())
 | 包                 | 说明                                                                                   |
 | ----------------- | ------------------------------------------------------------------------------------ |
 | `pkg/auth`        | JWT `Sign/Parse`、Claims 含 `userId`/`role`                                            |
-| `pkg/xerr`        | 业务错误码 `Codexxx` + `Msg/Wrap/HttpStatus`                                              |
+| `pkg/errorx`        | 业务错误码 `Codexxx` + `Msg/Wrap/HttpStatus`                                              |
 | `pkg/response`    | 统一响应 `R{code,msg,requestId,data}` + `Page{list,total,pages}` + `Write(w,r,data,err)` |
 | `pkg/mq`          | RabbitMQ 事件总线：confirm 发布、泛型消费者（手动 ack、失败 Nack 重回队列）、交换机/路由键常量                        |
 | `pkg/utils/idgen` | 雪花算法 `NextID()`                                                                      |
@@ -340,7 +340,7 @@ replace tjxt/pkg => ../../pkg
 ```
 
 - 成功: `result.Ok()` / `result.OkData(data)`
-- 失败: `result.Fail(err)` 自动映射 `xerr` 错误码 → HTTP 状态码
+- 失败: `result.Fail(err)` 自动映射 `errorx` 错误码 → HTTP 状态码
 - 所有 handler 统一用 `result.Write(w, r, data, err)`
 
 
@@ -354,7 +354,7 @@ replace tjxt/pkg => ../../pkg
 | ------------ | --------------------------------------------------------------------------------------------------------------- |
 | **骨架**       | ✅ 13 服务 api+rpc 全部 goctl 生成完毕，`go build ./...` 逐模块编译通过                                                          |
 | **Logic 业务** | ✅ 394/394 logic 全部实现（API 193 + RPC 201），全库 0 处 TODO/panic 占位                                                    |
-| **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `result.Write`、xerr 错误码已在各 svc 接入                                                |
+| **中间件**      | ✅ JWT(`@server jwt:Auth`)、统一响应 `result.Write`、errorx 错误码已在各 svc 接入                                                |
 | **包名规范**     | ✅ 模块路径统一 `tjxt/api/<svc>` / `tjxt/rpc/<svc>`                             |
 | **事件总线**     | ✅ 三段链路全部接线：course→search 上下架同步 ES；pay→trade 支付成功回写订单（条件更新+幂等）；trade→learning 支付加课/退款撤课                          |
 | **数据库**      | ✅ DDL + goctl model（带缓存）已生成，自定义 Model 已扩展                                                                       |
@@ -367,7 +367,7 @@ replace tjxt/pkg => ../../pkg
 ## 🛠 开发规范
 
 1. **只改 logic**: `api/internal/logic/` `rpc/internal/logic/` 以外的生成代码**不要手改**
-2. **错误处理**: 业务错误用 `xerr.New(code, msg)` 或 `xerr.Wrap(err, code, msg)`，不要直接返回 `error`
+2. **错误处理**: 业务错误用 `errorx.New(code, msg)` 或 `errorx.Wrap(err, code, msg)`，不要直接返回 `error`
 3. **日志**: 使用 go-zero 内置 `logx`，关键路径带上 `trace.TraceIDFromContext(ctx)`
 4. **事务**: RPC 层用 `model.Transact(ctx, func(session sqlx.Session) error { ... })`
 5. **分页**: 统一用 `pkg/utils/page.ParsePageReq(req)` + `result.Page{List, Total, Pages}`

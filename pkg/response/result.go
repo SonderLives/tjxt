@@ -7,7 +7,7 @@ package response
 import (
 	"net/http"
 
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/trace"
 )
@@ -29,26 +29,26 @@ type Page struct {
 
 // Ok 返回成功响应。
 func Ok() *R {
-	return &R{Code: int64(xerr.CodeSuccess), Msg: xerr.MsgSuccess, RequestId: "", Data: nil}
+	return &R{Code: int64(errorx.CodeSuccess), Msg: errorx.MsgSuccess, RequestId: "", Data: nil}
 }
 
 // OkData 返回携带数据的成功响应。
 func OkData(data any) *R {
-	return &R{Code: int64(xerr.CodeSuccess), Msg: xerr.MsgSuccess, RequestId: "", Data: data}
+	return &R{Code: int64(errorx.CodeSuccess), Msg: errorx.MsgSuccess, RequestId: "", Data: data}
 }
 
 // Fail 由 error 构造失败响应，提取业务错误码与提示信息。
-// RPC 调用返回的错误经 gRPC 传输后业务码丢失，优先尝试还原（xerr.FromGRPC）。
+// RPC 调用返回的错误经 gRPC 传输后业务码丢失，优先尝试还原（errorx.FromGRPC）。
 func Fail(err error) *R {
 	if err == nil {
 		return Ok()
 	}
-	if e, ok := xerr.FromGRPC(err); ok {
+	if e, ok := errorx.FromGRPC(err); ok {
 		return &R{Code: int64(e.Code), Msg: e.Msg, Data: nil}
 	}
 	return &R{
-		Code: int64(xerr.CodeOf(err)),
-		Msg:  xerr.MsgOf(err),
+		Code: int64(errorx.CodeOf(err)),
+		Msg:  errorx.MsgOf(err),
 		Data: nil,
 	}
 }
@@ -59,14 +59,14 @@ func Fail(err error) *R {
 // - err 为业务错误（含 RPC 传来的可还原错误）时写入对应错误码与 HTTP 状态码；
 // - 非业务错误一律按 500 处理，避免泄露内部细节。
 func Write(w http.ResponseWriter, r *http.Request, data any, err error) {
-	if e, ok := xerr.FromGRPC(err); ok {
+	if e, ok := errorx.FromGRPC(err); ok {
 		err = e // 还原跨服务业务错误，使 Fail/HttpStatus 生效
 	}
 	resp := OkData(data)
 	status := http.StatusOK
 	if err != nil {
 		resp = Fail(err)
-		status = xerr.HttpStatus(err)
+		status = errorx.HttpStatus(err)
 	}
 	resp.RequestId = trace.TraceIDFromContext(r.Context())
 	writeJSON(w, status, resp)

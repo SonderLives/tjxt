@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +29,7 @@ func NewSaveNoticeTemplateLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 // 通知模板 新增/更新
 func (l *SaveNoticeTemplateLogic) SaveNoticeTemplate(in *pb.NoticeTemplateSaveReq) (*pb.IdReply, error) {
 	if in.Name == "" || in.Code == "" || in.Content == "" {
-		return nil, xerr.BadRequestf("模板名称/代号/内容不能为空")
+		return nil, errorx.BadRequestf("模板名称/代号/内容不能为空")
 	}
 	operator := userIdFromCtx(l.ctx)
 	title := sql.NullString{String: in.Title, Valid: in.Title != ""}
@@ -52,7 +52,7 @@ func (l *SaveNoticeTemplateLogic) SaveNoticeTemplate(in *pb.NoticeTemplateSaveRe
 			Updater:       operator,
 		}
 		if _, err := l.svcCtx.NoticeTemplateModel.Insert(l.ctx, data); err != nil {
-			return nil, xerr.Wrapf(err, xerr.CodeInternal, "新增通知模板失败")
+			return nil, errorx.Wrapf(err, errorx.CodeInternal, "新增通知模板失败")
 		}
 		return &pb.IdReply{Id: data.Id}, nil
 	}
@@ -60,9 +60,9 @@ func (l *SaveNoticeTemplateLogic) SaveNoticeTemplate(in *pb.NoticeTemplateSaveRe
 	old, err := l.svcCtx.NoticeTemplateModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("通知模板不存在")
+			return nil, errorx.NotFound("通知模板不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询通知模板失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询通知模板失败")
 	}
 	old.Name = in.Name
 	old.Code = in.Code
@@ -72,7 +72,7 @@ func (l *SaveNoticeTemplateLogic) SaveNoticeTemplate(in *pb.NoticeTemplateSaveRe
 	old.IsSmsTemplate = isSmsTemplate
 	old.Updater = operator
 	if err := l.svcCtx.NoticeTemplateModel.Update(l.ctx, old); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "更新通知模板失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "更新通知模板失败")
 	}
 	return &pb.IdReply{Id: old.Id}, nil
 }

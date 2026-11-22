@@ -9,7 +9,7 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -46,7 +46,7 @@ func (l *CoursePageLogic) CoursePage(req *types.CoursePageReq) (resp *types.Cour
 		EndTime:      req.EndTime,
 	})
 	if gerr != nil {
-		return nil, xerr.Wrap(gerr, xerr.CodeInternal, "分页查询课程失败")
+		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "分页查询课程失败")
 	}
 	return toCoursePageReply(page), nil
 }

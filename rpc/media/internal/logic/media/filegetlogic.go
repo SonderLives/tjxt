@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/media/internal/svc"
 	"tjxt/rpc/media/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,14 +27,14 @@ func NewFileGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FileGetLo
 // 文件管理
 func (l *FileGetLogic) FileGet(in *pb.FileIdRequest) (*pb.FileVO, error) {
 	if in.Id <= 0 {
-		return nil, xerr.BadRequestf("id 不能为空")
+		return nil, errorx.BadRequestf("id 不能为空")
 	}
 	file, err := l.svcCtx.FileModel.FindOneNotDeleted(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("文件不存在")
+			return nil, errorx.NotFound("文件不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询文件失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询文件失败")
 	}
 	return toFileVO(file, l.svcCtx.Store), nil
 }

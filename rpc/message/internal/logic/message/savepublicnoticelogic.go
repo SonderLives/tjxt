@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,18 +28,18 @@ func NewSavePublicNoticeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 // 公告 新增/更新
 func (l *SavePublicNoticeLogic) SavePublicNotice(in *pb.PublicNoticeSaveReq) (*pb.IdReply, error) {
 	if in.Title == "" || in.Content == "" {
-		return nil, xerr.BadRequestf("公告标题/内容不能为空")
+		return nil, errorx.BadRequestf("公告标题/内容不能为空")
 	}
 	pushTime, err := parseDateTime(in.PushTime)
 	if err != nil {
-		return nil, xerr.BadRequestf("pushTime 必填且格式非法")
+		return nil, errorx.BadRequestf("pushTime 必填且格式非法")
 	}
 	expireTime, err := parseDateTime(in.ExpireTime)
 	if err != nil {
-		return nil, xerr.BadRequestf("expireTime 必填且格式非法")
+		return nil, errorx.BadRequestf("expireTime 必填且格式非法")
 	}
 	if !pushTime.Valid || !expireTime.Valid {
-		return nil, xerr.BadRequestf("pushTime/expireTime 必填")
+		return nil, errorx.BadRequestf("pushTime/expireTime 必填")
 	}
 
 	if in.Id == 0 {
@@ -52,7 +52,7 @@ func (l *SavePublicNoticeLogic) SavePublicNotice(in *pb.PublicNoticeSaveReq) (*p
 			ExpireTime: expireTime.Time,
 		}
 		if _, err := l.svcCtx.PublicNoticeModel.Insert(l.ctx, data); err != nil {
-			return nil, xerr.Wrapf(err, xerr.CodeInternal, "新增公告失败")
+			return nil, errorx.Wrapf(err, errorx.CodeInternal, "新增公告失败")
 		}
 		return &pb.IdReply{Id: data.Id}, nil
 	}
@@ -60,9 +60,9 @@ func (l *SavePublicNoticeLogic) SavePublicNotice(in *pb.PublicNoticeSaveReq) (*p
 	old, err := l.svcCtx.PublicNoticeModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("公告不存在")
+			return nil, errorx.NotFound("公告不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询公告失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询公告失败")
 	}
 	old.Title = in.Title
 	old.Content = in.Content
@@ -70,7 +70,7 @@ func (l *SavePublicNoticeLogic) SavePublicNotice(in *pb.PublicNoticeSaveReq) (*p
 	old.PushTime = pushTime.Time
 	old.ExpireTime = expireTime.Time
 	if err := l.svcCtx.PublicNoticeModel.Update(l.ctx, old); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "更新公告失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "更新公告失败")
 	}
 	return &pb.IdReply{Id: old.Id}, nil
 }

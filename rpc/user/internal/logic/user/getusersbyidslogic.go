@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/user/internal/svc"
 	"tjxt/rpc/user/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +31,7 @@ func (l *GetUsersByIdsLogic) GetUsersByIds(in *pb.UserIdsRequest) (*pb.UserListR
 	}
 	list, err := l.svcCtx.UserModel.FindByIdsWithDetail(l.ctx, in.UserIds)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询用户失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询用户失败")
 	}
 	dtos := make([]*pb.UserDTO, 0, len(list))
 	for _, v := range list {

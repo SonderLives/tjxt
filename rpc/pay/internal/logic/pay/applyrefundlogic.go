@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/pay/internal/model"
 	"tjxt/rpc/pay/internal/svc"
 	"tjxt/rpc/pay/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,7 +25,7 @@ func NewApplyRefundLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Apply
 
 func (l *ApplyRefundLogic) ApplyRefund(in *pb.ApplyRefundRequest) (*pb.RefundResultResponse, error) {
 	if in.BizOrderNo <= 0 || in.BizRefundOrderNo <= 0 || in.RefundAmount <= 0 {
-		return nil, xerr.BadRequestf("biz_order_no/biz_refund_order_no/refund_amount 非法")
+		return nil, errorx.BadRequestf("biz_order_no/biz_refund_order_no/refund_amount 非法")
 	}
 
 	// 幂等：biz_refund_order_no 已有退款则直接返回
@@ -38,27 +38,27 @@ func (l *ApplyRefundLogic) ApplyRefund(in *pb.ApplyRefundRequest) (*pb.RefundRes
 			ResultMsg:        existing.ResultMsg,
 		}, nil
 	} else if !isNotFound(err) {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询已有退款单失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询已有退款单失败")
 	}
 
 	// 校验原支付单已成功
 	payOrder, err := l.svcCtx.PayOrderModel.FindOneByBizOrderNo(l.ctx, in.BizOrderNo)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("原支付单不存在")
+			return nil, errorx.NotFound("原支付单不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询原支付单失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询原支付单失败")
 	}
 	if payOrder.Status != PayOrderStatusSuccess {
-		return nil, xerr.Conflict("原支付单未支付成功，无法退款")
+		return nil, errorx.Conflict("原支付单未支付成功，无法退款")
 	}
 	if in.RefundAmount > payOrder.Amount {
-		return nil, xerr.BadRequestf("退款金额超过原支付金额")
+		return nil, errorx.BadRequestf("退款金额超过原支付金额")
 	}
 	// 累计已退款金额校验：防止多次拆单退款超额
 	refunds, err := l.svcCtx.RefundOrderModel.FindListByBizOrderNo(l.ctx, in.BizOrderNo)
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询已有退款记录失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询已有退款记录失败")
 	}
 	var refunded int64
 	for _, r := range refunds {
@@ -67,7 +67,7 @@ func (l *ApplyRefundLogic) ApplyRefund(in *pb.ApplyRefundRequest) (*pb.RefundRes
 		}
 	}
 	if refunded+in.RefundAmount > payOrder.Amount {
-		return nil, xerr.BadRequestf("累计退款金额超过原支付金额")
+		return nil, errorx.BadRequestf("累计退款金额超过原支付金额")
 	}
 
 	roNo := nextID()
@@ -84,7 +84,7 @@ func (l *ApplyRefundLogic) ApplyRefund(in *pb.ApplyRefundRequest) (*pb.RefundRes
 		NotifyStatus:     RefundNotifyStatusPending,
 	}
 	if _, err := l.svcCtx.RefundOrderModel.Insert(l.ctx, ro); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "创建退款单失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "创建退款单失败")
 	}
 
 	// 调渠道退款：mock 渠道同步成功；真实渠道（微信/支付宝）为异步受理，

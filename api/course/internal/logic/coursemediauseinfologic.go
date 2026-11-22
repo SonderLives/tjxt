@@ -9,7 +9,7 @@ import (
 	"tjxt/api/course/internal/svc"
 	"tjxt/api/course/internal/types"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -34,7 +34,7 @@ func (l *CourseMediaUseInfoLogic) CourseMediaUseInfo(req *types.CourseMediaUseIn
 		MediaIds: parseIds(req.MediaIds),
 	})
 	if gerr != nil {
-		return nil, xerr.Wrap(gerr, xerr.CodeInternal, "查询媒资引用信息失败")
+		return nil, errorx.Wrap(gerr, errorx.CodeInternal, "查询媒资引用信息失败")
 	}
 	resp = make([]types.MediaQuoteVO, 0, len(list.Items))
 	for _, item := range list.Items {

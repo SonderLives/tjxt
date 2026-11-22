@@ -7,7 +7,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,14 +30,14 @@ func NewCourseBaseInfoGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 // CourseBaseInfoGet 查询课程草稿的基础信息（编辑态），附带课程内容、目录数量与分类名称。
 func (l *CourseBaseInfoGetLogic) CourseBaseInfoGet(in *pb.IdRequest) (*pb.CourseBaseInfoView, error) {
 	if in.Id == 0 {
-		return nil, xerr.BadRequestf("课程id不能为空")
+		return nil, errorx.BadRequestf("课程id不能为空")
 	}
 	d, err := l.svcCtx.CourseDraftModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("课程不存在")
+			return nil, errorx.NotFound("课程不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程草稿失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程草稿失败")
 	}
 
 	view := &pb.CourseBaseInfoView{
@@ -73,7 +73,7 @@ func (l *CourseBaseInfoGetLogic) CourseBaseInfoGet(in *pb.IdRequest) (*pb.Course
 	// 课程内容（介绍/详情/适用人群）
 	content, cerr := l.svcCtx.CourseContentDraftModel.FindOne(l.ctx, d.Id)
 	if cerr != nil && !isNotFound(cerr) {
-		return nil, xerr.Wrap(cerr, xerr.CodeInternal, "查询课程内容失败")
+		return nil, errorx.Wrap(cerr, errorx.CodeInternal, "查询课程内容失败")
 	}
 	if content != nil {
 		view.Introduce = content.CourseIntroduce
@@ -84,7 +84,7 @@ func (l *CourseBaseInfoGetLogic) CourseBaseInfoGet(in *pb.IdRequest) (*pb.Course
 	// 目录总数
 	catalogues, kerr := l.svcCtx.CourseCatalogueDraftModel.ListByCourseId(l.ctx, d.Id)
 	if kerr != nil {
-		return nil, xerr.Wrap(kerr, xerr.CodeInternal, "查询课程目录失败")
+		return nil, errorx.Wrap(kerr, errorx.CodeInternal, "查询课程目录失败")
 	}
 	view.CataTotalNum = int64(len(catalogues))
 

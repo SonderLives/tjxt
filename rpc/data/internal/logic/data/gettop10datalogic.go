@@ -7,7 +7,7 @@ import (
 
 	"tjxt/rpc/data/internal/svc"
 	"tjxt/rpc/data/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +31,7 @@ func NewGetTop10DataLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetT
 func (l *GetTop10DataLogic) GetTop10Data(in *pb.Empty) (*pb.Top10DataVO, error) {
 	val, err := l.svcCtx.Rds.GetCtx(l.ctx, top10DataKey)
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "读取榜单数据失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "读取榜单数据失败")
 	}
 	// key 不存在返回空结构
 	if val == "" {
@@ -40,7 +40,7 @@ func (l *GetTop10DataLogic) GetTop10Data(in *pb.Empty) (*pb.Top10DataVO, error) 
 
 	var units []*pb.Top10DataSetUnit
 	if err := json.Unmarshal([]byte(val), &units); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "解析榜单数据失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "解析榜单数据失败")
 	}
 
 	// 同一份数据按不同指标派生出两个榜单:hot 按新增学员数,hotSales 按订单额

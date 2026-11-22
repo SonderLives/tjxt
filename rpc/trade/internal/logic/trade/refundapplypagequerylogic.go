@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/trade/internal/model"
 	"tjxt/rpc/trade/internal/svc"
 	"tjxt/rpc/trade/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -50,7 +50,7 @@ func (l *RefundApplyPageQueryLogic) RefundApplyPageQuery(in *pb.RefundApplyPageR
 
 	records, total, err := l.svcCtx.RefundApplyModel.PageQuery(l.ctx, f)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "分页查询退款申请失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "分页查询退款申请失败")
 	}
 
 	list := make([]*pb.RefundApplyPageVO, 0, len(records))

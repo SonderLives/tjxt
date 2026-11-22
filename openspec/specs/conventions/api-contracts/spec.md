@@ -2,7 +2,7 @@
 
 ## Purpose
 
-统一 tjxt 全部 HTTP 接口（`api/*/*.api` 及其生成的 handler）的响应封装、分页、鉴权、错误码、路由与参数绑定规则，使所有服务的对外 API 表现一致：同一套 `pkg/response.R` 信封、同一套分页结构、同一套 `pkg/xerr` 错误码分段、同一套 RESTful 路由与 `/api/v1` 前缀。本规格是 API 层代码生成与 Code Review 的判定依据。
+统一 tjxt 全部 HTTP 接口（`api/*/*.api` 及其生成的 handler）的响应封装、分页、鉴权、错误码、路由与参数绑定规则，使所有服务的对外 API 表现一致：同一套 `pkg/response.R` 信封、同一套分页结构、同一套 `pkg/errorx` 错误码分段、同一套 RESTful 路由与 `/api/v1` 前缀。本规格是 API 层代码生成与 Code Review 的判定依据。
 
 ## Requirements
 
@@ -31,7 +31,7 @@ type R struct {
 
 #### Scenario: 失败响应
 
-- **WHEN** logic 返回 `xerr.NewErrCode(...)` 包装的错误
+- **WHEN** logic 返回 `errorx.NewErrCode(...)` 包装的错误
 - **THEN** 响应体 `Code` 为该错误码，`Msg` 为人类可读提示，`RequestId` 可用于关联链路
 - **AND** 不得绕过 `result.Write` 直接写 JSON
 
@@ -97,7 +97,7 @@ JWT 鉴权 SHALL 在 `.api` 的 `@server` 指令中声明，身份 SHALL 通过 
 
 ### Requirement: 错误码分段
 
-错误码 SHALL 统一定义在 `pkg/xerr` 并按域分段，段间不重叠；业务错误一律以 `xerr.NewErrCode(...)` 返回。
+错误码 SHALL 统一定义在 `pkg/errorx` 并按域分段，段间不重叠；业务错误一律以 `errorx.NewErrCode(...)` 返回。
 
 | 分类 | 范围 | 说明 |
 |------|------|------|

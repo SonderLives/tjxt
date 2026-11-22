@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/promotion/internal/model"
 	"tjxt/rpc/promotion/internal/svc"
 	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,7 +30,7 @@ func NewUserCouponRefundLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 // 状态流转 used -> unused；已过期的券即使退还也无法再用，此处仅恢复状态。
 func (l *UserCouponRefundLogic) UserCouponRefund(in *pb.IdsRequest) (*pb.Empty, error) {
 	if in.UserId <= 0 {
-		return nil, xerr.Unauthorized("")
+		return nil, errorx.Unauthorized("")
 	}
 	if len(in.Ids) == 0 {
 		return &pb.Empty{}, nil
@@ -39,20 +39,20 @@ func (l *UserCouponRefundLogic) UserCouponRefund(in *pb.IdsRequest) (*pb.Empty, 
 	userCoupons, err := l.svcCtx.UserCouponModel.FindByIdsAndUser(l.ctx, in.Ids, in.UserId)
 	if err != nil {
 		l.Errorf("find user coupon failed, userId=%d, err=%v", in.UserId, err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "退还优惠券失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "退还优惠券失败")
 	}
 	if len(userCoupons) == 0 {
-		return nil, xerr.BadRequestf("优惠券不存在或不属于当前用户")
+		return nil, errorx.BadRequestf("优惠券不存在或不属于当前用户")
 	}
 
 	rows, err := l.svcCtx.UserCouponModel.UpdateStatusByIds(l.ctx, in.Ids, in.UserId,
 		model.UserCouponStatusUsed, model.UserCouponStatusUnused, 0)
 	if err != nil {
 		l.Errorf("refund user coupon failed, userId=%d, err=%v", in.UserId, err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "退还优惠券失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "退还优惠券失败")
 	}
 	if rows == 0 {
-		return nil, xerr.Conflict("优惠券未被使用，无需退还")
+		return nil, errorx.Conflict("优惠券未被使用，无需退还")
 	}
 
 	now := time.Now()

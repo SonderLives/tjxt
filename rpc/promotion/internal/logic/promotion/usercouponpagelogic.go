@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/promotion/internal/svc"
 	"tjxt/rpc/promotion/pb"
 	"tjxt/pkg/utils/page"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,7 +30,7 @@ func NewUserCouponPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Us
 // UserCouponPage 分页查询我的优惠券。
 func (l *UserCouponPageLogic) UserCouponPage(in *pb.UserCouponPageRequest) (*pb.UserCouponPageReply, error) {
 	if in.UserId <= 0 {
-		return nil, xerr.Unauthorized("")
+		return nil, errorx.Unauthorized("")
 	}
 
 	var pageNo, pageSize int64
@@ -42,7 +42,7 @@ func (l *UserCouponPageLogic) UserCouponPage(in *pb.UserCouponPageRequest) (*pb.
 	userCoupons, total, err := l.svcCtx.UserCouponModel.FindPageByUser(l.ctx, in.UserId, in.Status, offset, limit)
 	if err != nil {
 		l.Errorf("page user coupon failed, userId=%d, err=%v", in.UserId, err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询我的优惠券失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询我的优惠券失败")
 	}
 	if len(userCoupons) == 0 {
 		return &pb.UserCouponPageReply{Total: total}, nil
@@ -56,7 +56,7 @@ func (l *UserCouponPageLogic) UserCouponPage(in *pb.UserCouponPageRequest) (*pb.
 	list, err := l.svcCtx.CouponModel.FindByIds(l.ctx, ids)
 	if err != nil {
 		l.Errorf("find coupons by ids failed, err=%v", err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询我的优惠券失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询我的优惠券失败")
 	}
 	coupons := make(map[int64]*model.Coupon, len(list))
 	for _, c := range list {

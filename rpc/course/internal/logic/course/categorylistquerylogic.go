@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +28,7 @@ func NewCategoryListQueryLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 func (l *CategoryListQueryLogic) CategoryListQuery(in *pb.CategoryListQueryRequest) (*pb.CategoryList, error) {
 	list, err := l.svcCtx.CategoryModel.FindByCondition(l.ctx, in.Name, int64(in.Status))
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询分类列表失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询分类列表失败")
 	}
 	items := make([]*pb.CategoryInfo, 0, len(list))
 	for _, c := range list {

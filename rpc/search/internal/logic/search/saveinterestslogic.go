@@ -6,7 +6,7 @@ import (
 
 	"tjxt/rpc/search/internal/svc"
 	"tjxt/rpc/search/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,14 +29,14 @@ func NewSaveInterestsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Sav
 // 不存在则插入、存在则更新（Upsert 一步完成）。
 func (l *SaveInterestsLogic) SaveInterests(in *pb.SaveInterestsReq) (*pb.Empty, error) {
 	if in.Id <= 0 {
-		return nil, xerr.BadRequestf("用户id非法")
+		return nil, errorx.BadRequestf("用户id非法")
 	}
 	interests, err := normalizeInterests(in.Interests)
 	if err != nil {
 		return nil, err
 	}
 	if err := l.svcCtx.InterestsModel.Upsert(l.ctx, in.Id, interests); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "保存兴趣失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "保存兴趣失败")
 	}
 	return &pb.Empty{}, nil
 }
@@ -57,7 +57,7 @@ func normalizeInterests(s string) (string, error) {
 			continue
 		}
 		if !isDigits(p) {
-			return "", xerr.BadRequestf("兴趣格式非法，仅支持逗号分隔的数字分类id")
+			return "", errorx.BadRequestf("兴趣格式非法，仅支持逗号分隔的数字分类id")
 		}
 		if _, ok := seen[p]; ok {
 			continue
@@ -68,7 +68,7 @@ func normalizeInterests(s string) (string, error) {
 
 	out := strings.Join(kept, ",")
 	if len(out) > 255 {
-		return "", xerr.BadRequestf("兴趣分类id过长，最多255字符")
+		return "", errorx.BadRequestf("兴趣分类id过长，最多255字符")
 	}
 	return out, nil
 }

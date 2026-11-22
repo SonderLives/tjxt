@@ -8,7 +8,7 @@ import (
 	"tjxt/rpc/auth/internal/model"
 	"tjxt/rpc/auth/internal/svc"
 	"tjxt/rpc/auth/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +31,7 @@ func NewSaveLoginRecordLogic(ctx context.Context, svcCtx *svc.ServiceContext) *S
 // 该调用属于登录链路的旁路统计，不应阻断主流程，因此写库失败仅记录日志。
 func (l *SaveLoginRecordLogic) SaveLoginRecord(in *pb.LoginRecordReq) (*pb.Empty, error) {
 	if in.UserId <= 0 {
-		return nil, xerr.BadRequestf("用户 id 无效")
+		return nil, errorx.BadRequestf("用户 id 无效")
 	}
 
 	now := time.Now()

@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +31,7 @@ func (l *CourseMediaUseInfoLogic) CourseMediaUseInfo(in *pb.MediaIdsRequest) (*p
 	}
 	counts, err := l.svcCtx.CourseCatalogueModel.CountByMediaIds(l.ctx, in.MediaIds)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "统计媒资引用次数失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "统计媒资引用次数失败")
 	}
 	quoteMap := make(map[int64]int64, len(counts))
 	for _, c := range counts {

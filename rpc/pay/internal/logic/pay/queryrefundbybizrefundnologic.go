@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/pay/internal/svc"
 	"tjxt/rpc/pay/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,14 +23,14 @@ func NewQueryRefundByBizRefundNoLogic(ctx context.Context, svcCtx *svc.ServiceCo
 
 func (l *QueryRefundByBizRefundNoLogic) QueryRefundByBizRefundNo(in *pb.QueryRefundRequest) (*pb.RefundOrderResponse, error) {
 	if in.BizRefundOrderNo <= 0 {
-		return nil, xerr.BadRequestf("biz_refund_order_no 非法")
+		return nil, errorx.BadRequestf("biz_refund_order_no 非法")
 	}
 	m, err := l.svcCtx.RefundOrderModel.FindOneByBizRefundOrderNo(l.ctx, in.BizRefundOrderNo)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("退款单不存在")
+			return nil, errorx.NotFound("退款单不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询退款单失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询退款单失败")
 	}
 	return toRefundResp(m), nil
 }

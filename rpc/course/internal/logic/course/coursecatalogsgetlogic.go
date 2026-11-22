@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/course/internal/model"
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,14 +31,14 @@ func (l *CourseCatalogsGetLogic) CourseCatalogsGet(in *pb.IdRequest) (*pb.Course
 	course, err := l.svcCtx.CourseModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("课程不存在")
+			return nil, errorx.NotFound("课程不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程失败")
 	}
 
 	list, err := l.svcCtx.CourseCatalogueModel.ListByCourseId(l.ctx, in.Id)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询课程目录失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询课程目录失败")
 	}
 
 	// 小节数量：目录中 type=2（节）的数量，无目录数据时回落到课程表冗余字段

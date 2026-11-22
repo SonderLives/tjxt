@@ -2,7 +2,7 @@
 
 ## Purpose
 
-定义 `pkg/` 公共库对全部服务暴露的契约：JWT 身份上下文（pkg/auth）、统一响应（pkg/response）、分页（pkg/utils/page）、ID 生成（pkg/utils/idgen）、事件总线封装（pkg/mq）、错误码（pkg/xerr，见 [error-codes](../error-codes/spec.md)），以及共享库的版本兼容策略。
+定义 `pkg/` 公共库对全部服务暴露的契约：JWT 身份上下文（pkg/auth）、统一响应（pkg/response）、分页（pkg/utils/page）、ID 生成（pkg/utils/idgen）、事件总线封装（pkg/mq）、错误码（pkg/errorx，见 [error-codes](../error-codes/spec.md)），以及共享库的版本兼容策略。
 
 ## Requirements
 
@@ -26,13 +26,13 @@ Handler/Logic SHALL 只通过 `pkg/auth` 的函数获取身份，禁止直接解
 所有 HTTP 接口 SHALL 通过 `response.Write(w, r, data, err)` 输出统一响应结构 `R{Code, Msg, RequestId, Data}`：
 
 - `err == nil`：Code=0，Msg="success"，Data=业务数据
-- `err` 为 `xerr.ErrCode`：Code=err.Code，Msg=err.Msg，Data=nil
+- `err` 为 `errorx.ErrCode`：Code=err.Code，Msg=err.Msg，Data=nil
 - 其他 error：Code=100001（SERVER_ERROR），Msg=err.Error()，Data=nil
 - `RequestId` 自动注入（从 context 或 header 获取）
 
 #### Scenario: 业务错误自动映射
 
-- **WHEN** logic 返回 `xerr.NewErrCode(xerr.PARAM_ERROR)`
+- **WHEN** logic 返回 `errorx.NewErrCode(errorx.PARAM_ERROR)`
 - **THEN** 响应体为 `R{Code: 100002, Msg: <错误文案>, RequestId: <链路ID>, Data: null}`
 
 #### Scenario: 禁止绕过统一响应

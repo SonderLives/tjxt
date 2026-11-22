@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,9 +29,9 @@ func (l *CategoryUpdateLogic) CategoryUpdate(in *pb.CategoryUpdateRequest) (*pb.
 	c, err := l.svcCtx.CategoryModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("分类不存在")
+			return nil, errorx.NotFound("分类不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询分类失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询分类失败")
 	}
 	c.Name = in.Name
 	c.Priority = int64(in.Index)
@@ -44,7 +44,7 @@ func (l *CategoryUpdateLogic) CategoryUpdate(in *pb.CategoryUpdateRequest) (*pb.
 		c.Level = 1
 	}
 	if err := l.svcCtx.CategoryModel.Update(l.ctx, c); err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "更新分类失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "更新分类失败")
 	}
 	return &pb.Empty{}, nil
 }

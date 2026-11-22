@@ -6,7 +6,7 @@ import (
 	"tjxt/rpc/user/internal/svc"
 	"tjxt/rpc/user/pb"
 	"tjxt/pkg/utils/page"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +31,7 @@ func (l *PageQueryStaffsLogic) PageQueryStaffs(in *pb.UserPageRequest) (*pb.Staf
 	col, dir := sortClause(in.SortBy, in.IsAsc)
 	list, total, err := l.svcCtx.UserModel.FindPageByType(l.ctx, 1, in.Name, in.Phone, int64(in.Status), offset, limit, col, dir)
 	if err != nil {
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询员工列表失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询员工列表失败")
 	}
 	items := make([]*pb.StaffVO, 0, len(list))
 	for _, v := range list {

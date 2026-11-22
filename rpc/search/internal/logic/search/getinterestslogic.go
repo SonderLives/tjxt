@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/search/internal/model"
 	"tjxt/rpc/search/internal/svc"
 	"tjxt/rpc/search/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +29,7 @@ func NewGetInterestsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetI
 // GetInterests 查询用户兴趣，未设置过时返回空 VO（不报错）。
 func (l *GetInterestsLogic) GetInterests(in *pb.IdReq) (*pb.InterestsVO, error) {
 	if in.Id <= 0 {
-		return nil, xerr.BadRequestf("用户id非法")
+		return nil, errorx.BadRequestf("用户id非法")
 	}
 
 	data, err := l.svcCtx.InterestsModel.FindOne(l.ctx, in.Id)
@@ -37,7 +37,7 @@ func (l *GetInterestsLogic) GetInterests(in *pb.IdReq) (*pb.InterestsVO, error) 
 		if errors.Is(err, model.ErrNotFound) {
 			return &pb.InterestsVO{Id: in.Id}, nil
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询兴趣失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询兴趣失败")
 	}
 
 	return &pb.InterestsVO{

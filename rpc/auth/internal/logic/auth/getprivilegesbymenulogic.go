@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/auth/internal/svc"
 	"tjxt/rpc/auth/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +27,7 @@ func NewGetPrivilegesByMenuLogic(ctx context.Context, svcCtx *svc.ServiceContext
 // GetPrivilegesByMenu 查询指定菜单下的权限列表。
 func (l *GetPrivilegesByMenuLogic) GetPrivilegesByMenu(in *pb.IdReq) (*pb.PrivilegeListReply, error) {
 	if in.Id <= 0 {
-		return nil, xerr.BadRequestf("菜单 id 无效")
+		return nil, errorx.BadRequestf("菜单 id 无效")
 	}
 
 	privileges, err := l.svcCtx.PrivilegeModel.FindByMenuId(l.ctx, in.Id)

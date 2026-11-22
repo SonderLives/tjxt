@@ -6,7 +6,7 @@ import (
 
 	"tjxt/rpc/promotion/internal/svc"
 	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +31,7 @@ func (l *CouponListLogic) CouponList(in *pb.CouponListRequest) (*pb.CouponListRe
 	list, err := l.svcCtx.CouponModel.FindList(l.ctx)
 	if err != nil {
 		l.Errorf("list coupon failed, err=%v", err)
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询优惠券失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询优惠券失败")
 	}
 
 	// 一次性拉取当前用户已领券，避免逐张券查库
@@ -40,7 +40,7 @@ func (l *CouponListLogic) CouponList(in *pb.CouponListRequest) (*pb.CouponListRe
 		mine, err := l.svcCtx.UserCouponModel.FindByUserAndStatus(l.ctx, in.UserId, "")
 		if err != nil {
 			l.Errorf("find user coupon failed, userId=%d, err=%v", in.UserId, err)
-			return nil, xerr.Wrap(err, xerr.CodeInternal, "查询优惠券失败")
+			return nil, errorx.Wrap(err, errorx.CodeInternal, "查询优惠券失败")
 		}
 		for _, uc := range mine {
 			received[uc.CouponId]++

@@ -8,7 +8,7 @@ import (
 
 	"tjxt/rpc/data/internal/svc"
 	"tjxt/rpc/data/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -52,7 +52,7 @@ func (l *GetBoardDataLogic) GetBoardData(in *pb.BoardDataReq) (*pb.EchartsVO, er
 func (l *GetBoardDataLogic) readBoardData(t int) ([]float64, error) {
 	val, err := l.svcCtx.Rds.GetCtx(l.ctx, fmt.Sprintf("data:board:%d", t))
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "读取看板数据失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "读取看板数据失败")
 	}
 	if val == "" {
 		return nil, nil

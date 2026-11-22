@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,19 +30,19 @@ func (l *MarkInboxReadLogic) MarkInboxRead(in *pb.IdReq) (*pb.Empty, error) {
 	data, err := l.svcCtx.UserInboxModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("站内信不存在")
+			return nil, errorx.NotFound("站内信不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询站内信失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询站内信失败")
 	}
 	if data.UserId != userId {
-		return nil, xerr.Forbidden("无权操作该站内信")
+		return nil, errorx.Forbidden("无权操作该站内信")
 	}
 	if data.IsRead == 1 {
 		return &pb.Empty{}, nil
 	}
 	data.IsRead = 1
 	if err := l.svcCtx.UserInboxModel.Update(l.ctx, data); err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "标记站内信已读失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "标记站内信已读失败")
 	}
 	return &pb.Empty{}, nil
 }

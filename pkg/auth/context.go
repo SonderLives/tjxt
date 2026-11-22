@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 )
 
 // Context 中的 claim 键名（go-zero rest.WithJwt 注入 ctx 时以 JWT 载荷字段名为 key，类型为 string，
@@ -35,11 +35,11 @@ const (
 func UserIdFromCtx(ctx context.Context) (int64, error) {
 	v := ctx.Value(keyUserID)
 	if v == nil {
-		return 0, xerr.Unauthorized("")
+		return 0, errorx.Unauthorized("")
 	}
 	userID, err := strconv.ParseInt(fmt.Sprint(v), 10, 64)
 	if err != nil || userID <= 0 {
-		return 0, xerr.Unauthorized("")
+		return 0, errorx.Unauthorized("")
 	}
 	return userID, nil
 }

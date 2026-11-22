@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/course/internal/svc"
 	"tjxt/rpc/course/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,9 +29,9 @@ func (l *CourseCatalogueSectionInfoLogic) CourseCatalogueSectionInfo(in *pb.IdRe
 	cata, err := l.svcCtx.CourseCatalogueModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("小节不存在")
+			return nil, errorx.NotFound("小节不存在")
 		}
-		return nil, xerr.Wrap(err, xerr.CodeInternal, "查询小节失败")
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询小节失败")
 	}
 	return &pb.CourseSectionInfo{
 		Id:       cata.Id,

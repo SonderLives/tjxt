@@ -5,7 +5,7 @@ import (
 
 	"tjxt/rpc/pay/internal/svc"
 	"tjxt/rpc/pay/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -22,14 +22,14 @@ func NewQueryPayChannelByCodeLogic(ctx context.Context, svcCtx *svc.ServiceConte
 
 func (l *QueryPayChannelByCodeLogic) QueryPayChannelByCode(in *pb.QueryPayChannelByCodeRequest) (*pb.PayChannelResponse, error) {
 	if in.ChannelCode == "" {
-		return nil, xerr.BadRequestf("渠道编码不能为空")
+		return nil, errorx.BadRequestf("渠道编码不能为空")
 	}
 	m, err := l.svcCtx.PayChannelModel.FindByCode(l.ctx, in.ChannelCode)
 	if err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("支付渠道不存在")
+			return nil, errorx.NotFound("支付渠道不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询支付渠道失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询支付渠道失败")
 	}
 	return toPayChannelResp(m), nil
 }

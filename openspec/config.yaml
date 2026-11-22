@@ -28,7 +28,7 @@ context: |
   ## API 统一契约
   - 响应：所有 HTTP 接口返回 pkg/response.R{Code,Msg,RequestId,Data}，handler 必须用 result.Write(w,r,data,err)，禁止 httpx.OkJsonCtx/ErrorCtx
   - 分页：PageRequest{PageNo default=1, PageSize default=20 lte=100} → PageResponse[T]{Total,List,PageNo,PageSize}
-  - 错误码：pkg/xerr；系统通用 100000-100999，领域分段 101000(auth) 102000(course) 103000(trade) 104000(learning) 105000(pay) 106000(media) 107000(promotion) 108000(message) 109000(exam) 110000(search) 111000(user)，不重叠
+  - 错误码：pkg/errorx；系统通用 100000-100999，领域分段 101000(auth) 102000(course) 103000(trade) 104000(learning) 105000(pay) 106000(media) 107000(promotion) 108000(message) 109000(exam) 110000(search) 111000(user)，不重叠
   - 鉴权：.api 的 @server(jwt: Auth)；logic 内用 pkg/auth.GetUserId/GetRole 取身份，禁止手解 JWT
   - 路由：RESTful，非 CRUD 动作用动词前缀（/courses/:id/publish）；URL 前缀 /api/v1；响应字段只增不减
   - 类型命名 <动作><资源>Req/Resp；goctl 不支持 any，用 interface{}
@@ -40,7 +40,7 @@ context: |
   - 目录命名 gozero 风格（小驼峰无下划线）；module path：tjxt/api/<svc> 与 tjxt/rpc/<svc>；跨服务依赖用 require+replace 本地相对路径，伪版本 v0.0.0-00010101000000-000000000000
 
   ## 代码风格
-  - 错误处理统一 xerr.NewErrCode(...).WithError(err)，禁止裸返回 error / fmt.Errorf 包装
+  - 错误处理统一 errorx.NewErrCode(...).WithError(err)，禁止裸返回 error / fmt.Errorf 包装
   - ctx 永远第一位，跨层透传；依赖注入走 svc.ServiceContext
   - 代码风格：见 specs/conventions/code-style
   - 提交前 make fmt；Git 流程（分支/Conventional Commits/PR 模板/发布）见 specs/conventions/git-workflow

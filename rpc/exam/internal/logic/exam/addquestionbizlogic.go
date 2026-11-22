@@ -7,7 +7,7 @@ import (
 	"tjxt/rpc/exam/internal/model"
 	"tjxt/rpc/exam/internal/svc"
 	"tjxt/rpc/exam/pb"
-	"tjxt/pkg/xerr"
+	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,18 +29,18 @@ func NewAddQuestionBizLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ad
 // 题目业务关联
 func (l *AddQuestionBizLogic) AddQuestionBiz(in *pb.QuestionBizReq) (*pb.IdReply, error) {
 	if in.BizId <= 0 {
-		return nil, xerr.BadRequestf("业务id非法")
+		return nil, errorx.BadRequestf("业务id非法")
 	}
 	if in.QuestionId <= 0 {
-		return nil, xerr.BadRequestf("题目id非法")
+		return nil, errorx.BadRequestf("题目id非法")
 	}
 
 	// 题目必须存在
 	if _, err := l.svcCtx.QuestionModel.FindOne(l.ctx, in.QuestionId); err != nil {
 		if isNotFound(err) {
-			return nil, xerr.NotFound("题目不存在")
+			return nil, errorx.NotFound("题目不存在")
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询题目失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目失败")
 	}
 
 	bizId := sql.NullInt64{Int64: in.BizId, Valid: true}
@@ -52,7 +52,7 @@ func (l *AddQuestionBizLogic) AddQuestionBiz(in *pb.QuestionBizReq) (*pb.IdReply
 		return &pb.IdReply{Id: existing.Id}, nil
 	}
 	if !isNotFound(err) {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "查询题目业务关联失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目业务关联失败")
 	}
 
 	ret, err := l.svcCtx.QuestionBizModel.Insert(l.ctx, &model.QuestionBiz{
@@ -65,11 +65,11 @@ func (l *AddQuestionBizLogic) AddQuestionBiz(in *pb.QuestionBizReq) (*pb.IdReply
 		if err2 == nil {
 			return &pb.IdReply{Id: existing.Id}, nil
 		}
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "绑定题目失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "绑定题目失败")
 	}
 	id, err := ret.LastInsertId()
 	if err != nil {
-		return nil, xerr.Wrapf(err, xerr.CodeInternal, "获取绑定记录id失败")
+		return nil, errorx.Wrapf(err, errorx.CodeInternal, "获取绑定记录id失败")
 	}
 	return &pb.IdReply{Id: id}, nil
 }
