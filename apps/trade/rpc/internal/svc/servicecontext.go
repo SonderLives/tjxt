@@ -7,9 +7,9 @@ import (
 	"tjxt/apps/trade/rpc/internal/model"
 	"tjxt/pkg/mq"
 
-	courseclient "tjxt/apps/course/rpc/course"
-	payclient "tjxt/apps/pay/rpc/pay"
-	promotionclient "tjxt/apps/promotion/rpc/promotion"
+	courseclient "tjxt/apps/course/rpc/client/course"
+	payclient "tjxt/apps/pay/rpc/client/pay"
+	promotionclient "tjxt/apps/promotion/rpc/client/promotion"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
