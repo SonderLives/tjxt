@@ -1,0 +1,46 @@
+# buf workspace 配置（v2）：仓库根统一管理 13 个 rpc/<svc> 的 proto。
+# 职责边界：buf 只承担 proto 治理（lint + breaking 门禁），
+# pb / zrpc 代码生成仍由 goctl 负责（make rpc），buf 不接管生成链路。
+version: v2
+modules:
+  - path: rpc/auth
+  - path: rpc/course
+  - path: rpc/data
+  - path: rpc/exam
+  - path: rpc/learning
+  - path: rpc/media
+  - path: rpc/message
+  - path: rpc/pay
+  - path: rpc/promotion
+  - path: rpc/remark
+  - path: rpc/search
+  - path: rpc/trade
+  - path: rpc/user
+lint:
+  # 从官方 STANDARD 类别起步（1.75.0 中 DEFAULT 已废弃并更名为 STANDARD）。
+  use:
+    - STANDARD
+  # 以下规则要求破坏性变更（改字段名/消息名/服务名/包名或挪目录）才能满足，
+  # 会直接改变 goctl 生成的 pb/zrpc 代码与线上 RPC 全限定名，故显式豁免；
+  # 新增 proto 仍受其余规则（命名风格、syntax、package 规范等）约束。
+  except:
+    # 包目录一致：要求目录为 rpc/<svc>/<svc>/（包名层级），
+    # 挪动 proto 会破坏 goctl rpc protoc 的执行路径与仓库既有布局，豁免。
+    - PACKAGE_DIRECTORY_MATCH
+    # 包版本后缀：要求包名如 user.v1，改包名会改变生成代码与 gRPC 全限定名，豁免。
+    - PACKAGE_VERSION_SUFFIX
+    # 服务后缀：要求服务名如 UserService，改服务名会改变 RPC 路径 /pkg.Service/Method，
+    # 影响 zrpc 客户端与所有调用方，豁免。
+    - SERVICE_SUFFIX
+    # 字段 snake_case：存量字段大量驼峰（如 userId/pageNo），改字段名会改变 JSON wire
+    # 名称与生成 Go 结构体字段，属破坏性变更，豁免（新增字段请遵守 snake_case）。
+    - FIELD_LOWER_SNAKE_CASE
+    # RPC 请求/响应类型唯一：存量大量复用同一消息作为多个 RPC 的入参/出参，
+    # 拆分消息需新建并重命名类型，改变生成代码面，豁免。
+    - RPC_REQUEST_RESPONSE_UNIQUE
+    # RPC 请求类型命名（RpcNameRequest/ServiceNameRpcNameRequest）：
+    # 需重命名消息类型，改变生成 Go 类型名，豁免。
+    - RPC_REQUEST_STANDARD_NAME
+    # RPC 响应类型命名（RpcNameResponse/ServiceNameRpcNameResponse）：
+    # 需重命名消息类型，改变生成 Go 类型名，豁免。
+    - RPC_RESPONSE_STANDARD_NAME
