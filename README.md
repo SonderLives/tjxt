@@ -198,11 +198,21 @@ make run-all-rpc   # 启动所有 RPC
 | 场景                     | 命令                                                                                                                                |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | 新建 API 骨架              | `goctl api new <svc>`                                                                                                             |
-| 修改 `.api` 后重生成         | `goctl api go -api api/<svc>/<svc>.api -dir api/<svc> --home <tpl>`                                                     |
+| 修改 `.api` 后重生成         | `goctl api go -api api/<svc>/<svc>.api -dir api/<svc> --home tools/goctl-templates`                                    |
 | 新建 RPC 骨架              | `goctl rpc new <svc>`                                                                                                             |
-| 修改 `.proto` 后重生成       | `cd rpc/<svc> && goctl rpc protoc <svc>.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m`                                    |
+| 修改 `.proto` 后重生成       | `cd rpc/<svc> && goctl rpc protoc <svc>.proto --go_out=. --go-grpc_out=. --zrpc_out=. --client=true -m`                                    |
 | 数据库 Model (带 Redis 缓存) | `goctl model mysql datasource -url="root:0000@tcp(127.0.0.1:3306)/tj_<svc>" -table="<tbl>" -dir rpc/<svc>/internal/model -c` |
 | Model 需加自定义方法          | 在 `internal/model/<tbl>model.go` 里写扩展 (`_gen.go` 由 goctl 管理)                                                                      |
+
+
+> **goctl 版本固定（重要）**：仓库生成物出自 **goctl 1.10.1**，API 侧使用仓库自有模板目录 `tools/goctl-templates/`
+> （handler 统一调 `pkg/response.Write`，与 goctl 默认模板不同）。日常生成请安装 1.10.1 并带 `--home tools/goctl-templates`：
+>
+> ```bash
+> go install github.com/zeromicro/go-zero/tools/goctl@v1.10.1
+> ```
+>
+> 用其他版本生成会让 routes.go/types.go 的版本头漂移（`make check-gen` 会拦截）。RPC 侧逻辑文件由 goctl 跳过已存在文件保护，server/client/pb 可安全再生成。
 
 
 **Makefile 快捷方式**:
