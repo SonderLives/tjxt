@@ -3,13 +3,15 @@ package examlogic
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"strings"
 
+	"tjxt/pkg/auth"
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 	"tjxt/rpc/exam/internal/model"
 	"tjxt/rpc/exam/internal/svc"
 	"tjxt/rpc/exam/pb"
-	"tjxt/pkg/idgen"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -44,10 +46,11 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 		return nil, errorx.BadRequestf("分值必须大于0")
 	}
 
-	// 获取登录用户，作为创建人/更新人（上游 API 通过 metadata 透传）
-	userId := userIdFromCtx(l.ctx)
-	if userId <= 0 {
-		userId = 1
+	// 获取登录用户，作为创建人/更新人（上游 API 通过 metadata 透传）。
+	// 取不到说明请求未携带登录态，直接拒绝，不再静默伪造审计字段。
+	userId, err := auth.UserIdFromIncomingMD(l.ctx)
+	if err != nil {
+		return nil, err
 	}
 	options := sql.NullString{String: in.Options, Valid: in.Options != ""}
 
@@ -86,7 +89,7 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 	// 更新题目
 	q, err := l.svcCtx.QuestionModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("题目不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目失败")
@@ -106,7 +109,7 @@ func (l *SaveQuestionLogic) SaveQuestion(in *pb.QuestionSaveReq) (*pb.IdReply, e
 	// upsert 题目详情
 	d, err := l.svcCtx.QuestionDetailModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if !isNotFound(err) {
+		if !errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目详情失败")
 		}
 		if _, err := l.svcCtx.QuestionDetailModel.Insert(l.ctx, &model.QuestionDetail{

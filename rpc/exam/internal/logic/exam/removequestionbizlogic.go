@@ -3,10 +3,12 @@ package examlogic
 import (
 	"context"
 	"database/sql"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/rpc/exam/internal/model"
 	"tjxt/rpc/exam/internal/svc"
 	"tjxt/rpc/exam/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -39,7 +41,7 @@ func (l *RemoveQuestionBizLogic) RemoveQuestionBiz(in *pb.QuestionBizReq) (*pb.E
 	// 幂等：未绑定也返回成功
 	existing, err := l.svcCtx.QuestionBizModel.FindOneByBizIdQuestionId(l.ctx, bizId, questionId)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return &pb.Empty{}, nil
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目业务关联失败")

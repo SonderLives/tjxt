@@ -2,10 +2,12 @@ package messagelogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +30,7 @@ func NewGetNoticeTaskLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 func (l *GetNoticeTaskLogic) GetNoticeTask(in *pb.IdReq) (*pb.NoticeTaskVO, error) {
 	data, err := l.svcCtx.NoticeTaskModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("通知任务不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询通知任务失败")

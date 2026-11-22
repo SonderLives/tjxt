@@ -2,11 +2,14 @@ package messagelogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/auth"
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -34,7 +37,7 @@ func (l *SaveMessageTemplateLogic) SaveMessageTemplate(in *pb.MessageTemplateSav
 	// 校验短信平台存在且启用
 	platform, err := l.svcCtx.SmsThirdPlatformModel.FindByCode(l.ctx, in.PlatformCode)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.BadRequestf("短信平台不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询短信平台失败")
@@ -45,16 +48,19 @@ func (l *SaveMessageTemplateLogic) SaveMessageTemplate(in *pb.MessageTemplateSav
 
 	// 校验通知模板存在
 	if _, err := l.svcCtx.NoticeTemplateModel.FindOne(l.ctx, in.TemplateId); err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.BadRequestf("通知模板不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询通知模板失败")
 	}
 
-	operator := userIdFromCtx(l.ctx)
+	operator, err := auth.UserIdFromIncomingMD(l.ctx)
+	if err != nil {
+		return nil, err
+	}
 	if in.Id == 0 {
 		data := &model.MessageTemplate{
-			Id:                nextID(),
+			Id:                idgen.NextID(),
 			Name:              in.Name,
 			PlatformCode:      in.PlatformCode,
 			SignName:          in.SignName,
@@ -73,7 +79,7 @@ func (l *SaveMessageTemplateLogic) SaveMessageTemplate(in *pb.MessageTemplateSav
 
 	old, err := l.svcCtx.MessageTemplateModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("短信模板不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询短信模板失败")

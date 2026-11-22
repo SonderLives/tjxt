@@ -3,11 +3,14 @@ package messagelogic
 import (
 	"context"
 	"database/sql"
+	"errors"
 
+	"tjxt/pkg/auth"
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +34,10 @@ func (l *SaveNoticeTemplateLogic) SaveNoticeTemplate(in *pb.NoticeTemplateSaveRe
 	if in.Name == "" || in.Code == "" || in.Content == "" {
 		return nil, errorx.BadRequestf("模板名称/代号/内容不能为空")
 	}
-	operator := userIdFromCtx(l.ctx)
+	operator, err := auth.UserIdFromIncomingMD(l.ctx)
+	if err != nil {
+		return nil, err
+	}
 	title := sql.NullString{String: in.Title, Valid: in.Title != ""}
 	isSmsTemplate := byte(0)
 	if in.IsSmsTemplate {
@@ -40,7 +46,7 @@ func (l *SaveNoticeTemplateLogic) SaveNoticeTemplate(in *pb.NoticeTemplateSaveRe
 
 	if in.Id == 0 {
 		data := &model.NoticeTemplate{
-			Id:            nextID(),
+			Id:            idgen.NextID(),
 			Name:          in.Name,
 			Code:          in.Code,
 			Type:          int64(in.Type),
@@ -59,7 +65,7 @@ func (l *SaveNoticeTemplateLogic) SaveNoticeTemplate(in *pb.NoticeTemplateSaveRe
 
 	old, err := l.svcCtx.NoticeTemplateModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("通知模板不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询通知模板失败")

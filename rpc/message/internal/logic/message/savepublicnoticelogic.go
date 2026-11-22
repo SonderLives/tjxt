@@ -2,11 +2,14 @@ package messagelogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
+	"tjxt/pkg/timex"
 	"tjxt/rpc/message/internal/model"
 	"tjxt/rpc/message/internal/svc"
 	"tjxt/rpc/message/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,11 +33,11 @@ func (l *SavePublicNoticeLogic) SavePublicNotice(in *pb.PublicNoticeSaveReq) (*p
 	if in.Title == "" || in.Content == "" {
 		return nil, errorx.BadRequestf("公告标题/内容不能为空")
 	}
-	pushTime, err := parseDateTime(in.PushTime)
+	pushTime, err := timex.ParseNullTime(in.PushTime)
 	if err != nil {
 		return nil, errorx.BadRequestf("pushTime 必填且格式非法")
 	}
-	expireTime, err := parseDateTime(in.ExpireTime)
+	expireTime, err := timex.ParseNullTime(in.ExpireTime)
 	if err != nil {
 		return nil, errorx.BadRequestf("expireTime 必填且格式非法")
 	}
@@ -44,7 +47,7 @@ func (l *SavePublicNoticeLogic) SavePublicNotice(in *pb.PublicNoticeSaveReq) (*p
 
 	if in.Id == 0 {
 		data := &model.PublicNotice{
-			Id:         nextID(),
+			Id:         idgen.NextID(),
 			Title:      in.Title,
 			Content:    in.Content,
 			Type:       int64(in.Type),
@@ -59,7 +62,7 @@ func (l *SavePublicNoticeLogic) SavePublicNotice(in *pb.PublicNoticeSaveReq) (*p
 
 	old, err := l.svcCtx.PublicNoticeModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("公告不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询公告失败")

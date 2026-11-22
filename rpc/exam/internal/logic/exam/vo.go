@@ -2,64 +2,12 @@ package examlogic
 
 import (
 	"context"
-	"database/sql"
-	"strconv"
-	"time"
+	"errors"
 
+	"tjxt/pkg/timex"
 	"tjxt/rpc/exam/internal/model"
 	"tjxt/rpc/exam/pb"
-
-	"google.golang.org/grpc/metadata"
 )
-
-// 题目类型
-const (
-	QuestionTypeSingle     = 1 // 单选题
-	QuestionTypeMultiple   = 2 // 多选题
-	QuestionTypeUncertain  = 3 // 不定向选择题
-	QuestionTypeJudge      = 4 // 判断题
-	QuestionTypeSubjective = 5 // 主观题
-)
-
-// 难易度
-const (
-	QuestionDifficultyEasy   = 1 // 简单
-	QuestionDifficultyMedium = 2 // 中等
-	QuestionDifficultyHard   = 3 // 困难
-)
-
-// metadataKeyUserID 上游 API 通过 gRPC metadata 透传的当前登录用户 id
-const metadataKeyUserID = "user_id"
-
-// isNotFound 判断错误是否是数据不存在
-func isNotFound(err error) bool {
-	return err == sql.ErrNoRows || err == model.ErrNotFound
-}
-
-// userIdFromCtx 从 gRPC 入站 metadata 中读取上游透传的登录用户 id
-func userIdFromCtx(ctx context.Context) int64 {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return 0
-	}
-	vals := md.Get(metadataKeyUserID)
-	if len(vals) == 0 {
-		return 0
-	}
-	id, err := strconv.ParseInt(vals[0], 10, 64)
-	if err != nil {
-		return 0
-	}
-	return id
-}
-
-// formatTime 时间统一格式化为 yyyy-MM-dd HH:mm:ss
-func formatTime(t time.Time) string {
-	if t.IsZero() {
-		return ""
-	}
-	return t.Format("2006-01-02 15:04:05")
-}
 
 // toQuestionVO 组装题目完整 VO（含详情）
 func toQuestionVO(q *model.Question, d *model.QuestionDetail) *pb.QuestionVO {
@@ -74,7 +22,7 @@ func toQuestionVO(q *model.Question, d *model.QuestionDetail) *pb.QuestionVO {
 		AnswerTimes:  int32(q.AnswerTimes),
 		CorrectTimes: int32(q.CorrectTimes),
 		Score:        int32(q.Score),
-		CreateTime:   formatTime(q.CreateTime),
+		CreateTime:   timex.Format(q.CreateTime),
 	}
 	if d != nil {
 		vo.Options = d.Options.String
@@ -88,7 +36,7 @@ func toQuestionVO(q *model.Question, d *model.QuestionDetail) *pb.QuestionVO {
 func loadDetail(ctx context.Context, detailModel model.QuestionDetailModel, id int64) (*model.QuestionDetail, error) {
 	d, err := detailModel.FindOne(ctx, id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, nil
 		}
 		return nil, err

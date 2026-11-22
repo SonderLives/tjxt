@@ -2,10 +2,12 @@ package examlogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/rpc/exam/internal/model"
 	"tjxt/rpc/exam/internal/svc"
 	"tjxt/rpc/exam/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +33,7 @@ func (l *GetQuestionLogic) GetQuestion(in *pb.IdReq) (*pb.QuestionVO, error) {
 
 	q, err := l.svcCtx.QuestionModel.FindOne(l.ctx, in.Id)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("题目不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询题目失败")
