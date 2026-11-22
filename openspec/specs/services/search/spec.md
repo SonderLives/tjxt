@@ -4,6 +4,8 @@
 
 search（搜索推荐）定位为全文检索与课程推荐微服务（RPC 服务名 `Search`），但截至当前提交实际落地的职责仅为用户兴趣标签的存取。API 层 `search-api`（HTTP :8810）的 2 个 /interests 接口全部转发至自身 RPC `search.rpc`（gRPC :8090，etcd 服务发现 key `search.rpc`），proto 仅定义 `SaveInterests` / `GetInterests` 2 个兴趣方法。数据落在 MySQL `tj_search` 库的单表 `interests`（Redis 做主键缓存），未接入 Elasticsearch——全仓无 ES 依赖与配置，检索/推荐主职责（含 openapi 规划的 `GET /interests/{id}/courses` 课程 TOP10）均未落地，course → search 索引同步事件在 mq-events 中亦未定义。
 
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/search`，`search.rpc` :8090）已删除，RPC 层业务实现随迁 `api/search/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `api/search/search.proto`，pb 类型由 `make pb`（buf generate）再生成到 `api/search/backend/pb/`。**MQ 消费者归属 app/mq**：原挂在 RPC 进程内的 course.up/down ES 同步消费者已独立为 `app/mq/search-mq`（metrics :9110，复用 `api/search/backend/svc`，消费 `course.up/down` 写/删 ES 索引，启动时全量重建兜底）——search 现已接入 Elasticsearch（docker-compose 内置 ES 9.4.1），下文「未接入 ES / 无 MQ」的段落为折叠前形态记录。
+
 ## Requirements
 
 ### Requirement: HTTP API 兴趣域接口

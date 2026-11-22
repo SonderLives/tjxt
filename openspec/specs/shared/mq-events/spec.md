@@ -4,7 +4,33 @@
 
 定义跨服务 RabbitMQ 事件总线的拓扑、事件清单、结构体规范与消费约定（`pkg/mq`、`pkg/mq/event/`）。事件用于订单支付、消息发送、积分变更等异步解耦场景。
 
+**订阅方进程（RPC 折叠后）**：原挂在 rpc/search、rpc/trade 进程内的 MQ 消费者已独立为 `app/mq/search-mq`（消费 `course.up/down` 同步 ES 索引）与 `app/mq/trade-mq`（消费 `pay.success` 回写订单、发布 `order.pay`/`order.refund`）两个后台消费者进程；learning/promotion 等 5 个保留 RPC 服务的消费者仍在各自 rpc 进程内。
+
 ## Requirements
+
+### Requirement: 已接线事件流与订阅方进程
+
+当前实际接线的事件 SHALL 按下表发布与消费（订阅方进程名为折叠后的最终形态）：
+
+| 交换机 | RoutingKey | 发布方 | 订阅方（队列） | 说明 |
+|--------|------------|--------|----------------|------|
+| `course.events` | `course.up` | course.rpc 课程上架 | app/mq/search-mq（`search.course.up`） | 写/更新 ES 课程索引 |
+| `course.events` | `course.down` | course.rpc 课程下架 | app/mq/search-mq（`search.course.down`） | 删 ES 课程索引 |
+| `pay.exchange` | `pay.success` | pay.rpc 支付成功回调 | app/mq/trade-mq（`trade.order.paid`） | 条件更新订单为已支付（幂等） |
+| `order.exchange` | `order.pay` | app/mq/trade-mq（订单置为已支付后发布） | rpc/learning（`learning.lesson.pay.queue`） | 为用户加课 |
+| `order.exchange` | `order.refund` | api/trade backend（退款审批通过） | rpc/learning（`learning.lesson.refund.queue`） | 撤销课程 |
+
+#### Scenario: 课程上下架同步索引
+
+- **WHEN** course.rpc 发布 `course.up` / `course.down`
+- **THEN** app/mq/search-mq 消费事件并写/删 Elasticsearch 课程索引
+- **AND** search-mq 启动时后台做一次全量重建兜底索引一致性
+
+#### Scenario: 支付成功回写订单
+
+- **WHEN** pay.rpc 发布 `pay.success`
+- **THEN** app/mq/trade-mq 消费该事件，条件更新订单为已支付（幂等）
+- **AND** 回写成功后 trade-mq 发布 `order.pay`，由 learning.rpc 消费为用户加课
 
 ### Requirement: 事件总线命名约定
 

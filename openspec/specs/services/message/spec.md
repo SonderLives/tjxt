@@ -4,6 +4,8 @@
 
 message（消息通知）是站内信与通知微服务（gRPC 服务名 `Message`，etcd key `message.rpc`，监听 `0.0.0.0:8087`），管理通知模板、通知任务、第三方短信模板与短信平台、用户收件箱（站内信）、全站公告五类实体。API 层 `message-api`（HTTP :8807）为纯转发层，18 个接口全部转发到自身 RPC（19 个方法，`SendNotice` 仅暴露为 RPC）；数据落在 MySQL `tj_message` 库的 7 张表（无数据库外键），Redis 缓存主键查询，etcd（`127.0.0.1:2379`）服务注册与发现。当前除自身 API 层外无其它服务消费 `message.rpc`——架构文档所述 pay/trade/learning/promotion → message 的通知链路在代码中尚无实现（见「RPC 服务契约与服务发现」）。
 
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/message`，`message.rpc` :8087）已删除，RPC 层业务实现随迁 `api/message/backend`（config/logic/model/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `api/message/message.proto`，pb 类型由 `make pb`（buf generate）再生成到 `api/message/backend/pb/`。下文涉及「RPC 服务 / rpc/message 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
+
 ## Requirements
 
 ### Requirement: HTTP API 用户收件箱接口

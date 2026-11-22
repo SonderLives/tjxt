@@ -146,7 +146,7 @@ import (
 )
 
 import (
-    "tjxt/rpc/auth/auth"   // RPC client
+    "tjxt/rpc/user/user"   // RPC client（示例用保留 RPC 服务；折叠服务的 client 已随折叠移除）
     "tjxt/pkg/response"
     "tjxt/pkg/errorx"
 )

@@ -4,6 +4,8 @@
 
 data（统计大屏）微服务面向运营统计大屏提供三组展示数据的读写能力：看板图表数据（ECharts 结构）、今日实时指标（访问量 / 订单金额 / 订单数 / 新增学员数）与 Top10 课程榜单（热门榜 / 热销榜）。HTTP 服务 `data-api` 监听 8811，RPC 服务 `data.rpc` 监听 `0.0.0.0:8091`（gRPC），经 etcd（`127.0.0.1:2379`，key `data.rpc`）注册与发现。本服务无独立数据库：无 MySQL、无 Redis、无 model 层，目标存储为 Redis（设计意图，推导，当前未落地）；与其他服务的关系上，代码中仅有 data-api 自身消费 `data.rpc`（6 个 HTTP 接口与 6 个 RPC 方法一一对应转发），无任何上游 RPC 调用或 MQ 消费者——上游统计来源（trade 域订单统计、user 域新增学员、网关访问量统计）按设计意图经离线任务 / MQ 回填 `Set*` 系列 RPC，wiki 拓扑标注的 `data-rpc --> AuthRPC` 依赖在代码中不存在。12 个 logic（RPC 6 + API 6）按 business-rules v1.2 复核均已实现并编译通过。
 
+> **RPC 折叠（最终态）**：本服务的 RPC 进程壳（`rpc/data`，`data.rpc` :8091）已删除，RPC 层业务实现（含 Redis 看板/榜单读写）随迁 `api/data/backend`（config/logic/pb/svc），API 层 logic 进程内直调 backend，不再经 etcd 注册/发现自身 RPC。pb 契约保留在 `api/data/data.proto`，pb 类型由 `make pb`（buf generate）再生成到 `api/data/backend/pb/`。下文涉及「RPC 服务 / rpc/data 进程 / etcd 注册」的段落为折叠前形态记录，端口与 etcd key 已不存在，契约内容（方法与消息）仍然有效。
+
 ## Requirements
 
 ### Requirement: HTTP 看板数据接口（ECharts）
