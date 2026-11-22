@@ -32,11 +32,24 @@ MQ_SERVICES := trade-mq search-mq
 # 服务名（用于二进制文件命名、run 目标解析）
 SERVICES := auth course data exam learning media message pay promotion remark search trade user
 
+# ---------- 数据库迁移（pressly/goose） ----------
+# 12 个业务库一个目录一个库：sql/migrations/<db>/（00001_schema.sql + 00002_seed.sql）。
+# thirdparty/（gogs/nacos/seata/xxl_job）不归 goose 管理；业务库需先建库（sql/bootstrap.sql
+# 或 docker-up 首次启动自动建库），再执行 make migrate-up。
+MIGRATE_DBS := auth course learning exam media message pay promotion remark search trade user
+MIGRATE_HOST ?= 127.0.0.1:3306
+MIGRATE_USER ?= root
+MIGRATE_PASS ?= $(if $(TJXT_DB_PASS),$(TJXT_DB_PASS),0000)
+MIGRATE_DSN  := $(MIGRATE_USER):$(MIGRATE_PASS)@tcp($(MIGRATE_HOST))
+# migrate-down 单次步数（goose down 本身无步数参数，recipe 内按单步循环 N 次）
+MIGRATE_STEPS ?= 1
+
 # 保留 RPC 服务名（用于 run-*-rpc / run-all-rpc）
 RPC_SERVICES := user course learning pay promotion
 
 .PHONY: help init generate api rpc pb model check-gen build test fmt lint ci clean \
         docker-up docker-down docker-logs verify sync tidy \
+        migrate-up migrate-down migrate-status \
         buf-lint buf-breaking \
         run-all $(SERVICES:%=run-%) $(RPC_SERVICES:%=run-%-rpc) $(MQ_SERVICES:%=run-%)
 
@@ -85,9 +98,25 @@ rpc: ## 根据 .proto 重新生成 pb/server/client/logic（5 个保留 RPC 服�
 pb: ## buf generate 折叠服务的 pb 类型（app/<svc>/api/backend/pb）
 	@powershell -NoProfile -Command "@('$(FOLDED_SVCS)') -split ' ' | ForEach-Object { Write-Host ('  pb   -> app/{0}/api' -f $$_); Push-Location ('app/{0}/api' -f $$_); & buf generate --template ../../../buf.gen.yaml; $$code=$$LASTEXITCODE; Pop-Location; if ($$code -ne 0) { exit 1 } }"
 
-# 从 DDL 生成 model（--cache 走 Redis）
-model: ## 根据 sql/ddl/*.sql 生成 model（输出到 ./model/<db>/）
-	@powershell -NoProfile -Command "Get-ChildItem sql/ddl/*.sql | ForEach-Object { $$db = $$_.BaseName -replace '^tj_',''; Write-Host ('  model -> model/{0}  from {1}' -f $$db, $$_.Name); & $(GOCTL) model mysql ddl -src $$_.FullName -dir ('./model/{0}' -f $$db) -c -style gozero; if ($$LASTEXITCODE -ne 0) { exit 1 } }"
+# 从迁移 schema 生成 model（--cache 走 Redis）。
+# 生成源为 sql/migrations/<db>/00001_schema.sql（与真实库表集合一致）；三张表 goctl 1.10.1
+# 无法解析——exam/trade 的 undo_log（无主键，Seata AT 基础表，无对应 model）与 message 的
+# notice_task_target（复合主键）——生成前把对应 CREATE TABLE 块剥除到临时文件再生成
+# （等价原 ddl/tj_exam_business.sql、tj_message_model.sql 变体文件的作用，两者已随 sql/ddl/ 退役）。
+model: ## 根据 sql/migrations/<db>/00001_schema.sql 生成 model（输出到 ./model/<db>/；exam/trade/message 自动剥除 goctl 不解析的表）
+	@powershell -NoProfile -Command "$$exclude = @{ exam = 'undo_log'; trade = 'undo_log'; message = 'notice_task_target' }; \
+	  Get-ChildItem sql/migrations/*/00001_schema.sql | ForEach-Object { \
+	    $$db = Split-Path (Split-Path $$_.FullName -Parent) -Leaf; $$src = $$_.FullName; \
+	    if ($$exclude.ContainsKey($$db)) { \
+	      $$tbl = $$exclude[$$db]; $$out = New-Object 'System.Collections.Generic.List[string]'; $$skip = $$false; \
+	      foreach ($$l in [System.IO.File]::ReadAllLines($$src)) { \
+	        if ($$skip) { if ($$l -match '^\)') { $$skip = $$false } else { continue } } \
+	        elseif ($$l -match ('^\s*CREATE\s+TABLE\s+[\x60]?' + $$tbl + '[\x60]?\s*\(')) { $$skip = $$true } \
+	        else { $$out.Add($$l) } }; \
+	      $$src = Join-Path $$env:TEMP ('goose_model_' + $$db + '.sql'); \
+	      [System.IO.File]::WriteAllLines($$src, $$out) }; \
+	    Write-Host ('  model -> model/{0}  from {1}' -f $$db, $$src); \
+	    & $(GOCTL) model mysql ddl -src $$src -dir ('./model/{0}' -f $$db) -c -style gozero; if ($$LASTEXITCODE -ne 0) { exit 1 } }"
 
 generate: api rpc pb ## 一键重新生成 api + rpc + pb
 
@@ -144,6 +173,32 @@ docker-down: ## 停止并移除容器
 
 docker-logs: ## 跟踪依赖容器日志
 	docker compose logs -f
+
+# ---------- 数据库迁移（goose） ----------
+# 循环 12 个业务库执行 goose；第三方基建库（gogs/nacos/seata/xxl_job）不在其列，
+# 由 sql/thirdparty/ 脚本在 docker 首次启动时初始化。业务库不存在时先执行
+# sql/bootstrap.sql（docker 首次启动已自动执行）再 migrate-up。
+# 口令默认 0000，可用环境变量 TJXT_DB_PASS 覆盖：make migrate-up TJXT_DB_PASS=xxx。
+
+migrate-up: ## goose up 全部 12 个业务库（sql/migrations/<db>/：schema + seed）
+	@powershell -NoProfile -Command "if (-not (Get-Command goose -ErrorAction SilentlyContinue)) { Write-Host 'goose 未安装：go install github.com/pressly/goose/v3/cmd/goose@latest' -ForegroundColor Red; exit 1 }; \
+	  $$dsn = '$(MIGRATE_DSN)'; \
+	  @('$(MIGRATE_DBS)') -split ' ' | ForEach-Object { Write-Host ('  goose up  -> tj_{0}' -f $$_); & goose -dir ('sql/migrations/{0}' -f $$_) mysql ($$dsn + '/tj_' + $$_) up; if ($$LASTEXITCODE -ne 0) { exit 1 } }; \
+	  Write-Host 'migrate up ok' -ForegroundColor Green"
+
+migrate-down: ## goose down 每库回退 MIGRATE_STEPS 步（默认 1，goose down 即单步语义）
+	@powershell -NoProfile -Command "if (-not (Get-Command goose -ErrorAction SilentlyContinue)) { Write-Host 'goose 未安装：go install github.com/pressly/goose/v3/cmd/goose@latest' -ForegroundColor Red; exit 1 }; \
+	  $$dsn = '$(MIGRATE_DSN)'; $$s = '$(MIGRATE_STEPS)'.Trim(); if (-not $$s) { $$s = '1' }; $$steps = [Math]::Max(1, [int]$$s); \
+	  @('$(MIGRATE_DBS)') -split ' ' | ForEach-Object { \
+	    $$db = $$_; Write-Host ('  goose down -> tj_{0} x{1}' -f $$db, $$steps); \
+	    1..$$steps | ForEach-Object { & goose -dir ('sql/migrations/{0}' -f $$db) mysql ($$dsn + '/tj_' + $$db) down; if ($$LASTEXITCODE -ne 0) { exit 1 } } }; \
+	  Write-Host 'migrate down ok' -ForegroundColor Green"
+
+migrate-status: ## goose status 全部 12 个业务库
+	@powershell -NoProfile -Command "if (-not (Get-Command goose -ErrorAction SilentlyContinue)) { Write-Host 'goose 未安装：go install github.com/pressly/goose/v3/cmd/goose@latest' -ForegroundColor Red; exit 1 }; \
+	  $$dsn = '$(MIGRATE_DSN)'; \
+	  @('$(MIGRATE_DBS)') -split ' ' | ForEach-Object { Write-Host ('  goose status -> tj_{0}' -f $$_); & goose -dir ('sql/migrations/{0}' -f $$_) mysql ($$dsn + '/tj_' + $$_) status; if ($$LASTEXITCODE -ne 0) { exit 1 } }; \
+	  Write-Host 'migrate status ok' -ForegroundColor Green"
 
 # ---------- 校验 ----------
 
