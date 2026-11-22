@@ -50,7 +50,7 @@ func (l *GetBoardDataLogic) GetBoardData(in *pb.BoardDataReq) (*pb.EchartsVO, er
 }
 
 func (l *GetBoardDataLogic) readBoardData(t int) ([]float64, error) {
-	val, err := l.svcCtx.Rds.GetCtx(l.ctx, fmt.Sprintf("data:board:%d", t))
+	val, err := l.svcCtx.Rds.GetCtx(l.ctx, fmt.Sprintf(boardKeyFormat, t))
 	if err != nil {
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "读取看板数据失败")
 	}

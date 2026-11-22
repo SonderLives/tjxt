@@ -2,13 +2,15 @@ package paylogic
 
 import (
 	"context"
+	"errors"
 	"time"
 
-	"tjxt/rpc/pay/internal/svc"
-	"tjxt/rpc/pay/pb"
+	"tjxt/pkg/errorx"
 	"tjxt/pkg/mq"
 	"tjxt/pkg/mq/event"
-	"tjxt/pkg/errorx"
+	"tjxt/rpc/pay/internal/model"
+	"tjxt/rpc/pay/internal/svc"
+	"tjxt/rpc/pay/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -33,7 +35,7 @@ func (l *NotifyPaySuccessLogic) NotifyPaySuccess(in *pb.NotifyPaySuccessRequest)
 	}
 	m, err := l.svcCtx.PayOrderModel.FindOneByPayOrderNo(l.ctx, in.PayOrderNo)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("支付单不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询支付单失败")

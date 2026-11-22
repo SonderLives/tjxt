@@ -41,7 +41,7 @@ func (l *SetTop10DataLogic) SetTop10Data(in *pb.Top10DataSetReq) (*pb.OkReply, e
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "写入榜单数据失败")
 	}
 	// version 预留,用于未来多版本原子切换;读侧不参与逻辑,仅旁路落盘保留
-	if err := l.svcCtx.Rds.SetCtx(l.ctx, top10DataKey+":version", strconv.Itoa(int(in.Version))); err != nil {
+	if err := l.svcCtx.Rds.SetCtx(l.ctx, top10DataKey+versionKeySuffix, strconv.Itoa(int(in.Version))); err != nil {
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "写入榜单版本失败")
 	}
 	return &pb.OkReply{Success: true}, nil

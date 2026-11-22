@@ -4,11 +4,12 @@ import (
 	"context"
 	"time"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/page"
+	"tjxt/pkg/timex"
 	"tjxt/rpc/promotion/internal/model"
 	"tjxt/rpc/promotion/internal/svc"
 	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/page"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -73,7 +74,7 @@ func (l *UserCouponPageLogic) UserCouponPage(in *pb.UserCouponPageRequest) (*pb.
 		vo := toCouponVO(c, uc.Status == model.UserCouponStatusUnused, true)
 		// 我的券展示实际到期时间，而非券模板上的有效期
 		if uc.ExpireTime.Valid {
-			vo.TermEndTime = formatNullTime(uc.ExpireTime)
+			vo.TermEndTime = timex.FormatNullTime(uc.ExpireTime)
 			if now.After(uc.ExpireTime.Time) {
 				vo.Available = false
 			}

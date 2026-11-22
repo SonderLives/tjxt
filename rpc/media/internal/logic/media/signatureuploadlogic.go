@@ -2,13 +2,12 @@ package medialogic
 
 import (
 	"context"
-	"time"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 	"tjxt/rpc/media/internal/model"
 	"tjxt/rpc/media/internal/svc"
 	"tjxt/rpc/media/pb"
-	"tjxt/pkg/idgen"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -53,7 +52,7 @@ func (l *SignatureUploadLogic) SignatureUpload(in *pb.SignatureRequest) (*pb.Sig
 	token := ""
 	uploadURL := mockUploadURL(key)
 	if st := l.svcCtx.Store; st != nil {
-		u, err := st.PresignUpload(l.ctx, key, 30*time.Minute)
+		u, err := st.PresignUpload(l.ctx, key, PresignUploadTTL)
 		if err != nil {
 			return nil, errorx.Wrapf(err, errorx.CodeInternal, "生成上传签名失败")
 		}

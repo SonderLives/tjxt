@@ -2,13 +2,14 @@ package promotionlogic
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
+	"tjxt/pkg/errorx"
 	"tjxt/rpc/promotion/internal/model"
 	"tjxt/rpc/promotion/internal/svc"
 	"tjxt/rpc/promotion/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -41,7 +42,7 @@ func (l *UserCouponExchangeLogic) UserCouponExchange(in *pb.ExchangeRequest) (*p
 	// 1. 校验兑换码
 	cc, err := l.svcCtx.CouponCodeModel.FindOneByCode(l.ctx, code)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("兑换码不存在")
 		}
 		l.Errorf("find coupon code failed, code=%s, err=%v", code, err)
@@ -62,7 +63,7 @@ func (l *UserCouponExchangeLogic) UserCouponExchange(in *pb.ExchangeRequest) (*p
 	// 2. 校验优惠券
 	coupon, err := l.svcCtx.CouponModel.FindOne(l.ctx, cc.CouponId)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("优惠券不存在")
 		}
 		l.Errorf("find coupon failed, id=%d, err=%v", cc.CouponId, err)

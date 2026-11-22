@@ -3,13 +3,15 @@ package paylogic
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 	"tjxt/rpc/pay/internal/gateway"
 	"tjxt/rpc/pay/internal/model"
 	"tjxt/rpc/pay/internal/svc"
 	"tjxt/rpc/pay/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -42,7 +44,7 @@ func (l *ApplyPayOrderLogic) ApplyPayOrder(in *pb.ApplyPayOrderRequest) (*pb.App
 	// 渠道校验
 	channel, err := l.svcCtx.PayChannelModel.FindByCode(l.ctx, in.PayChannelCode)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("支付渠道不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询支付渠道失败")
@@ -63,14 +65,14 @@ func (l *ApplyPayOrderLogic) ApplyPayOrder(in *pb.ApplyPayOrderRequest) (*pb.App
 			return nil, errorx.Conflict("订单已关闭，请重新下单")
 		}
 	}
-	if !isNotFound(err) {
+	if !errors.Is(err, model.ErrNotFound) {
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询已有支付单失败")
 	}
 
-	// 默认 30 分钟超时
+	// 默认 30 分钟支付有效期，调用方可通过 PayOverSeconds 覆盖
 	overSeconds := in.PayOverSeconds
 	if overSeconds <= 0 {
-		overSeconds = 30 * 60
+		overSeconds = int64(PayOrderTimeout / time.Second)
 	}
 	payOverTime := time.Now().Add(time.Duration(overSeconds) * time.Second)
 	payType := in.PayType
@@ -78,7 +80,7 @@ func (l *ApplyPayOrderLogic) ApplyPayOrder(in *pb.ApplyPayOrderRequest) (*pb.App
 		payType = PayTypeNative
 	}
 
-	poNo := nextID()
+	poNo := idgen.NextID()
 	// 渠道下单（mock 渠道返回本地可识别二维码；真实渠道在此调用微信/支付宝下单接口）
 	gp, err := l.svcCtx.Gateway.CreatePayment(l.ctx, gateway.CreatePaymentRequest{
 		PayOrderNo:  poNo,

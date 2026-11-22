@@ -2,12 +2,14 @@ package paylogic
 
 import (
 	"context"
+	"errors"
 
+	"tjxt/pkg/errorx"
+	"tjxt/pkg/idgen"
 	"tjxt/rpc/pay/internal/gateway"
 	"tjxt/rpc/pay/internal/model"
 	"tjxt/rpc/pay/internal/svc"
 	"tjxt/rpc/pay/pb"
-	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -37,14 +39,14 @@ func (l *ApplyRefundLogic) ApplyRefund(in *pb.ApplyRefundRequest) (*pb.RefundRes
 			Status:           int32(existing.Status),
 			ResultMsg:        existing.ResultMsg,
 		}, nil
-	} else if !isNotFound(err) {
+	} else if !errors.Is(err, model.ErrNotFound) {
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询已有退款单失败")
 	}
 
 	// 校验原支付单已成功
 	payOrder, err := l.svcCtx.PayOrderModel.FindOneByBizOrderNo(l.ctx, in.BizOrderNo)
 	if err != nil {
-		if isNotFound(err) {
+		if errors.Is(err, model.ErrNotFound) {
 			return nil, errorx.NotFound("原支付单不存在")
 		}
 		return nil, errorx.Wrapf(err, errorx.CodeInternal, "查询原支付单失败")
@@ -70,7 +72,7 @@ func (l *ApplyRefundLogic) ApplyRefund(in *pb.ApplyRefundRequest) (*pb.RefundRes
 		return nil, errorx.BadRequestf("累计退款金额超过原支付金额")
 	}
 
-	roNo := nextID()
+	roNo := idgen.NextID()
 	ro := &model.RefundOrder{
 		BizOrderNo:       in.BizOrderNo,
 		BizRefundOrderNo: in.BizRefundOrderNo,
