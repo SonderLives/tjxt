@@ -6,9 +6,10 @@ package role
 import (
 	"context"
 
+	backendlogic "tjxt/api/auth/backend/logic"
+	authpb "tjxt/api/auth/backend/pb"
 	"tjxt/api/auth/internal/svc"
 	"tjxt/api/auth/internal/types"
-	authclient "tjxt/rpc/auth/client/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +30,7 @@ func NewGetRoleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetRoleLo
 
 // GetRole 查询单个角色详情。
 func (l *GetRoleLogic) GetRole(req *types.IdPathReq) (resp *types.RoleVO, err error) {
-	reply, err := l.svcCtx.AuthRpc.GetRole(l.ctx, &authclient.IdReq{Id: req.Id})
+	reply, err := backendlogic.NewGetRoleLogic(l.ctx, l.svcCtx.Backend).GetRole(&authpb.IdReq{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}

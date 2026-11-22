@@ -4,12 +4,13 @@ go 1.26.2
 
 require (
 	github.com/zeromicro/go-zero v1.10.3
-	tjxt/rpc/auth v0.0.0-00010101000000-000000000000
-	tjxt/rpc/user v0.0.0-00010101000000-000000000000
+	google.golang.org/protobuf v1.36.11
 	tjxt/pkg v0.0.0-00010101000000-000000000000
+	tjxt/rpc/user v0.0.0-00010101000000-000000000000
 )
 
 require (
+	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -24,6 +25,7 @@ require (
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
+	github.com/go-sql-driver/mysql v1.10.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
@@ -84,7 +86,6 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20260720211330-0afa2a65878a // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260720211330-0afa2a65878a // indirect
 	google.golang.org/grpc v1.83.2 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -102,7 +103,6 @@ require (
 )
 
 replace (
-	tjxt/rpc/auth => ../../rpc/auth
-	tjxt/rpc/user => ../../rpc/user
 	tjxt/pkg => ../../pkg
+	tjxt/rpc/user => ../../rpc/user
 )

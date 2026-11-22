@@ -24,11 +24,21 @@ Auth:
   AccessSecret: "${TJXT_JWT_SECRET|change-me-in-production}"
   AccessExpire: 7200
 
-AuthRpc:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: auth.rpc
+# ===== auth 后端业务配置（随原 rpc/auth 配置合并）=====
+
+DataSource: root:${TJXT_DB_PASS|0000}@tcp(127.0.0.1:3306)/tj_auth?charset=utf8mb4&parseTime=true&loc=Local
+
+Cache:
+  - Host: 127.0.0.1:6379
+    Type: node
+    Pass: ""
+
+# 令牌签发密钥（backend SignToken 用；校验密钥见上方 Auth.AccessSecret）
+Jwt:
+  AccessSecret: "${TJXT_JWT_SECRET|change-me-in-production}"
+  AccessExpire: 7200
+  RefreshSecret: "${TJXT_REFRESH_SECRET|change-me-refresh-in-production}"
+  RefreshExpire: 604800
 
 UserRpc:
   Etcd:

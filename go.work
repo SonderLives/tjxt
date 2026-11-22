@@ -17,7 +17,6 @@ use (
 	./api/user
 	./app/mq/search-mq
 	./pkg
-	./rpc/auth
 	./rpc/course
 	./rpc/data
 	./rpc/exam

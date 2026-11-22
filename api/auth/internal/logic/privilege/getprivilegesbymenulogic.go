@@ -6,9 +6,10 @@ package privilege
 import (
 	"context"
 
+	backendlogic "tjxt/api/auth/backend/logic"
+	authpb "tjxt/api/auth/backend/pb"
 	"tjxt/api/auth/internal/svc"
 	"tjxt/api/auth/internal/types"
-	authclient "tjxt/rpc/auth/client/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +30,7 @@ func NewGetPrivilegesByMenuLogic(ctx context.Context, svcCtx *svc.ServiceContext
 
 // GetPrivilegesByMenu 查询某菜单下的全部权限。
 func (l *GetPrivilegesByMenuLogic) GetPrivilegesByMenu(req *types.IdPathReq) (resp *types.PrivilegeListVO, err error) {
-	reply, err := l.svcCtx.AuthRpc.GetPrivilegesByMenu(l.ctx, &authclient.IdReq{Id: req.Id})
+	reply, err := backendlogic.NewGetPrivilegesByMenuLogic(l.ctx, l.svcCtx.Backend).GetPrivilegesByMenu(&authpb.IdReq{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}

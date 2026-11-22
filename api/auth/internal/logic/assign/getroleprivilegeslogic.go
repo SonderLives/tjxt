@@ -6,9 +6,10 @@ package assign
 import (
 	"context"
 
+	backendlogic "tjxt/api/auth/backend/logic"
+	authpb "tjxt/api/auth/backend/pb"
 	"tjxt/api/auth/internal/svc"
 	"tjxt/api/auth/internal/types"
-	authclient "tjxt/rpc/auth/client/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +30,7 @@ func NewGetRolePrivilegesLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 
 // GetRolePrivileges 查询角色已分配的权限 id 列表。
 func (l *GetRolePrivilegesLogic) GetRolePrivileges(req *types.IdPathReq) (resp *types.IdListVO, err error) {
-	reply, err := l.svcCtx.AuthRpc.GetRolePrivileges(l.ctx, &authclient.IdReq{Id: req.Id})
+	reply, err := backendlogic.NewGetRolePrivilegesLogic(l.ctx, l.svcCtx.Backend).GetRolePrivileges(&authpb.IdReq{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}

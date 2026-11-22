@@ -6,9 +6,10 @@ package role
 import (
 	"context"
 
+	backendlogic "tjxt/api/auth/backend/logic"
+	authpb "tjxt/api/auth/backend/pb"
 	"tjxt/api/auth/internal/svc"
 	"tjxt/api/auth/internal/types"
-	authclient "tjxt/rpc/auth/client/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +30,7 @@ func NewListRolesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListRol
 
 // ListRoles 分页查询角色列表。
 func (l *ListRolesLogic) ListRoles(req *types.RoleListReq) (resp *types.RoleListVO, err error) {
-	reply, err := l.svcCtx.AuthRpc.ListRoles(l.ctx, &authclient.PageReq{
+	reply, err := backendlogic.NewListRolesLogic(l.ctx, l.svcCtx.Backend).ListRoles(&authpb.PageReq{
 		PageNo:   int32(req.PageNo),
 		PageSize: int32(req.PageSize),
 	})

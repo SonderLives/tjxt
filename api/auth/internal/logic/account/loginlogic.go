@@ -3,9 +3,10 @@ package account
 import (
 	"context"
 
-	authclient "tjxt/rpc/auth/client/auth"
-	userclient "tjxt/rpc/user/client/user"
+	backendlogic "tjxt/api/auth/backend/logic"
+	authpb "tjxt/api/auth/backend/pb"
 	authutil "tjxt/pkg/auth"
+	userclient "tjxt/rpc/user/client/user"
 
 	"tjxt/api/auth/internal/svc"
 	"tjxt/api/auth/internal/types"
@@ -41,7 +42,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginVO, err error)
 
 	// 通过 auth 库查账户角色；学员/老师若无 employee 账号，role 取 USER/STUDENT/TEACHER
 	roleCode := roleByType(verify.Type)
-	signed, err := l.svcCtx.AuthRpc.SignToken(l.ctx, &authclient.SignTokenReq{
+	signed, err := backendlogic.NewSignTokenLogic(l.ctx, l.svcCtx.Backend).SignToken(&authpb.SignTokenReq{
 		UserId:   verify.UserId,
 		RoleCode: roleCode,
 	})
@@ -57,9 +58,9 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginVO, err error)
 
 // user.Type 取值（tj_user.type），与 DDL 注释一致：1-员工, 2-普通学员, 3-老师。
 const (
-	userTypeStaff    int32 = 1
-	userTypeStudent  int32 = 2
-	userTypeTeacher  int32 = 3
+	userTypeStaff   int32 = 1
+	userTypeStudent int32 = 2
+	userTypeTeacher int32 = 3
 )
 
 // roleByType 按 user.Type 给一个初始角色；真实项目里应由 account_role 表驱动。

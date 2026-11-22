@@ -6,9 +6,10 @@ package account
 import (
 	"context"
 
+	backendlogic "tjxt/api/auth/backend/logic"
+	authpb "tjxt/api/auth/backend/pb"
 	"tjxt/api/auth/internal/svc"
 	"tjxt/api/auth/internal/types"
-	authclient "tjxt/rpc/auth/client/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +30,7 @@ func NewGetAccountRolesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 
 // GetAccountRoles 查询账户已分配的角色 id 列表。
 func (l *GetAccountRolesLogic) GetAccountRoles(req *types.IdPathReq) (resp *types.IdListVO, err error) {
-	reply, err := l.svcCtx.AuthRpc.GetAccountRoles(l.ctx, &authclient.IdReq{Id: req.Id})
+	reply, err := backendlogic.NewGetAccountRolesLogic(l.ctx, l.svcCtx.Backend).GetAccountRoles(&authpb.IdReq{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}

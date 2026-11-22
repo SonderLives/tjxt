@@ -6,9 +6,10 @@ package menu
 import (
 	"context"
 
+	backendlogic "tjxt/api/auth/backend/logic"
+	authpb "tjxt/api/auth/backend/pb"
 	"tjxt/api/auth/internal/svc"
 	"tjxt/api/auth/internal/types"
-	authclient "tjxt/rpc/auth/client/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +30,7 @@ func NewSaveMenuLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SaveMenu
 
 // SaveMenu 新增或修改菜单，返回菜单 id。
 func (l *SaveMenuLogic) SaveMenu(req *types.MenuSaveReq) (resp *types.IdVO, err error) {
-	reply, err := l.svcCtx.AuthRpc.SaveMenu(l.ctx, &authclient.MenuSaveReq{
+	reply, err := backendlogic.NewSaveMenuLogic(l.ctx, l.svcCtx.Backend).SaveMenu(&authpb.MenuSaveReq{
 		Id:       req.Id,
 		ParentId: req.ParentId,
 		Label:    req.Label,
