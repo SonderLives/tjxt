@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"tjxt/apps/promotion/rpc/internal/config"
-	"tjxt/apps/promotion/rpc/internal/server"
+	promotionserver "tjxt/apps/promotion/rpc/internal/server/promotion"
 	"tjxt/apps/promotion/rpc/internal/svc"
 	"tjxt/apps/promotion/rpc/pb"
 
@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		pb.RegisterPromotionServer(grpcServer, server.NewPromotionServer(ctx))
+		pb.RegisterPromotionServer(grpcServer, promotionserver.NewPromotionServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
