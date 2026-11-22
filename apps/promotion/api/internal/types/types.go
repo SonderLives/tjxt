@@ -5,8 +5,8 @@ package types
 
 type CouponCodePageReq struct {
 	PageRequest
-	CouponId int64  `form:"couponId,omitempty"`
-	Status   string `form:"status,omitempty"`
+	CouponId int64  `form:"couponId,optional"`
+	Status   string `form:"status,optional"`
 }
 
 type CouponCodePageResp struct {
@@ -24,15 +24,15 @@ type CouponDetailVO struct {
 	ThresholdAmount   int64           `json:"thresholdAmount"`
 	ObtainWay         string          `json:"obtainWay"`
 	Specific          bool            `json:"specific"`
-	Scopes            []CouponScopeVO `json:"scopes,omitempty"`
-	IssueBeginTime    string          `json:"issueBeginTime,omitempty"`
-	IssueEndTime      string          `json:"issueEndTime,omitempty"`
-	TermBeginTime     string          `json:"termBeginTime,omitempty"`
-	TermDays          int64           `json:"termDays,omitempty"`
-	TermEndTime       string          `json:"termEndTime,omitempty"`
+	Scopes            []CouponScopeVO `json:"scopes,optional"`
+	IssueBeginTime    string          `json:"issueBeginTime,optional"`
+	IssueEndTime      string          `json:"issueEndTime,optional"`
+	TermBeginTime     string          `json:"termBeginTime,optional"`
+	TermDays          int64           `json:"termDays,optional"`
+	TermEndTime       string          `json:"termEndTime,optional"`
 	TotalNum          int64           `json:"totalNum"`
 	UserLimit         int64           `json:"userLimit"`
-	Status            string          `json:"status,omitempty"`
+	Status            string          `json:"status,optional"`
 }
 
 type CouponDiscountListResp struct {
@@ -41,23 +41,23 @@ type CouponDiscountListResp struct {
 
 type CouponDiscountVO struct {
 	DiscountAmount int64            `json:"discountAmount"`
-	DiscountDetail map[string]int64 `json:"discountDetail,omitempty"`
-	Ids            []int64          `json:"ids,omitempty"`
-	Rules          []string         `json:"rules,omitempty"`
+	DiscountDetail map[string]int64 `json:"discountDetail,optional"`
+	Ids            []int64          `json:"ids,optional"`
+	Rules          []string         `json:"rules,optional"`
 }
 
 type CouponFormReq struct {
-	Id                int64   `json:"id,omitempty"`
+	Id                int64   `json:"id,optional"`
 	Name              string  `json:"name"`
 	DiscountType      string  `json:"discountType"`
 	DiscountValue     int64   `json:"discountValue"`
-	MaxDiscountAmount int64   `json:"maxDiscountAmount,omitempty"`
-	ThresholdAmount   int64   `json:"thresholdAmount,omitempty"`
+	MaxDiscountAmount int64   `json:"maxDiscountAmount,optional"`
+	ThresholdAmount   int64   `json:"thresholdAmount,optional"`
 	ObtainWay         string  `json:"obtainWay"`
-	Specific          bool    `json:"specific,omitempty"`
-	Scopes            []int64 `json:"scopes,omitempty"`
-	TotalNum          int64   `json:"totalNum,omitempty"`
-	UserLimit         int64   `json:"userLimit,omitempty"`
+	Specific          bool    `json:"specific,optional"`
+	Scopes            []int64 `json:"scopes,optional"`
+	TotalNum          int64   `json:"totalNum,optional"`
+	UserLimit         int64   `json:"userLimit,optional"`
 }
 
 type CouponIdReq struct {
@@ -66,16 +66,16 @@ type CouponIdReq struct {
 
 type CouponIdsReq struct {
 	CouponIds []int64 `form:"couponIds"`
-	OrderId   int64   `form:"orderId,omitempty"`
+	OrderId   int64   `form:"orderId,optional"`
 }
 
 type CouponIssueReq struct {
 	Id             int64  `path:"id"`
-	IssueBeginTime string `json:"issueBeginTime,omitempty"`
-	IssueEndTime   string `json:"issueEndTime,omitempty"`
-	TermBeginTime  string `json:"termBeginTime,omitempty"`
-	TermDays       int64  `json:"termDays,omitempty"`
-	TermEndTime    string `json:"termEndTime,omitempty"`
+	IssueBeginTime string `json:"issueBeginTime,optional"`
+	IssueEndTime   string `json:"issueEndTime,optional"`
+	TermBeginTime  string `json:"termBeginTime,optional"`
+	TermDays       int64  `json:"termDays,optional"`
+	TermEndTime    string `json:"termEndTime,optional"`
 }
 
 type CouponListResp struct {
@@ -84,9 +84,9 @@ type CouponListResp struct {
 
 type CouponPageReq struct {
 	PageRequest
-	Name   string `form:"name,omitempty"`
-	Status string `form:"status,omitempty"`
-	Type   string `form:"type,omitempty"`
+	Name   string `form:"name,optional"`
+	Status string `form:"status,optional"`
+	Type   string `form:"type,optional"`
 }
 
 type CouponPageResp struct {
@@ -108,12 +108,12 @@ type CouponPageVO struct {
 	IssueNum          int64  `json:"issueNum"`
 	UsedNum           int64  `json:"usedNum"`
 	Status            string `json:"status"`
-	TermDays          int64  `json:"termDays,omitempty"`
-	TermBeginTime     string `json:"termBeginTime,omitempty"`
-	TermEndTime       string `json:"termEndTime,omitempty"`
-	IssueBeginTime    string `json:"issueBeginTime,omitempty"`
-	IssueEndTime      string `json:"issueEndTime,omitempty"`
-	CreateTime        string `json:"createTime,omitempty"`
+	TermDays          int64  `json:"termDays,optional"`
+	TermBeginTime     string `json:"termBeginTime,optional"`
+	TermEndTime       string `json:"termEndTime,optional"`
+	IssueBeginTime    string `json:"issueBeginTime,optional"`
+	IssueEndTime      string `json:"issueEndTime,optional"`
+	CreateTime        string `json:"createTime,optional"`
 }
 
 type CouponReceiveReq struct {
@@ -133,10 +133,10 @@ type CouponVO struct {
 	MaxDiscountAmount int64  `json:"maxDiscountAmount"`
 	ThresholdAmount   int64  `json:"thresholdAmount"`
 	Specific          bool   `json:"specific"`
-	TermDays          int64  `json:"termDays,omitempty"`
-	TermEndTime       string `json:"termEndTime,omitempty"`
-	Available         bool   `json:"available,omitempty"`
-	Received          bool   `json:"received,omitempty"`
+	TermDays          int64  `json:"termDays,optional"`
+	TermEndTime       string `json:"termEndTime,optional"`
+	Available         bool   `json:"available,optional"`
+	Received          bool   `json:"received,optional"`
 }
 
 type ExchangeByCodeReq struct {
@@ -150,20 +150,20 @@ type ExchangeCodeVO struct {
 
 type OrderCouponReq struct {
 	CourseList    []OrderCourseItem `json:"courseList"`
-	UserCouponIds []int64           `json:"userCouponIds,omitempty"`
+	UserCouponIds []int64           `json:"userCouponIds,optional"`
 }
 
 type OrderCourseItem struct {
-	CateId int64 `json:"cateId,omitempty"`
+	CateId int64 `json:"cateId,optional"`
 	Id     int64 `json:"id"`
 	Price  int64 `json:"price"`
 }
 
 type PageRequest struct {
-	PageNo   int64  `form:"pageNo,omitempty"`
-	PageSize int64  `form:"pageSize,omitempty"`
-	IsAsc    bool   `form:"isAsc,omitempty"`
-	SortBy   string `form:"sortBy,omitempty"`
+	PageNo   int64  `form:"pageNo,optional"`
+	PageSize int64  `form:"pageSize,optional"`
+	IsAsc    bool   `form:"isAsc,optional"`
+	SortBy   string `form:"sortBy,optional"`
 }
 
 type RulesResp struct {
@@ -176,7 +176,7 @@ type UserCouponAvailableReq struct {
 
 type UserCouponPageReq struct {
 	PageRequest
-	Status string `form:"status,omitempty"`
+	Status string `form:"status,optional"`
 }
 
 type UserCouponPageResp struct {

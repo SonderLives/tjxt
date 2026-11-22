@@ -5,7 +5,7 @@ package types
 
 type AccountRoleReq struct {
 	Id        int64   `path:"id"`
-	AccountId int64   `json:"accountId,omitempty"`
+	AccountId int64   `json:"accountId,optional"`
 	RoleIds   []int64 `json:"roleIds"`
 }
 
@@ -22,9 +22,9 @@ type IdVO struct {
 }
 
 type LoginRecordListReq struct {
-	PageNo   int64 `form:"pageNo,omitempty"`
-	PageSize int64 `form:"pageSize,omitempty"`
-	UserId   int64 `form:"userId,omitempty"`
+	PageNo   int64 `form:"pageNo,optional"`
+	PageSize int64 `form:"pageSize,optional"`
+	UserId   int64 `form:"userId,optional"`
 }
 
 type LoginRecordListVO struct {
@@ -43,10 +43,10 @@ type LoginRecordVO struct {
 }
 
 type LoginReq struct {
-	CellPhone  string `json:"cellPhone,omitempty"` // 学员/老师手机号
-	Username   string `json:"username,omitempty"`  // 员工用户名
+	CellPhone  string `json:"cellPhone,optional"` // 学员/老师手机号
+	Username   string `json:"username,optional"`  // 员工用户名
 	Password   string `json:"password"`
-	RememberMe bool   `json:"rememberMe,omitempty"`
+	RememberMe bool   `json:"rememberMe,optional"`
 	Type       int32  `json:"type"` // 1-员工 2-学员 3-老师
 }
 
@@ -57,12 +57,12 @@ type LoginVO struct {
 }
 
 type MenuSaveReq struct {
-	Id       int64  `json:"id,omitempty"`
-	ParentId int64  `json:"parentId,omitempty"`
+	Id       int64  `json:"id,optional"`
+	ParentId int64  `json:"parentId,optional"`
 	Label    string `json:"label"`
-	Path     string `json:"path,omitempty"`
-	Icon     string `json:"icon,omitempty"`
-	Priority int32  `json:"priority,omitempty"`
+	Path     string `json:"path,optional"`
+	Icon     string `json:"icon,optional"`
+	Priority int32  `json:"priority,optional"`
 }
 
 type MenuTreeVO struct {
@@ -77,7 +77,7 @@ type MenuVO struct {
 	Path        string   `json:"path"`
 	Icon        string   `json:"icon"`
 	Priority    int32    `json:"priority"`
-	Children    []MenuVO `json:"children,omitempty"`
+	Children    []MenuVO `json:"children,optional"`
 }
 
 type OkVO struct {
@@ -89,12 +89,12 @@ type PrivilegeListVO struct {
 }
 
 type PrivilegeSaveReq struct {
-	Id       int64  `json:"id,omitempty"`
+	Id       int64  `json:"id,optional"`
 	MenuId   int64  `json:"menuId"`
 	Intro    string `json:"intro"`
 	Method   string `json:"method"`
 	Uri      string `json:"uri"`
-	Internal bool   `json:"internal,omitempty"`
+	Internal bool   `json:"internal,optional"`
 }
 
 type PrivilegeVO struct {
@@ -107,8 +107,8 @@ type PrivilegeVO struct {
 }
 
 type RoleListReq struct {
-	PageNo   int64 `form:"pageNo,omitempty"`
-	PageSize int64 `form:"pageSize,omitempty"`
+	PageNo   int64 `form:"pageNo,optional"`
+	PageSize int64 `form:"pageSize,optional"`
 }
 
 type RoleListVO struct {
@@ -118,18 +118,18 @@ type RoleListVO struct {
 
 type RoleMenuReq struct {
 	Id      int64   `path:"id"`
-	RoleId  int64   `json:"roleId,omitempty"`
+	RoleId  int64   `json:"roleId,optional"`
 	MenuIds []int64 `json:"menuIds"`
 }
 
 type RolePrivilegeReq struct {
 	Id           int64   `path:"id"`
-	RoleId       int64   `json:"roleId,omitempty"`
+	RoleId       int64   `json:"roleId,optional"`
 	PrivilegeIds []int64 `json:"privilegeIds"`
 }
 
 type RoleSaveReq struct {
-	Id   int64  `json:"id,omitempty"`
+	Id   int64  `json:"id,optional"`
 	Code string `json:"code"`
 	Name string `json:"name"`
 	Type int32  `json:"type"`
