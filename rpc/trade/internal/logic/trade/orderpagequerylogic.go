@@ -26,9 +26,9 @@ func NewOrderPageQueryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Or
 }
 
 func (l *OrderPageQueryLogic) OrderPageQuery(in *pb.OrderPageRequest) (*pb.OrderPageReply, error) {
-	userId, err := auth.UserIdFromCtx(l.ctx)
+	userId, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
-		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
+		return nil, err
 	}
 
 	orders, total, err := l.svcCtx.OrderModel.PageQueryByUser(l.ctx, userId, in.PageNo, in.PageSize, in.Status, in.NoNo, in.SortBy, in.IsAsc)

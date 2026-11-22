@@ -28,9 +28,9 @@ func NewCartListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CartList
 }
 
 func (l *CartListLogic) CartList(in *pb.Empty) (*pb.CartListReply, error) {
-	userId, err := auth.UserIdFromCtx(l.ctx)
+	userId, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
-		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
+		return nil, err
 	}
 
 	carts, err := l.svcCtx.CartModel.ListByUserId(l.ctx, userId)

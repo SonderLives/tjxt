@@ -28,8 +28,8 @@ func NewOrderCancelLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Order
 }
 
 func (l *OrderCancelLogic) OrderCancel(in *pb.IdRequest) (*pb.Empty, error) {
-	if _, err := auth.UserIdFromCtx(l.ctx); err != nil {
-		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
+	if _, err := auth.UserIdFromIncomingMD(l.ctx); err != nil {
+		return nil, err
 	}
 
 	if err := l.svcCtx.OrderModel.UpdateStatus(l.ctx, in.Id, OrderStatusClosed, "用户取消"); err != nil {

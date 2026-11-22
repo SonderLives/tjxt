@@ -29,9 +29,9 @@ func NewOrderPrePlaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ord
 
 // ===== 订单 =====
 func (l *OrderPrePlaceLogic) OrderPrePlace(in *pb.PrePlaceRequest) (*pb.OrderConfirmVO, error) {
-	userId, err := auth.UserIdFromCtx(l.ctx)
+	userId, err := auth.UserIdFromIncomingMD(l.ctx)
 	if err != nil {
-		return nil, errorx.New(errorx.CodeUnauthorized, "未登录")
+		return nil, err
 	}
 	if len(in.CourseIds) == 0 {
 		return nil, errorx.BadRequestf("课程ID不能为空")
