@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	courseclient "tjxt/rpc/course/client/course"
-	"tjxt/rpc/search/internal/config"
-	"tjxt/rpc/search/internal/model"
-	"tjxt/rpc/search/pb"
+	"tjxt/api/search/backend/config"
+	"tjxt/api/search/backend/model"
+	"tjxt/api/search/backend/pb"
 	"tjxt/pkg/mq"
 
 	"github.com/elastic/go-elasticsearch/v9"

@@ -1,3 +1,5 @@
+// Package config search 后端业务配置（随原 rpc/search 业务层随迁），
+// 进程壳配置（RpcServerConf/RestConf/ServiceConf）由宿主进程自行承载。
 package config
 
 import (
@@ -6,7 +8,6 @@ import (
 )
 
 type Config struct {
-	zrpc.RpcServerConf
 	DataSource string
 	Cache      cache.CacheConf
 
@@ -18,14 +19,16 @@ type Config struct {
 	// Analyzer：索引分词器。默认 cjk（ES 内置、无需插件，中文按二元分词，
 	// 相关性优于 standard 的单字切分）；安装 IK/smartcn 插件后可改为
 	// ik_max_word / smartcn 获得更佳中文分词。
-	// SearchAnalyzer：检索分词器，缺省与 Analyzer 一致；IK 场景可设为
-	// ik_smart（粗粒度）以提升检索性能与精度。
+	// SearchAnalyzer：检索分词器，缺省与 Analyzer 一致（svc 初始化兜底），
+	// 配置文件可不填；IK 场景可设为 ik_smart（粗粒度）以提升检索性能与精度。
 	Elasticsearch struct {
-		Addresses      []string
-		Username       string
-		Password       string
-		Analyzer       string
-		SearchAnalyzer string
+		Addresses []string
+		Username  string
+		Password  string
+		Analyzer  string
+		// go-zero conf 约定用 json tag 的 optional 表示可缺省（非 encoding/json 语义）
+		//nolint:staticcheck // SA5008 误报：optional 为 go-zero conf 扩展选项
+		SearchAnalyzer string `json:",optional"`
 	}
 
 	// RabbitMQ 配置，用于消费课程上下架事件同步 ES 索引

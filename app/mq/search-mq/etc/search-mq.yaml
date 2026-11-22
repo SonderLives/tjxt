@@ -1,9 +1,9 @@
-Name: search.rpc
+Name: search-mq
 
 Log:
   Mode: file
   Encoding: json
-  Path: logs/search-rpc
+  Path: logs/search-mq
   Level: info
 
 Prometheus:
@@ -12,16 +12,10 @@ Prometheus:
   Path: /metrics
 
 Telemetry:
-  Name: search.rpc
+  Name: search-mq
   Endpoint: 127.0.0.1:4318
   Sampler: 1.0
   Batcher: otlphttp
-
-ListenOn: 0.0.0.0:8090
-Etcd:
-  Hosts:
-    - 127.0.0.1:2379
-  Key: search.rpc
 
 DataSource: root:${TJXT_DB_PASS|0000}@tcp(127.0.0.1:3306)/tj_search?charset=utf8mb4&parseTime=true&loc=Local
 

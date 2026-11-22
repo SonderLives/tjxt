@@ -6,9 +6,10 @@ package interests
 import (
 	"context"
 
+	backendlogic "tjxt/api/search/backend/logic"
+	backendpb "tjxt/api/search/backend/pb"
 	"tjxt/api/search/internal/svc"
 	"tjxt/api/search/internal/types"
-	searchclient "tjxt/rpc/search/client/search"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -34,14 +35,14 @@ func (l *GetInterestsLogic) GetInterests() (resp *types.InterestsVO, err error) 
 		return nil, err
 	}
 
-	rpcResp, err := l.svcCtx.SearchRpc.GetInterests(l.ctx, &searchclient.IdReq{Id: userId})
+	vo, err := backendlogic.NewGetInterestsLogic(l.ctx, l.svcCtx.Backend).GetInterests(&backendpb.IdReq{Id: userId})
 	if err != nil {
 		return nil, err
 	}
 	return &types.InterestsVO{
-		Id:         rpcResp.Id,
-		Interests:  rpcResp.Interests,
-		CreateTime: rpcResp.CreateTime,
-		UpdateTime: rpcResp.UpdateTime,
+		Id:         vo.Id,
+		Interests:  vo.Interests,
+		CreateTime: vo.CreateTime,
+		UpdateTime: vo.UpdateTime,
 	}, nil
 }

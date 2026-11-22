@@ -2,7 +2,8 @@ package config
 
 import (
 	"github.com/zeromicro/go-zero/rest"
-	"github.com/zeromicro/go-zero/zrpc"
+
+	backendconfig "tjxt/api/search/backend/config"
 )
 
 type Config struct {
@@ -11,5 +12,8 @@ type Config struct {
 		AccessSecret string
 		AccessExpire int64
 	}
-	SearchRpc zrpc.RpcClientConf
+
+	// search 后端业务配置（内联展开：DataSource/Cache/CourseRpc/Elasticsearch/RabbitMQ），
+	// 与 app/mq/search-mq 消费者进程共用 backend svc
+	backendconfig.Config
 }

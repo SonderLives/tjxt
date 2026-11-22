@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"tjxt/rpc/search/internal/svc"
-	"tjxt/rpc/search/pb"
+	"tjxt/api/search/backend/svc"
+	"tjxt/api/search/backend/pb"
 	"tjxt/pkg/errorx"
 
 	"github.com/zeromicro/go-zero/core/logx"
