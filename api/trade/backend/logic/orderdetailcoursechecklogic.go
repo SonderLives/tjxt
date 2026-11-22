@@ -1,0 +1,41 @@
+package tradelogic
+
+import (
+	"context"
+	"errors"
+
+	"tjxt/api/trade/backend/model"
+	"tjxt/api/trade/backend/svc"
+	"tjxt/rpc/trade/pb"
+	"tjxt/pkg/errorx"
+
+	"github.com/zeromicro/go-zero/core/logx"
+)
+
+type OrderDetailCourseCheckLogic struct {
+	ctx    context.Context
+	svcCtx *svc.ServiceContext
+	logx.Logger
+}
+
+func NewOrderDetailCourseCheckLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OrderDetailCourseCheckLogic {
+	return &OrderDetailCourseCheckLogic{
+		ctx:    ctx,
+		svcCtx: svcCtx,
+		Logger: logx.WithContext(ctx),
+	}
+}
+
+func (l *OrderDetailCourseCheckLogic) OrderDetailCourseCheck(in *pb.IdRequest) (*pb.BoolReply, error) {
+	d, err := l.svcCtx.OrderDetailModel.FindOne(l.ctx, in.Id)
+	if err != nil {
+		if errors.Is(err, model.ErrNotFound) {
+			return nil, errorx.NotFound("订单明细不存在")
+		}
+		return nil, errorx.Wrap(err, errorx.CodeInternal, "查询订单明细失败")
+	}
+
+	// 已支付/已完成/已报名视为拥有课程权限
+	value := d.Status == DetailStatusPaid || d.Status == DetailStatusFinished || d.Status == DetailStatusEnrolled
+	return &pb.BoolReply{Value: value}, nil
+}

@@ -27,6 +27,5 @@ use (
 	./rpc/promotion
 	./rpc/remark
 	./rpc/search
-	./rpc/trade
 	./rpc/user
 )
