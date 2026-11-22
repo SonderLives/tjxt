@@ -6,10 +6,10 @@ package search
 import (
 	"context"
 
+	backendlogic "tjxt/api/search/backend/logic"
+	searchpb "tjxt/api/search/backend/pb"
 	"tjxt/api/search/internal/svc"
 	"tjxt/api/search/internal/types"
-	searchclient "tjxt/rpc/search/client/search"
-	searchpb "tjxt/rpc/search/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,7 +30,7 @@ func NewSearchCoursesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Sea
 
 // SearchCourses 课程全文检索。
 func (l *SearchCoursesLogic) SearchCourses(req *types.CourseSearchReq) (resp *types.CourseSearchPageVO, err error) {
-	rpcResp, err := l.svcCtx.SearchRpc.SearchCourses(l.ctx, &searchclient.CourseSearchRequest{
+	reply, err := backendlogic.NewSearchCoursesLogic(l.ctx, l.svcCtx.Backend).SearchCourses(&searchpb.CourseSearchRequest{
 		Keyword:  req.Keyword,
 		PageNo:   req.PageNo,
 		PageSize: req.PageSize,
@@ -40,11 +40,11 @@ func (l *SearchCoursesLogic) SearchCourses(req *types.CourseSearchReq) (resp *ty
 		return nil, err
 	}
 
-	list := make([]types.CourseVO, 0, len(rpcResp.Items))
-	for _, item := range rpcResp.Items {
+	list := make([]types.CourseVO, 0, len(reply.Items))
+	for _, item := range reply.Items {
 		list = append(list, toCourseVO(item))
 	}
-	return &types.CourseSearchPageVO{Total: rpcResp.Total, List: list}, nil
+	return &types.CourseSearchPageVO{Total: reply.Total, List: list}, nil
 }
 
 func toCourseVO(item *searchpb.CourseVO) types.CourseVO {

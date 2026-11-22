@@ -6,10 +6,10 @@ package recommend
 import (
 	"context"
 
+	backendlogic "tjxt/api/search/backend/logic"
+	searchpb "tjxt/api/search/backend/pb"
 	"tjxt/api/search/internal/svc"
 	"tjxt/api/search/internal/types"
-	searchclient "tjxt/rpc/search/client/search"
-	searchpb "tjxt/rpc/search/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,13 +30,13 @@ func NewGetTopCoursesByCategoryLogic(ctx context.Context, svcCtx *svc.ServiceCon
 
 // GetTopCoursesByCategory 根据二级分类id查询课程TOP10。
 func (l *GetTopCoursesByCategoryLogic) GetTopCoursesByCategory(req *types.IdPathReq) (resp *types.CourseListVO, err error) {
-	rpcResp, err := l.svcCtx.SearchRpc.GetTopCoursesByCategory(l.ctx, &searchclient.IdReq{Id: req.Id})
+	reply, err := backendlogic.NewGetTopCoursesByCategoryLogic(l.ctx, l.svcCtx.Backend).GetTopCoursesByCategory(&searchpb.IdReq{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}
 
-	list := make([]types.CourseVO, 0, len(rpcResp.Items))
-	for _, item := range rpcResp.Items {
+	list := make([]types.CourseVO, 0, len(reply.Items))
+	for _, item := range reply.Items {
 		list = append(list, toCourseVO(item))
 	}
 	return &types.CourseListVO{List: list}, nil

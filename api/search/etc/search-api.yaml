@@ -24,8 +24,37 @@ Auth:
   AccessSecret: "${TJXT_JWT_SECRET|change-me-in-production}"
   AccessExpire: 7200
 
-SearchRpc:
+# ===== search 后端业务配置（与 app/mq/search-mq 的 search-mq.yaml 保持一致）=====
+
+DataSource: root:${TJXT_DB_PASS|0000}@tcp(127.0.0.1:3306)/tj_search?charset=utf8mb4&parseTime=true&loc=Local
+
+Cache:
+  - Host: 127.0.0.1:6379
+    Type: node
+    Pass: ""
+
+# 课程服务 RPC（backend svc 回源课程索引数据：启动全量重建 + course.up 事件）
+CourseRpc:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
-    Key: search.rpc
+    Key: course.rpc
+
+# 本地 Docker Elasticsearch 9.4.1（9200）。
+# Analyzer 默认 cjk：ES 内置、无需插件，中文按二元分词（"汉语世界"→"汉语""语世""世界"），
+# 相关性优于 standard 的单字切分。安装 IK/smartcn 插件后可改为 ik_max_word / smartcn；
+# IK 场景可另设 SearchAnalyzer: ik_smart（检索侧粗粒度）。
+Elasticsearch:
+  Addresses:
+    - http://127.0.0.1:9200
+  Username: ""
+  Password: ""
+  Analyzer: cjk
+  # SearchAnalyzer: ik_smart
+
+# RabbitMQ（backend svc 仅注册消费者拓扑，实际消费由 app/mq/search-mq 进程执行）
+RabbitMQ:
+  Host: 127.0.0.1
+  Port: 5672
+  User: rabbitmq
+  Pass: ${TJXT_MQ_PASS|rabbitmq}

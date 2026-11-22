@@ -2,19 +2,21 @@ package svc
 
 import (
 	"tjxt/api/search/internal/config"
-	searchclient "tjxt/rpc/search/client/search"
 
-	"github.com/zeromicro/go-zero/zrpc"
+	backendsvc "tjxt/api/search/backend/svc"
 )
 
 type ServiceContext struct {
-	Config    config.Config
-	SearchRpc searchclient.Search
+	Config config.Config
+
+	// Backend search 后端服务上下文（ES 客户端/兴趣 Model/course 客户端/MQ），
+	// api logic 直调 backend 包，不再走 search RPC
+	Backend *backendsvc.ServiceContext
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:    c,
-		SearchRpc: searchclient.NewSearch(zrpc.MustNewClient(c.SearchRpc)),
+		Config:  c,
+		Backend: backendsvc.NewServiceContext(c.Config),
 	}
 }

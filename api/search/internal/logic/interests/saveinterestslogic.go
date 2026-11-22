@@ -6,9 +6,10 @@ package interests
 import (
 	"context"
 
+	backendlogic "tjxt/api/search/backend/logic"
+	backendpb "tjxt/api/search/backend/pb"
 	"tjxt/api/search/internal/svc"
 	"tjxt/api/search/internal/types"
-	searchclient "tjxt/rpc/search/client/search"
 	"tjxt/pkg/auth"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -34,7 +35,7 @@ func (l *SaveInterestsLogic) SaveInterests(req *types.SaveInterestsReq) (resp *t
 		return nil, err
 	}
 
-	if _, err = l.svcCtx.SearchRpc.SaveInterests(l.ctx, &searchclient.SaveInterestsReq{
+	if _, err = backendlogic.NewSaveInterestsLogic(l.ctx, l.svcCtx.Backend).SaveInterests(&backendpb.SaveInterestsReq{
 		Id:        userId,
 		Interests: req.Interests,
 	}); err != nil {
