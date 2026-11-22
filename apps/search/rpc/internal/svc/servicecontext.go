@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	courseclient "tjxt/apps/course/rpc/course"
+	courseclient "tjxt/apps/course/rpc/client/course"
 	"tjxt/apps/search/rpc/internal/config"
 	"tjxt/apps/search/rpc/internal/model"
 	"tjxt/apps/search/rpc/pb"

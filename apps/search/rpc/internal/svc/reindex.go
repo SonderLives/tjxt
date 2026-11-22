@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	courseclient "tjxt/apps/course/rpc/course"
+	courseclient "tjxt/apps/course/rpc/client/course"
 	"tjxt/pkg/xerr"
 
 	"github.com/elastic/go-elasticsearch/v9/esutil"
